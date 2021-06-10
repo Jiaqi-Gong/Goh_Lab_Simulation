@@ -103,29 +103,32 @@ class DomainGenerator:
         https://www.studymite.com/python/examples/program-to-print-diamond-pattern-in-python/
         :return True if all empty, False for no
         """
-        # TODO:
-        # Bug in the code
         # set the new name
         n = domainWidth
         start = surface[startPoint]
 
+        # set a variable for checking the width
+        count = 0
+
         # make upper diamond
         for i in range(0, n + 1):
-            for j in range(-i, i + 1):
-                if surface[start[0] + i][start[1] + j] != 1:
+            for j in range(-count + 1, count):
+                if surface[start[0] + i][start[1] + j] == 1:
                     return False
 
-        # make the middle line
-        for j in range(-n - 1, n + 2):
-            if surface[start[0] + n + 1][start[1] + j] != 1:
-                return False
+            # upper part, width becomes wider
+            count += 1
 
         # make lower diamond
-        for i in range(n, 2 * n + 1):
-            for j in range(-i + n, i - n + 1):
-                if surface[start[0] - i + 1][start[1] - j] != 1:
+        for i in range(n + 1, 2 * (n + 1) + 1):
+            for j in range(-count + 1, count):
+                if surface[start[0] + i][start[1] - j] == 1:
                     return False
 
+            # lower part, width becomes thinner
+            count -= 1
+
+        # return the checking result
         return True
 
     def _generateDiamond(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
@@ -136,33 +139,34 @@ class DomainGenerator:
         :return return the surface with diamond domain on it
         """
         # set the new name
-
-        # TODO:
-
-        # bug here, when it's 1
         n = domainWidth
         start = surface[startPoint]
 
+        # set a variable for checking the width
+        count = 0
+
         # make upper diamond
         for i in range(0, n + 1):
-            for j in range(-i, i + 1):
+            for j in range(-count + 1, count):
                 surface[start[0] + i][start[1] + j] = 1
 
-        # make the middle line
-        for j in range(-n - 1, n + 2):
-            surface[start[0] + n + 1][start[1] + j] = 1
+            # upper part, width becomes wider
+            count += 1
 
         # make lower diamond
-        for i in range(n, 2 * n + 1):
-            for j in range(-i + n, i - n + 1):
-                surface[start[0] - i + 1][start[1] - j] = 1
+        for i in range(n + 1, 2 * (n + 1) + 1):
+            for j in range(-count + 1, count):
+                surface[start[0] + i][start[1] - j] = 1
+
+            # lower part, width becomes thinner
+            count -= 1
 
         # return the generated surface
         return surface
 
     """######################
     Rei and Nico do the function below, implement the function with # TODO: 
-    You can read the code I write for diamond (though there are bug in it and welcome if you can fix the bug) as example
+    You can read the code I write for diamond as example
     Basically, XXXEmpty and generateXXX are using mostly same code, the only different is the code in nested loop are 
     different, XXXEmpty is checking whether the number store in the position is 1, and it it's 1 then return False,
     generateXXX is doing the same loop just change the adjust part into assign the value store in the position to 1 
