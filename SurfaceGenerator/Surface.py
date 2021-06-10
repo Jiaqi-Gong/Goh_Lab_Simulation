@@ -7,7 +7,9 @@ import numpy as np  # numpy is required to make matrices
 import Domain
 from Domain import *
 
-X_AX = 10500  # number of coordinates for x-axis # this can be change, balance the resolution and the time cost
+# follow constant is for surface, but overwrite by the size passed in, can ignore
+# this can be change, balance the resolution and the time cost
+X_AX = 10500  # number of coordinates for x-axis
 Y_AX = 10500  # number of coordinates for y-axis
 Z_AX_2D = 3  # number of coordinates for z-axis for 2D
 
@@ -20,6 +22,7 @@ class Surface:
 
     """
 
+    @abc.abstractmethod
     def __init__(self, trail: int, shape: str, size: str, domainGenerator: Domain.DomainGenerator,
                  domainShape: str, domainSize: str, domainConcentration: float):
         """
@@ -36,9 +39,11 @@ class Surface:
         self.length = int(size[1]) * 100
         self.trail = trail
         self.shape = shape
+        self.origionalSurface = self._generateSurface()
 
         # generate the domain on the surface
-        self.surface1D = domainGenerator.generateDomain(self, domainShape, domainSize, domainConcentration)
+        self.surfaceWithDomain = domainGenerator.generateDomain(self, domainShape, domainSize, domainConcentration)
+
 
     def _generateSurface(self):
         """

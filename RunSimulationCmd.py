@@ -33,7 +33,7 @@ def get_arguement() -> None:
     while True:
         # Take user input
         filmSurfaceSize = input("Please enter the film surface area you want to simulate (small, medium, large "
-                            "or enter in format: ###x### "
+                            "or enter in format: ###x### \n"
                             "help for more information): \n")
 
         # check the validity of input

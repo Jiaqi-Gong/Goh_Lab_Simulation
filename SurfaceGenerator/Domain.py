@@ -43,11 +43,8 @@ class DomainGenerator:
         # calculate how many domain should generate
         domainNum = int((surface.width * surface.length * concentration) / (domainWidth * domainLength))
 
-        # gradTotal number of points per gradient strip
-        gradTotal = surface.width * surface.length
-
-        # first, make entire surface positive
-        surface1D = np.ones(gradTotal)
+        # first, make entire passed in surface positive
+        newSurface = self._makeSurfacePositive(surface)
 
         # init generated domain number
         generated = 0
@@ -87,17 +84,50 @@ class DomainGenerator:
             start = self._randomPoint(surface.length, surface.width, domainLength, domainWidth)
 
             # check the position of this shape is empty, if not empty, then continue
-            if not checkEmpty(surface1D, domainWidth, domainLength, start):
+            if not checkEmpty(newSurface, domainWidth, domainLength, start):
                 continue
 
             # generate this shape's domain
-            surface = generateShape(surface1D, domainWidth, domainLength, start)
+            surface = generateShape(newSurface, domainWidth, domainLength, start)
 
             # update generated number
             generated += 1
 
         # return the surface generated based on k value
         return surface
+
+    def _makeSurfacePositive(self, passInSurface):
+        """
+        Make the entire surface passed in positive, which means set all values in the passed in nested list to 1
+        """
+        # get the original surface in the passed in surface
+        positiveSurface = passInSurface.origionalSurface
+
+        # if passed in is a 2D surface
+        if passInSurface.dimension == 2:
+            # access each row
+            for i in range(len(positiveSurface)):
+                # access each point
+                for j in range(len(positiveSurface[i])):
+                    # set the value in position to 1, which means positive
+                    positiveSurface[i][j] = 1
+
+        # if passed in is a 3D surface
+        elif passInSurface.dimension == 3:
+            # access each row
+            for i in range(len(positiveSurface)):
+                # access each column
+                for j in range(len(positiveSurface[i])):
+                    # access each height
+                    for k in range(len(positiveSurface[i][j])):
+                        # set the value in position to 1, which means positive
+                        positiveSurface[i][j][k] = 1
+
+        else:
+            raise RuntimeError("Surface passed in is not 2D or 3D")
+
+        return positiveSurface
+
 
     def _randomPoint(self, surfaceLength: int, surfaceWidth: int, domainLength: int, domainWidth: int) -> Tuple[int, int]:
         """

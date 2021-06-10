@@ -27,18 +27,23 @@ class NetNeutralSurface2D(NetNeutralSurface, ABC):
 
     def __init__(self, trail: int, shape: str, size: str, domainGenerator: DomainGenerator,
                  domainShape: str, domainSize: str, domainConcentration: float):
-        Surface.__init__(self, trail, shape, size, domainGenerator, domainShape, domainSize, domainConcentration)
+        NetNeutralSurface.__init__(self, trail, shape, size, domainGenerator, domainShape, domainSize,
+                                   domainConcentration)
+
+        # set the proper dimension and height
+        self.dimension = 2
 
         # set the proper height
-        self.height = Z_AX_2D
+        self.height = 0
 
     def _generateRec(self):
         """
         This function generate the matrix space based on the size of the surface
         """
         # creating empty matrix space
-        return np.zeros((self.width, self.length, self.height))
+        return np.zeros((self.width, self.length))
 
 
 class NetNeutralSurface3D(NetNeutralSurface, ABC):
-    raise NotImplementedError
+    # PAY ATTENTION: set dimension, set proper height, carefully generate the shape
+    pass

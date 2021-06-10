@@ -1,9 +1,11 @@
+import random
+
 import numpy as np  # numpy is required to make matrices
 
 
 def test_diamond():
     a = np.zeros((20, 20))
-    length = 7
+    length = 8
     n = length
     c = 0  # for count
     start = (1, 8)
@@ -23,5 +25,24 @@ def test_diamond():
 
     print(a)
 
+def test_random_choice():
+    a = np.zeros((20, 20))
 
-test_diamond()
+    surfaceWidth = 10
+    surfaceLength = 10
+
+    domainWidth = 3
+    domainLength = 3
+
+    x = random.randint(domainWidth, surfaceWidth - domainWidth)
+    y = random.randint(domainLength, surfaceLength - domainLength)
+
+
+
+
+
+
+
+#test_diamond()
+test_random_choice()
+
