@@ -170,6 +170,7 @@ class DomainGenerator:
     Basically, XXXEmpty and generateXXX are using mostly same code, the only different is the code in nested loop are 
     different, XXXEmpty is checking whether the number store in the position is 1, and it it's 1 then return False,
     generateXXX is doing the same loop just change the adjust part into assign the value store in the position to 1 
+    for the shape want to generate, refer to Stanley's old code
     """#####################
 
 
