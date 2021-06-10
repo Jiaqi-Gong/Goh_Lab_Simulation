@@ -1,0 +1,2 @@
+Head: Record the special requirement for some user input parameter
+Diamond: Length and width of the diamond should be same and it should be odd number
