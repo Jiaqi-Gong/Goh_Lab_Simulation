@@ -4,9 +4,9 @@ This program is used to generate the film used for simulation
 from abc import ABC
 import numpy as np
 
-from Domain import DomainGenerator
+from SurfaceGenerator.Domain import DomainGenerator
 from SurfaceGenerator.Surface import Surface
-from Surface import Z_AX_2D
+from SurfaceGenerator.Surface import Z_AX_2D
 
 
 class NetNeutralSurface(Surface, ABC):
@@ -41,4 +41,4 @@ class NetNeutralSurface2D(NetNeutralSurface, ABC):
 
 
 class NetNeutralSurface3D(NetNeutralSurface, ABC):
-    pass
+    raise NotImplementedError

@@ -3,7 +3,7 @@ This program is generating the domain with some charge on it
 Can be used for 2D, 3D and for testing surface, bacteria surface
 """
 from numpy import ndarray
-
+import numpy as np
 from Surface import *
 from Surface import Surface
 
@@ -22,7 +22,7 @@ class DomainGenerator:
         self.trail = trail
         self.seed = seed
 
-    def generateDomain(self, surface: Surface, shape: str, size: str, concentration: float, k: int):
+    def generateDomain(self, surface: Surface, shape: str, size: str, concentration: float):
         """
         This function takes in a surface, shape and size of domain want to generate on the surface
         :param surface: the surface want to generate the domain
@@ -41,11 +41,11 @@ class DomainGenerator:
         # calculate how many domain should generate
         domainNum = int((surface.width * surface.length * concentration) / (domainWidth * domainLength))
 
-        # grad_tot number of points per gradient strip
-        grad_tot = surface.width * surface.length
+        # gradTotal number of points per gradient strip
+        gradTotal = surface.width * surface.length
 
         # first, make entire surface positive
-        surf_1d = np.ones(grad_tot)
+        surface1D = np.ones(gradTotal)
 
         # init generated domain number
         generated = 0
@@ -53,31 +53,50 @@ class DomainGenerator:
         # set seed for random
         np.random.seed(self.seed)
 
-        # start to generate the domain on surface
-        while generated < domainNum:
-            # pick a point as the start of the diamond shape, which point is the toppest point of the diamond shape
-            start = np.random.randint(surface.length * 7, grad_tot - (surface.length * 10) - 2)
+        # init two variable
+        # just random pick one
+        checkEmpty = self._diamondEmpty
+        generateShape = self._generateDiamond
 
-            # generate the corresponding domain shape
-            if shape.upper() == "DIAMOND":
-                # diamond should have same width and length
-
-                # check the position of diamond is empty, if not empty, then continue
-                if not self._diamondEmpty(surf_1d, domainWidth, start):
-                    continue
-
-                # generate diamond domain
-                surface = self._generateDiamond(surf_1d, domainWidth, start)
+        # set corresponding check and generate function
+        # generate the corresponding domain shape
+        if shape.upper() == "DIAMOND":
+            # diamond should have same width and length
+            checkEmpty = self._diamondEmpty
+            generateShape = self._generateDiamond
+        elif shape.upper() == "CROSS":
+            checkEmpty = self._crossEmpty
+            generateShape = self._generateCross
+        elif shape.upper() == "OCTAGON":
+            checkEmpty = self._octagonEmpty
+            generateShape = self._generateOctagon
+        elif shape.upper() == "SINGLE":
+            checkEmpty = self._singleEmpty
+            generateShape = self._generateSingle
 
         # more shape coming soon, leave for more extension
 
-        # return the surface generated based on k value
-        if k == 0:
-            return surface
-        else:
-            return
+        # start to generate the domain on surface
+        while generated < domainNum:
+            # pick a point as the start of the diamond shape, which point is the toppest point of the diamond shape
 
-    def _diamondEmpty(self, surface: ndarray, domainWidth: int, startPoint: int):
+            # need to cheng this start, look at hte old code
+            start = np.random.randint(surface.length * 7, gradTotal - (surface.length * 10) - 2)
+
+            # check the position of this shape is empty, if not empty, then continue
+            if not checkEmpty(surface1D, domainWidth, domainLength, start):
+                continue
+
+            # generate this shape's domain
+            surface = generateShape(surface1D, domainWidth, domainLength, start)
+
+            # update generated number
+            generated += 1
+
+        # return the surface generated based on k value
+        return surface
+
+    def _diamondEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
         """
         This function check the position want to generate diamond whether is empty
         This function is adjusted based on:
@@ -107,7 +126,7 @@ class DomainGenerator:
 
         return True
 
-    def _generateDiamond(self, surface: ndarray, domainWidth: int, startPoint: int):
+    def _generateDiamond(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
         """
         This function generate diamond shape domain
         This function is adjusted based on:
@@ -115,6 +134,7 @@ class DomainGenerator:
         :return return the surface with diamond domain on it
         """
         # set the new name
+        # bug here, when it's 1
         n = domainWidth
         start = surface[startPoint]
 
@@ -133,4 +153,46 @@ class DomainGenerator:
                 surface[start[0] - i + 1][start[1] - j] = 1
 
         # return the generated surface
+        return surface
+
+    def _crossEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
+        """
+        This function check the position want to generate cross is empty
+        """
+        # TODO:
+        return surface
+
+    def _generateCross(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
+        """
+        This function generate cross shape for surface
+        """
+        # TODO:
+        return surface
+
+    def _octagonEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
+        """
+        This function check the position want to generate octagon is empty
+        """
+        # TODO:
+        return surface
+
+    def _generateOctagon(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
+        """
+        This function generate octagon shape for surface
+        """
+        # TODO:
+        return surface
+
+    def _singleEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
+        """
+        This function check the position want to generate single is empty
+        """
+        # TODO:
+        return surface
+
+    def _generateSingle(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
+        """
+        This function generate single shape for surface
+        """
+        # TODO:
         return surface
