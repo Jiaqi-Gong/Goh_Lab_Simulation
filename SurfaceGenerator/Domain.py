@@ -2,10 +2,13 @@
 This program is generating the domain with some charge on it
 Can be used for 2D, 3D and for testing surface, bacteria surface
 """
+import random
+
 from numpy import ndarray
 import numpy as np
 from Surface import *
 from Surface import Surface
+from typing import Tuple
 
 
 class DomainGenerator:
@@ -28,7 +31,7 @@ class DomainGenerator:
         :param surface: the surface want to generate the domain
         :param shape: shape of the domain
         :param size: size of the surface, in the format ###x###, in unit micrometer, 1micrometer = 100 points, NOTICE: size of domain must smaller than surface
-        :param concentration: concentration of the charge?
+        :param concentration: concentration of the charge
         :return: return the surface with wanted domain on it
         """
 
@@ -79,8 +82,9 @@ class DomainGenerator:
         while generated < domainNum:
             # pick a point as the start of the diamond shape, which point is the toppest point of the diamond shape
 
-            # need to cheng this start, look at hte old code
-            start = np.random.randint(surface.length * 7, gradTotal - (surface.length * 10) - 2)
+            # pick a point in the matrix as the start point of generate domain
+            # randint pick x and y, leave the enough space for not touching the edge
+            start = self._randomPoint(surface.length, surface.width, domainLength, domainWidth)
 
             # check the position of this shape is empty, if not empty, then continue
             if not checkEmpty(surface1D, domainWidth, domainLength, start):
@@ -95,7 +99,24 @@ class DomainGenerator:
         # return the surface generated based on k value
         return surface
 
-    def _diamondEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
+    def _randomPoint(self, surfaceLength: int, surfaceWidth: int, domainLength: int, domainWidth: int) -> Tuple[int, int]:
+        """
+        Randomly pick a point on the surface given
+        :return a tuple represent a point in the surface in the matrix
+        """
+        # pick a point on x-axis, this point should have enough space for domain to generate
+        # without touch the boundary of surface
+        x = random.randint(domainWidth, surfaceWidth - domainWidth)
+
+        # pick a point on y-axis, this point should have enough space for domain to generate
+        # without touch the boundary of surface
+        y = random.randint(domainLength, surfaceLength - domainLength)
+
+        # return the result as tuple
+        return (x, y)
+
+
+    def _diamondEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]):
         """
         This function check the position want to generate diamond whether is empty
         This function is adjusted based on:
@@ -104,7 +125,7 @@ class DomainGenerator:
         """
         # set the new name
         n = domainWidth
-        start = surface[startPoint]
+        start = startPoint
 
         # set a variable for checking the width
         count = 0
@@ -130,7 +151,7 @@ class DomainGenerator:
         # return the checking result
         return True
 
-    def _generateDiamond(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
+    def _generateDiamond(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]):
         """
         This function generate diamond shape domain
         This function is adjusted based on:
@@ -139,7 +160,7 @@ class DomainGenerator:
         """
         # set the new name
         n = domainWidth
-        start = surface[startPoint]
+        start = startPoint
 
         # set a variable for checking the width
         count = 0
@@ -174,42 +195,42 @@ class DomainGenerator:
 
 
 
-    def _crossEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
+    def _crossEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]):
         """
         This function check the position want to generate cross is empty
         """
         # TODO:
         return surface
 
-    def _generateCross(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
+    def _generateCross(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]):
         """
         This function generate cross shape for surface
         """
         # TODO:
         return surface
 
-    def _octagonEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
+    def _octagonEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]):
         """
         This function check the position want to generate octagon is empty
         """
         # TODO:
         return surface
 
-    def _generateOctagon(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
+    def _generateOctagon(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]):
         """
         This function generate octagon shape for surface
         """
         # TODO:
         return surface
 
-    def _singleEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
+    def _singleEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]):
         """
         This function check the position want to generate single is empty
         """
         # TODO:
         return surface
 
-    def _generateSingle(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
+    def _generateSingle(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]):
         """
         This function generate single shape for surface
         """
