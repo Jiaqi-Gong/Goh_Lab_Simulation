@@ -38,12 +38,7 @@ class Surface:
         self.shape = shape
 
         # generate the domain on the surface
-        # do not need k, remove it later
-        for k in range(1):
-            if k == 0:
-                self.surface1D = domainGenerator.generateDomain(self, domainShape, domainSize, domainConcentration)
-            else:
-                self.surface2D = np.reshape(self.surface1D, (-1, X_AX))
+        self.surface1D = domainGenerator.generateDomain(self, domainShape, domainSize, domainConcentration)
 
     def _generateSurface(self):
         """

@@ -29,7 +29,6 @@ class DomainGenerator:
         :param shape: shape of the domain
         :param size: size of the surface, in the format ###x###, in unit micrometer, 1micrometer = 100 points, NOTICE: size of domain must smaller than surface
         :param concentration: concentration of the charge?
-        :param k:
         :return: return the surface with wanted domain on it
         """
 
