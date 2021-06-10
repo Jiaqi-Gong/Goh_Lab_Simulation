@@ -103,6 +103,8 @@ class DomainGenerator:
         https://www.studymite.com/python/examples/program-to-print-diamond-pattern-in-python/
         :return True if all empty, False for no
         """
+        # TODO:
+        # Bug in the code
         # set the new name
         n = domainWidth
         start = surface[startPoint]
@@ -134,6 +136,9 @@ class DomainGenerator:
         :return return the surface with diamond domain on it
         """
         # set the new name
+
+        # TODO:
+
         # bug here, when it's 1
         n = domainWidth
         start = surface[startPoint]
@@ -154,6 +159,16 @@ class DomainGenerator:
 
         # return the generated surface
         return surface
+
+    """######################
+    Rei and Nico do the function below, implement the function with # TODO: 
+    You can read the code I write for diamond (though there are bug in it and welcome if you can fix the bug) as example
+    Basically, XXXEmpty and generateXXX are using mostly same code, the only different is the code in nested loop are 
+    different, XXXEmpty is checking whether the number store in the position is 1, and it it's 1 then return False,
+    generateXXX is doing the same loop just change the adjust part into assign the value store in the position to 1 
+    """#####################
+
+
 
     def _crossEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
         """
