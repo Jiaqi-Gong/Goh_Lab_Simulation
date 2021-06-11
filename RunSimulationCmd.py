@@ -80,6 +80,12 @@ def get_arguement() -> None:
             raise NotImplementedError
             print("Invalid input, please enter again.")
 
+    # take the size of bacteria
+
+
+
+
+
     # take shape of the bacteria
     while True:
         # Take user input

@@ -18,17 +18,18 @@ class Bacteria(Surface, ABC):
                  domainShape: str, domainSize: str, domainConcentration: float):
         Surface.__init__(self, trail, shape, size, domainGenerator, domainShape, domainSize, domainConcentration)
 
-        # do we have this?
-        self.totalCharge = 0
-
 class Bacteria2D(Bacteria):
     """
     This class represent a 2D bacteria
     """
 
-    def __init__(self, trail: int, shape: str, size: str, domainGenerator: DomainGenerator,
+    def __init__(self, trail: int, shape: str, size: str, surfaceCharge: int, domainGenerator: DomainGenerator,
                  domainShape: str, domainSize: str, domainConcentration: float):
         Bacteria.__init__(self, trail, shape, size, domainGenerator, domainShape, domainSize, domainConcentration)
+
+        # set the surface charge
+        # -1 for negative, 0 for neutral, 1 for positive
+        self.surfaceCharge = surfaceCharge
 
         # set the proper height
         self.height = 3

@@ -6,9 +6,8 @@ import random
 
 from numpy import ndarray
 import numpy as np
-from Surface import *
-from Surface import Surface
 from typing import Tuple
+import Surface
 
 
 class DomainGenerator:
