@@ -477,11 +477,15 @@ class DomainGenerator:
         This function check the position want to generate single is empty
         """
         # TODO:
-        return surface
+        if surface[int(startPoint[0]),int(startPoint[1])] == 1:
+            return False
+
+        return True
 
     def _generateSingle(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
         """
         This function generate single shape for surface
         """
         # TODO:
+        surface[int(startPoint[0]),int(startPoint[1])] = 1
         return surface
