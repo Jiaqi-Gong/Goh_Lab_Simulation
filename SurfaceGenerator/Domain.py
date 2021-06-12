@@ -202,9 +202,6 @@ class DomainGenerator:
         This function check the position want to generate octagon is empty
         """
         # TODO:
-        # domainWidth and domainLength should be the same
-        if domainWidth != domainLength:
-            return 'domainWidth and domainLength should be the same'
 
         # Rename variables
         ln = domainWidth
@@ -347,9 +344,6 @@ class DomainGenerator:
         This function generate octagon shape for surface
         """
         # TODO:
-        # domainWidth and domainLength should be the same
-        if domainWidth != domainLength:
-            return 'domainWidth and domainLength should be the same'
 
         # Rename variables
         ln = domainWidth
