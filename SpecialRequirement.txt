@@ -1,0 +1,5 @@
+Head: Record the special requirement for some user input parameter
+Diamond: Length and width of the diamond should be same
+Cross: No restrictions
+Octagon: Length and width of the octagon must be the same
+Single: No restrictions
