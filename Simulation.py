@@ -9,6 +9,8 @@ import Film
 from Bacteria import Bacteria2D
 from Domain import DomainGenerator
 from Film import FilmSurface2D
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter  # allows access to letters of each column
 
 
 class Simulation:
@@ -20,7 +22,8 @@ class Simulation:
                  filmSurfaceSize: str, filmSurfaceShape: str, filmSurfaceCharge: int,
                  filmDomainSize: str, filmDomainShape: str, filmDomainConcentration: float,
                  bacteriaSize: str, bacteriaSurfaceShape: str, bacteriaSurfaceCharge: int,
-                 bacteriaDomainSize: str, bacteriaDomainShape: str, bacteriaDomainConcentration: float):
+                 bacteriaDomainSize: str, bacteriaDomainShape: str, bacteriaDomainConcentration: float,
+                 simulationType: int):
         """
         Init the simulation class based on the input info
         Description of input info are shown in the HelpFile.txt
@@ -29,6 +32,7 @@ class Simulation:
         self.trail = trail
         self.seed = seed
         self.dimension = dimension
+        self.simulationType = simulationType
 
         # set film variable
         self.filmSurfaceSize = filmSurfaceSize
@@ -110,7 +114,7 @@ class Simulation:
         if self.bacteria is None or self.film is None:
             self.generateAllSurface()
 
-        # call simulation
+        # call simulation based on the simulation type
         if self.dimension == 2:
             self._interact2D(interval_x, interval_y)
 
@@ -119,9 +123,38 @@ class Simulation:
     def _output(self):
         """
         Output the simulation result into a file
+        Just copy from the old code
         """
-        # TODO:
-        pass
+        dirname = r""  # find directory of this file
+        wb = Workbook()  # creates excel file
+        ws1 = wb.create_sheet("Results", 0)
+
+        # naming the columns in the worksheet
+        ws1.cell(1, 1, "Surface Characteristics:")
+        ws1.cell(1, 2, "Bacteria Characteristics:")
+        ws1.cell(1, 3, "Seed # ")
+        ws1.cell(1, 4, "Min Energy:")
+        ws1.cell(1, 5, "Min X:")
+        ws1.cell(1, 6, "Min Y:")
+        ws1.cell(1, 7, "Surface Charge at Min Energy:")
+        ws1.cell(1, 8, "Min Energy Gradient Strip: ")
+        ws1.cell(1, 9, "Histogram: ")
+        # create numbering for histogram plot
+        count = 0
+        for i in range(10, 31):
+            ws1.cell(1, i, count)
+            ws1.cell(2, i, 0)
+            count += 1
+
+        # adjust column width to text length
+        for i in range(ws1.max_column):
+            text = ws1.cell(1, i + 1).value
+            if type(text) == int:
+                text = str(text)
+                column_width = len(text) + 1
+            else:
+                column_width = len(text)
+            ws1.column_dimensions[get_column_letter(i + 1)].width = column_width
 
     def _interact2D(self, interval_x: int, interval_y: int):
         """
