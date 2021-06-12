@@ -157,7 +157,7 @@ class DomainGenerator:
 
     def _crossEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
         """
-        This function check the position want to generate octagon is empty
+        This function check the position want to generate cross is empty
         """
         # TODO:
         # Change the names for each variable
@@ -199,7 +199,7 @@ class DomainGenerator:
 
     def _octagonEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]):
         """
-        This function check the position want to generate cross is empty
+        This function check the position want to generate octagon is empty
         """
         # TODO:
         # domainWidth and domainLength should be the same
