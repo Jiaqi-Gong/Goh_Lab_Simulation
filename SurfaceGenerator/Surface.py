@@ -23,8 +23,8 @@ class Surface:
     """
 
     @abc.abstractmethod
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int], domainGenerator: Domain.DomainGenerator,
-                 domainShape: str, domainSize: str, domainConcentration: float):
+    def __init__(self, trail: str, shape: str, size: Tuple[int, int], domainGenerator: Domain.DomainGenerator,
+                 domainShape: str, domainSize: Tuple[int, int], domainConcentration: float):
         """
         Init this surface
         1micrometer = 100 points

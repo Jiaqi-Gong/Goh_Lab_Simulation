@@ -15,13 +15,11 @@ class DomainGenerator:
     This class is used to generate the domain on the surface passed in
     """
 
-    def __init__(self, trail: int, seed: int):
+    def __init__(self, seed: int):
         """
         Init this domain generate
-        :param trail: trail number
         :param seed: seed for random, if using same seed can repeat the simulation
         """
-        self.trail = trail
         self.seed = seed
 
     def generateDomain(self, surface: Surface, shape: str, size: Tuple[int, int], concentration: float):

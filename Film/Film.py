@@ -16,8 +16,8 @@ class FilmSurface(Surface, ABC):
     This is an abstract class of net neutral surface, subclass of Surface, should implement by 2D and 3D version
     """
 
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int], domainGenerator: DomainGenerator,
-                 domainShape: str, domainSize: str, domainConcentration: float):
+    def __init__(self, trail: str, shape: str, size: Tuple[int, int], domainGenerator: DomainGenerator,
+                 domainShape: str, domainSize: Tuple[int, int], domainConcentration: float):
         Surface.__init__(self, trail, shape, size, domainGenerator, domainShape, domainSize, domainConcentration)
 
 
@@ -26,8 +26,8 @@ class FilmSurface2D(FilmSurface, ABC):
     This is a 2D net neutral surface, subclass of surface
     """
 
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, domainGenerator: DomainGenerator,
-                 domainShape: str, domainSize: str, domainConcentration: float):
+    def __init__(self, trail: str, shape: str, size: Tuple[int, int], surfaceCharge: int, domainGenerator: DomainGenerator,
+                 domainShape: str, domainSize: Tuple[int, int], domainConcentration: float):
         FilmSurface.__init__(self, trail, shape, size, domainGenerator, domainShape, domainSize,
                                    domainConcentration)
         # set the surface charge

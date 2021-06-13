@@ -6,8 +6,6 @@ from typing import Tuple
 
 import numpy as np
 
-import Bacteria
-import Film
 from Bacteria import Bacteria2D
 from Domain import DomainGenerator
 from Film import FilmSurface2D
@@ -20,11 +18,11 @@ class Simulation:
     This class is used for simulation
     """
 
-    def __init__(self, simulationType: int, trail: int, dimension: int,
+    def __init__(self, simulationType: int, trail: str, dimension: int,
                  filmSeed: int, filmSurfaceSize: Tuple[int, int], filmSurfaceShape: str, filmSurfaceCharge: int,
-                 filmDomainSize: str, filmDomainShape: str, filmDomainConcentration: float,
+                 filmDomainSize: Tuple[int, int], filmDomainShape: str, filmDomainConcentration: float,
                  bacteriaSeed: int, bacteriaSize: Tuple[int, int], bacteriaSurfaceShape: str, bacteriaSurfaceCharge: int,
-                 bacteriaDomainSize: str, bacteriaDomainShape: str, bacteriaDomainConcentration: float):
+                 bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float):
         """
         Init the simulation class based on the input info
         Description of input info are shown in the HelpFile.txt
@@ -51,8 +49,8 @@ class Simulation:
         self.bacteriaDomainConcentration = bacteriaDomainConcentration
 
         # generate domain generator
-        self.filmDomainGenerator = DomainGenerator(self.trail, filmSeed)
-        self.bacteriaDomainGenerator = DomainGenerator(self.trail, bacteriaSeed)
+        self.filmDomainGenerator = DomainGenerator(filmSeed)
+        self.bacteriaDomainGenerator = DomainGenerator(bacteriaSeed)
 
         # init some variable
         self.film = None
@@ -65,14 +63,14 @@ class Simulation:
         # generate simulation surface
         if self.dimension == 2:
             # generate corresponding film and bacteria
-            self.generate2DFilm()
-            self.generate2DBacteria()
+            self._generate2DFilm()
+            self._generate2DBacteria()
 
         elif self.dimension == 3:
             # generate corresponding film and bacteria
             raise NotImplementedError
 
-    def generate2DFilm(self):
+    def _generate2DFilm(self):
         """
         Generate 2D film
         """
@@ -81,7 +79,7 @@ class Simulation:
                                   self.filmDomainGenerator, self.filmDomainShape, self.filmDomainSize,
                                   self.filmDomainConcentration)
 
-    def generate2DBacteria(self):
+    def _generate2DBacteria(self):
         """
         Generate 2D bacteria
         """
@@ -90,12 +88,12 @@ class Simulation:
                                    self.bacteriaSurfaceCharge, self.bacteriaDomainGenerator, self.bacteriaDomainShape,
                                    self.bacteriaDomainSize, self.bacteriaDomainConcentration)
 
-    def generateNewSurface(self, trail: int, seed: int, surfaceName: str):
+    def generateNewSurface(self, seed: int, surfaceName: str):
         """
         This function generate new Film or Bacteria with given seed
         """
         # generate new domain generator
-        domainGenerator = DomainGenerator(trail, seed)
+        domainGenerator = DomainGenerator(seed)
 
         # check the surface want to generate
         if surfaceName.upper() == "FILM":
@@ -103,16 +101,32 @@ class Simulation:
             self.filmDomainGenerator = domainGenerator
 
             if self.dimension == 2:
-                self.generate2DFilm()
+                self._generate2DFilm()
 
         elif surfaceName.upper() == "BACTERIA":
             # set new generator
             self.bacteriaDomainGenerator = domainGenerator
 
             if self.dimension == 2:
-                self.generate2DBacteria()
+                self._generate2DBacteria()
 
-    def simulate(self, interval_x: int, interval_y: int):
+    def runSimulate(self, interval_x: int, interval_y: int):
+        """
+        Based on the simulation type, do the corresponding simulation
+        """
+        # type 1 simulation
+        if self.simulationType == 1:
+            self._simulate(interval_x, interval_y)
+
+        # type 2 simulation
+        elif self.simulationType == 2:
+            raise NotImplementedError
+
+        # type 3 simulation
+        elif self.simulationType == 3:
+            raise NotImplementedError
+
+    def _simulate(self, interval_x: int, interval_y: int):
         """
         This is the simulation function in this program, call function do the simulation and output the result
         Prerequisite: surface already generated
@@ -126,6 +140,7 @@ class Simulation:
             self._interact2D(interval_x, interval_y)
 
         # set the output
+        self._output()
 
     def _output(self):
         """
@@ -167,6 +182,7 @@ class Simulation:
         """
         Do the simulation, scan whole film surface with bacteria
         The energy calculate only between bacteria surface and the film surface directly under the bacteria
+        This code is copy from the old code with minor name change
         """
         # shape of the bacteria
         shape = self.bacteria.shape
