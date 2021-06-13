@@ -1,5 +1,6 @@
 """
 This is a text interface for running the simulation
+Checking all user input is valid at here
 """
 import re
 from typing import Dict
@@ -7,16 +8,20 @@ from typing import Dict
 import Simulation
 
 
-def get_arguement() -> None:
+def getArgument() -> None:
     """
-    This function take the seeting arguement from the user and call Simulation file to run the program
+    This function take the setting argument from the user and call Simulation file to run the program
+    Check all user input valid at here
     :return: None
     """
     # take the help info
     helpDict = getHelp()
 
     # take special info dict, exec dict
-    info_dict, exec_dict = getRestriction()
+    infoDict, execDict = getRestriction()
+
+    # init result for future use
+    result = False
 
     # take dimension
     while True:
@@ -24,31 +29,30 @@ def get_arguement() -> None:
         dimension = input("Please enter the dimension you want to simulate (2 for 2D, 3 for 3D, "
                           "help for more information): \n")
 
-        # check the validity of input
-        if dimension == "2" or dimension == "3":
+        # set the name
+        helpName = "DIMENSION"
+
+        # check the validity of input and do reaction
+        execDict["DIMENSION"]
+
+        if result:
             break
-        elif dimension == "help":
-            print("This is the dimension you want to simulate")
+        elif dimension.upper() == "HELP":
+            print(helpDict[helpName], infoDict[helpName])
         else:
-            print("Invalid input, please enter again.")
+            errorInput(infoDict, helpName)
 
     # take surface area size
     while True:
         # Take user input
         filmSurfaceSize = input("Please enter the film surface area you want to simulate (small, medium, large "
-                            "or enter in format: ###x### \n"
-                            "help for more information): \n")
+                                "or enter in format: ###x### \n"
+                                "help for more information): \n")
 
         # check the validity of input
         if filmSurfaceSize == "help":
             raise NotImplementedError
             # print("This is the area of the surface you want to simulate, small for:")
-        elif filmSurfaceSize == "small":
-            raise NotImplementedError
-        elif filmSurfaceSize == "medium":
-            raise NotImplementedError
-        elif filmSurfaceSize == "large":
-            raise NotImplementedError
         else:
             # check the format of the input
             if bool(re.match("\d+[x]\d+", filmSurfaceSize)):
@@ -60,8 +64,7 @@ def get_arguement() -> None:
     while True:
         # Take user input
         filmSurfaceShape = input("Please enter the shape of the surface you want to simulate ("
-                          "help for more information): \n")
-
+                                 "help for more information): \n")
 
         # check the validity of input
         if filmSurfaceShape == "help":
@@ -74,7 +77,7 @@ def get_arguement() -> None:
     while True:
         # Take user input
         filmSurfaceCharge = input("Please enter the charge of the surface you want to simulate ("
-                             "help for more information): \n")
+                                  "help for more information): \n")
 
         # check the validity of input
         if filmSurfaceCharge == "help":
@@ -85,15 +88,11 @@ def get_arguement() -> None:
 
     # take the size of bacteria
 
-
-
-
-
     # take shape of the bacteria
     while True:
         # Take user input
         bacteriaShape = input("Please enter the shape of the bacteria you want to simulate ("
-                             "help for more information): \n")
+                              "help for more information): \n")
 
         # check the validity of input
         if bacteriaShape == "help":
@@ -106,7 +105,7 @@ def get_arguement() -> None:
     while True:
         # Take user input
         bacteriaCon = input("Please enter the concentration of the bacteria you want to simulate ("
-                             "help for more information): \n")
+                            "help for more information): \n")
 
         # check the validity of input
         if bacteriaCon == "help":
@@ -115,12 +114,11 @@ def get_arguement() -> None:
             raise NotImplementedError
             print("Invalid input, please enter again.")
 
-
     # take charge of the bacteria
     while True:
         # Take user input
         bacteriaCharge = input("Please enter the charge of the bacteria you want to simulate ("
-                             "help for more information): \n")
+                               "help for more information): \n")
 
         # check the validity of input
         if bacteriaCharge == "help":
@@ -128,6 +126,7 @@ def get_arguement() -> None:
         else:
             raise NotImplementedError
             print("Invalid input, please enter again.")
+
 
 def getHelp() -> Dict[str, str]:
     """
@@ -142,11 +141,12 @@ def getHelp() -> Dict[str, str]:
         # if this line is not empty, read the line and add to dictionary
         if len(line) != 0:
             string = line.split(":")
-            dict[string[0]] = string[1]
+            dict[string[0].upper()] = string[1]
 
     file.close()
 
     return dict
+
 
 def getRestriction() -> [Dict[str, str], Dict[str, str]]:
     """
@@ -169,8 +169,9 @@ def getRestriction() -> [Dict[str, str], Dict[str, str]]:
     return info_dict, exec_dict
 
 
-
+def errorInput(infoDict: Dict, helpName: str) -> None:
+    print("Invalid input, please enter again. \n", infoDict[helpName])
 
 
 if __name__ == '__main__':
-    get_arguement()
+    getArgument()
