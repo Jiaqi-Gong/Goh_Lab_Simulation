@@ -1,5 +1,5 @@
-Head: Record the special requirement for some user input parameter
-Diamond: Length and width of the diamond should be same
-Cross: No restrictions
-Octagon: Length and width of the octagon must be the same
-Single: No restrictions
+Head: Record the special requirement for some user input parameter :Here is string for checking code will be exec
+Diamond: Length and width of the diamond should be same :result = length==width
+Cross: No restrictions :result = True
+Octagon: Length and width of the octagon must be the same :result = length==width
+Single: No restrictions :result = True

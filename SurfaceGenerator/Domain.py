@@ -245,8 +245,8 @@ class DomainGenerator:
         cen = startPoint
         # create the vertical line of the cross
         for i in range(domainWidth + 1):
-            surface[cen[0] + i - 1, cen[1] - 1] = 1:
-            surface[cen[0] - i - 1, cen[1] - 1] = 1:
+            surface[cen[0] + i - 1, cen[1] - 1] = 1
+            surface[cen[0] - i - 1, cen[1] - 1] = 1
 
         # create the horizontal line of the cross
         for j in range(domainLength + 1):
