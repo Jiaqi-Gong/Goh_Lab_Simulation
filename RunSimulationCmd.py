@@ -3,7 +3,7 @@ This is a text interface for running the simulation
 Checking all user input is valid at here
 """
 import re
-from typing import Dict
+from typing import Dict, Union, Tuple
 
 import Simulation
 
@@ -14,14 +14,63 @@ def getArgument() -> None:
     Check all user input valid at here
     :return: None
     """
-    # take the help info
-    helpDict = getHelp()
-
-    # take special info dict, exec dict
-    infoDict, execDict = getRestriction()
 
     # init result for future use
     result = False
+
+    # take simulation type
+    while True:
+        trail = input("Please enter simulation type: \n")
+
+        # set the name
+        helpName = "TYPE"
+
+        # check the validity of input and do reaction
+        result = "result =" + execDict[helpName]
+        exec(result)
+
+        if result:
+            break
+        elif trail.upper() == "HELP":
+            print(helpDict[helpName], infoDict[helpName])
+        else:
+            errorInput(helpName)
+
+    # take trail number
+    while True:
+        trail = input("Please enter trail number: \n")
+
+        # set the name
+        helpName = "TRAIL"
+
+        # check the validity of input and do reaction
+        result = "result =" + execDict[helpName]
+        exec(result)
+
+        if result:
+            break
+        elif trail.upper() == "HELP":
+            print(helpDict[helpName], infoDict[helpName])
+        else:
+            errorInput(helpName)
+
+    # take seed number
+    while True:
+        trail = input("Please enter seed number: \n")
+
+        # set the name
+        helpName = "SEED"
+
+        # check the validity of input and do reaction
+        result = "result =" + execDict[helpName]
+        exec(result)
+
+        if result:
+            break
+        elif trail.upper() == "HELP":
+            print(helpDict[helpName], infoDict[helpName])
+        else:
+            errorInput(helpName)
 
     # take dimension
     while True:
@@ -33,60 +82,88 @@ def getArgument() -> None:
         helpName = "DIMENSION"
 
         # check the validity of input and do reaction
-        execDict["DIMENSION"]
+        result = "result =" + execDict[helpName]
+        exec(result)
 
         if result:
             break
         elif dimension.upper() == "HELP":
             print(helpDict[helpName], infoDict[helpName])
         else:
-            errorInput(infoDict, helpName)
+            errorInput(helpName)
 
-    # take surface area size
-    while True:
-        # Take user input
-        filmSurfaceSize = input("Please enter the film surface area you want to simulate (small, medium, large "
-                                "or enter in format: ###x### \n"
-                                "help for more information): \n")
-
-        # check the validity of input
-        if filmSurfaceSize == "help":
-            raise NotImplementedError
-            # print("This is the area of the surface you want to simulate, small for:")
-        else:
-            # check the format of the input
-            if bool(re.match("\d+[x]\d+", filmSurfaceSize)):
-                break
-            else:
-                print("Invalid input, please enter again.")
-
-    # take shape of the surface
+    # take shape of the film surface
     while True:
         # Take user input
         filmSurfaceShape = input("Please enter the shape of the surface you want to simulate ("
                                  "help for more information): \n")
 
         # check the validity of input
-        if filmSurfaceShape == "help":
-            raise NotImplementedError
+        # set the name
+        helpName = "DIMENSION"
+        shape = filmSurfaceShape
+
+        # check the validity of input and do reaction
+        result = "result =" + execDict[helpName]
+        exec(result)
+
+        if result:
+            break
+        elif dimension.upper() == "HELP":
+            print(helpDict[helpName], infoDict[helpName])
         else:
-            raise NotImplementedError
-            print("Invalid input, please enter again.")
+            errorInput(helpName)
+
+    # take film surface area size
+    while True:
+        # Take user input
+        filmSurfaceSize = input("Please enter the film surface area you want to simulate  "
+                                "(in format: ###x### (length x width) or "
+                                "help for more information): \n")
+
+        # set the name
+        helpName = "SIZE"
+
+        # check the validity of input
+        if filmSurfaceSize.upper() == "HELP":
+            print(helpDict[helpName], infoDict[helpName])
+        else:
+            # check the format of the input
+            if bool(re.match("\d+[x]\d+", filmSurfaceSize)):
+                # check this input size if valid
+                valid = checkSize(filmSurfaceShape, filmSurfaceSize)
+
+                # if not valid
+                if not valid:
+                    errorInput(filmSurfaceShape)
+                    continue
+
+                # if valid, record and break
+                else:
+                    filmSurfaceSize = valid
+                    break
+            else:
+                errorInput(helpName)
 
     # take charge of the surface
     while True:
         # Take user input
         filmSurfaceCharge = input("Please enter the charge of the surface you want to simulate ("
                                   "help for more information): \n")
+        # set the name
+        helpName = "CHARGE"
 
-        # check the validity of input
-        if filmSurfaceCharge == "help":
-            raise NotImplementedError
+        # check the validity of input and do reaction
+        result = "result =" + execDict[helpName]
+        exec(result)
+
+        if result:
+            break
+        elif filmSurfaceSize.upper() == "HELP":
+            print(helpDict[helpName], infoDict[helpName])
         else:
-            raise NotImplementedError
-            print("Invalid input, please enter again.")
+            errorInput(helpName)
 
-    # take the size of bacteria
 
     # take shape of the bacteria
     while True:
@@ -101,18 +178,7 @@ def getArgument() -> None:
             raise NotImplementedError
             print("Invalid input, please enter again.")
 
-    # take number of bacteria want
-    while True:
-        # Take user input
-        bacteriaCon = input("Please enter the concentration of the bacteria you want to simulate ("
-                            "help for more information): \n")
-
-        # check the validity of input
-        if bacteriaCon == "help":
-            raise NotImplementedError
-        else:
-            raise NotImplementedError
-            print("Invalid input, please enter again.")
+    # take the size of bacteria
 
     # take charge of the bacteria
     while True:
@@ -127,6 +193,13 @@ def getArgument() -> None:
             raise NotImplementedError
             print("Invalid input, please enter again.")
 
+    # take the domain shape
+
+    # take the domain size
+
+    # take the domain concentration
+
+    # take
 
 def getHelp() -> Dict[str, str]:
     """
@@ -169,9 +242,41 @@ def getRestriction() -> [Dict[str, str], Dict[str, str]]:
     return info_dict, exec_dict
 
 
-def errorInput(infoDict: Dict, helpName: str) -> None:
+def errorInput(helpName: str) -> None:
+    """
+    This function print the message of user putin not valid input
+    """
     print("Invalid input, please enter again. \n", infoDict[helpName])
 
 
+def checkSize(shape: str, size: str) -> Union[bool, Tuple[int, int]]:
+    """
+    This function checks the size input is satisfied the restriction of the shape
+    return False if not satisfy, else return a Tuple with (length, width)
+    """
+    # get the size
+    size = size.split("x")
+
+    length = int(size[0])
+    width = int(size[1])
+
+    # set the checker
+    result = "result =" + execDict[shape.upper()]
+    exec(result)
+
+    # check the result
+    if not result:
+        return False
+    else:
+        return (length, width)
+
+
 if __name__ == '__main__':
+    # get the help info
+    helpDict = getHelp()
+
+    # get special info dict, exec dict
+    infoDict, execDict = getRestriction()
+
+    # call the user input function
     getArgument()

@@ -49,9 +49,16 @@ class A():
     def b(self):
         self.cc = 3
 
+def t():
+    print(a)
 
-test_diamond()
-#test_random_choice()
+if __name__ == '__main__':
 
-#a = A()
-#a.check()
+    # test_diamond()
+    # test_random_choice()
+
+    # a = A()
+    # a.check()
+
+    a = 12
+    t()

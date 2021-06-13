@@ -2,6 +2,7 @@
 This program is used for generate bacteria
 """
 from abc import ABC
+from typing import Tuple
 
 import numpy as np
 
@@ -14,7 +15,7 @@ class Bacteria(Surface, ABC):
     This class represent a 2D bacteria
     """
 
-    def __init__(self, trail: int, shape: str, size: str, domainGenerator: DomainGenerator,
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int], domainGenerator: DomainGenerator,
                  domainShape: str, domainSize: str, domainConcentration: float):
         Surface.__init__(self, trail, shape, size, domainGenerator, domainShape, domainSize, domainConcentration)
 
@@ -23,7 +24,7 @@ class Bacteria2D(Bacteria):
     This class represent a 2D bacteria
     """
 
-    def __init__(self, trail: int, shape: str, size: str, surfaceCharge: int, domainGenerator: DomainGenerator,
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, domainGenerator: DomainGenerator,
                  domainShape: str, domainSize: str, domainConcentration: float):
         Bacteria.__init__(self, trail, shape, size, domainGenerator, domainShape, domainSize, domainConcentration)
 

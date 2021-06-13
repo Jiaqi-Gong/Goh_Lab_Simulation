@@ -2,6 +2,8 @@
 This is the simulation demo program, take in the argument user put in and call appropriate function to generate
 appropriate parameter and run the simulation and output the result into file
 """
+from typing import Tuple
+
 import numpy as np
 
 import Bacteria
@@ -18,19 +20,17 @@ class Simulation:
     This class is used for simulation
     """
 
-    def __init__(self, trail: int, seed: int, dimension: int,
-                 filmSurfaceSize: str, filmSurfaceShape: str, filmSurfaceCharge: int,
+    def __init__(self, simulationType: int, trail: int, dimension: int,
+                 filmSeed: int, filmSurfaceSize: Tuple[int, int], filmSurfaceShape: str, filmSurfaceCharge: int,
                  filmDomainSize: str, filmDomainShape: str, filmDomainConcentration: float,
-                 bacteriaSize: str, bacteriaSurfaceShape: str, bacteriaSurfaceCharge: int,
-                 bacteriaDomainSize: str, bacteriaDomainShape: str, bacteriaDomainConcentration: float,
-                 simulationType: int):
+                 bacteriaSeed: int, bacteriaSize: Tuple[int, int], bacteriaSurfaceShape: str, bacteriaSurfaceCharge: int,
+                 bacteriaDomainSize: str, bacteriaDomainShape: str, bacteriaDomainConcentration: float):
         """
         Init the simulation class based on the input info
         Description of input info are shown in the HelpFile.txt
         """
         # set variables
         self.trail = trail
-        self.seed = seed
         self.dimension = dimension
         self.simulationType = simulationType
 
@@ -51,7 +51,8 @@ class Simulation:
         self.bacteriaDomainConcentration = bacteriaDomainConcentration
 
         # generate domain generator
-        self.domainGenerator = DomainGenerator(self.trail, self.seed)
+        self.filmDomainGenerator = DomainGenerator(self.trail, filmSeed)
+        self.bacteriaDomainGenerator = DomainGenerator(self.trail, bacteriaSeed)
 
         # init some variable
         self.film = None
@@ -77,7 +78,7 @@ class Simulation:
         """
         # generate 2D Film Surface
         self.film = FilmSurface2D(self.trail, self.filmSurfaceShape, self.filmSurfaceSize, self.filmSurfaceCharge,
-                                  self.domainGenerator, self.filmDomainShape, self.filmDomainSize,
+                                  self.filmDomainGenerator, self.filmDomainShape, self.filmDomainSize,
                                   self.filmDomainConcentration)
 
     def generate2DBacteria(self):
@@ -86,7 +87,7 @@ class Simulation:
         """
         # generate 2D bacteria
         self.bacteria = Bacteria2D(self.trail, self.bacteriaSurfaceShape, self.bacteriaSize,
-                                   self.bacteriaSurfaceCharge, self.domainGenerator, self.bacteriaDomainShape,
+                                   self.bacteriaSurfaceCharge, self.bacteriaDomainGenerator, self.bacteriaDomainShape,
                                    self.bacteriaDomainSize, self.bacteriaDomainConcentration)
 
     def generateNewSurface(self, trail: int, seed: int, surfaceName: str):
@@ -94,14 +95,20 @@ class Simulation:
         This function generate new Film or Bacteria with given seed
         """
         # generate new domain generator
-        self.domainGenerator = DomainGenerator(trail, seed)
+        domainGenerator = DomainGenerator(trail, seed)
 
         # check the surface want to generate
         if surfaceName.upper() == "FILM":
+            # set new generator
+            self.filmDomainGenerator = domainGenerator
+
             if self.dimension == 2:
                 self.generate2DFilm()
 
         elif surfaceName.upper() == "BACTERIA":
+            # set new generator
+            self.bacteriaDomainGenerator = domainGenerator
+
             if self.dimension == 2:
                 self.generate2DBacteria()
 

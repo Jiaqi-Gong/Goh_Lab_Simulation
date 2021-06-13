@@ -24,20 +24,19 @@ class DomainGenerator:
         self.trail = trail
         self.seed = seed
 
-    def generateDomain(self, surface: Surface, shape: str, size: str, concentration: float):
+    def generateDomain(self, surface: Surface, shape: str, size: Tuple[int, int], concentration: float):
         """
         This function takes in a surface, shape and size of domain want to generate on the surface
         :param surface: the surface want to generate the domain
         :param shape: shape of the domain
-        :param size: size of the surface, in the format ###x###, in unit micrometer, 1micrometer = 100 points, NOTICE: size of domain must smaller than surface
+        :param size: size of the surface, in unit micrometer, 1micrometer = 100 points, NOTICE: size of domain must smaller than surface
         :param concentration: concentration of the charge
         :return: return the surface with wanted domain on it
         """
 
         # get size
-        size = size.split("x")
-        domainWidth = int(size[0]) * 100
-        domainLength = int(size[1]) * 100
+        domainLength = size[0] * 100
+        domainWidth = size[1] * 100
 
         # calculate how many domain should generate
         domainNum = int((surface.width * surface.length * concentration) / (domainWidth * domainLength))

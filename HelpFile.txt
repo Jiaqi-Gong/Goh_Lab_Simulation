@@ -1,5 +1,9 @@
 Head: This is helping center, you can find the word explanation of all parameter asked you to put in, some are followed with example
+Type: Simulation type is
+Trail:
+Seed:
 Dimension: Dimension of simulation, for now only can be 2D, type the number of dimension
-SurfaceSize:
-SurfaceCharge: Total charge of the surface, -1 for negative, 0 for neutral, 1 for positive
+Shape:
+Size: Size of surface want to generate, in the format ###x###, in the unit um, 1micrometer (um) = 100 points
+Charge: Total charge of the surface, -1 for negative, 0 for neutral, 1 for positive
 Concentration: Concentration of positive charge in the domain on the surface
