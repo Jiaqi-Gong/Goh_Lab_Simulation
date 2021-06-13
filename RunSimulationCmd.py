@@ -15,6 +15,9 @@ def get_arguement() -> None:
     # take the help info
     helpDict = getHelp()
 
+    # take special info dict, exec dict
+    info_dict, exec_dict = getRestriction()
+
     # take dimension
     while True:
         # Take user input
@@ -144,6 +147,28 @@ def getHelp() -> Dict[str, str]:
     file.close()
 
     return dict
+
+def getRestriction() -> [Dict[str, str], Dict[str, str]]:
+    """
+    This function get the content in the SpecialRequirement.txt and convert it to two dictionary for checking
+    """
+    file = open("SpecialRequirement.txt", "r")
+    content = file.readlines()
+    info_dict = {}
+    exec_dict = {}
+
+    for line in content:
+        # if this line is not empty, read the line and add to dictionary
+        if len(line) != 0:
+            string = line.split(":")
+            info_dict[string[0].upper()] = string[1][1:]
+            exec_dict[string[0].upper()] = string[2][1:]
+
+    file.close()
+
+    return info_dict, exec_dict
+
+
 
 
 
