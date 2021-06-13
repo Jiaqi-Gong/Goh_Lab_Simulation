@@ -22,7 +22,8 @@ class Simulation:
                  filmSeed: int, filmSurfaceSize: Tuple[int, int], filmSurfaceShape: str, filmSurfaceCharge: int,
                  filmDomainSize: Tuple[int, int], filmDomainShape: str, filmDomainConcentration: float,
                  bacteriaSeed: int, bacteriaSize: Tuple[int, int], bacteriaSurfaceShape: str, bacteriaSurfaceCharge: int,
-                 bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float):
+                 bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float,
+                 surfaceNum: int, bacteriaNum: int, interval_x: int, interval_y: int):
         """
         Init the simulation class based on the input info
         Description of input info are shown in the HelpFile.txt
@@ -31,6 +32,10 @@ class Simulation:
         self.trail = trail
         self.dimension = dimension
         self.simulationType = simulationType
+        self.surfaceNum = surfaceNum
+        self.bacteriaNum = bacteriaNum
+        self.interval_x = interval_x
+        self.interval_y = interval_y
 
         # set film variable
         self.filmSurfaceSize = filmSurfaceSize
@@ -88,7 +93,7 @@ class Simulation:
                                    self.bacteriaSurfaceCharge, self.bacteriaDomainGenerator, self.bacteriaDomainShape,
                                    self.bacteriaDomainSize, self.bacteriaDomainConcentration)
 
-    def generateNewSurface(self, seed: int, surfaceName: str):
+    def _generateNewSurface(self, seed: int, surfaceName: str):
         """
         This function generate new Film or Bacteria with given seed
         """
@@ -110,13 +115,13 @@ class Simulation:
             if self.dimension == 2:
                 self._generate2DBacteria()
 
-    def runSimulate(self, interval_x: int, interval_y: int):
+    def runSimulate(self):
         """
         Based on the simulation type, do the corresponding simulation
         """
         # type 1 simulation
         if self.simulationType == 1:
-            self._simulate(interval_x, interval_y)
+            self._simulate()
 
         # type 2 simulation
         elif self.simulationType == 2:
@@ -126,7 +131,7 @@ class Simulation:
         elif self.simulationType == 3:
             raise NotImplementedError
 
-    def _simulate(self, interval_x: int, interval_y: int):
+    def _simulate(self):
         """
         This is the simulation function in this program, call function do the simulation and output the result
         Prerequisite: surface already generated
@@ -137,10 +142,9 @@ class Simulation:
 
         # call simulation based on the simulation type
         if self.dimension == 2:
-            self._interact2D(interval_x, interval_y)
+            self._interact2D(self.interval_x, self.interval_y)
 
         # set the output
-        self._output()
 
     def _output(self):
         """

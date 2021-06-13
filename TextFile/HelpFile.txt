@@ -7,3 +7,5 @@ Shape:
 Size: Size of surface want to generate, in the format ###x###, in the unit um, 1micrometer (um) = 100 points
 Charge: Total charge of the surface, -1 for negative, 0 for neutral, 1 for positive
 Concentration: Concentration of positive charge in the domain on the surface
+Number: Number of film/bacteria want to test, for simulation type 2 and 3 use
+Interval: Interval is how many times scan on x/y direction

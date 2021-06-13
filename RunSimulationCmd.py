@@ -24,6 +24,11 @@ def getArgument() -> None:
         # set the name
         helpName = "TYPE"
 
+        # if enter help
+        if simulationType.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
         # check the validity of input and do reaction
         result = "result =" + execDict[helpName]
         exec(result)
@@ -31,8 +36,6 @@ def getArgument() -> None:
         if result:
             simulationType = int(simulationType)
             break
-        elif simulationType.upper() == "HELP":
-            helpMessage(helpName)
         else:
             errorInput(helpName)
 
@@ -43,14 +46,17 @@ def getArgument() -> None:
         # set the name
         helpName = "TRAIL"
 
+        # if enter help
+        if trail.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
         # check the validity of input and do reaction
         result = "result =" + execDict[helpName]
         exec(result)
 
         if result:
             break
-        elif trail.upper() == "HELP":
-            helpMessage(helpName)
         else:
             errorInput(helpName)
 
@@ -62,6 +68,11 @@ def getArgument() -> None:
 
         # set the name
         helpName = "DIMENSION"
+
+        # if enter help
+        if dimension.upper() == "HELP":
+            helpMessage(helpName)
+            continue
 
         # check the validity of input and do reaction
         result = "result =" + execDict[helpName]
@@ -84,6 +95,11 @@ def getArgument() -> None:
         # set the name
         helpName = "SEED"
 
+        # if enter help
+        if filmSeed.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
         # check the validity of input and do reaction
         result = "result =" + execDict[helpName]
         exec(result)
@@ -91,8 +107,6 @@ def getArgument() -> None:
         if result:
             filmSeed = int(filmSeed)
             break
-        elif filmSeed.upper() == "HELP":
-            helpMessage(helpName)
         else:
             errorInput(helpName)
 
@@ -102,9 +116,14 @@ def getArgument() -> None:
         filmSurfaceShape = input("Please enter the shape of the surface you want to simulate ("
                                  "help for more information): \n")
 
-        # check the validity of input
         # set the name
         helpName = "DIMENSION"
+
+        if filmSurfaceShape.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # set the variable for check
         shape = filmSurfaceShape
 
         # check the validity of input and do reaction
@@ -113,8 +132,6 @@ def getArgument() -> None:
 
         if result:
             break
-        elif filmSurfaceShape.upper() == "HELP":
-            helpMessage(helpName)
         else:
             errorInput(helpName)
 
@@ -156,6 +173,11 @@ def getArgument() -> None:
                                   "help for more information): \n")
         # set the name
         helpName = "CHARGE"
+
+        if filmSurfaceCharge.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+        # set the variable for check
         charge = filmSurfaceCharge
 
         # check the validity of input and do reaction
@@ -165,8 +187,6 @@ def getArgument() -> None:
         if result:
             filmSurfaceCharge = int(filmSurfaceCharge)
             break
-        elif filmSurfaceCharge.upper() == "HELP":
-            helpMessage(helpName)
         else:
             errorInput(helpName)
 
@@ -177,6 +197,12 @@ def getArgument() -> None:
                               "help for more information): \n")
         # set the name
         helpName = "CONCENTRATION"
+
+        if filmDomainCon.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # set the variable for check
         concentration = filmDomainCon
 
         # check the validity of input and do reaction
@@ -186,8 +212,6 @@ def getArgument() -> None:
         if result:
             filmDomainCon = float(filmDomainCon)
             break
-        elif filmDomainCon.upper() == "HELP":
-            helpMessage(helpName)
         else:
             errorInput(helpName)
 
@@ -200,6 +224,12 @@ def getArgument() -> None:
         # check the validity of input
         # set the name
         helpName = "DIMENSION"
+
+        if filmDomainShape.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # set the variable for check
         shape = filmDomainShape
 
         # check the validity of input and do reaction
@@ -208,8 +238,6 @@ def getArgument() -> None:
 
         if result:
             break
-        elif filmDomainShape.upper() == "HELP":
-            helpMessage(helpName)
         else:
             errorInput(helpName)
 
@@ -253,6 +281,11 @@ def getArgument() -> None:
         # set the name
         helpName = "SEED"
 
+        # if type help
+        if bacteriaSeed.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
         # check the validity of input and do reaction
         result = "result =" + execDict[helpName]
         exec(result)
@@ -260,8 +293,6 @@ def getArgument() -> None:
         if result:
             bacteriaSeed = int(bacteriaSeed)
             break
-        elif bacteriaSeed.upper() == "HELP":
-            helpMessage(helpName)
         else:
             errorInput(helpName)
 
@@ -271,9 +302,15 @@ def getArgument() -> None:
         bacteriaSurfaceShape = input("Please enter the shape of the bacteria you want to simulate ("
                                      "help for more information): \n")
 
-        # check the validity of input
         # set the name
         helpName = "DIMENSION"
+
+        # if type help
+        if bacteriaSurfaceShape.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # set the variable for check
         shape = bacteriaSurfaceShape
 
         # check the validity of input and do reaction
@@ -282,8 +319,6 @@ def getArgument() -> None:
 
         if result:
             break
-        elif bacteriaSurfaceShape.upper() == "HELP":
-            helpMessage(helpName)
         else:
             errorInput(helpName)
 
@@ -329,6 +364,13 @@ def getArgument() -> None:
                                       "help for more information): \n")
         # set the name
         helpName = "CHARGE"
+
+        # if type help
+        if bacteriaSurfaceCharge.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # set the variable for check
         charge = bacteriaSurfaceCharge
 
         # check the validity of input and do reaction
@@ -338,8 +380,6 @@ def getArgument() -> None:
         if result:
             bacteriaSurfaceCharge = int(bacteriaSurfaceCharge)
             break
-        elif bacteriaSurfaceCharge.upper() == "HELP":
-            helpMessage(helpName)
         else:
             errorInput(helpName)
 
@@ -350,6 +390,13 @@ def getArgument() -> None:
                                   "help for more information): \n")
         # set the name
         helpName = "CONCENTRATION"
+
+        # if type help
+        if bacteriaDomainCon.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # set the variable for check
         concentration = bacteriaDomainCon
 
         # check the validity of input and do reaction
@@ -359,8 +406,6 @@ def getArgument() -> None:
         if result:
             bacteriaDomainCon = float(bacteriaDomainCon)
             break
-        elif bacteriaDomainCon.upper() == "HELP":
-            helpMessage(helpName)
         else:
             errorInput(helpName)
 
@@ -371,9 +416,16 @@ def getArgument() -> None:
             bacteriaDomainShape = input("Please enter the shape of the domain on the bacteria you want to simulate ("
                                         "help for more information): \n")
 
-            # check the validity of input
             # set the name
             helpName = "DIMENSION"
+
+            # if type help
+            if bacteriaSurfaceShape.upper() == "HELP":
+                helpMessage(helpName)
+                continue
+
+
+            # set the variable for check
             shape = bacteriaDomainShape
 
             # check the validity of input and do reaction
@@ -382,8 +434,6 @@ def getArgument() -> None:
 
             if result:
                 break
-            elif bacteriaSurfaceShape.upper() == "HELP":
-                helpMessage(helpName)
             else:
                 errorInput(helpName)
 
@@ -393,9 +443,15 @@ def getArgument() -> None:
         bacteriaDomainShape = input("Please enter the shape of the domain on the bacteria you want to simulate ("
                                     "help for more information): \n")
 
-        # check the validity of input
         # set the name
         helpName = "DIMENSION"
+
+        # if type help
+        if bacteriaDomainShape.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # set the variable for check
         shape = bacteriaDomainShape
 
         # check the validity of input and do reaction
@@ -404,8 +460,6 @@ def getArgument() -> None:
 
         if result:
             break
-        elif bacteriaDomainShape.upper() == "HELP":
-            helpMessage(helpName)
         else:
             errorInput(helpName)
 
@@ -439,14 +493,85 @@ def getArgument() -> None:
             else:
                 errorInput(helpName)
 
+    # get the interval
+    while True:
+        # Take user input
+        interval = input("Please enter the interval on x-direction and y direction you want to simulate, "
+                         "enter in format (x, y) (type help for more information): \n")
+
+        # set the name
+        helpName = "INTERVAL"
+
+        # if type help
+        if bacteriaDomainShape.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+
+        # check the validity of input and do reaction
+        result = "result =" + execDict[helpName]
+        exec(result)
+
+        if result:
+            interval_x = int(interval[0])
+            interval_y = int(interval[1])
+            break
+        else:
+            errorInput(helpName)
+
+    # if simulation type is not 1, take in extra info
+    while True:
+
+        # check the simulation type
+        if simulationType == 1:
+            filmNum = 1
+            bacteriaNum = 1
+            break
+
+        elif simulationType == 2:
+            filmNum = 1
+            bacteriaNum = input("Please enter the number of bacteria you want to test or help for more information: ")
+            number = bacteriaNum
+
+        elif simulationType == 3:
+            filmNum = input("Please enter the number of bacteria you want to test or help for more information: ")
+            bacteriaNum = 1
+            number = filmNum
+
+        # set the name
+        helpName = "NUMBER"
+
+        # if type help
+        if bacteriaNum.upper() == "HELP" or filmNum.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # check the validity of input and do reaction
+        result = "result =" + execDict[helpName]
+        exec(result)
+
+        if result:
+            break
+        else:
+            errorInput(helpName)
+
     # generate simulation program
+    showMessage("Start to generate the simulation simulator ......")
     sim = Simulation(simulationType, trail, dimension,
                      filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
                      filmDomainSize, filmDomainShape, filmDomainCon,
                      bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
-                     bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon)
+                     bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, filmNum, bacteriaNum,
+                     interval_x, interval_y)
+    showMessage("Simulator generate done")
 
     # run the simulation
+    showMessage("Start to run simulate ......")
+    sim.runSimulate()
+
+    # finish whole simulation
+    showMessage("Whole simulation done")
+    closeLog()
 
 
 def errorInput(helpName: str) -> None:
