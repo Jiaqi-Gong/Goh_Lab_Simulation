@@ -56,6 +56,7 @@ def getArgument() -> None:
         exec(result)
 
         if result:
+            trail = int(trail)
             break
         else:
             errorInput(helpName)
@@ -424,7 +425,6 @@ def getArgument() -> None:
                 helpMessage(helpName)
                 continue
 
-
             # set the variable for check
             shape = bacteriaDomainShape
 
@@ -507,7 +507,6 @@ def getArgument() -> None:
             helpMessage(helpName)
             continue
 
-
         # check the validity of input and do reaction
         result = "result =" + execDict[helpName]
         exec(result)
@@ -524,18 +523,18 @@ def getArgument() -> None:
 
         # check the simulation type
         if simulationType == 1:
-            filmNum = 1
-            bacteriaNum = 1
+            filmNum = "1"
+            bacteriaNum = "1"
             break
 
         elif simulationType == 2:
-            filmNum = 1
+            filmNum = "1"
             bacteriaNum = input("Please enter the number of bacteria you want to test or help for more information: ")
             number = bacteriaNum
 
         elif simulationType == 3:
             filmNum = input("Please enter the number of bacteria you want to test or help for more information: ")
-            bacteriaNum = 1
+            bacteriaNum = "1"
             number = filmNum
 
         # set the name
@@ -551,6 +550,8 @@ def getArgument() -> None:
         exec(result)
 
         if result:
+            filmNum = int(filmNum)
+            bacteriaNum = int(bacteriaNum)
             break
         else:
             errorInput(helpName)
@@ -563,6 +564,7 @@ def getArgument() -> None:
                      bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
                      bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, filmNum, bacteriaNum,
                      interval_x, interval_y)
+
     showMessage("Simulator generate done")
 
     # run the simulation
@@ -676,10 +678,17 @@ def showMessage(message: str) -> None:
     print(message)
 
     # write into the log
+    writeLog(message)
+
+
+def writeLog(message):
+    """
+    This function write the message into log
+    """
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
 
-    log.write("Time: {}, {}".format(current_time, message))
+    log.write("Time: {}, {}\n".format(current_time, message))
 
 
 if __name__ == '__main__':
