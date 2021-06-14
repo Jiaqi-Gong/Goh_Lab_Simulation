@@ -7,7 +7,7 @@ from typing import Tuple
 
 import numpy as np
 
-from RunSimulationCmd import showMessage, writeLog
+from ExternalIO import showMessage, writeLog
 from Bacteria import Bacteria2D
 from Domain import DomainGenerator
 from Film import FilmSurface2D

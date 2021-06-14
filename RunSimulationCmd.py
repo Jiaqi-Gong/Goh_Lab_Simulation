@@ -4,8 +4,9 @@ Checking all user input is valid at here
 """
 import re
 from datetime import datetime
-from time import time
 from typing import Dict, Union, Tuple, IO
+
+from ExternalIO import getHelp, getRestriction, openLog, showMessage, closeLog
 from MainSimulation import Simulation
 
 
@@ -30,8 +31,7 @@ def getArgument() -> None:
             continue
 
         # check the validity of input and do reaction
-        result = "result =" + execDict[helpName]
-        exec(result)
+        result = eval(execDict[helpName])
 
         if result:
             simulationType = int(simulationType)
@@ -52,10 +52,12 @@ def getArgument() -> None:
             continue
 
         # check the validity of input and do reaction
-        result = "result =" + execDict[helpName]
-        exec(result)
+        result = eval(execDict[helpName])
 
-        if result:
+        # check is it a number
+        if not checkNum(trail):
+            errorInput(helpName)
+        elif result:
             trail = int(trail)
             break
         else:
@@ -76,8 +78,7 @@ def getArgument() -> None:
             continue
 
         # check the validity of input and do reaction
-        result = "result =" + execDict[helpName]
-        exec(result)
+        result = eval(execDict[helpName])
 
         if result:
             dimension = int(dimension)
@@ -95,6 +96,7 @@ def getArgument() -> None:
 
         # set the name
         helpName = "SEED"
+        seed = filmSeed
 
         # if enter help
         if filmSeed.upper() == "HELP":
@@ -102,10 +104,11 @@ def getArgument() -> None:
             continue
 
         # check the validity of input and do reaction
-        result = "result =" + execDict[helpName]
-        exec(result)
+        result = eval(execDict[helpName])
 
-        if result:
+        if not checkNum(seed):
+            errorInput(helpName)
+        elif result:
             filmSeed = int(filmSeed)
             break
         else:
@@ -118,7 +121,7 @@ def getArgument() -> None:
                                  "help for more information): \n")
 
         # set the name
-        helpName = "DIMENSION"
+        helpName = "SURFACESHAPE"
 
         if filmSurfaceShape.upper() == "HELP":
             helpMessage(helpName)
@@ -128,8 +131,7 @@ def getArgument() -> None:
         shape = filmSurfaceShape
 
         # check the validity of input and do reaction
-        result = "result =" + execDict[helpName]
-        exec(result)
+        result = eval(execDict[helpName])
 
         if result:
             break
@@ -182,8 +184,7 @@ def getArgument() -> None:
         charge = filmSurfaceCharge
 
         # check the validity of input and do reaction
-        result = "result =" + execDict[helpName]
-        exec(result)
+        result = eval(execDict[helpName])
 
         if result:
             filmSurfaceCharge = int(filmSurfaceCharge)
@@ -207,8 +208,7 @@ def getArgument() -> None:
         concentration = filmDomainCon
 
         # check the validity of input and do reaction
-        result = "result =" + execDict[helpName]
-        exec(result)
+        result = eval(execDict[helpName])
 
         if result:
             filmDomainCon = float(filmDomainCon)
@@ -224,7 +224,7 @@ def getArgument() -> None:
 
         # check the validity of input
         # set the name
-        helpName = "DIMENSION"
+        helpName = "DOMAINSHAPE"
 
         if filmDomainShape.upper() == "HELP":
             helpMessage(helpName)
@@ -234,8 +234,7 @@ def getArgument() -> None:
         shape = filmDomainShape
 
         # check the validity of input and do reaction
-        result = "result =" + execDict[helpName]
-        exec(result)
+        result = eval(execDict[helpName])
 
         if result:
             break
@@ -281,6 +280,7 @@ def getArgument() -> None:
 
         # set the name
         helpName = "SEED"
+        seed = bacteriaSeed
 
         # if type help
         if bacteriaSeed.upper() == "HELP":
@@ -288,10 +288,11 @@ def getArgument() -> None:
             continue
 
         # check the validity of input and do reaction
-        result = "result =" + execDict[helpName]
-        exec(result)
+        result = eval(execDict[helpName])
 
-        if result:
+        if not checkNum(seed):
+            errorInput(helpName)
+        elif result:
             bacteriaSeed = int(bacteriaSeed)
             break
         else:
@@ -304,7 +305,7 @@ def getArgument() -> None:
                                      "help for more information): \n")
 
         # set the name
-        helpName = "DIMENSION"
+        helpName = "SURFACESHAPE"
 
         # if type help
         if bacteriaSurfaceShape.upper() == "HELP":
@@ -315,8 +316,7 @@ def getArgument() -> None:
         shape = bacteriaSurfaceShape
 
         # check the validity of input and do reaction
-        result = "result =" + execDict[helpName]
-        exec(result)
+        result = eval(execDict[helpName])
 
         if result:
             break
@@ -340,7 +340,7 @@ def getArgument() -> None:
             # check the format of the input
             if bool(re.match("\d+[x]\d+", bacteriaSize)):
                 # check this input size if valid
-                valid = checkSize(bacteriaSurfaceShape, bacteriaSurfaceShape)
+                valid = checkSize(bacteriaSurfaceShape, bacteriaSize)
 
                 # if not valid
                 if not valid:
@@ -375,8 +375,7 @@ def getArgument() -> None:
         charge = bacteriaSurfaceCharge
 
         # check the validity of input and do reaction
-        result = "result =" + execDict[helpName]
-        exec(result)
+        result = eval(execDict[helpName])
 
         if result:
             bacteriaSurfaceCharge = int(bacteriaSurfaceCharge)
@@ -401,41 +400,13 @@ def getArgument() -> None:
         concentration = bacteriaDomainCon
 
         # check the validity of input and do reaction
-        result = "result =" + execDict[helpName]
-        exec(result)
+        result = eval(execDict[helpName])
 
         if result:
             bacteriaDomainCon = float(bacteriaDomainCon)
             break
         else:
             errorInput(helpName)
-
-        # take the domain shape of bacteria
-        # take domain shape of film
-        while True:
-            # Take user input
-            bacteriaDomainShape = input("Please enter the shape of the domain on the bacteria you want to simulate ("
-                                        "help for more information): \n")
-
-            # set the name
-            helpName = "DIMENSION"
-
-            # if type help
-            if bacteriaSurfaceShape.upper() == "HELP":
-                helpMessage(helpName)
-                continue
-
-            # set the variable for check
-            shape = bacteriaDomainShape
-
-            # check the validity of input and do reaction
-            result = "result =" + execDict[helpName]
-            exec(result)
-
-            if result:
-                break
-            else:
-                errorInput(helpName)
 
     # take the domain shape of bacteria
     while True:
@@ -444,7 +415,7 @@ def getArgument() -> None:
                                     "help for more information): \n")
 
         # set the name
-        helpName = "DIMENSION"
+        helpName = "DOMAINSHAPE"
 
         # if type help
         if bacteriaDomainShape.upper() == "HELP":
@@ -455,8 +426,7 @@ def getArgument() -> None:
         shape = bacteriaDomainShape
 
         # check the validity of input and do reaction
-        result = "result =" + execDict[helpName]
-        exec(result)
+        result = eval(execDict[helpName])
 
         if result:
             break
@@ -497,19 +467,25 @@ def getArgument() -> None:
     while True:
         # Take user input
         interval = input("Please enter the interval on x-direction and y direction you want to simulate, "
-                         "enter in format (x, y) (type help for more information): \n")
+                         "enter in format ###x###, first number is x and second number is y"
+                         " (type help for more information): \n")
 
         # set the name
         helpName = "INTERVAL"
 
         # if type help
-        if bacteriaDomainShape.upper() == "HELP":
+        if interval.upper() == "HELP":
             helpMessage(helpName)
             continue
 
+        # check if the format of input
+        if not bool(re.match("\d+[x]\d+", interval)):
+            print("Wrong format\n")
+            errorInput(helpName)
+
         # check the validity of input and do reaction
-        result = "result =" + execDict[helpName]
-        exec(result)
+        interval = interval.split("x")
+        result = eval(execDict[helpName])
 
         if result:
             interval_x = int(interval[0])
@@ -546,10 +522,11 @@ def getArgument() -> None:
             continue
 
         # check the validity of input and do reaction
-        result = "result =" + execDict[helpName]
-        exec(result)
+        result = eval(execDict[helpName])
 
-        if result:
+        if not checkNum(bacteriaNum) or not checkNum(filmNum):
+            errorInput(helpName)
+        elif result:
             filmNum = int(filmNum)
             bacteriaNum = int(bacteriaNum)
             break
@@ -573,14 +550,14 @@ def getArgument() -> None:
 
     # finish whole simulation
     showMessage("Whole simulation done")
-    closeLog()
 
 
 def errorInput(helpName: str) -> None:
     """
     This function print the message of user putin not valid input
     """
-    print("Invalid input, please enter again. \n", infoDict[helpName])
+    print("Invalid input, please enter again.\n")
+    print(infoDict[helpName].replace("\\n", "\n"))
 
 
 def checkSize(shape: str, size: str) -> Union[bool, Tuple[int, int]]:
@@ -590,13 +567,13 @@ def checkSize(shape: str, size: str) -> Union[bool, Tuple[int, int]]:
     """
     # get the size
     size = size.split("x")
+    print(size)
 
     length = int(size[0])
     width = int(size[1])
 
     # set the checker
-    result = "result =" + execDict[shape.upper()]
-    exec(result)
+    result = eval(execDict[shape.upper()])
 
     # check the result
     if not result:
@@ -609,86 +586,19 @@ def helpMessage(helpName: str) -> None:
     """
     This function print the help message
     """
-    print(helpDict[helpName], infoDict[helpName])
+    print(helpDict[helpName].replace("\\n", "\n"))
+    print(infoDict[helpName].replace("\\n", "\n"))
 
 
-def getHelp() -> Dict[str, str]:
+def checkNum(input: str) -> bool:
     """
-    This function get the help information in the help file
-    :return: a dictionary, key is parameter name, value is word explanation
+    This function take in a string and test does it can be convert to number
     """
-    file = open("TextFile/HelpFile.txt", "r")
-    content = file.readlines()
-    dict = {}
-
-    for line in content:
-        # if this line is not empty, read the line and add to dictionary
-        if len(line) != 0:
-            string = line.split(":")
-            dict[string[0].upper()] = string[1]
-
-    file.close()
-
-    return dict
-
-
-def getRestriction() -> [Dict[str, str], Dict[str, str]]:
-    """
-    This function get the content in the SpecialRequirement.txt and convert it to two dictionary for checking
-    """
-    file = open("TextFile/SpecialRequirement.txt", "r")
-    content = file.readlines()
-    info_dict = {}
-    exec_dict = {}
-
-    for line in content:
-        # if this line is not empty, read the line and add to dictionary
-        if len(line) != 0:
-            string = line.split(":")
-            info_dict[string[0].upper()] = string[1][1:]
-            exec_dict[string[0].upper()] = string[2][1:]
-
-    file.close()
-
-    return info_dict, exec_dict
-
-
-def openLog() -> IO:
-    """
-    This function open a log file
-    """
-    now = datetime.now()
-    current_time = now.strftime("%H_%M_%S")
-
-    return open("Log/log_{}.txt".format(current_time), "w")
-
-
-def closeLog() -> None:
-    """
-    This function close the log file
-    """
-    log.close()
-
-
-def showMessage(message: str) -> None:
-    """
-    This function take in a message and print it to the screen and record into the log file
-    """
-    # print to screen
-    print(message)
-
-    # write into the log
-    writeLog(message)
-
-
-def writeLog(message):
-    """
-    This function write the message into log
-    """
-    now = datetime.now()
-    current_time = now.strftime("%H:%M:%S")
-
-    log.write("Time: {}, {}\n".format(current_time, message))
+    try:
+        int(input)
+        return True
+    except ValueError:
+        return False
 
 
 if __name__ == '__main__':
@@ -699,7 +609,10 @@ if __name__ == '__main__':
     infoDict, execDict = getRestriction()
 
     # get log file
-    log = openLog()
+    openLog()
 
     # call the user input function
     getArgument()
+
+    # close
+    closeLog()

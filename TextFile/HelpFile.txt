@@ -1,9 +1,10 @@
 Head: This is helping center, you can find the word explanation of all parameter asked you to put in, some are followed with example
-Type: Simulation type can be 1 or 2 or 3 for now \n1 for one surface react with one bacteria once \n2 for One surface, multiple different bacteria, every bacteria scan the surface once \n 3 for Multiple different surface, one bacteria, bacteria scan every surface once \n Different bacteria/surface means the domain generation seed is different, not the size different
+Type: Simulation type can be 1 or 2 or 3 for now \n1 for one surface react with one bacteria once \n2 for One surface, multiple different bacteria, every bacteria scan the surface once \n3 for Multiple different surface, one bacteria, bacteria scan every surface once \nDifferent bacteria/surface means the domain generation seed is different, not the size different
 Trail: Trail number for this simulation
-Seed: Seed number for generate the poaition of domain on the surface
+Seed: Seed number for generate the position of domain on the surface
 Dimension: Dimension of simulation, for now only can be 2D, type the number of dimension
-Shape: shape of surface/domain
+SurfaceShape: Shape of surface
+DomainShape: Shape of domain
 Size: Size of surface want to generate, in the format ###x###, in the unit um, 1micrometer (um) = 100 points
 Charge: Total charge of the surface, -1 for negative, 0 for neutral, 1 for positive
 Concentration: Concentration of positive charge in the domain on the surface
