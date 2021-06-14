@@ -8,6 +8,8 @@ from numpy import ndarray
 import numpy as np
 from typing import Tuple
 import Surface
+from ExternalIO import showMessage, writeLog
+
 
 
 class DomainGenerator:
@@ -31,7 +33,7 @@ class DomainGenerator:
         :param concentration: concentration of the charge
         :return: return the surface with wanted domain on it
         """
-
+        showMessage("Start to generate domain ......")
         # get size
         domainLength = size[0] * 100
         domainWidth = size[1] * 100
@@ -41,6 +43,10 @@ class DomainGenerator:
 
         # first, make entire passed in surface positive
         newSurface = self._makeSurfacePositive(surface)
+
+        # record info into log
+        writeLog("generate new surface done")
+        writeLog(newSurface.__dict__)
 
         # init generated domain number
         generated = 0
@@ -71,6 +77,9 @@ class DomainGenerator:
 
         # more shape coming soon, leave for more extension
 
+
+        writeLog("Start to generate domain on the surface")
+        writeLog(surface.__dict__)
         # start to generate the domain on surface
         while generated < domainNum:
             # pick a point as the start of the diamond shape, which point is the toppest point of the diamond shape
@@ -89,6 +98,9 @@ class DomainGenerator:
             # update generated number
             generated += 1
 
+        writeLog("Domain generated done")
+        writeLog(surface.__dict__)
+
         # return the surface generated based on k value
         return surface
 
@@ -96,6 +108,8 @@ class DomainGenerator:
         """
         Make the entire surface passed in positive, which means set all values in the passed in nested list to 1
         """
+        writeLog("start to make surface positive")
+        writeLog(passInSurface.__dict__)
         # get the original surface in the passed in surface
         positiveSurface = passInSurface.origionalSurface
 

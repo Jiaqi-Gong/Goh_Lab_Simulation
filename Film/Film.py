@@ -9,6 +9,8 @@ import numpy as np
 from SurfaceGenerator.Domain import DomainGenerator
 from SurfaceGenerator.Surface import Surface
 from SurfaceGenerator.Surface import Z_AX_2D
+from ExternalIO import showMessage, writeLog
+
 
 
 class FilmSurface(Surface, ABC):
@@ -28,8 +30,9 @@ class FilmSurface2D(FilmSurface, ABC):
 
     def __init__(self, trail: str, shape: str, size: Tuple[int, int], surfaceCharge: int, domainGenerator: DomainGenerator,
                  domainShape: str, domainSize: Tuple[int, int], domainConcentration: float):
-        FilmSurface.__init__(self, trail, shape, size, domainGenerator, domainShape, domainSize,
-                                   domainConcentration)
+
+        showMessage("start to generate Film surface 2D")
+
         # set the surface charge
         # -1 for negative, 0 for neutral, 1 for positive
         self.charge = surfaceCharge
@@ -39,6 +42,13 @@ class FilmSurface2D(FilmSurface, ABC):
 
         # set the proper height
         self.height = 0
+
+        # call parent
+        FilmSurface.__init__(self, trail, shape, size, domainGenerator, domainShape, domainSize,
+                             domainConcentration)
+
+        showMessage("Generate Film surface 2D done")
+        writeLog(self.__dict__)
 
     def _generateRec(self):
         """

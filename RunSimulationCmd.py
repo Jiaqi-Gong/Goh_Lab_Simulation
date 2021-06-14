@@ -6,7 +6,7 @@ import re
 from datetime import datetime
 from typing import Dict, Union, Tuple, IO
 
-from ExternalIO import getHelp, getRestriction, openLog, showMessage, closeLog
+from ExternalIO import getHelp, getRestriction, openLog, showMessage, closeLog, writeLog
 from MainSimulation import Simulation
 
 
@@ -535,6 +535,13 @@ def getArgument() -> None:
 
     # generate simulation program
     showMessage("Start to generate the simulation simulator ......")
+    writeLog([simulationType, trail, dimension,
+                     filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
+                     filmDomainSize, filmDomainShape, filmDomainCon,
+                     bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
+                     bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, filmNum, bacteriaNum,
+                     interval_x, interval_y])
+
     sim = Simulation(simulationType, trail, dimension,
                      filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
                      filmDomainSize, filmDomainShape, filmDomainCon,
@@ -567,7 +574,6 @@ def checkSize(shape: str, size: str) -> Union[bool, Tuple[int, int]]:
     """
     # get the size
     size = size.split("x")
-    print(size)
 
     length = int(size[0])
     width = int(size[1])
