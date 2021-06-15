@@ -3,6 +3,7 @@ This file deal with the read/write from the text file
 """
 from datetime import datetime
 from typing import Dict, IO
+import logging
 
 
 def getHelp() -> Dict[str, str]:

@@ -26,7 +26,6 @@ class Bacteria2D(Bacteria):
 
     def __init__(self, trail: str, shape: str, size: Tuple[int, int], surfaceCharge: int, domainGenerator: DomainGenerator,
                  domainShape: str, domainSize: Tuple[int, int], domainConcentration: float):
-        Bacteria.__init__(self, trail, shape, size, domainGenerator, domainShape, domainSize, domainConcentration)
 
         # set the surface charge
         # -1 for negative, 0 for neutral, 1 for positive
@@ -37,6 +36,10 @@ class Bacteria2D(Bacteria):
 
         # set the proper dimension
         self.dimension = 2
+
+        # call parent to generate bacteria
+        Bacteria.__init__(self, trail, shape, size, domainGenerator, domainShape, domainSize, domainConcentration)
+
 
     def _generateRec(self):
         """
