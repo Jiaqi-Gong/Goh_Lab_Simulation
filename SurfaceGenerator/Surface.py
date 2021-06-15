@@ -38,11 +38,11 @@ class Surface:
         self.width = size[1] * 100
         self.trail = trail
         self.shape = shape
-        self.origionalSurface = self._generateSurface()
+        self.originalSurface = self._generateSurface()
 
         # generate the domain on the surface
-        self.surfaceWithDomain = domainGenerator.generateDomain(self, domainShape, domainSize, domainConcentration)
-
+        self.surfaceWithDomain = domainGenerator.generateDomain((self.width, self.length, self.originalSurface),
+                                                                domainShape, domainSize, domainConcentration)
 
     def _generateSurface(self):
         """
@@ -69,4 +69,3 @@ class Surface:
 
         # should be implement here, but not done for now
         raise NotImplementedError
-

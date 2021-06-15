@@ -7,9 +7,7 @@ import random
 from numpy import ndarray
 import numpy as np
 from typing import Tuple
-import Surface
 from ExternalIO import showMessage, writeLog
-
 
 
 class DomainGenerator:
@@ -24,10 +22,10 @@ class DomainGenerator:
         """
         self.seed = seed
 
-    def generateDomain(self, surface: Surface, shape: str, size: Tuple[int, int], concentration: float):
+    def generateDomain(self, surfaceInfo: Tuple, shape: str, size: Tuple[int, int], concentration: float):
         """
         This function takes in a surface, shape and size of domain want to generate on the surface
-        :param surface: the surface want to generate the domain
+        :param surfaceInfo: the information if surface want to generate the domain, [width, length, originalSurface]
         :param shape: shape of the domain
         :param size: size of the surface, in unit micrometer, 1micrometer = 100 points, NOTICE: size of domain must smaller than surface
         :param concentration: concentration of the charge
@@ -39,10 +37,10 @@ class DomainGenerator:
         domainWidth = size[1] * 100
 
         # calculate how many domain should generate
-        domainNum = int((surface.width * surface.length * concentration) / (domainWidth * domainLength))
+        domainNum = int((surfaceInfo[0] * surfaceInfo[1] * concentration) / (domainWidth * domainLength))
 
         # first, make entire passed in surface positive
-        newSurface = self._makeSurfacePositive(surface)
+        newSurface = self._makeSurfacePositive(surfaceInfo[2])
 
         # record info into log
         writeLog("generate new surface done")
@@ -77,16 +75,20 @@ class DomainGenerator:
 
         # more shape coming soon, leave for more extension
 
-
         writeLog("Start to generate domain on the surface")
-        writeLog(surface.__dict__)
+        writeLog(surfaceInfo)
+
+        # check generate domain number is not too small
+        if generated >= domainNum:
+            raise RuntimeError("Domain concentration is too low")
+
         # start to generate the domain on surface
         while generated < domainNum:
             # pick a point as the start of the diamond shape, which point is the toppest point of the diamond shape
 
             # pick a point in the matrix as the start point of generate domain
             # randint pick x and y, leave the enough space for not touching the edge
-            start = self._randomPoint(surface.length, surface.width, domainLength, domainWidth)
+            start = self._randomPoint(surfaceInfo[0], surfaceInfo[1], domainLength, domainWidth)
 
             # check the position of this shape is empty, if not empty, then continue
             if not checkEmpty(newSurface, domainWidth, domainLength, start):
@@ -99,7 +101,7 @@ class DomainGenerator:
             generated += 1
 
         writeLog("Domain generated done")
-        writeLog(surface.__dict__)
+        writeLog(surfaceInfo)
 
         # return the surface generated based on k value
         return surface
@@ -111,7 +113,7 @@ class DomainGenerator:
         writeLog("start to make surface positive")
         writeLog(passInSurface.__dict__)
         # get the original surface in the passed in surface
-        positiveSurface = passInSurface.origionalSurface
+        positiveSurface = passInSurface.originalSurface
 
         # if passed in is a 2D surface
         if passInSurface.dimension == 2:
@@ -138,8 +140,8 @@ class DomainGenerator:
 
         return positiveSurface
 
-
-    def _randomPoint(self, surfaceLength: int, surfaceWidth: int, domainLength: int, domainWidth: int) -> Tuple[int, int]:
+    def _randomPoint(self, surfaceLength: int, surfaceWidth: int, domainLength: int, domainWidth: int) -> Tuple[
+        int, int]:
         """
         Randomly pick a point on the surface given
         :return a tuple represent a point in the surface in the matrix
@@ -154,7 +156,6 @@ class DomainGenerator:
 
         # return the result as tuple
         return (x, y)
-
 
     def _diamondEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]):
         """
@@ -408,6 +409,7 @@ class DomainGenerator:
                 if surface[int(ed_br[0] + i), int(ed_br[1] - j)] == 1:
                     return False
         return True
+
     def _generateOctagon(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]):
         """
         This function generate octagon shape for surface
@@ -540,7 +542,7 @@ class DomainGenerator:
         This function check the position want to generate single is empty
         """
         # TODO:
-        if surface[int(startPoint[0]),int(startPoint[1])] == 1:
+        if surface[int(startPoint[0]), int(startPoint[1])] == 1:
             return False
 
         return True
@@ -550,5 +552,5 @@ class DomainGenerator:
         This function generate single shape for surface
         """
         # TODO:
-        surface[int(startPoint[0]),int(startPoint[1])] = 1
+        surface[int(startPoint[0]), int(startPoint[1])] = 1
         return surface
