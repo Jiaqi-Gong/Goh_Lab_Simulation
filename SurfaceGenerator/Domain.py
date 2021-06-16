@@ -7,6 +7,7 @@ import random
 from numpy import ndarray
 import numpy as np
 from typing import Tuple
+from Surface import Surface
 from ExternalIO import showMessage, writeLog
 
 
@@ -22,10 +23,10 @@ class DomainGenerator:
         """
         self.seed = seed
 
-    def generateDomain(self, surfaceInfo: Tuple, shape: str, size: Tuple[int, int], concentration: float):
+    def generateDomain(self, surface: Surface, shape: str, size: Tuple[int, int], concentration: float):
         """
         This function takes in a surface, shape and size of domain want to generate on the surface
-        :param surfaceInfo: the information if surface want to generate the domain, [width, length, originalSurface]
+        :param surface: the surface want to generate the domain
         :param shape: shape of the domain
         :param size: size of the surface, in unit micrometer, 1micrometer = 100 points, NOTICE: size of domain must smaller than surface
         :param concentration: concentration of the charge
@@ -37,14 +38,14 @@ class DomainGenerator:
         domainWidth = size[1] * 100
 
         # calculate how many domain should generate
-        domainNum = int((surfaceInfo[0] * surfaceInfo[1] * concentration) / (domainWidth * domainLength))
+        domainNum = int((surface.length * surface.width * concentration) / (domainWidth * domainLength))
 
         # first, make entire passed in surface positive
-        newSurface = self._makeSurfacePositive(surfaceInfo[2])
+        newSurface = self._makeSurfacePositive(surface)
 
         # record info into log
-        writeLog("generate new surface done")
-        writeLog(newSurface.__dict__)
+        showMessage("generate new surface done")
+        writeLog(newSurface)
 
         # init generated domain number
         generated = 0
@@ -75,8 +76,8 @@ class DomainGenerator:
 
         # more shape coming soon, leave for more extension
 
-        writeLog("Start to generate domain on the surface")
-        writeLog(surfaceInfo)
+        showMessage("Start to generate domain on the surface")
+        writeLog(surface)
 
         # check generate domain number is not too small
         if generated >= domainNum:
@@ -88,7 +89,7 @@ class DomainGenerator:
 
             # pick a point in the matrix as the start point of generate domain
             # randint pick x and y, leave the enough space for not touching the edge
-            start = self._randomPoint(surfaceInfo[0], surfaceInfo[1], domainLength, domainWidth)
+            start = self._randomPoint(surface.length, surface.width, domainLength, domainWidth)
 
             # check the position of this shape is empty, if not empty, then continue
             if not checkEmpty(newSurface, domainWidth, domainLength, start):
@@ -100,17 +101,17 @@ class DomainGenerator:
             # update generated number
             generated += 1
 
-        writeLog("Domain generated done")
-        writeLog(surfaceInfo)
+        showMessage("Domain generated done")
+        writeLog(surface)
 
         # return the surface generated based on k value
         return surface
 
-    def _makeSurfacePositive(self, passInSurface):
+    def _makeSurfacePositive(self, passInSurface: Surface):
         """
         Make the entire surface passed in positive, which means set all values in the passed in nested list to 1
         """
-        writeLog("start to make surface positive")
+        showMessage("start to make surface positive")
         writeLog(passInSurface.__dict__)
         # get the original surface in the passed in surface
         positiveSurface = passInSurface.originalSurface
@@ -138,6 +139,7 @@ class DomainGenerator:
         else:
             raise RuntimeError("Surface passed in is not 2D or 3D")
 
+        # return the generated result
         return positiveSurface
 
     def _randomPoint(self, surfaceLength: int, surfaceWidth: int, domainLength: int, domainWidth: int) -> Tuple[

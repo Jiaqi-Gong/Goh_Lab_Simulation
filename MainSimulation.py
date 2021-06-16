@@ -7,10 +7,11 @@ from typing import Tuple
 
 import numpy as np
 
+from Film import Film
+from Bacteria import Bacteria
 from ExternalIO import showMessage, writeLog
-from Bacteria import Bacteria2D
-from Domain import DomainGenerator
-from Film import FilmSurface2D
+from FilmManager import FilmManager
+from BacteriaManager import BacteriaManager
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter  # allows access to letters of each column
 
@@ -37,164 +38,68 @@ class Simulation:
         self.trail = trail
         self.dimension = dimension
         self.simulationType = simulationType
-        self.filmNum = filmNum
-        self.bacteriaNum = bacteriaNum
         self.interval_x = interval_x
         self.interval_y = interval_y
 
-        # set film variable
-        self.filmSeed = filmSeed
-        self.filmSurfaceSize = filmSurfaceSize
-        self.filmSurfaceShape = filmSurfaceShape
-        self.filmSurfaceCharge = filmSurfaceCharge
-        self.filmDomainSize = filmDomainSize
-        self.filmDomainShape = filmDomainShape
-        self.filmDomainConcentration = filmDomainConcentration
-
-        # set bacteria variable
-        self.bacteriaSeed = bacteriaSeed
-        self.bacteriaSize = bacteriaSize
-        self.bacteriaSurfaceShape = bacteriaSurfaceShape
-        self.bacteriaSurfaceCharge = bacteriaSurfaceCharge
-        self.bacteriaDomainSize = bacteriaDomainSize
-        self.bacteriaDomainShape = bacteriaDomainShape
-        self.bacteriaDomainConcentration = bacteriaDomainConcentration
-
-        # generate domain generator
-        self.filmDomainGenerator = DomainGenerator(self.filmSeed)
-        self.bacteriaDomainGenerator = DomainGenerator(self.bacteriaSeed)
-
         # init some variable
-        self.film = None
-        self.bacteria = None
+        self.filmManager = FilmManager(trail, dimension, filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
+                                       filmDomainSize, filmDomainShape, filmDomainConcentration, filmNum)
+
+        self.bacteriaManager = BacteriaManager(trail, dimension, bacteriaSeed, bacteriaSize, bacteriaSurfaceShape,
+                                               bacteriaSurfaceCharge, bacteriaDomainSize, bacteriaDomainShape,
+                                               bacteriaDomainConcentration, bacteriaNum)
         self.startTime = datetime.now()
-        self.output = None
+        self.output = self._init_output()
+
+        # generate corresponding variable
+        self.filmManager.generateFilm()
+        self.bacteriaManager.generateBacteria()
 
         # write to log
         writeLog(self.__dict__)
-
-    def generateAllSurface(self):
-        """
-        This function call appropriate function to generate the Film and Bacteria
-        """
-        # generate simulation surface
-        showMessage("Start to generate surface")
-        if self.dimension == 2:
-            # generate corresponding film and bacteria
-            self._generate2DFilm()
-            self._generate2DBacteria()
-
-        elif self.dimension == 3:
-            # generate corresponding film and bacteria
-            raise NotImplementedError
-
-    def _generate2DFilm(self):
-        """
-        Generate 2D film
-        """
-        showMessage("Generate 2D film")
-        # generate 2D Film Surface
-        self.film = FilmSurface2D(self.trail, self.filmSurfaceShape, self.filmSurfaceSize, self.filmSurfaceCharge,
-                                  self.filmDomainGenerator, self.filmDomainShape, self.filmDomainSize,
-                                  self.filmDomainConcentration)
-
-        # write into log
-        writeLog(self.film.__dict__)
-
-    def _generate2DBacteria(self):
-        """
-        Generate 2D bacteria
-        """
-        showMessage("generate 2D bacteria")
-
-        # generate 2D bacteria
-        self.bacteria = Bacteria2D(self.trail, self.bacteriaSurfaceShape, self.bacteriaSize,
-                                   self.bacteriaSurfaceCharge, self.bacteriaDomainGenerator, self.bacteriaDomainShape,
-                                   self.bacteriaDomainSize, self.bacteriaDomainConcentration)
-
-        # write into log
-        writeLog(self.bacteria.__dict__)
-
-    def _generateNewSurface(self, seed: int, surfaceName: str):
-        """
-        This function generate new Film or Bacteria with given seed
-        """
-        showMessage("Start to generate new surface")
-
-        # generate new domain generator
-        domainGenerator = DomainGenerator(seed)
-
-        # check the surface want to generate
-        if surfaceName.upper() == "FILM":
-            # set new generator
-            self.filmDomainGenerator = domainGenerator
-
-            # write in to log
-            writeLog(self.filmDomainGenerator.__dict__)
-
-            if self.dimension == 2:
-                self._generate2DFilm()
-
-        elif surfaceName.upper() == "BACTERIA":
-            # set new generator
-            self.bacteriaDomainGenerator = domainGenerator
-
-            # write in to log
-            writeLog(self.bacteriaDomainGenerator.__dict__)
-
-            if self.dimension == 2:
-                self._generate2DBacteria()
 
     def runSimulate(self):
         """
         Based on the simulation type, do the corresponding simulation
         """
         # record the number of simulation did
-        currIter = 1
+        currIter = 0
 
         # type 1 simulation
+        # only one film and one bacteria
         if self.simulationType == 1:
-            self._simulate(currIter)
+            self._simulate(currIter, self.filmManager.film[0], self.bacteriaManager.bacteria[0])
 
         # type 2 simulation
         elif self.simulationType == 2:
-            # One surface, multiple different bacteria, every bacteria scan the surface once
-            for i in range(self.bacteriaNum):
+            # One film, multiple different bacteria, every bacteria scan the surface once
+            for i in range(self.bacteriaManager.bacteriaNum):
                 showMessage("This is type 2 simulation with simulation #: {}".format({i}))
-                # generate new bacteria
-                newSeed = self.bacteriaSeed + currIter - 1
-                self._generateNewSurface(newSeed, "BACTERIA")
 
                 # start simulation
-                self._simulate(currIter)
+                self._simulate(currIter, self.filmManager.film[0], self.bacteriaManager.bacteria[currIter])
                 currIter += 1
 
         # type 3 simulation
         elif self.simulationType == 3:
-            # Multiple different surface, one bacteria, bacteria scan every surface once
-            for i in range(self.filmNum):
+            # multiple different film, one bacteria, bacteria scan every surface once
+            for i in range(self.filmManager.filmNum):
                 showMessage("This is type 3 simulation with simulation #: {}".format({i}))
-                # generate new film
-                newSeed = self.filmSeed + currIter - 1
-                self._generateNewSurface(newSeed, "FILM")
 
                 # start simulation
-                self._simulate(currIter)
+                self._simulate(currIter, self.filmManager.film[currIter], self.bacteriaManager.bacteria[0])
                 currIter += 1
 
-    def _simulate(self, currIter: int):
+    def _simulate(self, currIter: int, film: Film, bacteria: Bacteria):
         """
         This is the simulation function in this program, call function do the simulation and output the result
         Prerequisite: surface already generated
         """
         showMessage("Start to run simulation")
-        # check does surface generated
-        if self.bacteria is None or self.film is None:
-            self.generateAllSurface()
 
         # call simulation based on the simulation type
         if self.dimension == 2:
-            result = self._interact2D(self.interval_x, self.interval_y)
+            result = self._interact2D(self.interval_x, self.interval_y, film, bacteria)
         elif self.dimension == 3:
             raise NotImplementedError
 
@@ -240,7 +145,7 @@ class Simulation:
                 column_width = len(text)
             ws1.column_dimensions[get_column_letter(i + 1)].width = column_width
 
-        self.output = (wb, ws1)
+        return (wb, ws1)
 
     def _output(self, result: Tuple, currIter: int):
         """
@@ -252,10 +157,6 @@ class Simulation:
         # calculate the time use
         time_consume = (datetime.now() - self.startTime)
         time_consume = time_consume.seconds
-
-        # check does output file already generate
-        if self.output is None:
-            self._init_output()
 
         # rename the out put
         wb = self.output[0]
@@ -271,10 +172,10 @@ class Simulation:
         row_pos = 1 + currIter
 
         # write the result
-        ws1.cell(row_pos, 1, str(self.filmDomainShape) + " : " + str(self.filmDomainSize))
-        ws1.cell(row_pos, 2, str(self.bacteriaDomainShape) + " : " + str(self.bacteriaDomainSize))
-        ws1.cell(row_pos, 3, self.filmDomainGenerator.seed)
-        ws1.cell(row_pos, 4, self.bacteriaDomainGenerator.seed)
+        ws1.cell(row_pos, 1, str(self.filmManager.filmDomainShape) + " : " + str(self.filmManager.filmDomainSize))
+        ws1.cell(row_pos, 2, str(self.bacteriaManager.bacteriaDomainShape) + " : " + str(self.bacteriaManager.bacteriaDomainSize))
+        ws1.cell(row_pos, 3, self.filmManager.film[currIter].seed)
+        ws1.cell(row_pos, 4, self.bacteriaManager.bacteria[currIter].seed)
         ws1.cell(row_pos, 5, min_energy)
         ws1.cell(row_pos, 6, min_x)
         ws1.cell(row_pos, 7, min_x)
@@ -287,7 +188,7 @@ class Simulation:
         # special count for simulation type 2
         # count number of min_energy locations at each gradient strip
         if self.simulationType == 2:
-            for row_num in range(self.bacteriaNum):
+            for row_num in range(self.bacteriaManager.bacteriaNum):
                 row = self.trail + row_num
                 val_id = ws1.cell(row, 8).value
                 val = ws1.cell(2, 10 + int(val_id)).value
@@ -301,7 +202,7 @@ class Simulation:
 
         showMessage("Output done")
 
-    def _interact2D(self, interval_x: int, interval_y: int):
+    def _interact2D(self, interval_x: int, interval_y: int, film: Film, bacteria: Bacteria):
         """
         Do the simulation, scan whole film surface with bacteria
         The energy calculate only between bacteria surface and the film surface directly under the bacteria
@@ -309,7 +210,7 @@ class Simulation:
         """
         showMessage("Start to interact ......")
         # shape of the bacteria
-        shape = self.bacteria.shape
+        shape = bacteria.shape
 
         # set the range
         range_x = np.arange(0, shape[0], interval_x)
@@ -326,14 +227,14 @@ class Simulation:
         min_y = -1
 
         # change the bacteria surface into 1D
-        bacteria_1D = np.reshape(self.bacteria.surfaceWithDomain, (-1))
+        bacteria_1D = np.reshape(bacteria.surfaceWithDomain, (-1))
 
         # scan through the surface and make calculation
         for x in range_x:
             for y in range_y:
                 # set the x boundary and y boundary
-                x_boundary = self.bacteria.width + x
-                y_boundary = self.bacteria.length + y
+                x_boundary = bacteria.width + x
+                y_boundary = bacteria.length + y
 
                 # check if bacteria surface is exceed range of film surface
                 if x_boundary > shape[0] or y_boundary > shape[1]:
@@ -343,7 +244,7 @@ class Simulation:
                 # do the calculation
 
                 # change the corresponding film surface into 1D
-                film_use = self.film.surfaceWithDomain[x: x_boundary, y: y_boundary]
+                film_use = film.surfaceWithDomain[x: x_boundary, y: y_boundary]
                 film_1D = np.reshape(film_use, (-1))
 
                 # calculate energy, uses electrostatic energy formula, assuming that r = 1

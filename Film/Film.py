@@ -13,23 +13,21 @@ from ExternalIO import showMessage, writeLog
 
 
 
-class FilmSurface(Surface, ABC):
+class Film(Surface, ABC):
     """
     This is an abstract class of net neutral surface, subclass of Surface, should implement by 2D and 3D version
     """
 
-    def __init__(self, trail: str, shape: str, size: Tuple[int, int], domainGenerator: DomainGenerator,
-                 domainShape: str, domainSize: Tuple[int, int], domainConcentration: float):
-        Surface.__init__(self, trail, shape, size, domainGenerator, domainShape, domainSize, domainConcentration)
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int], seed):
+        Surface.__init__(self, trail, shape, size, seed)
 
 
-class FilmSurface2D(FilmSurface, ABC):
+class FilmSurface2D(Film, ABC):
     """
     This is a 2D net neutral surface, subclass of surface
     """
 
-    def __init__(self, trail: str, shape: str, size: Tuple[int, int], surfaceCharge: int, domainGenerator: DomainGenerator,
-                 domainShape: str, domainSize: Tuple[int, int], domainConcentration: float):
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int):
 
         showMessage("start to generate Film surface 2D")
 
@@ -44,8 +42,7 @@ class FilmSurface2D(FilmSurface, ABC):
         self.height = 0
 
         # call parent
-        FilmSurface.__init__(self, trail, shape, size, domainGenerator, domainShape, domainSize,
-                             domainConcentration)
+        Film.__init__(self, trail, shape, size, seed)
 
         showMessage("Generate Film surface 2D done")
         writeLog(self.__dict__)
@@ -58,6 +55,6 @@ class FilmSurface2D(FilmSurface, ABC):
         return np.zeros((self.width, self.length))
 
 
-class FilmSurface3D(FilmSurface, ABC):
+class FilmSurface3D(Film, ABC):
     # PAY ATTENTION: set dimension, set proper height, carefully generate the shape
     pass

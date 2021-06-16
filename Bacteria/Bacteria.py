@@ -15,17 +15,15 @@ class Bacteria(Surface, ABC):
     This class represent a 2D bacteria
     """
 
-    def __init__(self, trail: str, shape: str, size: Tuple[int, int], domainGenerator: DomainGenerator,
-                 domainShape: str, domainSize: Tuple[int, int], domainConcentration: float):
-        Surface.__init__(self, trail, shape, size, domainGenerator, domainShape, domainSize, domainConcentration)
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int], seed):
+        Surface.__init__(self, trail, shape, size, seed)
 
 class Bacteria2D(Bacteria):
     """
     This class represent a 2D bacteria
     """
 
-    def __init__(self, trail: str, shape: str, size: Tuple[int, int], surfaceCharge: int, domainGenerator: DomainGenerator,
-                 domainShape: str, domainSize: Tuple[int, int], domainConcentration: float):
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int):
 
         # set the surface charge
         # -1 for negative, 0 for neutral, 1 for positive
@@ -38,7 +36,7 @@ class Bacteria2D(Bacteria):
         self.dimension = 2
 
         # call parent to generate bacteria
-        Bacteria.__init__(self, trail, shape, size, domainGenerator, domainShape, domainSize, domainConcentration)
+        Bacteria.__init__(self, trail, shape, size, seed)
 
 
     def _generateRec(self):

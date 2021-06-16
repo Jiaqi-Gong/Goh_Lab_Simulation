@@ -6,6 +6,9 @@ from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 import time
 
+from ExternalIO import getHelp, getRestriction, openLog
+from MainSimulation import Simulation
+
 
 def test_diamond():
     a = np.zeros((20, 20))
@@ -144,6 +147,46 @@ def _output():
         file_path = "Result/" + name
         wb.save(file_path)
 
+def test_simulation():
+    # get the help info
+    helpDict = getHelp()
+
+    # get special info dict, exec dict
+    infoDict, execDict = getRestriction()
+
+    # get log file
+    openLog()
+
+    simulationType = 1
+    trail = 1
+    dimension = 2
+    filmSeed = 1
+    filmSurfaceSize = (100, 100)
+    filmSurfaceShape = "rectangle"
+    filmNum = 1
+    bacteriaNum = 1
+    interval_x = 50
+    interval_y = 50
+    filmSurfaceCharge = 0
+    filmDomainSize = (5,5)
+    filmDomainShape = "diamond"
+    filmDomainCon = 0.5
+    bacteriaSeed = 10
+    bacteriaSize = (10, 10)
+    bacteriaSurfaceShape = "rectangle"
+    bacteriaSurfaceCharge = 0
+    bacteriaDomainSize = (2,2)
+    bacteriaDomainShape = "diamond"
+    bacteriaDomainCon = 0.5
+
+    sim = Simulation(simulationType, trail, dimension,
+                     filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
+                     filmDomainSize, filmDomainShape, filmDomainCon,
+                     bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
+                     bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, filmNum, bacteriaNum,
+                     interval_x, interval_y)
+
+    sim.runSimulate()
 
 if __name__ == '__main__':
 
@@ -159,4 +202,8 @@ if __name__ == '__main__':
 
     # test_excel()
 
-    _output()
+    # _output()
+
+    test_simulation()
+
+

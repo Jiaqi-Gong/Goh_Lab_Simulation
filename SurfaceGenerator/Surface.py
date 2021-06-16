@@ -2,13 +2,11 @@
 This program is generating the surface for test
 """
 import abc
-import numpy as np  # numpy is required to make matrices
-
-import Domain
-from Domain import *
 
 # follow constant is for surface, but overwrite by the size passed in, can ignore
 # this can be change, balance the resolution and the time cost
+from typing import Tuple
+
 X_AX = 10500  # number of coordinates for x-axis
 Y_AX = 10500  # number of coordinates for y-axis
 Z_AX_2D = 3  # number of coordinates for z-axis for 2D
@@ -19,12 +17,10 @@ class Surface:
     This is an abstract class for surface
     charge can be negative -1, neutral 0, positive 1
     1micrometer = 100 points
-
     """
 
     @abc.abstractmethod
-    def __init__(self, trail: str, shape: str, size: Tuple[int, int], domainGenerator: Domain.DomainGenerator,
-                 domainShape: str, domainSize: Tuple[int, int], domainConcentration: float):
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int], seed:int=None):
         """
         Init this surface
         1micrometer = 100 points
@@ -32,6 +28,7 @@ class Surface:
         :param shape: shape of this surface
         :param size: size of the surface, in the format ###x###, in unit micrometer, 1micrometer = 100 points
         """
+
         # set other information about this surface
         # 1micrometer = 100 points
         self.length = size[0] * 100
@@ -39,10 +36,10 @@ class Surface:
         self.trail = trail
         self.shape = shape
         self.originalSurface = self._generateSurface()
+        self.seed = seed
 
-        # generate the domain on the surface
-        self.surfaceWithDomain = domainGenerator.generateDomain((self.width, self.length, self.originalSurface),
-                                                                domainShape, domainSize, domainConcentration)
+        # Init the surface
+        self.surfaceWithDomain = None
 
     def _generateSurface(self):
         """

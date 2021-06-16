@@ -3,8 +3,7 @@ This is a text interface for running the simulation
 Checking all user input is valid at here
 """
 import re
-from datetime import datetime
-from typing import Dict, Union, Tuple, IO
+from typing import Union, Tuple
 
 from ExternalIO import getHelp, getRestriction, openLog, showMessage, closeLog, writeLog
 from MainSimulation import Simulation
