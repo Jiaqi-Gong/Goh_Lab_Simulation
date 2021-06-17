@@ -40,6 +40,8 @@ class DomainGenerator:
         # calculate how many domain should generate
         domainNum = int((surface.length * surface.width * concentration) / (domainWidth * domainLength))
 
+        showMessage("Domain number is: {}".format(domainNum))
+
         # first, make entire passed in surface positive
         newSurface = self._makeSurfacePositive(surface)
 
@@ -91,8 +93,12 @@ class DomainGenerator:
             # randint pick x and y, leave the enough space for not touching the edge
             start = self._randomPoint(surface.length, surface.width, domainLength, domainWidth)
 
+            showMessage("Point picked is: {}".format(start))
+            emptyResult = checkEmpty(newSurface, domainWidth, domainLength, start)
+            showMessage("empty result is: {}".format(emptyResult))
+
             # check the position of this shape is empty, if not empty, then continue
-            if not checkEmpty(newSurface, domainWidth, domainLength, start):
+            if not emptyResult:
                 continue
 
             # generate this shape's domain
@@ -100,6 +106,8 @@ class DomainGenerator:
 
             # update generated number
             generated += 1
+
+            showMessage("Generated number is: {}".format(generated))
 
         showMessage("Domain generated done")
         writeLog(surface)
@@ -176,7 +184,7 @@ class DomainGenerator:
         # make upper diamond
         for i in range(0, n + 1):
             for j in range(-count + 1, count):
-                if surface[start[0] + i][start[1] + j] == 1:
+                if surface[start[0] + i][start[1] + j] == -1:
                     return False
 
             # upper part, width becomes wider
@@ -185,7 +193,7 @@ class DomainGenerator:
         # make lower diamond
         for i in range(n + 1, 2 * (n + 1) + 1):
             for j in range(-count + 1, count):
-                if surface[start[0] + i][start[1] - j] == 1:
+                if surface[start[0] + i][start[1] - j] == -1:
                     return False
 
             # lower part, width becomes thinner
@@ -211,7 +219,7 @@ class DomainGenerator:
         # make upper diamond
         for i in range(0, n + 1):
             for j in range(-count + 1, count):
-                surface[start[0] + i][start[1] + j] = 1
+                surface[start[0] + i][start[1] + j] = -1
 
             # upper part, width becomes wider
             count += 1
@@ -219,7 +227,7 @@ class DomainGenerator:
         # make lower diamond
         for i in range(n + 1, 2 * (n + 1) + 1):
             for j in range(-count + 1, count):
-                surface[start[0] + i][start[1] - j] = 1
+                surface[start[0] + i][start[1] - j] = -1
 
             # lower part, width becomes thinner
             count -= 1
@@ -236,16 +244,16 @@ class DomainGenerator:
         cen = startPoint
         # create the vertical line of the cross
         for i in range(domainWidth + 1):
-            if surface[cen[0] + i - 1, cen[1] - 1] == 1:
+            if surface[cen[0] + i - 1, cen[1] - 1] == -1:
                 return False
-            if surface[cen[0] - i - 1, cen[1] - 1] == 1:
+            if surface[cen[0] - i - 1, cen[1] - 1] == -1:
                 return False
 
         # create the horizontal line of the cross
         for j in range(domainLength + 1):
-            if surface[cen[0] - 1, cen[1] + j - 1] == 1:
+            if surface[cen[0] - 1, cen[1] + j - 1] == -1:
                 return False
-            if surface[cen[0] - 1, cen[1] - j - 1] == 1:
+            if surface[cen[0] - 1, cen[1] - j - 1] == -1:
                 return False
 
         return True
@@ -259,13 +267,13 @@ class DomainGenerator:
         cen = startPoint
         # create the vertical line of the cross
         for i in range(domainWidth + 1):
-            surface[cen[0] + i - 1, cen[1] - 1] = 1
-            surface[cen[0] - i - 1, cen[1] - 1] = 1
+            surface[cen[0] + i - 1, cen[1] - 1] = -1
+            surface[cen[0] - i - 1, cen[1] - 1] = -1
 
         # create the horizontal line of the cross
         for j in range(domainLength + 1):
-            surface[cen[0] - 1, cen[1] + j - 1] = 1
-            surface[cen[0] - 1, cen[1] - j - 1] = 1
+            surface[cen[0] - 1, cen[1] + j - 1] = -1
+            surface[cen[0] - 1, cen[1] - j - 1] = -1
 
         return surface
 
@@ -310,13 +318,13 @@ class DomainGenerator:
             n = int(ln / 2 + 0.5)
             for i in range(n):
                 for j in range(n):
-                    if surface[int(cen[0] + (0.5 + i)), int(cen[1] + (0.5 + j))] == 1:
+                    if surface[int(cen[0] + (0.5 + i)), int(cen[1] + (0.5 + j))] == -1:
                         return False
-                    if surface[int(cen[0] + (0.5 + i)), int(cen[1] - (0.5 + j))] == 1:
+                    if surface[int(cen[0] + (0.5 + i)), int(cen[1] - (0.5 + j))] == -1:
                         return False
-                    if surface[int(cen[0] - (0.5 + i)), int(cen[1] + (0.5 + j))] == 1:
+                    if surface[int(cen[0] - (0.5 + i)), int(cen[1] + (0.5 + j))] == -1:
                         return False
-                    if surface[int(cen[0] - (0.5 + i)), int(cen[1] - (0.5 + j))] == 1:
+                    if surface[int(cen[0] - (0.5 + i)), int(cen[1] - (0.5 + j))] == -1:
                         return False
 
             # Index edges of the square
@@ -334,13 +342,13 @@ class DomainGenerator:
             n = int(ln / 2)
             for i in range(n + 1):
                 for j in range(n + 1):
-                    if surface[int(cen[0] + i), int(cen[1] + j)] == 1:
+                    if surface[int(cen[0] + i), int(cen[1] + j)] == -1:
                         return False
-                    if surface[int(cen[0] + i), int(cen[1] - j)] == 1:
+                    if surface[int(cen[0] + i), int(cen[1] - j)] == -1:
                         return False
-                    if surface[int(cen[0] - i), int(cen[1] + j)] == 1:
+                    if surface[int(cen[0] - i), int(cen[1] + j)] == -1:
                         return False
-                    if surface[int(cen[0] - i), int(cen[1] - j)] == 1:
+                    if surface[int(cen[0] - i), int(cen[1] - j)] == -1:
                         return False
 
             # Index edges of the square
@@ -358,7 +366,7 @@ class DomainGenerator:
         nu_tr = ln + 1
         for i in range(0, ln + 1):
             for j in range(0, nu_tr):
-                if surface[int(ed_tr[0] - i), int(ed_tr[1] + j)] == 1:
+                if surface[int(ed_tr[0] - i), int(ed_tr[1] + j)] == -1:
                     return False
             nu_tr -= 1
 
@@ -366,7 +374,7 @@ class DomainGenerator:
         nu_tl = ln + 1
         for i in range(0, ln + 1):
             for j in range(0, nu_tl):
-                if surface[int(ed_tl[0] - i), int(ed_tl[1] - j)] == 1:
+                if surface[int(ed_tl[0] - i), int(ed_tl[1] - j)] == -1:
                     return False
             nu_tl -= 1
 
@@ -374,7 +382,7 @@ class DomainGenerator:
         nu_br = ln + 1
         for i in range(0, ln + 1):
             for j in range(0, nu_br):
-                if surface[int(ed_br[0] + i), int(ed_br[1] + j)] == 1:
+                if surface[int(ed_br[0] + i), int(ed_br[1] + j)] == -1:
                     return False
             nu_br -= 1
 
@@ -382,7 +390,7 @@ class DomainGenerator:
         nu_bl = ln + 1
         for i in range(0, ln + 1):
             for j in range(0, nu_bl):
-                if surface[int(ed_bl[0] + i), int(ed_bl[1] - j)] == 1:
+                if surface[int(ed_bl[0] + i), int(ed_bl[1] - j)] == -1:
                     return False
             nu_bl -= 1
 
@@ -390,25 +398,25 @@ class DomainGenerator:
         # top square
         for i in range(1, ln + 1):
             for j in range(1, ln + 1):
-                if surface[int(ed_tl[0] - i), int(ed_tl[1] + j)] == 1:
+                if surface[int(ed_tl[0] - i), int(ed_tl[1] + j)] == -1:
                     return False
 
         # left square
         for i in range(1, ln + 1):
             for j in range(1, ln + 1):
-                if surface[int(ed_tl[0] + i), int(ed_tl[1] - j)] == 1:
+                if surface[int(ed_tl[0] + i), int(ed_tl[1] - j)] == -1:
                     return False
 
         # right square
         for i in range(1, ln + 1):
             for j in range(1, ln + 1):
-                if surface[int(ed_br[0] - i), int(ed_br[1] + j)] == 1:
+                if surface[int(ed_br[0] - i), int(ed_br[1] + j)] == -1:
                     return False
 
         # bottom square
         for i in range(1, ln + 1):
             for j in range(1, ln + 1):
-                if surface[int(ed_br[0] + i), int(ed_br[1] - j)] == 1:
+                if surface[int(ed_br[0] + i), int(ed_br[1] - j)] == -1:
                     return False
         return True
 
@@ -452,10 +460,10 @@ class DomainGenerator:
             n = int(ln / 2 + 0.5)
             for i in range(n):
                 for j in range(n):
-                    surface[int(cen[0] + (0.5 + i)), int(cen[1] + (0.5 + j))] = 1
-                    surface[int(cen[0] + (0.5 + i)), int(cen[1] - (0.5 + j))] = 1
-                    surface[int(cen[0] - (0.5 + i)), int(cen[1] + (0.5 + j))] = 1
-                    surface[int(cen[0] - (0.5 + i)), int(cen[1] - (0.5 + j))] = 1
+                    surface[int(cen[0] + (0.5 + i)), int(cen[1] + (0.5 + j))] = -1
+                    surface[int(cen[0] + (0.5 + i)), int(cen[1] - (0.5 + j))] = -1
+                    surface[int(cen[0] - (0.5 + i)), int(cen[1] + (0.5 + j))] = -1
+                    surface[int(cen[0] - (0.5 + i)), int(cen[1] - (0.5 + j))] = -1
 
             # Index edges of the square
             # top right edge
@@ -473,10 +481,10 @@ class DomainGenerator:
             n = int(ln / 2)
             for i in range(n + 1):
                 for j in range(n + 1):
-                    surface[int(cen[0] + i), int(cen[1] + j)] = 1
-                    surface[int(cen[0] + i), int(cen[1] - j)] = 1
-                    surface[int(cen[0] - i), int(cen[1] + j)] = 1
-                    surface[int(cen[0] - i), int(cen[1] - j)] = 1
+                    surface[int(cen[0] + i), int(cen[1] + j)] = -1
+                    surface[int(cen[0] + i), int(cen[1] - j)] = -1
+                    surface[int(cen[0] - i), int(cen[1] + j)] = -1
+                    surface[int(cen[0] - i), int(cen[1] - j)] = -1
 
             # Index edges of the square
             # top right edge
@@ -493,50 +501,50 @@ class DomainGenerator:
         nu_tr = ln + 1
         for i in range(0, ln + 1):
             for j in range(0, nu_tr):
-                surface[int(ed_tr[0] - i), int(ed_tr[1] + j)] = 1
+                surface[int(ed_tr[0] - i), int(ed_tr[1] + j)] = -1
             nu_tr -= 1
 
         # top left
         nu_tl = ln + 1
         for i in range(0, ln + 1):
             for j in range(0, nu_tl):
-                surface[int(ed_tl[0] - i), int(ed_tl[1] - j)] = 1
+                surface[int(ed_tl[0] - i), int(ed_tl[1] - j)] = -1
             nu_tl -= 1
 
         # bottom right
         nu_br = ln + 1
         for i in range(0, ln + 1):
             for j in range(0, nu_br):
-                surface[int(ed_br[0] + i), int(ed_br[1] + j)] = 1
+                surface[int(ed_br[0] + i), int(ed_br[1] + j)] = -1
             nu_br -= 1
 
         # bottom left triangle
         nu_bl = ln + 1
         for i in range(0, ln + 1):
             for j in range(0, nu_bl):
-                surface[int(ed_bl[0] + i), int(ed_bl[1] - j)] = 1
+                surface[int(ed_bl[0] + i), int(ed_bl[1] - j)] = -1
             nu_bl -= 1
 
         # Finally, fill out the remaining 4 squares
         # top square
         for i in range(1, ln + 1):
             for j in range(1, ln + 1):
-                surface[int(ed_tl[0] - i), int(ed_tl[1] + j)] = 1
+                surface[int(ed_tl[0] - i), int(ed_tl[1] + j)] = -1
 
         # left square
         for i in range(1, ln + 1):
             for j in range(1, ln + 1):
-                surface[int(ed_tl[0] + i), int(ed_tl[1] - j)] = 1
+                surface[int(ed_tl[0] + i), int(ed_tl[1] - j)] = -1
 
         # right square
         for i in range(1, ln + 1):
             for j in range(1, ln + 1):
-                surface[int(ed_br[0] - i), int(ed_br[1] + j)] = 1
+                surface[int(ed_br[0] - i), int(ed_br[1] + j)] = -1
 
         # bottom square
         for i in range(1, ln + 1):
             for j in range(1, ln + 1):
-                surface[int(ed_br[0] + i), int(ed_br[1] - j)] = 1
+                surface[int(ed_br[0] + i), int(ed_br[1] - j)] = -1
         return surface
 
     def _singleEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
@@ -544,7 +552,7 @@ class DomainGenerator:
         This function check the position want to generate single is empty
         """
         # TODO:
-        if surface[int(startPoint[0]), int(startPoint[1])] == 1:
+        if surface[int(startPoint[0]), int(startPoint[1])] == -1:
             return False
 
         return True
@@ -554,5 +562,5 @@ class DomainGenerator:
         This function generate single shape for surface
         """
         # TODO:
-        surface[int(startPoint[0]), int(startPoint[1])] = 1
+        surface[int(startPoint[0]), int(startPoint[1])] = -1
         return surface
