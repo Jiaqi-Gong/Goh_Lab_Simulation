@@ -1,0 +1,35 @@
+Time: 17:47:30, start to init the simulation generator
+Time: 17:47:30, Bacteria manager init done
+Time: 17:47:30, {'trail': 1, 'dimension': 2, 'seed': 10, 'bacteriaNum': 1, 'bacteriaSeed': 10, 'bacteriaSize': (5, 5), 'bacteriaSurfaceShape': 'rectangle', 'bacteriaSurfaceCharge': 0, 'bacteriaDomainSize': (1, 1), 'bacteriaDomainShape': 'diamond', 'bacteriaDomainConcentration': 0.5, 'bacteriaDomainGenerator': <Domain.DomainGenerator object at 0x7f9a3b3dc7c0>, 'bacteria': []}
+Time: 17:47:30, Generate 2D film
+Time: 17:47:30, start to generate Film surface 2D
+Time: 17:47:30, Generate Film surface 2D done
+Time: 17:47:30, {'charge': 0, 'dimension': 2, 'height': 0, 'length': 2000, 'width': 2000, 'trail': 1, 'shape': 'rectangle', 'originalSurface': array([[0., 0., 0., ..., 0., 0., 0.],
+       [0., 0., 0., ..., 0., 0., 0.],
+       [0., 0., 0., ..., 0., 0., 0.],
+       ...,
+       [0., 0., 0., ..., 0., 0., 0.],
+       [0., 0., 0., ..., 0., 0., 0.],
+       [0., 0., 0., ..., 0., 0., 0.]]), 'seed': 1, 'surfaceWithDomain': None}
+Time: 17:47:30, Generate 2D film with domain
+Time: 17:47:30, Start to generate domain ......
+Time: 17:47:30, Domain number is: 8
+Time: 17:47:30, start to make surface positive
+Time: 17:47:30, {'charge': 0, 'dimension': 2, 'height': 0, 'length': 2000, 'width': 2000, 'trail': 1, 'shape': 'rectangle', 'originalSurface': array([[0., 0., 0., ..., 0., 0., 0.],
+       [0., 0., 0., ..., 0., 0., 0.],
+       [0., 0., 0., ..., 0., 0., 0.],
+       ...,
+       [0., 0., 0., ..., 0., 0., 0.],
+       [0., 0., 0., ..., 0., 0., 0.],
+       [0., 0., 0., ..., 0., 0., 0.]]), 'seed': 1, 'surfaceWithDomain': None}
+Time: 17:47:32, generate new surface done
+Time: 17:47:32, [[1. 1. 1. ... 1. 1. 1.]
+ [1. 1. 1. ... 1. 1. 1.]
+ [1. 1. 1. ... 1. 1. 1.]
+ ...
+ [1. 1. 1. ... 1. 1. 1.]
+ [1. 1. 1. ... 1. 1. 1.]
+ [1. 1. 1. ... 1. 1. 1.]]
+Time: 17:47:32, Start to generate domain on the surface
+Time: 17:47:32, <Film.FilmSurface2D object at 0x7f9a3b40bf40>
+Time: 17:47:32, Point picked is: (579, 1203)
