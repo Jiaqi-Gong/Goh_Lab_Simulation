@@ -11,22 +11,29 @@ from MainSimulation import Simulation
 
 
 def test_diamond():
-    a = np.zeros((20, 20))
+    a = np.zeros((15, 15))
     length = 3
     n = length
     c = 0  # for count
-    start = (1, 8)
+    start = (1, 6)
+    a[start[0]][start[1]] = -1
+
+    pos = 1
 
     # make upper diamond
     for i in range(0, n + 1):
+        print(i)
         for j in range(-c + 1, c):
-            a[start[0] + i][start[1] + j] = 1
+            print(i, j, (start[0] + i, start[1] + j - 1))
+            a[start[0] + i][start[1] + j - 1] = pos
+            pos += 1
 
         c += 1
     # make lower diamond
     for i in range(n + 1, 2 * (n + 1) + 1):
         for j in range(-c + 1, c):
-            a[start[0] + i][start[1] - j] = 1
+            a[start[0] + i][start[1] - j - 1] = pos
+            pos += 1
 
         c -= 1
 

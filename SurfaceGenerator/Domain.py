@@ -32,7 +32,10 @@ class DomainGenerator:
         :param concentration: concentration of the charge
         :return: return the surface with wanted domain on it
         """
+        writeLog("This is function generateDomain in Domain.py")
         showMessage("Start to generate domain ......")
+        writeLog([self.__dict__, surface.__dict__, shape, size, concentration])
+
         # get size
         domainLength = size[0] * 100
         domainWidth = size[1] * 100
@@ -91,18 +94,17 @@ class DomainGenerator:
 
             # pick a point in the matrix as the start point of generate domain
             # randint pick x and y, leave the enough space for not touching the edge
-            start = self._randomPoint(surface.length, surface.width, domainLength, domainWidth)
+            start = self._randomPoint(surface.length, surface.width, domainLength, domainWidth, shape)
 
-            showMessage("Point picked is: {}".format(start))
             emptyResult = checkEmpty(newSurface, domainWidth, domainLength, start)
-            showMessage("empty result is: {}".format(emptyResult))
+            writeLog("empty result is: {}".format(emptyResult))
 
             # check the position of this shape is empty, if not empty, then continue
             if not emptyResult:
                 continue
 
             # generate this shape's domain
-            surface = generateShape(newSurface, domainWidth, domainLength, start)
+            newSurface = generateShape(newSurface, domainWidth, domainLength, start)
 
             # update generated number
             generated += 1
@@ -110,15 +112,16 @@ class DomainGenerator:
             showMessage("Generated number is: {}".format(generated))
 
         showMessage("Domain generated done")
-        writeLog(surface)
+        writeLog(newSurface)
 
         # return the surface generated based on k value
-        return surface
+        return newSurface
 
     def _makeSurfacePositive(self, passInSurface: Surface):
         """
         Make the entire surface passed in positive, which means set all values in the passed in nested list to 1
         """
+        writeLog("This is _makeSurfacePositive in Domain.py")
         showMessage("start to make surface positive")
         writeLog(passInSurface.__dict__)
         # get the original surface in the passed in surface
@@ -150,19 +153,40 @@ class DomainGenerator:
         # return the generated result
         return positiveSurface
 
-    def _randomPoint(self, surfaceLength: int, surfaceWidth: int, domainLength: int, domainWidth: int) -> Tuple[
-        int, int]:
+    def _randomPoint(self, surfaceLength: int, surfaceWidth: int, domainLength: int, domainWidth: int, shape: str) \
+            -> Tuple[int, int]:
         """
         Randomly pick a point on the surface given
         :return a tuple represent a point in the surface in the matrix
         """
+        writeLog("This is _randomPoint in Domain.py")
+        writeLog([self.__dict__, surfaceLength, surfaceWidth, domainLength, domainLength, shape])
+
+        # depends on the shape
         # pick a point on x-axis, this point should have enough space for domain to generate
         # without touch the boundary of surface
-        x = random.randint(domainWidth, surfaceWidth - domainWidth)
 
         # pick a point on y-axis, this point should have enough space for domain to generate
         # without touch the boundary of surface
-        y = random.randint(domainLength, surfaceLength - domainLength)
+        if shape.upper() == "DIAMOND":
+            x = random.randint(domainWidth + 1, surfaceWidth - domainWidth - 1)
+            y = random.randint(0, surfaceLength - domainLength * 2 - 1)
+            # showMessage("x in range: {}, y in range: {}".format((domainWidth + 1, surfaceWidth - domainWidth - 1),
+            #                                                     (0, surfaceLength - domainLength * 2 - 1)))
+
+
+        elif shape.upper() == "CROSS":
+            raise NotImplementedError
+
+        elif shape.upper() == "OCTAGON":
+            raise NotImplementedError
+
+        elif shape.upper() == "SINGLE":
+            raise NotImplementedError
+        else:
+            raise RuntimeError("Wrong shape in the function _randomPoint")
+
+        writeLog("Point picked is: {}".format((x, y)))
 
         # return the result as tuple
         return (x, y)
@@ -184,6 +208,7 @@ class DomainGenerator:
         # make upper diamond
         for i in range(0, n + 1):
             for j in range(-count + 1, count):
+                # showMessage("Checking point: {}".format((start[0] + i, start[1] + j)))
                 if surface[start[0] + i][start[1] + j] == -1:
                     return False
 
@@ -191,9 +216,17 @@ class DomainGenerator:
             count += 1
 
         # make lower diamond
+        showMessage("i in range: {}".format((n + 1, 2 * (n + 1) + 1)))
         for i in range(n + 1, 2 * (n + 1) + 1):
             for j in range(-count + 1, count):
-                if surface[start[0] + i][start[1] - j] == -1:
+                # showMessage("Checking point: {}".format((start[0] + i, start[1] + j)))
+                try:
+                    if surface[start[0] + i][start[1] - j] == -1:
+                        return False
+                except IndexError:
+                    showMessage(
+                        "Index error when Checking point: {}, starting point is: {}, domain length is: {}".format(
+                            (start[0] + i, start[1] + j), startPoint, domainLength))
                     return False
 
             # lower part, width becomes thinner

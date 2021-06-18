@@ -12,7 +12,6 @@ from SurfaceGenerator.Surface import Z_AX_2D
 from ExternalIO import showMessage, writeLog
 
 
-
 class Film(Surface, ABC):
     """
     This is an abstract class of net neutral surface, subclass of Surface, should implement by 2D and 3D version
@@ -28,7 +27,6 @@ class FilmSurface2D(Film, ABC):
     """
 
     def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int):
-
         showMessage("start to generate Film surface 2D")
 
         # set the surface charge

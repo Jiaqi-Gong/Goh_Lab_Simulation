@@ -40,6 +40,11 @@ class FilmManager:
         """
         This function generate corresponding film need based on the number wanted
         """
+        writeLog("This is function generate Film in the FilmManager.py")
+        showMessage("Start to generate Film")
+        writeLog(self.__dict__)
+
+        # depends on the dimension to call appropriate function
         if self.dimension == 2:
             for i in range(self.filmNum):
                 seed = self.filmSeed + 0
