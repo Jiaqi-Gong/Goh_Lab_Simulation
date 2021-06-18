@@ -1,3 +1,0 @@
-Head: This is helping center, you can find the word explanation of all parameter asked you to put in, some are followed with example
-Dimension:
-surfaceSize:

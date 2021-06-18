@@ -1,0 +1,6 @@
+The size of the film surface in the Old version is:
+X_AX = 10500  # number of coordinates for x-axis
+Y_AX = 10500  # number of coordinates for y-axis
+
+In the new code, 1micrometer (um) = 100 points.
+Thus when input the size of surface, type in 105x105

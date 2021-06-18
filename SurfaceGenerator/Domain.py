@@ -2,10 +2,13 @@
 This program is generating the domain with some charge on it
 Can be used for 2D, 3D and for testing surface, bacteria surface
 """
+import random
+
 from numpy import ndarray
 import numpy as np
-from Surface import *
+from typing import Tuple
 from Surface import Surface
+from ExternalIO import showMessage, writeLog
 
 
 class DomainGenerator:
@@ -13,39 +16,41 @@ class DomainGenerator:
     This class is used to generate the domain on the surface passed in
     """
 
-    def __init__(self, trail: int, seed: int):
+    def __init__(self, seed: int):
         """
         Init this domain generate
-        :param trail: trail number
         :param seed: seed for random, if using same seed can repeat the simulation
         """
-        self.trail = trail
         self.seed = seed
 
-    def generateDomain(self, surface: Surface, shape: str, size: str, concentration: float):
+    def generateDomain(self, surface: Surface, shape: str, size: Tuple[int, int], concentration: float):
         """
         This function takes in a surface, shape and size of domain want to generate on the surface
         :param surface: the surface want to generate the domain
         :param shape: shape of the domain
-        :param size: size of the surface, in the format ###x###, in unit micrometer, 1micrometer = 100 points, NOTICE: size of domain must smaller than surface
-        :param concentration: concentration of the charge?
-        :param k:
+        :param size: size of the surface, in unit micrometer, 1micrometer = 100 points, NOTICE: size of domain must smaller than surface
+        :param concentration: concentration of the charge
         :return: return the surface with wanted domain on it
         """
+        writeLog("This is function generateDomain in Domain.py")
+        showMessage("Start to generate domain ......")
+        writeLog([self.__dict__, surface.__dict__, shape, size, concentration])
 
         # get size
-        size = size.split("x")
-        domainWidth = int(size[0]) * 100
-        domainLength = int(size[1]) * 100
+        domainLength = size[0] * 100
+        domainWidth = size[1] * 100
 
         # calculate how many domain should generate
-        domainNum = int((surface.width * surface.length * concentration) / (domainWidth * domainLength))
+        domainNum = int((surface.length * surface.width * concentration) / (domainWidth * domainLength))
 
-        # gradTotal number of points per gradient strip
-        gradTotal = surface.width * surface.length
+        showMessage("Domain number is: {}".format(domainNum))
 
-        # first, make entire surface positive
-        surface1D = np.ones(gradTotal)
+        # first, make entire passed in surface positive
+        newSurface = self._makeSurfacePositive(surface)
+
+        # record info into log
+        showMessage("generate new surface done")
+        writeLog(newSurface)
 
         # init generated domain number
         generated = 0
@@ -76,27 +81,117 @@ class DomainGenerator:
 
         # more shape coming soon, leave for more extension
 
+        showMessage("Start to generate domain on the surface")
+        writeLog(surface)
+
+        # check generate domain number is not too small
+        if generated >= domainNum:
+            raise RuntimeError("Domain concentration is too low")
+
         # start to generate the domain on surface
         while generated < domainNum:
             # pick a point as the start of the diamond shape, which point is the toppest point of the diamond shape
 
-            # need to cheng this start, look at hte old code
-            start = np.random.randint(surface.length * 7, gradTotal - (surface.length * 10) - 2)
+            # pick a point in the matrix as the start point of generate domain
+            # randint pick x and y, leave the enough space for not touching the edge
+            start = self._randomPoint(surface.length, surface.width, domainLength, domainWidth, shape)
+
+            emptyResult = checkEmpty(newSurface, domainWidth, domainLength, start)
+            writeLog("empty result is: {}".format(emptyResult))
 
             # check the position of this shape is empty, if not empty, then continue
-            if not checkEmpty(surface1D, domainWidth, domainLength, start):
+            if not emptyResult:
                 continue
 
             # generate this shape's domain
-            surface = generateShape(surface1D, domainWidth, domainLength, start)
+            newSurface = generateShape(newSurface, domainWidth, domainLength, start)
 
             # update generated number
             generated += 1
 
-        # return the surface generated based on k value
-        return surface
+            showMessage("Generated number is: {}".format(generated))
 
-    def _diamondEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
+        showMessage("Domain generated done")
+        writeLog(newSurface)
+
+        # return the surface generated based on k value
+        return newSurface
+
+    def _makeSurfacePositive(self, passInSurface: Surface):
+        """
+        Make the entire surface passed in positive, which means set all values in the passed in nested list to 1
+        """
+        writeLog("This is _makeSurfacePositive in Domain.py")
+        showMessage("start to make surface positive")
+        writeLog(passInSurface.__dict__)
+        # get the original surface in the passed in surface
+        positiveSurface = passInSurface.originalSurface
+
+        # if passed in is a 2D surface
+        if passInSurface.dimension == 2:
+            # access each row
+            for i in range(len(positiveSurface)):
+                # access each point
+                for j in range(len(positiveSurface[i])):
+                    # set the value in position to 1, which means positive
+                    positiveSurface[i][j] = 1
+
+        # if passed in is a 3D surface
+        elif passInSurface.dimension == 3:
+            # access each row
+            for i in range(len(positiveSurface)):
+                # access each column
+                for j in range(len(positiveSurface[i])):
+                    # access each height
+                    for k in range(len(positiveSurface[i][j])):
+                        # set the value in position to 1, which means positive
+                        positiveSurface[i][j][k] = 1
+
+        else:
+            raise RuntimeError("Surface passed in is not 2D or 3D")
+
+        # return the generated result
+        return positiveSurface
+
+    def _randomPoint(self, surfaceLength: int, surfaceWidth: int, domainLength: int, domainWidth: int, shape: str) \
+            -> Tuple[int, int]:
+        """
+        Randomly pick a point on the surface given
+        :return a tuple represent a point in the surface in the matrix
+        """
+        writeLog("This is _randomPoint in Domain.py")
+        writeLog([self.__dict__, surfaceLength, surfaceWidth, domainLength, domainLength, shape])
+
+        # depends on the shape
+        # pick a point on x-axis, this point should have enough space for domain to generate
+        # without touch the boundary of surface
+
+        # pick a point on y-axis, this point should have enough space for domain to generate
+        # without touch the boundary of surface
+        if shape.upper() == "DIAMOND":
+            x = random.randint(domainWidth + 1, surfaceWidth - domainWidth - 1)
+            y = random.randint(0, surfaceLength - domainLength * 2 - 1)
+            showMessage("x in range: {}, y in range: {}".format((domainWidth + 1, surfaceWidth - domainWidth - 1),
+                                                                (0, surfaceLength - domainLength * 2 - 1)))
+
+
+        elif shape.upper() == "CROSS":
+            raise NotImplementedError
+
+        elif shape.upper() == "OCTAGON":
+            raise NotImplementedError
+
+        elif shape.upper() == "SINGLE":
+            raise NotImplementedError
+        else:
+            raise RuntimeError("Wrong shape in the function _randomPoint")
+
+        writeLog("Point picked is: {}".format((x, y)))
+
+        # return the result as tuple
+        return (x, y)
+
+    def _diamondEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]):
         """
         This function check the position want to generate diamond whether is empty
         This function is adjusted based on:
@@ -105,28 +200,42 @@ class DomainGenerator:
         """
         # set the new name
         n = domainWidth
-        start = surface[startPoint]
+        start = startPoint
+
+        # set a variable for checking the width
+        count = 0
 
         # make upper diamond
         for i in range(0, n + 1):
-            for j in range(-i, i + 1):
-                if surface[start[0] + i][start[1] + j] != 1:
+            for j in range(-count + 1, count):
+                # showMessage("Checking point: {}".format((start[0] + i, start[1] + j)))
+                if surface[start[0] + i][start[1] + j] == -1:
                     return False
 
-        # make the middle line
-        for j in range(-n - 1, n + 2):
-            if surface[start[0] + n + 1][start[1] + j] != 1:
-                return False
+            # upper part, width becomes wider
+            count += 1
 
         # make lower diamond
-        for i in range(n, 2 * n + 1):
-            for j in range(-i + n, i - n + 1):
-                if surface[start[0] - i + 1][start[1] - j] != 1:
+        showMessage("i in range: {}".format((n + 1, 2 * (n + 1) + 1)))
+        for i in range(n + 1, 2 * (n + 1) + 1):
+            for j in range(-count + 1, count):
+                # showMessage("Checking point: {}".format((start[0] + i, start[1] + j)))
+                try:
+                    if surface[start[0] + i][start[1] - j] == -1:
+                        return False
+                except IndexError:
+                    showMessage(
+                        "Index error when Checking point: {}, starting point is: {}, domain length is: {}".format(
+                            (start[0] + i, start[1] + j), startPoint, domainLength))
                     return False
 
+            # lower part, width becomes thinner
+            count -= 1
+
+        # return the checking result
         return True
 
-    def _generateDiamond(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
+    def _generateDiamond(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]):
         """
         This function generate diamond shape domain
         This function is adjusted based on:
@@ -134,23 +243,27 @@ class DomainGenerator:
         :return return the surface with diamond domain on it
         """
         # set the new name
-        # bug here, when it's 1
         n = domainWidth
-        start = surface[startPoint]
+        start = startPoint
+
+        # set a variable for checking the width
+        count = 0
 
         # make upper diamond
         for i in range(0, n + 1):
-            for j in range(-i, i + 1):
-                surface[start[0] + i][start[1] + j] = 1
+            for j in range(-count + 1, count):
+                surface[start[0] + i][start[1] + j] = -1
 
-        # make the middle line
-        for j in range(-n - 1, n + 2):
-            surface[start[0] + n + 1][start[1] + j] = 1
+            # upper part, width becomes wider
+            count += 1
 
         # make lower diamond
-        for i in range(n, 2 * n + 1):
-            for j in range(-i + n, i - n + 1):
-                surface[start[0] - i + 1][start[1] - j] = 1
+        for i in range(n + 1, 2 * (n + 1) + 1):
+            for j in range(-count + 1, count):
+                surface[start[0] + i][start[1] - j] = -1
+
+            # lower part, width becomes thinner
+            count -= 1
 
         # return the generated surface
         return surface
@@ -159,21 +272,20 @@ class DomainGenerator:
         """
         This function check the position want to generate cross is empty
         """
-        # TODO:
         # Change the names for each variable
         cen = startPoint
         # create the vertical line of the cross
         for i in range(domainWidth + 1):
-            if surface[cen[0] + i - 1, cen[1] - 1] == 1:
+            if surface[cen[0] + i - 1, cen[1] - 1] == -1:
                 return False
-            if surface[cen[0] - i - 1, cen[1] - 1] == 1:
+            if surface[cen[0] - i - 1, cen[1] - 1] == -1:
                 return False
 
         # create the horizontal line of the cross
         for j in range(domainLength + 1):
-            if surface[cen[0] - 1, cen[1] + j - 1] == 1:
+            if surface[cen[0] - 1, cen[1] + j - 1] == -1:
                 return False
-            if surface[cen[0] - 1, cen[1] - j - 1] == 1:
+            if surface[cen[0] - 1, cen[1] - j - 1] == -1:
                 return False
 
         return True
@@ -182,18 +294,22 @@ class DomainGenerator:
         """
         This function generate cross shape for surface
         """
-        # TODO:
         # Change the names for each variable
         cen = startPoint
         # create the vertical line of the cross
         for i in range(domainWidth + 1):
+<<<<<<< HEAD
             surface[cen[0] + i - 1, cen[1] - 1] = 1
             surface[cen[0] - i - 1, cen[1] - 1] = 1
+=======
+            surface[cen[0] + i - 1, cen[1] - 1] = -1
+            surface[cen[0] - i - 1, cen[1] - 1] = -1
+>>>>>>> c09e4464e8188a9b5914e39447f582876d1a9af8
 
         # create the horizontal line of the cross
         for j in range(domainLength + 1):
-            surface[cen[0] - 1, cen[1] + j - 1] = 1
-            surface[cen[0] - 1, cen[1] - j - 1] = 1
+            surface[cen[0] - 1, cen[1] + j - 1] = -1
+            surface[cen[0] - 1, cen[1] - j - 1] = -1
 
         return surface
 
@@ -201,8 +317,6 @@ class DomainGenerator:
         """
         This function check the position want to generate octagon is empty
         """
-        # TODO:
-
         # Rename variables
         ln = domainWidth
         cen = startPoint
@@ -238,13 +352,13 @@ class DomainGenerator:
             n = int(ln / 2 + 0.5)
             for i in range(n):
                 for j in range(n):
-                    if surface[int(cen[0] + (0.5 + i)), int(cen[1] + (0.5 + j))] == 1:
+                    if surface[int(cen[0] + (0.5 + i)), int(cen[1] + (0.5 + j))] == -1:
                         return False
-                    if surface[int(cen[0] + (0.5 + i)), int(cen[1] - (0.5 + j))] == 1:
+                    if surface[int(cen[0] + (0.5 + i)), int(cen[1] - (0.5 + j))] == -1:
                         return False
-                    if surface[int(cen[0] - (0.5 + i)), int(cen[1] + (0.5 + j))] == 1:
+                    if surface[int(cen[0] - (0.5 + i)), int(cen[1] + (0.5 + j))] == -1:
                         return False
-                    if surface[int(cen[0] - (0.5 + i)), int(cen[1] - (0.5 + j))] == 1:
+                    if surface[int(cen[0] - (0.5 + i)), int(cen[1] - (0.5 + j))] == -1:
                         return False
 
             # Index edges of the square
@@ -262,13 +376,13 @@ class DomainGenerator:
             n = int(ln / 2)
             for i in range(n + 1):
                 for j in range(n + 1):
-                    if surface[int(cen[0] + i), int(cen[1] + j)] == 1:
+                    if surface[int(cen[0] + i), int(cen[1] + j)] == -1:
                         return False
-                    if surface[int(cen[0] + i), int(cen[1] - j)] == 1:
+                    if surface[int(cen[0] + i), int(cen[1] - j)] == -1:
                         return False
-                    if surface[int(cen[0] - i), int(cen[1] + j)] == 1:
+                    if surface[int(cen[0] - i), int(cen[1] + j)] == -1:
                         return False
-                    if surface[int(cen[0] - i), int(cen[1] - j)] == 1:
+                    if surface[int(cen[0] - i), int(cen[1] - j)] == -1:
                         return False
 
             # Index edges of the square
@@ -286,7 +400,7 @@ class DomainGenerator:
         nu_tr = ln + 1
         for i in range(0, ln + 1):
             for j in range(0, nu_tr):
-                if surface[int(ed_tr[0] - i), int(ed_tr[1] + j)] == 1:
+                if surface[int(ed_tr[0] - i), int(ed_tr[1] + j)] == -1:
                     return False
             nu_tr -= 1
 
@@ -294,7 +408,7 @@ class DomainGenerator:
         nu_tl = ln + 1
         for i in range(0, ln + 1):
             for j in range(0, nu_tl):
-                if surface[int(ed_tl[0] - i), int(ed_tl[1] - j)] == 1:
+                if surface[int(ed_tl[0] - i), int(ed_tl[1] - j)] == -1:
                     return False
             nu_tl -= 1
 
@@ -302,7 +416,7 @@ class DomainGenerator:
         nu_br = ln + 1
         for i in range(0, ln + 1):
             for j in range(0, nu_br):
-                if surface[int(ed_br[0] + i), int(ed_br[1] + j)] == 1:
+                if surface[int(ed_br[0] + i), int(ed_br[1] + j)] == -1:
                     return False
             nu_br -= 1
 
@@ -310,7 +424,7 @@ class DomainGenerator:
         nu_bl = ln + 1
         for i in range(0, ln + 1):
             for j in range(0, nu_bl):
-                if surface[int(ed_bl[0] + i), int(ed_bl[1] - j)] == 1:
+                if surface[int(ed_bl[0] + i), int(ed_bl[1] - j)] == -1:
                     return False
             nu_bl -= 1
 
@@ -318,27 +432,28 @@ class DomainGenerator:
         # top square
         for i in range(1, ln + 1):
             for j in range(1, ln + 1):
-                if surface[int(ed_tl[0] - i), int(ed_tl[1] + j)] == 1:
+                if surface[int(ed_tl[0] - i), int(ed_tl[1] + j)] == -1:
                     return False
 
         # left square
         for i in range(1, ln + 1):
             for j in range(1, ln + 1):
-                if surface[int(ed_tl[0] + i), int(ed_tl[1] - j)] == 1:
+                if surface[int(ed_tl[0] + i), int(ed_tl[1] - j)] == -1:
                     return False
 
         # right square
         for i in range(1, ln + 1):
             for j in range(1, ln + 1):
-                if surface[int(ed_br[0] - i), int(ed_br[1] + j)] == 1:
+                if surface[int(ed_br[0] - i), int(ed_br[1] + j)] == -1:
                     return False
 
         # bottom square
         for i in range(1, ln + 1):
             for j in range(1, ln + 1):
-                if surface[int(ed_br[0] + i), int(ed_br[1] - j)] == 1:
+                if surface[int(ed_br[0] + i), int(ed_br[1] - j)] == -1:
                     return False
         return True
+
     def _generateOctagon(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]):
         """
         This function generate octagon shape for surface
@@ -360,7 +475,7 @@ class DomainGenerator:
                 cen = [cen[0], cen[1] - 0.5]
             elif cen[1] % 2 == 1:
                 cen = [cen[0] - 0.5, cen[1]]
-                # If the length is an even number, the center of the octagon should be located on a point (ie center point should end as .0)
+        # If the length is an even number, the center of the octagon should be located on a point (ie center point should end as .0)
         elif cen[0] % 2 == cen[1] % 2 and ln % 2 == 0:
             if cen[0] % 2 == 1:
                 cen = [cen[0] - 0.5, cen[1] - 0.5]
@@ -379,10 +494,10 @@ class DomainGenerator:
             n = int(ln / 2 + 0.5)
             for i in range(n):
                 for j in range(n):
-                    surface[int(cen[0] + (0.5 + i)), int(cen[1] + (0.5 + j))] = 1
-                    surface[int(cen[0] + (0.5 + i)), int(cen[1] - (0.5 + j))] = 1
-                    surface[int(cen[0] - (0.5 + i)), int(cen[1] + (0.5 + j))] = 1
-                    surface[int(cen[0] - (0.5 + i)), int(cen[1] - (0.5 + j))] = 1
+                    surface[int(cen[0] + (0.5 + i)), int(cen[1] + (0.5 + j))] = -1
+                    surface[int(cen[0] + (0.5 + i)), int(cen[1] - (0.5 + j))] = -1
+                    surface[int(cen[0] - (0.5 + i)), int(cen[1] + (0.5 + j))] = -1
+                    surface[int(cen[0] - (0.5 + i)), int(cen[1] - (0.5 + j))] = -1
 
             # Index edges of the square
             # top right edge
@@ -400,10 +515,10 @@ class DomainGenerator:
             n = int(ln / 2)
             for i in range(n + 1):
                 for j in range(n + 1):
-                    surface[int(cen[0] + i), int(cen[1] + j)] = 1
-                    surface[int(cen[0] + i), int(cen[1] - j)] = 1
-                    surface[int(cen[0] - i), int(cen[1] + j)] = 1
-                    surface[int(cen[0] - i), int(cen[1] - j)] = 1
+                    surface[int(cen[0] + i), int(cen[1] + j)] = -1
+                    surface[int(cen[0] + i), int(cen[1] - j)] = -1
+                    surface[int(cen[0] - i), int(cen[1] + j)] = -1
+                    surface[int(cen[0] - i), int(cen[1] - j)] = -1
 
             # Index edges of the square
             # top right edge
@@ -420,58 +535,57 @@ class DomainGenerator:
         nu_tr = ln + 1
         for i in range(0, ln + 1):
             for j in range(0, nu_tr):
-                surface[int(ed_tr[0] - i), int(ed_tr[1] + j)] = 1
+                surface[int(ed_tr[0] - i), int(ed_tr[1] + j)] = -1
             nu_tr -= 1
 
         # top left
         nu_tl = ln + 1
         for i in range(0, ln + 1):
             for j in range(0, nu_tl):
-                surface[int(ed_tl[0] - i), int(ed_tl[1] - j)] = 1
+                surface[int(ed_tl[0] - i), int(ed_tl[1] - j)] = -1
             nu_tl -= 1
 
         # bottom right
         nu_br = ln + 1
         for i in range(0, ln + 1):
             for j in range(0, nu_br):
-                surface[int(ed_br[0] + i), int(ed_br[1] + j)] = 1
+                surface[int(ed_br[0] + i), int(ed_br[1] + j)] = -1
             nu_br -= 1
 
         # bottom left triangle
         nu_bl = ln + 1
         for i in range(0, ln + 1):
             for j in range(0, nu_bl):
-                surface[int(ed_bl[0] + i), int(ed_bl[1] - j)] = 1
+                surface[int(ed_bl[0] + i), int(ed_bl[1] - j)] = -1
             nu_bl -= 1
 
         # Finally, fill out the remaining 4 squares
         # top square
         for i in range(1, ln + 1):
             for j in range(1, ln + 1):
-                surface[int(ed_tl[0] - i), int(ed_tl[1] + j)] = 1
+                surface[int(ed_tl[0] - i), int(ed_tl[1] + j)] = -1
 
         # left square
         for i in range(1, ln + 1):
             for j in range(1, ln + 1):
-                surface[int(ed_tl[0] + i), int(ed_tl[1] - j)] = 1
+                surface[int(ed_tl[0] + i), int(ed_tl[1] - j)] = -1
 
         # right square
         for i in range(1, ln + 1):
             for j in range(1, ln + 1):
-                surface[int(ed_br[0] - i), int(ed_br[1] + j)] = 1
+                surface[int(ed_br[0] - i), int(ed_br[1] + j)] = -1
 
         # bottom square
         for i in range(1, ln + 1):
             for j in range(1, ln + 1):
-                surface[int(ed_br[0] + i), int(ed_br[1] - j)] = 1
+                surface[int(ed_br[0] + i), int(ed_br[1] - j)] = -1
         return surface
 
     def _singleEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
         """
         This function check the position want to generate single is empty
         """
-        # TODO:
-        if surface[int(startPoint[0]),int(startPoint[1])] == 1:
+        if surface[int(startPoint[0]), int(startPoint[1])] == -1:
             return False
 
         return True
@@ -480,6 +594,5 @@ class DomainGenerator:
         """
         This function generate single shape for surface
         """
-        # TODO:
-        surface[int(startPoint[0]),int(startPoint[1])] = 1
+        surface[int(startPoint[0]), int(startPoint[1])] = -1
         return surface
