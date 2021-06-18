@@ -276,16 +276,16 @@ class DomainGenerator:
         cen = startPoint
         # create the vertical line of the cross
         for i in range(domainWidth + 1):
-            if surface[cen[0] + i - 1, cen[1] - 1] == -1:
+            if surface[startPoint[0] + i - 1, startPoint[1] - 1] == -1:
                 return False
-            if surface[cen[0] - i - 1, cen[1] - 1] == -1:
+            if surface[startPoint[0] - i - 1, startPoint[1] - 1] == -1:
                 return False
 
         # create the horizontal line of the cross
         for j in range(domainLength + 1):
-            if surface[cen[0] - 1, cen[1] + j - 1] == -1:
+            if surface[startPoint[0] - 1, startPoint[1] + j - 1] == -1:
                 return False
-            if surface[cen[0] - 1, cen[1] - j - 1] == -1:
+            if surface[startPoint[0] - 1, startPoint[1] - j - 1] == -1:
                 return False
 
         return True
@@ -298,13 +298,13 @@ class DomainGenerator:
         cen = startPoint
         # create the vertical line of the cross
         for i in range(domainWidth + 1):
-            surface[cen[0] + i - 1, cen[1] - 1] = -1
-            surface[cen[0] - i - 1, cen[1] - 1] = -1
+            surface[startPoint[0] + i - 1, startPoint[1] - 1] = -1
+            surface[startPoint[0] - i - 1, startPoint[1] - 1] = -1
 
         # create the horizontal line of the cross
         for j in range(domainLength + 1):
-            surface[cen[0] - 1, cen[1] + j - 1] = -1
-            surface[cen[0] - 1, cen[1] - j - 1] = -1
+            surface[startPoint[0] - 1, startPoint[1] + j - 1] = -1
+            surface[startPoint[0] - 1, startPoint[1] - j - 1] = -1
 
         return surface
 
@@ -318,106 +318,106 @@ class DomainGenerator:
 
         # Find the center of the hexagon
         # If the length is an odd number, the center of the octagon should be located between 4 points (ie center point should end as .5)
-        if cen[0] % 2 == cen[1] % 2 and ln % 2 == 1:
-            if cen[0] % 2 == 1:
-                cen = [cen[0], cen[1]]
-            elif cen[0] % 2 == 0:
-                cen = [cen[0] - 0.5, cen[1] - 0.5]
-        elif cen[0] % 2 != cen[1] % 2 and ln % 2 == 1:
-            if cen[0] % 2 == 1:
-                cen = [cen[0], cen[1] - 0.5]
-            elif cen[1] % 2 == 1:
-                cen = [cen[0] - 0.5, cen[1]]
+        if startPoint[0] % 2 == startPoint[1] % 2 and domainWidth % 2 == 1:
+            if startPoint[0] % 2 == 1:
+                startPoint = [startPoint[0], startPoint[1]]
+            elif startPoint[0] % 2 == 0:
+                startPoint = [startPoint[0] - 0.5, startPoint[1] - 0.5]
+        elif startPoint[0] % 2 != startPoint[1] % 2 and domainWidth % 2 == 1:
+            if startPoint[0] % 2 == 1:
+                startPoint = [startPoint[0], startPoint[1] - 0.5]
+            elif startPoint[1] % 2 == 1:
+                startPoint = [startPoint[0] - 0.5, startPoint[1]]
         # If the length is an even number, the center of the octagon should be located on a point (ie center point should end as .0)
-        elif cen[0] % 2 == cen[1] % 2 and ln % 2 == 0:
-            if cen[0] % 2 == 1:
-                cen = [cen[0] - 0.5, cen[1] - 0.5]
-            elif cen[0] % 2 == 0:
-                cen = [cen[0], cen[1]]
-        elif cen[0] % 2 != cen[1] % 2 and ln % 2 == 0:
-            if cen[0] % 2 == 1:
-                cen = [cen[0] - 0.5, cen[1]]
-            elif cen[1] % 2 == 1:
-                cen = [cen[0], cen[1] - 0.5]
+        elif startPoint[0] % 2 == startPoint[1] % 2 and domainWidth % 2 == 0:
+            if startPoint[0] % 2 == 1:
+                startPoint = [startPoint[0] - 0.5, startPoint[1] - 0.5]
+            elif startPoint[0] % 2 == 0:
+                startPoint = [startPoint[0], startPoint[1]]
+        elif startPoint[0] % 2 != startPoint[1] % 2 and domainWidth % 2 == 0:
+            if startPoint[0] % 2 == 1:
+                startPoint = [startPoint[0] - 0.5, startPoint[1]]
+            elif startPoint[1] % 2 == 1:
+                startPoint = [startPoint[0], startPoint[1] - 0.5]
 
         # Separate conditions between if the length is odd or even
         # If the length is odd
-        if ln % 2 == 1:
+        if domainWidth % 2 == 1:
             # Initial square surrounding the center
-            n = int(ln / 2 + 0.5)
+            n = int(domainWidth / 2 + 0.5)
             for i in range(n):
                 for j in range(n):
-                    if surface[int(cen[0] + (0.5 + i)), int(cen[1] + (0.5 + j))] == -1:
+                    if surface[int(startPoint[0] + (0.5 + i)), int(startPoint[1] + (0.5 + j))] == -1:
                         return False
-                    if surface[int(cen[0] + (0.5 + i)), int(cen[1] - (0.5 + j))] == -1:
+                    if surface[int(startPoint[0] + (0.5 + i)), int(startPoint[1] - (0.5 + j))] == -1:
                         return False
-                    if surface[int(cen[0] - (0.5 + i)), int(cen[1] + (0.5 + j))] == -1:
+                    if surface[int(startPoint[0] - (0.5 + i)), int(startPoint[1] + (0.5 + j))] == -1:
                         return False
-                    if surface[int(cen[0] - (0.5 + i)), int(cen[1] - (0.5 + j))] == -1:
+                    if surface[int(startPoint[0] - (0.5 + i)), int(startPoint[1] - (0.5 + j))] == -1:
                         return False
 
             # Index edges of the square
             # top right edge
-            ed_tr = [int(cen[0] - ln / 2), int(cen[1] + ln / 2)]
+            ed_tr = [int(startPoint[0] - domainWidth / 2), int(startPoint[1] + domainWidth / 2)]
             # top left edge
-            ed_tl = [int(cen[0] - ln / 2), int(cen[1] - ln / 2)]
+            ed_tl = [int(startPoint[0] - domainWidth / 2), int(startPoint[1] - domainWidth / 2)]
             # bottom right edge
-            ed_br = [int(cen[0] + ln / 2), int(cen[1] + ln / 2)]
+            ed_br = [int(startPoint[0] + domainWidth / 2), int(startPoint[1] + domainWidth / 2)]
             # bottom left edge
-            ed_bl = [int(cen[0] + ln / 2), int(cen[1] - ln / 2)]
+            ed_bl = [int(startPoint[0] + domainWidth / 2), int(startPoint[1] - domainWidth / 2)]
             # If the length is even
-        elif ln % 2 == 0:
+        elif domainWidth % 2 == 0:
             # Initial square surrounding the center
-            n = int(ln / 2)
+            n = int(domainWidth / 2)
             for i in range(n + 1):
                 for j in range(n + 1):
-                    if surface[int(cen[0] + i), int(cen[1] + j)] == -1:
+                    if surface[int(startPoint[0] + i), int(startPoint[1] + j)] == -1:
                         return False
-                    if surface[int(cen[0] + i), int(cen[1] - j)] == -1:
+                    if surface[int(startPoint[0] + i), int(startPoint[1] - j)] == -1:
                         return False
-                    if surface[int(cen[0] - i), int(cen[1] + j)] == -1:
+                    if surface[int(startPoint[0] - i), int(startPoint[1] + j)] == -1:
                         return False
-                    if surface[int(cen[0] - i), int(cen[1] - j)] == -1:
+                    if surface[int(startPoint[0] - i), int(startPoint[1] - j)] == -1:
                         return False
 
             # Index edges of the square
             # top right edge
-            ed_tr = [int(cen[0] - ln / 2), int(cen[1] + ln / 2)]
+            ed_tr = [int(startPoint[0] - domainWidth / 2), int(startPoint[1] + domainWidth / 2)]
             # top left edge
-            ed_tl = [int(cen[0] - ln / 2), int(cen[1] - ln / 2)]
+            ed_tl = [int(startPoint[0] - domainWidth / 2), int(startPoint[1] - domainWidth / 2)]
             # bottom right edge
-            ed_br = [int(cen[0] + ln / 2), int(cen[1] + ln / 2)]
+            ed_br = [int(startPoint[0] + domainWidth / 2), int(startPoint[1] + domainWidth / 2)]
             # bottom left edge
-            ed_bl = [int(cen[0] + ln / 2), int(cen[1] - ln / 2)]
+            ed_bl = [int(startPoint[0] + domainWidth / 2), int(startPoint[1] - domainWidth / 2)]
 
         # Fill out the 4 triangles
         # top right
-        nu_tr = ln + 1
-        for i in range(0, ln + 1):
+        nu_tr = domainWidth + 1
+        for i in range(0, domainWidth + 1):
             for j in range(0, nu_tr):
                 if surface[int(ed_tr[0] - i), int(ed_tr[1] + j)] == -1:
                     return False
             nu_tr -= 1
 
         # top left
-        nu_tl = ln + 1
-        for i in range(0, ln + 1):
+        nu_tl = domainWidth + 1
+        for i in range(0, domainWidth + 1):
             for j in range(0, nu_tl):
                 if surface[int(ed_tl[0] - i), int(ed_tl[1] - j)] == -1:
                     return False
             nu_tl -= 1
 
         # bottom right
-        nu_br = ln + 1
-        for i in range(0, ln + 1):
+        nu_br = domainWidth + 1
+        for i in range(0, domainWidth + 1):
             for j in range(0, nu_br):
                 if surface[int(ed_br[0] + i), int(ed_br[1] + j)] == -1:
                     return False
             nu_br -= 1
 
         # bottom left triangle
-        nu_bl = ln + 1
-        for i in range(0, ln + 1):
+        nu_bl = domainWidth + 1
+        for i in range(0, domainWidth + 1):
             for j in range(0, nu_bl):
                 if surface[int(ed_bl[0] + i), int(ed_bl[1] - j)] == -1:
                     return False
@@ -425,26 +425,26 @@ class DomainGenerator:
 
         # Finally, fill out the remaining 4 squares
         # top square
-        for i in range(1, ln + 1):
-            for j in range(1, ln + 1):
+        for i in range(1, domainWidth + 1):
+            for j in range(1, domainWidth + 1):
                 if surface[int(ed_tl[0] - i), int(ed_tl[1] + j)] == -1:
                     return False
 
         # left square
-        for i in range(1, ln + 1):
-            for j in range(1, ln + 1):
+        for i in range(1, domainWidth + 1):
+            for j in range(1, domainWidth + 1):
                 if surface[int(ed_tl[0] + i), int(ed_tl[1] - j)] == -1:
                     return False
 
         # right square
-        for i in range(1, ln + 1):
-            for j in range(1, ln + 1):
+        for i in range(1, domainWidth + 1):
+            for j in range(1, domainWidth + 1):
                 if surface[int(ed_br[0] - i), int(ed_br[1] + j)] == -1:
                     return False
 
         # bottom square
-        for i in range(1, ln + 1):
-            for j in range(1, ln + 1):
+        for i in range(1, domainWidth + 1):
+            for j in range(1, domainWidth + 1):
                 if surface[int(ed_br[0] + i), int(ed_br[1] - j)] == -1:
                     return False
         return True
@@ -454,124 +454,127 @@ class DomainGenerator:
         This function generate octagon shape for surface
         """
 
-        # Rename variables
+        """
+        NOTE: Renamed variables
         ln = domainWidth
         cen = startPoint
+        """
+
         # Find the center of the hexagon
         # If the length is an odd number, the center of the octagon should be located between 4 points (ie center point should end as .5)
-        if cen[0] % 2 == cen[1] % 2 and ln % 2 == 1:
-            if cen[0] % 2 == 1:
-                cen = [cen[0], cen[1]]
-            elif cen[0] % 2 == 0:
-                cen = [cen[0] - 0.5, cen[1] - 0.5]
-        elif cen[0] % 2 != cen[1] % 2 and ln % 2 == 1:
-            if cen[0] % 2 == 1:
-                cen = [cen[0], cen[1] - 0.5]
-            elif cen[1] % 2 == 1:
-                cen = [cen[0] - 0.5, cen[1]]
+        if startPoint[0] % 2 == startPoint[1] % 2 and domainWidth % 2 == 1:
+            if startPoint[0] % 2 == 1:
+                startPoint = [startPoint[0], startPoint[1]]
+            elif startPoint[0] % 2 == 0:
+                startPoint = [startPoint[0] - 0.5, startPoint[1] - 0.5]
+        elif startPoint[0] % 2 != startPoint[1] % 2 and domainWidth % 2 == 1:
+            if startPoint[0] % 2 == 1:
+                startPoint = [startPoint[0], startPoint[1] - 0.5]
+            elif startPoint[1] % 2 == 1:
+                startPoint = [startPoint[0] - 0.5, startPoint[1]]
         # If the length is an even number, the center of the octagon should be located on a point (ie center point should end as .0)
-        elif cen[0] % 2 == cen[1] % 2 and ln % 2 == 0:
-            if cen[0] % 2 == 1:
-                cen = [cen[0] - 0.5, cen[1] - 0.5]
-            elif cen[0] % 2 == 0:
-                cen = [cen[0], cen[1]]
-        elif cen[0] % 2 != cen[1] % 2 and ln % 2 == 0:
-            if cen[0] % 2 == 1:
-                cen = [cen[0] - 0.5, cen[1]]
-            elif cen[1] % 2 == 1:
-                cen = [cen[0], cen[1] - 0.5]
+        elif startPoint[0] % 2 == startPoint[1] % 2 and domainWidth % 2 == 0:
+            if startPoint[0] % 2 == 1:
+                startPoint = [startPoint[0] - 0.5, startPoint[1] - 0.5]
+            elif startPoint[0] % 2 == 0:
+                startPoint = [startPoint[0], startPoint[1]]
+        elif startPoint[0] % 2 != startPoint[1] % 2 and domainWidth % 2 == 0:
+            if startPoint[0] % 2 == 1:
+                startPoint = [startPoint[0] - 0.5, startPoint[1]]
+            elif startPoint[1] % 2 == 1:
+                startPoint = [startPoint[0], startPoint[1] - 0.5]
 
         # Separate conditions between if the length is odd or even
         # If the length is odd
-        if ln % 2 == 1:
+        if domainWidth % 2 == 1:
             # Initial square surrounding the center
-            n = int(ln / 2 + 0.5)
+            n = int(domainWidth / 2 + 0.5)
             for i in range(n):
                 for j in range(n):
-                    surface[int(cen[0] + (0.5 + i)), int(cen[1] + (0.5 + j))] = -1
-                    surface[int(cen[0] + (0.5 + i)), int(cen[1] - (0.5 + j))] = -1
-                    surface[int(cen[0] - (0.5 + i)), int(cen[1] + (0.5 + j))] = -1
-                    surface[int(cen[0] - (0.5 + i)), int(cen[1] - (0.5 + j))] = -1
+                    surface[int(startPoint[0] + (0.5 + i)), int(startPoint[1] + (0.5 + j))] = -1
+                    surface[int(startPoint[0] + (0.5 + i)), int(startPoint[1] - (0.5 + j))] = -1
+                    surface[int(startPoint[0] - (0.5 + i)), int(startPoint[1] + (0.5 + j))] = -1
+                    surface[int(startPoint[0] - (0.5 + i)), int(startPoint[1] - (0.5 + j))] = -1
 
             # Index edges of the square
             # top right edge
-            ed_tr = [int(cen[0] - ln / 2), int(cen[1] + ln / 2)]
+            ed_tr = [int(startPoint[0] - domainWidth / 2), int(startPoint[1] + domainWidth / 2)]
             # top left edge
-            ed_tl = [int(cen[0] - ln / 2), int(cen[1] - ln / 2)]
+            ed_tl = [int(startPoint[0] - domainWidth / 2), int(startPoint[1] - domainWidth / 2)]
             # bottom right edge
-            ed_br = [int(cen[0] + ln / 2), int(cen[1] + ln / 2)]
+            ed_br = [int(startPoint[0] + domainWidth / 2), int(startPoint[1] + domainWidth / 2)]
             # bottom left edge
-            ed_bl = [int(cen[0] + ln / 2), int(cen[1] - ln / 2)]
+            ed_bl = [int(startPoint[0] + domainWidth / 2), int(startPoint[1] - domainWidth / 2)]
 
         # If the length is even
-        elif ln % 2 == 0:
+        elif domainWidth % 2 == 0:
             # Initial square surrounding the center
-            n = int(ln / 2)
+            n = int(domainWidth / 2)
             for i in range(n + 1):
                 for j in range(n + 1):
-                    surface[int(cen[0] + i), int(cen[1] + j)] = -1
-                    surface[int(cen[0] + i), int(cen[1] - j)] = -1
-                    surface[int(cen[0] - i), int(cen[1] + j)] = -1
-                    surface[int(cen[0] - i), int(cen[1] - j)] = -1
+                    surface[int(startPoint[0] + i), int(startPoint[1] + j)] = -1
+                    surface[int(startPoint[0] + i), int(startPoint[1] - j)] = -1
+                    surface[int(startPoint[0] - i), int(startPoint[1] + j)] = -1
+                    surface[int(startPoint[0] - i), int(startPoint[1] - j)] = -1
 
             # Index edges of the square
             # top right edge
-            ed_tr = [int(cen[0] - ln / 2), int(cen[1] + ln / 2)]
+            ed_tr = [int(startPoint[0] - domainWidth / 2), int(startPoint[1] + domainWidth / 2)]
             # top left edge
-            ed_tl = [int(cen[0] - ln / 2), int(cen[1] - ln / 2)]
+            ed_tl = [int(startPoint[0] - domainWidth / 2), int(startPoint[1] - domainWidth / 2)]
             # bottom right edge
-            ed_br = [int(cen[0] + ln / 2), int(cen[1] + ln / 2)]
+            ed_br = [int(startPoint[0] + domainWidth / 2), int(startPoint[1] + domainWidth / 2)]
             # bottom left edge
-            ed_bl = [int(cen[0] + ln / 2), int(cen[1] - ln / 2)]
+            ed_bl = [int(startPoint[0] + domainWidth / 2), int(startPoint[1] - domainWidth / 2)]
 
         # Fill out the 4 triangles
         # top right
-        nu_tr = ln + 1
-        for i in range(0, ln + 1):
+        nu_tr = domainWidth + 1
+        for i in range(0, domainWidth + 1):
             for j in range(0, nu_tr):
                 surface[int(ed_tr[0] - i), int(ed_tr[1] + j)] = -1
             nu_tr -= 1
 
         # top left
-        nu_tl = ln + 1
-        for i in range(0, ln + 1):
+        nu_tl = domainWidth + 1
+        for i in range(0, domainWidth + 1):
             for j in range(0, nu_tl):
                 surface[int(ed_tl[0] - i), int(ed_tl[1] - j)] = -1
             nu_tl -= 1
 
         # bottom right
-        nu_br = ln + 1
-        for i in range(0, ln + 1):
+        nu_br = domainWidth + 1
+        for i in range(0, domainWidth + 1):
             for j in range(0, nu_br):
                 surface[int(ed_br[0] + i), int(ed_br[1] + j)] = -1
             nu_br -= 1
 
         # bottom left triangle
-        nu_bl = ln + 1
-        for i in range(0, ln + 1):
+        nu_bl = domainWidth + 1
+        for i in range(0, domainWidth + 1):
             for j in range(0, nu_bl):
                 surface[int(ed_bl[0] + i), int(ed_bl[1] - j)] = -1
             nu_bl -= 1
 
         # Finally, fill out the remaining 4 squares
         # top square
-        for i in range(1, ln + 1):
-            for j in range(1, ln + 1):
+        for i in range(1, domainWidth + 1):
+            for j in range(1, domainWidth + 1):
                 surface[int(ed_tl[0] - i), int(ed_tl[1] + j)] = -1
 
         # left square
-        for i in range(1, ln + 1):
-            for j in range(1, ln + 1):
+        for i in range(1, domainWidth + 1):
+            for j in range(1, domainWidth + 1):
                 surface[int(ed_tl[0] + i), int(ed_tl[1] - j)] = -1
 
         # right square
-        for i in range(1, ln + 1):
-            for j in range(1, ln + 1):
+        for i in range(1, domainWidth + 1):
+            for j in range(1, domainWidth + 1):
                 surface[int(ed_br[0] - i), int(ed_br[1] + j)] = -1
 
         # bottom square
-        for i in range(1, ln + 1):
-            for j in range(1, ln + 1):
+        for i in range(1, domainWidth + 1):
+            for j in range(1, domainWidth + 1):
                 surface[int(ed_br[0] + i), int(ed_br[1] - j)] = -1
         return surface
 
