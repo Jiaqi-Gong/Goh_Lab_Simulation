@@ -13,8 +13,8 @@ from openpyxl.worksheet.worksheet import Worksheet
 from Film import Film
 from Bacteria import Bacteria
 from ExternalIO import showMessage, writeLog
-from FilmManager import FilmManager
-from BacteriaManager import BacteriaManager
+from Manager.FilmManager import FilmManager
+from Manager.BacteriaManager import BacteriaManager
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter  # allows access to letters of each column
 

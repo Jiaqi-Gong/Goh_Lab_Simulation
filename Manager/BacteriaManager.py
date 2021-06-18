@@ -3,8 +3,8 @@ This program is used to save and manage all bacteria
 """
 from typing import Tuple
 
-from Bacteria import Bacteria2D
-from Domain import DomainGenerator
+from Bacteria.Bacteria import Bacteria2D
+from SurfaceGenerator.Domain import DomainGenerator
 from ExternalIO import showMessage, writeLog
 
 
@@ -79,4 +79,4 @@ class BacteriaManager:
 
         # write into log
         showMessage("2D bacteria generate done")
-        writeLog(self.bacteria.__dict__)
+        writeLog(self.bacteria)

@@ -3,9 +3,9 @@ This program is used to save the Film and manage all films
 """
 from typing import Tuple
 
-from Domain import DomainGenerator
+from SurfaceGenerator.Domain import DomainGenerator
 from ExternalIO import showMessage, writeLog
-from Film import FilmSurface2D
+from Film.Film import FilmSurface2D
 
 
 class FilmManager:
@@ -74,4 +74,4 @@ class FilmManager:
 
         # write into log
         showMessage("2D film generate done")
-        writeLog(self.film.__dict__)
+        writeLog(self.film)

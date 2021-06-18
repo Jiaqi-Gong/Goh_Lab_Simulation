@@ -7,7 +7,7 @@ import random
 from numpy import ndarray
 import numpy as np
 from typing import Tuple
-from Surface import Surface
+from SurfaceGenerator.Surface import Surface
 from ExternalIO import showMessage, writeLog
 
 
@@ -39,6 +39,7 @@ class DomainGenerator:
         # get size
         domainLength = size[0] * 100
         domainWidth = size[1] * 100
+
 
         # calculate how many domain should generate
         domainNum = int((surface.length * surface.width * concentration) / (domainWidth * domainLength))
@@ -88,31 +89,47 @@ class DomainGenerator:
         if generated >= domainNum:
             raise RuntimeError("Domain concentration is too low")
 
+        # Initiallize all the possible starting points on the surface
+        possible_points = self._allPossiblePoint(surface.length, surface.width, domainLength, domainWidth, shape)
+
+        # Initiallize coordinates already with a domain on it
+        coordinate_with_domain = []
+
         # start to generate the domain on surface
         while generated < domainNum:
-            # pick a point as the start of the diamond shape, which point is the toppest point of the diamond shape
+
+            # Create empty list
+            empty_list = []
+            # Remove the coordinates that are already in List from possible_points
+            possible_points = list(set(possible_points) - set(coordinate_with_domain))
 
             # pick a point in the matrix as the start point of generate domain
             # randint pick x and y, leave the enough space for not touching the edge
-            start = self._randomPoint(surface.length, surface.width, domainLength, domainWidth, shape)
+            start = self._randomPoint(surface.length, surface.width, domainLength, domainWidth, shape, possible_points)
 
-            emptyResult = checkEmpty(newSurface, domainWidth, domainLength, start)
+            [emptyResult, coordinate_with_domain] = checkEmpty(newSurface, domainWidth, domainLength, start, empty_list)
             writeLog("empty result is: {}".format(emptyResult))
 
             # check the position of this shape is empty, if not empty, then continue
             if not emptyResult:
                 continue
 
+            # Create empty list
+            empty_list = []
+
             # generate this shape's domain
-            newSurface = generateShape(newSurface, domainWidth, domainLength, start)
+            [newSurface,coordinate_with_domain] = generateShape(newSurface, domainWidth, domainLength, start, empty_list)
 
             # update generated number
             generated += 1
 
             showMessage("Generated number is: {}".format(generated))
 
+            showMessage(len(possible_points))
+
         showMessage("Domain generated done")
         writeLog(newSurface)
+
 
         # return the surface generated based on k value
         return newSurface
@@ -153,27 +170,17 @@ class DomainGenerator:
         # return the generated result
         return positiveSurface
 
-    def _randomPoint(self, surfaceLength: int, surfaceWidth: int, domainLength: int, domainWidth: int, shape: str) \
-            -> Tuple[int, int]:
+    def _allPossiblePoint(self, surfaceLength: int, surfaceWidth: int, domainLength: int, domainWidth: int, shape: str):
         """
-        Randomly pick a point on the surface given
-        :return a tuple represent a point in the surface in the matrix
+        This function creates all the possible starting points for the domain
         """
-        writeLog("This is _randomPoint in Domain.py")
-        writeLog([self.__dict__, surfaceLength, surfaceWidth, domainLength, domainLength, shape])
-
-        # depends on the shape
-        # pick a point on x-axis, this point should have enough space for domain to generate
-        # without touch the boundary of surface
-
-        # pick a point on y-axis, this point should have enough space for domain to generate
-        # without touch the boundary of surface
+        lst = []
         if shape.upper() == "DIAMOND":
-            x = random.randint(domainWidth + 1, surfaceWidth - domainWidth - 1)
-            y = random.randint(0, surfaceLength - domainLength * 2 - 1)
-            showMessage("x in range: {}, y in range: {}".format((domainWidth + 1, surfaceWidth - domainWidth - 1),
-                                                                (0, surfaceLength - domainLength * 2 - 1)))
-
+            x = range(domainWidth + 1, surfaceWidth - domainWidth - 1)
+            y = range(0, surfaceLength - domainLength * 2 - 1)
+            for i in x:
+                for j in y:
+                    lst.append((j, i))
 
         elif shape.upper() == "CROSS":
             raise NotImplementedError
@@ -183,15 +190,31 @@ class DomainGenerator:
 
         elif shape.upper() == "SINGLE":
             raise NotImplementedError
+
         else:
             raise RuntimeError("Wrong shape in the function _randomPoint")
 
-        writeLog("Point picked is: {}".format((x, y)))
+
+        return lst
+    def _randomPoint(self, surfaceLength: int, surfaceWidth: int, domainLength: int, domainWidth: int, shape: str, List: list) \
+            -> Tuple[int, int]:
+        """
+        Randomly pick a point on the surface given
+        :return a tuple represent a point in the surface in the matrix
+        """
+        writeLog("This is _randomPoint in Domain.py")
+        writeLog([self.__dict__, surfaceLength, surfaceWidth, domainLength, domainWidth, shape])
+
+        # Find random coordinate
+        index = np.random.choice(len(List))
+        coordinate = List[index]
+        writeLog("Point picked is: {}".format(coordinate))
 
         # return the result as tuple
-        return (x, y)
+        return coordinate
 
-    def _diamondEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]):
+
+    def _diamondEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int], List: list):
         """
         This function check the position want to generate diamond whether is empty
         This function is adjusted based on:
@@ -210,7 +233,11 @@ class DomainGenerator:
             for j in range(-count + 1, count):
                 # showMessage("Checking point: {}".format((start[0] + i, start[1] + j)))
                 if surface[start[0] + i][start[1] + j] == -1:
-                    return False
+                    # can't be the starting point
+                    List.append((start[0] + i, start[1] + j))
+                    # Append the starting point to the list since starting point can't be used
+                    List.append(start)
+                    return False, List
 
             # upper part, width becomes wider
             count += 1
@@ -220,22 +247,21 @@ class DomainGenerator:
         for i in range(n + 1, 2 * (n + 1) + 1):
             for j in range(-count + 1, count):
                 # showMessage("Checking point: {}".format((start[0] + i, start[1] + j)))
-                try:
-                    if surface[start[0] + i][start[1] - j] == -1:
-                        return False
-                except IndexError:
-                    showMessage(
-                        "Index error when Checking point: {}, starting point is: {}, domain length is: {}".format(
-                            (start[0] + i, start[1] + j), startPoint, domainLength))
-                    return False
+                if surface[start[0] + i][start[1] - j] == -1:
+                    # can't be the starting point
+                    List.append((start[0] + i, start[1] - j))
+                    # Append the starting point to the list since starting point can't be used
+                    List.append(start)
+                    return False, List
+
 
             # lower part, width becomes thinner
             count -= 1
 
         # return the checking result
-        return True
+        return True, List
 
-    def _generateDiamond(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]):
+    def _generateDiamond(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int], List: list):
         """
         This function generate diamond shape domain
         This function is adjusted based on:
@@ -253,6 +279,8 @@ class DomainGenerator:
         for i in range(0, n + 1):
             for j in range(-count + 1, count):
                 surface[start[0] + i][start[1] + j] = -1
+                # can't be the starting point
+                List.append((start[0] + i, start[1] + j))
 
             # upper part, width becomes wider
             count += 1
@@ -261,12 +289,20 @@ class DomainGenerator:
         for i in range(n + 1, 2 * (n + 1) + 1):
             for j in range(-count + 1, count):
                 surface[start[0] + i][start[1] - j] = -1
+                # can't be the starting point
+                List.append((start[0] + i, start[1] - j))
 
             # lower part, width becomes thinner
             count -= 1
 
+        # Append the starting point to the list also to avoid duplicate in the future
+        List.append(start)
+
+        # Remove any duplicate points to reduce time
+        List = list(dict.fromkeys(List))
+
         # return the generated surface
-        return surface
+        return surface, List
 
     def _crossEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
         """
@@ -298,13 +334,8 @@ class DomainGenerator:
         cen = startPoint
         # create the vertical line of the cross
         for i in range(domainWidth + 1):
-<<<<<<< HEAD
-            surface[cen[0] + i - 1, cen[1] - 1] = 1
-            surface[cen[0] - i - 1, cen[1] - 1] = 1
-=======
             surface[cen[0] + i - 1, cen[1] - 1] = -1
             surface[cen[0] - i - 1, cen[1] - 1] = -1
->>>>>>> c09e4464e8188a9b5914e39447f582876d1a9af8
 
         # create the horizontal line of the cross
         for j in range(domainLength + 1):
