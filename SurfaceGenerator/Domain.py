@@ -272,7 +272,6 @@ class DomainGenerator:
         """
         This function check the position want to generate cross is empty
         """
-        # TODO:
         # Change the names for each variable
         cen = startPoint
         # create the vertical line of the cross
@@ -295,7 +294,6 @@ class DomainGenerator:
         """
         This function generate cross shape for surface
         """
-        # TODO:
         # Change the names for each variable
         cen = startPoint
         # create the vertical line of the cross
@@ -314,8 +312,6 @@ class DomainGenerator:
         """
         This function check the position want to generate octagon is empty
         """
-        # TODO:
-
         # Rename variables
         ln = domainWidth
         cen = startPoint
@@ -474,7 +470,7 @@ class DomainGenerator:
                 cen = [cen[0], cen[1] - 0.5]
             elif cen[1] % 2 == 1:
                 cen = [cen[0] - 0.5, cen[1]]
-                # If the length is an even number, the center of the octagon should be located on a point (ie center point should end as .0)
+        # If the length is an even number, the center of the octagon should be located on a point (ie center point should end as .0)
         elif cen[0] % 2 == cen[1] % 2 and ln % 2 == 0:
             if cen[0] % 2 == 1:
                 cen = [cen[0] - 0.5, cen[1] - 0.5]
@@ -584,7 +580,6 @@ class DomainGenerator:
         """
         This function check the position want to generate single is empty
         """
-        # TODO:
         if surface[int(startPoint[0]), int(startPoint[1])] == -1:
             return False
 
@@ -594,6 +589,5 @@ class DomainGenerator:
         """
         This function generate single shape for surface
         """
-        # TODO:
         surface[int(startPoint[0]), int(startPoint[1])] = -1
         return surface

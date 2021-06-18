@@ -535,11 +535,11 @@ def getArgument() -> None:
     # generate simulation program
     showMessage("Start to generate the simulation simulator ......")
     writeLog([simulationType, trail, dimension,
-                     filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
-                     filmDomainSize, filmDomainShape, filmDomainCon,
-                     bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
-                     bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, filmNum, bacteriaNum,
-                     interval_x, interval_y])
+              filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
+              filmDomainSize, filmDomainShape, filmDomainCon,
+              bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
+              bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, filmNum, bacteriaNum,
+              interval_x, interval_y])
 
     sim = Simulation(simulationType, trail, dimension,
                      filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
