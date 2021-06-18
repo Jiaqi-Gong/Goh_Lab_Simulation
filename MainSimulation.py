@@ -3,9 +3,12 @@ This is the simulation demo program, take in the argument user put in and call a
 appropriate parameter and run the simulation and output the result into file
 """
 from datetime import datetime
-from typing import Tuple
+from typing import Tuple, Union
 
 import numpy as np
+from numpy import ndarray
+from openpyxl.worksheet._write_only import WriteOnlyWorksheet
+from openpyxl.worksheet.worksheet import Worksheet
 
 from Film import Film
 from Bacteria import Bacteria
@@ -21,13 +24,24 @@ class Simulation:
     This class is used for simulation
     """
 
+    # declare the type of all variable
+    trail: int
+    dimension: int
+    simulationType: int
+    intervalX: int
+    intervalY: int
+    filmManager: FilmManager
+    bacteriaManager: BacteriaManager
+    startTime: datetime
+    output: Tuple[Workbook, Union[WriteOnlyWorksheet, Worksheet]]
+
     def __init__(self, simulationType: int, trail: int, dimension: int,
                  filmSeed: int, filmSurfaceSize: Tuple[int, int], filmSurfaceShape: str, filmSurfaceCharge: int,
                  filmDomainSize: Tuple[int, int], filmDomainShape: str, filmDomainConcentration: float,
                  bacteriaSeed: int, bacteriaSize: Tuple[int, int], bacteriaSurfaceShape: str,
                  bacteriaSurfaceCharge: int,
                  bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float,
-                 filmNum: int, bacteriaNum: int, interval_x: int, interval_y: int):
+                 filmNum: int, bacteriaNum: int, intervalX: int, intervalY: int) -> None:
         """
         Init the simulation class based on the input info
         Description of input info are shown in the HelpFile.txt
@@ -38,8 +52,8 @@ class Simulation:
         self.trail = trail
         self.dimension = dimension
         self.simulationType = simulationType
-        self.interval_x = interval_x
-        self.interval_y = interval_y
+        self.intervalX = intervalX
+        self.intervalY = intervalY
 
         # init some variable
         self.filmManager = FilmManager(trail, dimension, filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
@@ -49,16 +63,20 @@ class Simulation:
                                                bacteriaSurfaceCharge, bacteriaDomainSize, bacteriaDomainShape,
                                                bacteriaDomainConcentration, bacteriaNum)
         self.startTime = datetime.now()
-        self.output = self._init_output()
+        self.output = self._initOutput()
+
+        # write to log
+        writeLog(self.__dict__)
 
         # generate corresponding variable
         self.filmManager.generateFilm()
         self.bacteriaManager.generateBacteria()
 
-        # write to log
-        writeLog(self.__dict__)
+        # write two manager into the log
+        writeLog(self.filmManager.__dict__)
+        writeLog(self.bacteriaManager.__dict__)
 
-    def runSimulate(self):
+    def runSimulate(self) -> None:
         """
         Based on the simulation type, do the corresponding simulation
         """
@@ -90,7 +108,7 @@ class Simulation:
                 self._simulate(currIter, self.filmManager.film[currIter], self.bacteriaManager.bacteria[0])
                 currIter += 1
 
-    def _simulate(self, currIter: int, film: Film, bacteria: Bacteria):
+    def _simulate(self, currIter: int, film: ndarray, bacteria: ndarray) -> None:
         """
         This is the simulation function in this program, call function do the simulation and output the result
         Prerequisite: surface already generated
@@ -99,17 +117,17 @@ class Simulation:
 
         # call simulation based on the simulation type
         if self.dimension == 2:
-            result = self._interact2D(self.interval_x, self.interval_y, film, bacteria)
+            result = self._interact2D(self.intervalX, self.intervalY, film, bacteria)
         elif self.dimension == 3:
             raise NotImplementedError
 
         # set the output
         self._output(result, currIter)
 
-    def _init_output(self):
+    def _initOutput(self) -> Tuple[Workbook, Union[WriteOnlyWorksheet, Worksheet]]:
         """
         Init the out put excel file
-        copy from the old code
+        copy from the old code with separate seed into film seed and bacteria seed
         """
         # creates excel file
         wb = Workbook()
@@ -147,7 +165,7 @@ class Simulation:
 
         return (wb, ws1)
 
-    def _output(self, result: Tuple, currIter: int):
+    def _output(self, result: Tuple, currIter: int) -> None:
         """
         Output the simulation result into a file
         Copy from old code with minor change
@@ -173,7 +191,8 @@ class Simulation:
 
         # write the result
         ws1.cell(row_pos, 1, str(self.filmManager.filmDomainShape) + " : " + str(self.filmManager.filmDomainSize))
-        ws1.cell(row_pos, 2, str(self.bacteriaManager.bacteriaDomainShape) + " : " + str(self.bacteriaManager.bacteriaDomainSize))
+        ws1.cell(row_pos, 2,
+                 str(self.bacteriaManager.bacteriaDomainShape) + " : " + str(self.bacteriaManager.bacteriaDomainSize))
         ws1.cell(row_pos, 3, self.filmManager.film[currIter].seed)
         ws1.cell(row_pos, 4, self.bacteriaManager.bacteria[currIter].seed)
         ws1.cell(row_pos, 5, min_energy)
@@ -202,7 +221,8 @@ class Simulation:
 
         showMessage("Output done")
 
-    def _interact2D(self, interval_x: int, interval_y: int, film: Film, bacteria: Bacteria):
+    def _interact2D(self, intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray) -> \
+            Tuple[int, int, int, int, int, int, int]:
         """
         Do the simulation, scan whole film surface with bacteria
         The energy calculate only between bacteria surface and the film surface directly under the bacteria
@@ -210,11 +230,14 @@ class Simulation:
         """
         showMessage("Start to interact ......")
         # shape of the bacteria
+
+        ######## bacteria shape is changed, need more consideration
+
         shape = bacteria.shape
 
         # set the range
-        range_x = np.arange(0, shape[0], interval_x)
-        range_y = np.arange(0, shape[1], interval_y)
+        range_x = np.arange(0, shape[0], intervalX)
+        range_y = np.arange(0, shape[1], intervalY)
 
         # init some variable
         # randomly, just not negative
@@ -227,14 +250,14 @@ class Simulation:
         min_y = -1
 
         # change the bacteria surface into 1D
-        bacteria_1D = np.reshape(bacteria.surfaceWithDomain, (-1))
+        bacteria_1D = np.reshape(bacteria, (-1))
 
         # scan through the surface and make calculation
         for x in range_x:
             for y in range_y:
                 # set the x boundary and y boundary
-                x_boundary = bacteria.width + x
-                y_boundary = bacteria.length + y
+                x_boundary = shape[0] + x
+                y_boundary = shape[1] + y
 
                 # check if bacteria surface is exceed range of film surface
                 if x_boundary > shape[0] or y_boundary > shape[1]:
@@ -244,7 +267,7 @@ class Simulation:
                 # do the calculation
 
                 # change the corresponding film surface into 1D
-                film_use = film.surfaceWithDomain[x: x_boundary, y: y_boundary]
+                film_use = film[x: x_boundary, y: y_boundary]
                 film_1D = np.reshape(film_use, (-1))
 
                 # calculate energy, uses electrostatic energy formula, assuming that r = 1
@@ -285,5 +308,5 @@ class Simulation:
 
         return result
 
-    def _interact3D(self):
+    def _interact3D(self) -> Tuple[int, int, int, int, int, int, int]:
         raise NotImplementedError
