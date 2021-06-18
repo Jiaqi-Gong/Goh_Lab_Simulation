@@ -5,6 +5,8 @@ from datetime import datetime
 from typing import Dict, IO
 import logging
 
+from openpyxl.packaging import workbook
+
 
 def getHelp() -> Dict[str, str]:
     """
@@ -47,7 +49,7 @@ def getRestriction() -> [Dict[str, str], Dict[str, str]]:
     return info_dict, exec_dict
 
 
-def openLog():
+def openLog() -> None:
     """
     This function open a log file
     """
@@ -76,7 +78,7 @@ def showMessage(message: str) -> None:
     writeLog(message)
 
 
-def writeLog(message):
+def writeLog(message) -> None:
     """
     This function write the message into log
     """
@@ -84,3 +86,12 @@ def writeLog(message):
     current_time = now.strftime("%H:%M:%S")
 
     log.write("Time: {}, {}\n".format(current_time, message))
+
+
+def saveResult(wb: workbook, path: str) -> None:
+    """
+    This function take in a wb for the workbook need to save in the path given
+    """
+    wb.save(path)
+
+    showMessage("Output done, saved at {}".format(path))

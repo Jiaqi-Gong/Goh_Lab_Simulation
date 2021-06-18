@@ -51,7 +51,7 @@ class BacteriaManager:
         """
         if self.dimension == 2:
             for i in range(self.bacteriaNum):
-                seed = self.bacteriaNum + 0
+                seed = self.bacteriaSeed + i
 
                 # generate domain generator
                 bacteriaDomainGenerator = DomainGenerator(seed)

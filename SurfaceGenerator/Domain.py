@@ -6,7 +6,7 @@ import random
 
 from numpy import ndarray
 import numpy as np
-from typing import Tuple
+from typing import Tuple, List
 from Surface import Surface
 from ExternalIO import showMessage, writeLog
 
@@ -171,8 +171,8 @@ class DomainGenerator:
         if shape.upper() == "DIAMOND":
             x = random.randint(domainWidth + 1, surfaceWidth - domainWidth - 1)
             y = random.randint(0, surfaceLength - domainLength * 2 - 1)
-            showMessage("x in range: {}, y in range: {}".format((domainWidth + 1, surfaceWidth - domainWidth - 1),
-                                                                (0, surfaceLength - domainLength * 2 - 1)))
+            # showMessage("x in range: {}, y in range: {}".format((domainWidth + 1, surfaceWidth - domainWidth - 1),
+            #                                                     (0, surfaceLength - domainLength * 2 - 1)))
 
 
         elif shape.upper() == "CROSS":
@@ -189,7 +189,7 @@ class DomainGenerator:
         writeLog("Point picked is: {}".format((x, y)))
 
         # return the result as tuple
-        return (x, y)
+        return (y, x)
 
     def _diamondEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]):
         """
@@ -216,7 +216,7 @@ class DomainGenerator:
             count += 1
 
         # make lower diamond
-        showMessage("i in range: {}".format((n + 1, 2 * (n + 1) + 1)))
+        # showMessage("i in range: {}".format((n + 1, 2 * (n + 1) + 1)))
         for i in range(n + 1, 2 * (n + 1) + 1):
             for j in range(-count + 1, count):
                 # showMessage("Checking point: {}".format((start[0] + i, start[1] + j)))
@@ -453,7 +453,6 @@ class DomainGenerator:
         """
         This function generate octagon shape for surface
         """
-        # TODO:
 
         # Rename variables
         ln = domainWidth
