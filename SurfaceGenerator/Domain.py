@@ -171,8 +171,8 @@ class DomainGenerator:
         if shape.upper() == "DIAMOND":
             x = random.randint(domainWidth + 1, surfaceWidth - domainWidth - 1)
             y = random.randint(0, surfaceLength - domainLength * 2 - 1)
-            # showMessage("x in range: {}, y in range: {}".format((domainWidth + 1, surfaceWidth - domainWidth - 1),
-            #                                                     (0, surfaceLength - domainLength * 2 - 1)))
+            showMessage("x in range: {}, y in range: {}".format((domainWidth + 1, surfaceWidth - domainWidth - 1),
+                                                                (0, surfaceLength - domainLength * 2 - 1)))
 
 
         elif shape.upper() == "CROSS":

@@ -168,21 +168,21 @@ def test_simulation():
     trail = 1
     dimension = 2
     filmSeed = 1
-    filmSurfaceSize = (20, 20)
+    filmSurfaceSize = (10, 10)
     filmSurfaceShape = "rectangle"
     filmNum = 1
     bacteriaNum = 1
     interval_x = 50
     interval_y = 50
     filmSurfaceCharge = 0
-    filmDomainSize = (5,5)
+    filmDomainSize = (1, 1)
     filmDomainShape = "diamond"
     filmDomainCon = 0.5
     bacteriaSeed = 10
     bacteriaSize = (5, 5)
     bacteriaSurfaceShape = "rectangle"
     bacteriaSurfaceCharge = 0
-    bacteriaDomainSize = (1,1)
+    bacteriaDomainSize = (1, 1)
     bacteriaDomainShape = "diamond"
     bacteriaDomainCon = 0.5
 
