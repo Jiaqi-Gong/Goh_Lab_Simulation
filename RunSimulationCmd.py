@@ -348,7 +348,7 @@ def getArgument() -> None:
 
                 # if valid check bacteria size is smaller than surface size
                 elif (valid[0] * valid[1]) >= (filmSurfaceSize[0] * filmSurfaceSize[1]):
-                    print("Bacteria size should smaller than surface size.")
+                    print("BacteriaFile size should smaller than surface size.")
 
                 # if valid, record and break
                 else:

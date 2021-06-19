@@ -3,7 +3,7 @@ This program is used to save and manage all bacteria
 """
 from typing import Tuple
 
-from Bacteria.Bacteria import Bacteria2D
+from BacteriaFile.Bacteria import Bacteria2D
 from SurfaceGenerator.Domain import DomainGenerator
 from ExternalIO import showMessage, writeLog
 

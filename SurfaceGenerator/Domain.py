@@ -90,7 +90,7 @@ class DomainGenerator:
             raise RuntimeError("Domain concentration is too low")
 
         # Initiallize all the possible starting points on the surface
-        possible_points = self._allPossiblePoint(surface.length, surface.width, domainLength, domainWidth, shape)
+        possiblePoint = self._allPossiblePoint(surface.length, surface.width, domainLength, domainWidth, shape)
 
         # Initiallize coordinates already with a domain on it
         coordinate_with_domain = []
@@ -100,12 +100,12 @@ class DomainGenerator:
 
             # Create empty list
             empty_list = []
-            # Remove the coordinates that are already in List from possible_points
-            possible_points = list(set(possible_points) - set(coordinate_with_domain))
+            # Remove the coordinates that are already in List from possiblePoint
+            possiblePoint = list(set(possiblePoint) - set(coordinate_with_domain))
 
             # pick a point in the matrix as the start point of generate domain
             # randint pick x and y, leave the enough space for not touching the edge
-            start = self._randomPoint(surface.length, surface.width, domainLength, domainWidth, shape, possible_points)
+            start = self._randomPoint(surface.length, surface.width, domainLength, domainWidth, shape, possiblePoint)
 
             [emptyResult, coordinate_with_domain] = checkEmpty(newSurface, domainWidth, domainLength, start, empty_list)
             writeLog("empty result is: {}".format(emptyResult))
@@ -125,7 +125,7 @@ class DomainGenerator:
 
             showMessage("Generated number is: {}".format(generated))
 
-            showMessage(len(possible_points))
+            showMessage(str(len(possiblePoint)))
 
         showMessage("Domain generated done")
         writeLog(newSurface)
@@ -184,18 +184,14 @@ class DomainGenerator:
 
         elif shape.upper() == "CROSS":
             raise NotImplementedError
-
         elif shape.upper() == "OCTAGON":
             raise NotImplementedError
-
         elif shape.upper() == "SINGLE":
             raise NotImplementedError
-
         else:
             raise RuntimeError("Wrong shape in the function _randomPoint")
-
-
         return lst
+
     def _randomPoint(self, surfaceLength: int, surfaceWidth: int, domainLength: int, domainWidth: int, shape: str, List: list) \
             -> Tuple[int, int]:
         """

@@ -6,7 +6,6 @@ from typing import Tuple
 
 import numpy as np
 
-from SurfaceGenerator.Domain import DomainGenerator
 from SurfaceGenerator.Surface import Surface
 
 

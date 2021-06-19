@@ -6,7 +6,6 @@ from typing import Tuple
 
 import numpy as np
 
-from SurfaceGenerator.Domain import DomainGenerator
 from SurfaceGenerator.Surface import Surface
 from SurfaceGenerator.Surface import Z_AX_2D
 from ExternalIO import showMessage, writeLog

@@ -11,8 +11,8 @@ from openpyxl.worksheet._write_only import WriteOnlyWorksheet
 from openpyxl.worksheet.worksheet import Worksheet
 
 from ExternalIO import showMessage, writeLog, saveResult
-from FilmManager import FilmManager
-from BacteriaManager import BacteriaManager
+from Manager.FilmManager import FilmManager
+from Manager.BacteriaManager import BacteriaManager
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter  # allows access to letters of each column
 

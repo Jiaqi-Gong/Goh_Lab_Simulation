@@ -1,11 +1,11 @@
 """
-This program is used to save the Film and manage all films
+This program is used to save the FilmFile and manage all films
 """
 from typing import Tuple
 
 from SurfaceGenerator.Domain import DomainGenerator
 from ExternalIO import showMessage, writeLog
-from Film.Film import FilmSurface2D
+from FilmFile.Film import FilmSurface2D
 
 
 class FilmManager:
