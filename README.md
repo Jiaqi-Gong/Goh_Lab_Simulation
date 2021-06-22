@@ -2,7 +2,7 @@
 This program is surface interaction simulator, 
 reformed and improved based on https://github.com/stanlo229/surface-simulation-goh-lab with permission.
 
-## Installation of Python and Requirement Package
+## Installation of Python and Required Package
 
 1. Install python
     * Open https://www.python.org/ to download the python and install.

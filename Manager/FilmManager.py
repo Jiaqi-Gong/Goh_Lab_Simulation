@@ -47,7 +47,7 @@ class FilmManager:
         # depends on the dimension to call appropriate function
         if self.dimension == 2:
             for i in range(self.filmNum):
-                seed = self.filmSeed + 0
+                seed = self.filmSeed + i
 
                 # generate domain generator
                 filmDomainGenerator = DomainGenerator(seed)

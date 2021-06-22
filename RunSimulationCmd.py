@@ -511,6 +511,8 @@ def getArgument() -> None:
             filmNum = input("Please enter the number of bacteria you want to test or help for more information: ")
             bacteriaNum = "1"
             number = filmNum
+        else:
+            raise RuntimeError("Wrong simulation type, causes get bacteria/film number error")
 
         # set the name
         helpName = "NUMBER"

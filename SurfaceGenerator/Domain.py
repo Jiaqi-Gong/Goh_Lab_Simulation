@@ -8,6 +8,7 @@ from numpy import ndarray
 import numpy as np
 from typing import Tuple
 from SurfaceGenerator.Surface import Surface
+from typing import Tuple, List
 from ExternalIO import showMessage, writeLog
 
 
@@ -213,7 +214,6 @@ class DomainGenerator:
         # return the result as tuple
         return coordinate
 
-
     def _diamondEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int], List: list):
         """
         This function check the position want to generate diamond whether is empty
@@ -243,7 +243,7 @@ class DomainGenerator:
             count += 1
 
         # make lower diamond
-        showMessage("i in range: {}".format((n + 1, 2 * (n + 1) + 1)))
+        # showMessage("i in range: {}".format((n + 1, 2 * (n + 1) + 1)))
         for i in range(n + 1, 2 * (n + 1) + 1):
             for j in range(-count + 1, count):
                 # showMessage("Checking point: {}".format((start[0] + i, start[1] + j)))
@@ -489,7 +489,6 @@ class DomainGenerator:
         """
         This function generate octagon shape for surface
         """
-        # TODO:
 
         # Rename variables
         ln = domainWidth
