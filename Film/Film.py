@@ -25,6 +25,11 @@ class FilmSurface2D(Film, ABC):
     """
     This is a 2D net neutral surface, subclass of surface
     """
+    # Declare the type of all variable
+    charge: int
+    dimension: int
+    height: int
+
 
     def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int):
         showMessage("start to generate Film surface 2D")

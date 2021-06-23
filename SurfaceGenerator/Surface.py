@@ -18,6 +18,13 @@ class Surface:
     charge can be negative -1, neutral 0, positive 1
     1micrometer = 100 points
     """
+    # Declare the type of all variable
+    length: int
+    width: int
+    trail: int
+    shape: str
+    seed: int
+
 
     @abc.abstractmethod
     def __init__(self, trail: int, shape: str, size: Tuple[int, int], seed:int=None):

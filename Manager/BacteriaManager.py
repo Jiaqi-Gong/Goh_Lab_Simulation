@@ -13,6 +13,20 @@ class BacteriaManager:
     This class saves all bacteria used in this simulation and generate all corresponding film
     """
 
+    # Declare the type of all variable
+    trail: int
+    dimension: int
+    bacteriaSeed: int
+    bacteriaSize: Tuple[int, int]
+    bacteriaSurfaceShape: str
+    bacteriaSurfaceCharge: int
+    bacteriaDomainSize: Tuple[int, int]
+    bacteriaDomainShape: str
+    bacteriaDomainConcentration: float
+    bacteriaNum: int
+    bacteriaDomainGenerator: DomainGenerator
+    bacteria: list
+
     def __init__(self, trail: int, dimension: int,
                  bacteriaSeed: int, bacteriaSize: Tuple[int, int], bacteriaSurfaceShape: str,
                  bacteriaSurfaceCharge: int,

@@ -12,6 +12,19 @@ class FilmManager:
     """
     This class saves all film used in this simulation and generate all corresponding film
     """
+    # Declare the type of all variable
+    trail: int
+    dimension: int
+    filmSeed: int
+    filmSurfaceSize: Tuple[int, int]
+    filmSurfaceShape: str
+    filmSurfaceCharge: int
+    filmDomainSize: Tuple[int, int]
+    filmDomainShape: str
+    filmDomainconcentration: float
+    filmNum: int
+    film: list
+
 
     def __init__(self, trail: int, dimension: int,
                  filmSeed: int, filmSurfaceSize: Tuple[int, int], filmSurfaceShape: str, filmSurfaceCharge: int,

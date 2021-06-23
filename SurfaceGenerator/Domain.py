@@ -16,6 +16,9 @@ class DomainGenerator:
     """
     This class is used to generate the domain on the surface passed in
     """
+    # Declare the type of all variable
+    seed: int
+
 
     def __init__(self, seed: int):
         """

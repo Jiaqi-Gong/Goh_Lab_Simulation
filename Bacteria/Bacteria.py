@@ -22,6 +22,10 @@ class Bacteria2D(Bacteria):
     """
     This class represent a 2D bacteria
     """
+    # Declare the type of all variable
+    surfaceCharge: int
+    height: int
+    dimension: int
 
     def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int):
 
