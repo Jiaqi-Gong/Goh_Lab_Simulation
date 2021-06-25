@@ -30,7 +30,7 @@ class FilmSurface2D(Film, ABC):
     dimension: int
     height: int
 
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int):
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int) -> None:
         showMessage("start to generate Film surface 2D")
 
         # set the surface charge
@@ -67,7 +67,7 @@ class FilmSurface3D(Film, ABC):
     dimension: int
     height: int
 
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int):
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int) -> None:
         showMessage("start to generate Film surface 2D")
 
         # set the surface charge
@@ -83,7 +83,7 @@ class FilmSurface3D(Film, ABC):
         # call parent
         Film.__init__(self, trail, shape, size)
 
-        showMessage("Generate Film surface 2D done")
+        showMessage("Generate Film surface 3D done")
         writeLog(self.__dict__)
 
     def _generateRec(self) -> ndarray:

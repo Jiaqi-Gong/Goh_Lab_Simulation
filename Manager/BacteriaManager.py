@@ -55,6 +55,8 @@ class BacteriaManager:
 
         # init a variable to store all bacteria
         self.bacteria = []
+        self.stuckBacteria = []
+        self.freeBacteria = self.bacteria
 
         # show message
         showMessage("Bacteria manager init done")
