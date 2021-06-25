@@ -35,10 +35,10 @@ class Simulation:
 
     def __init__(self, simulationType: int, trail: int, dimension: int,
                  filmSeed: int, filmSurfaceSize: Tuple[int, int], filmSurfaceShape: str, filmSurfaceCharge: int,
-                 filmDomainSize: Tuple[int, int], filmDomainShape: str, filmDomainConcentration: float,
+                 filmDomainSize: Tuple[int, int], filmDomainShape: str, filmDomainConcentration: float, filmDomainChargeConcentration: float,
                  bacteriaSeed: int, bacteriaSize: Tuple[int, int], bacteriaSurfaceShape: str,
                  bacteriaSurfaceCharge: int,
-                 bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float,
+                 bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float, bacteriaDomainChargeConcentration: float,
                  filmNum: int, bacteriaNum: int, intervalX: int, intervalY: int) -> None:
         """
         Init the simulation class based on the input info
@@ -56,11 +56,11 @@ class Simulation:
 
         # init some variable
         self.filmManager = FilmManager(trail, dimension, filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
-                                       filmDomainSize, filmDomainShape, filmDomainConcentration, filmNum)
+                                       filmDomainSize, filmDomainShape, filmDomainConcentration, filmDomainChargeConcentration, filmNum)
 
         self.bacteriaManager = BacteriaManager(trail, dimension, bacteriaSeed, bacteriaSize, bacteriaSurfaceShape,
                                                bacteriaSurfaceCharge, bacteriaDomainSize, bacteriaDomainShape,
-                                               bacteriaDomainConcentration, bacteriaNum)
+                                               bacteriaDomainConcentration, bacteriaDomainChargeConcentration, bacteriaNum)
         self.startTime = datetime.now()
         self.output = self._initOutput()
 

@@ -5,6 +5,8 @@ from abc import ABC
 from typing import Tuple
 
 import numpy as np
+from numpy import ndarray
+
 
 from SurfaceGenerator.Surface import Surface
 from SurfaceGenerator.Surface import Z_AX_2D
@@ -24,6 +26,11 @@ class FilmSurface2D(Film, ABC):
     """
     This is a 2D net neutral surface, subclass of surface
     """
+    # Declare the type of all variable
+    charge: int
+    dimension: int
+    height: int
+
 
     def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int):
         showMessage("start to generate Film surface 2D")
@@ -44,7 +51,7 @@ class FilmSurface2D(Film, ABC):
         showMessage("Generate Film surface 2D done")
         writeLog(self.__dict__)
 
-    def _generateRec(self):
+    def _generateRec(self) -> ndarray:
         """
         This function generate the matrix space based on the size of the surface
         """
