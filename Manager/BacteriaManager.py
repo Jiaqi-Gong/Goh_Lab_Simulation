@@ -30,8 +30,8 @@ class BacteriaManager:
     def __init__(self, trail: int, dimension: int,
                  bacteriaSeed: int, bacteriaSize: Tuple[int, int], bacteriaSurfaceShape: str,
                  bacteriaSurfaceCharge: int,
-                 bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float,
-                 bacteriaNum: int, ):
+                 bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float, bacteriaDomainChargeConcentration: float,
+                 bacteriaNum: int):
         """
         Init the film manager, take in the
         """
@@ -48,6 +48,7 @@ class BacteriaManager:
         self.bacteriaDomainSize = bacteriaDomainSize
         self.bacteriaDomainShape = bacteriaDomainShape
         self.bacteriaDomainConcentration = bacteriaDomainConcentration
+        self.bacteriaDomainChargeConcentration = bacteriaDomainChargeConcentration
 
         # generate domain generator
         self.bacteriaDomainGenerator = DomainGenerator(self.bacteriaSeed)
@@ -59,7 +60,7 @@ class BacteriaManager:
         showMessage("Bacteria manager init done")
         writeLog(self.__dict__)
 
-    def generateBacteria(self):
+    def generateBacteria(self) -> None:
         """
         This function generate corresponding bacteria need based on the number wanted
         """
@@ -74,7 +75,7 @@ class BacteriaManager:
         elif self.dimension == 3:
             raise NotImplementedError
 
-    def _generate2DFilm(self, domainGenerator: DomainGenerator):
+    def _generate2DFilm(self, domainGenerator: DomainGenerator) -> None:
         """
         Generate 2D film
         """
@@ -86,7 +87,7 @@ class BacteriaManager:
         showMessage("Generate 2D bacteria with domain")
         bacteria.surfaceWithDomain = domainGenerator.generateDomain(bacteria, self.bacteriaDomainShape,
                                                                     self.bacteriaDomainSize,
-                                                                    self.bacteriaDomainConcentration)
+                                                                    self.bacteriaDomainConcentration, self.bacteriaDomainChargeConcentration)
 
         # save the film into manager
         self.bacteria.append(bacteria)

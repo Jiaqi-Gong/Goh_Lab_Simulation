@@ -28,7 +28,7 @@ class FilmManager:
 
     def __init__(self, trail: int, dimension: int,
                  filmSeed: int, filmSurfaceSize: Tuple[int, int], filmSurfaceShape: str, filmSurfaceCharge: int,
-                 filmDomainSize: Tuple[int, int], filmDomainShape: str, filmDomainConcentration: float, filmNum: int):
+                 filmDomainSize: Tuple[int, int], filmDomainShape: str, filmDomainConcentration: float, filmDomainChargeConcentration: float, filmNum: int):
         """
         Init the film manager, take in the
         """
@@ -45,6 +45,7 @@ class FilmManager:
         self.filmDomainSize = filmDomainSize
         self.filmDomainShape = filmDomainShape
         self.filmDomainConcentration = filmDomainConcentration
+        self.filmDomainChargeConcentration = filmDomainChargeConcentration
 
         # init a variable to store all film
         self.film = []
@@ -80,7 +81,7 @@ class FilmManager:
 
         showMessage("Generate 2D film with domain")
         film.surfaceWithDomain = domainGenerator.generateDomain(film, self.filmDomainShape, self.filmDomainSize,
-                                                                self.filmDomainConcentration)
+                                                                self.filmDomainConcentration, self.filmDomainChargeConcentration)
 
         # save the film into manager
         self.film.append(film)

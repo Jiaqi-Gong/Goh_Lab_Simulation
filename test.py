@@ -178,6 +178,7 @@ def test_simulation():
     filmDomainSize = (1, 1)
     filmDomainShape = "diamond"
     filmDomainCon = 0.5
+    filmDomainChargeCon = 0.5
     bacteriaSeed = 10
     bacteriaSize = (5, 5)
     bacteriaSurfaceShape = "rectangle"
@@ -185,12 +186,13 @@ def test_simulation():
     bacteriaDomainSize = (1, 1)
     bacteriaDomainShape = "diamond"
     bacteriaDomainCon = 0.5
+    bacteriaDomainChargeCon = 0.5
 
     sim = Simulation(simulationType, trail, dimension,
                      filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
-                     filmDomainSize, filmDomainShape, filmDomainCon,
+                     filmDomainSize, filmDomainShape, filmDomainCon, filmDomainChargeCon,
                      bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
-                     bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, filmNum, bacteriaNum,
+                     bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, bacteriaDomainChargeCon, filmNum, bacteriaNum,
                      interval_x, interval_y)
 
     sim.runSimulate()

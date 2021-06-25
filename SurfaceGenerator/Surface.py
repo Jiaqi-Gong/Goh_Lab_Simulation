@@ -2,6 +2,7 @@
 This program is generating the surface for test
 """
 import abc
+import numpy as np
 
 # follow constant is for surface, but overwrite by the size passed in, can ignore
 # this can be change, balance the resolution and the time cost
@@ -27,7 +28,7 @@ class Surface:
 
 
     @abc.abstractmethod
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int], seed:int=None):
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int], seed:int):
         """
         Init this surface
         1micrometer = 100 points
@@ -63,7 +64,18 @@ class Surface:
         """
         This function generate rectangle shape for 2D, cuboid for 3D, should be implement in the subclass
         """
-        raise NotImplementedError
+        # create empty matrix space
+
+        # if passed in is a 2D surface
+        if self.shape.upper() == "RECTANGLE":
+            return np.zeros((self.length, self.width))
+
+        # if passed in is a 3D surface
+        elif self.shape.upper() == "CUBOID":
+            return np.zereos((self.length, self.width, 3))
+
+        else:
+            raise RuntimeError("Surface passed in is not 2D or 3D")
 
     def importSurface(self, filepath: str):
         """
