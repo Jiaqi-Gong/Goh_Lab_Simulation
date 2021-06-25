@@ -176,7 +176,7 @@ def test_simulation():
     interval_y = 50
     filmSurfaceCharge = 0
     filmDomainSize = (1, 1)
-    filmDomainShape = "diamond"
+    filmDomainShape = "cross"
     filmDomainCon = 0.5
     filmDomainChargeCon = 0.5
     bacteriaSeed = 10

@@ -27,7 +27,7 @@ class Surface:
 
 
     @abc.abstractmethod
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int], seed:int=None):
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int], seed:int) -> None:
         """
         Init this surface
         1micrometer = 100 points
@@ -48,7 +48,7 @@ class Surface:
         # Init the surface
         self.surfaceWithDomain = None
 
-    def _generateSurface(self):
+    def _generateSurface(self) -> None:
         """
         Generate the corresponding surface, override in subclass
         """
@@ -59,13 +59,13 @@ class Surface:
             return self._generateRec()
 
     @abc.abstractmethod
-    def _generateRec(self):
+    def _generateRec(self) -> None:
         """
         This function generate rectangle shape for 2D, cuboid for 3D, should be implement in the subclass
         """
         raise NotImplementedError
 
-    def importSurface(self, filepath: str):
+    def importSurface(self, filepath: str) -> None:
         """
         This function read in the pre-generated surface structure
         :param filepath: file path to the surface structure want to import
