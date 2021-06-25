@@ -2,7 +2,7 @@
 This program is generating the surface for test
 """
 import abc
-from typing import Tuple
+from typing import Tuple, Union
 from numpy import ndarray
 
 # follow constant is for surface, but overwrite by the size passed in, can ignore
@@ -25,6 +25,7 @@ class Surface:
     trail: int
     shape: str
     originalSurface: ndarray
+    surfaceWithDomain: Union[None, ndarray]
 
     @abc.abstractmethod
     def __init__(self, trail: int, shape: str, size: Tuple[int, int]) -> None:
