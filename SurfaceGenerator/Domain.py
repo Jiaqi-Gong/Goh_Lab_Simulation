@@ -27,7 +27,7 @@ class DomainGenerator:
         """
         self.seed = seed
 
-    def generateDomain(self, surface: Surface, shape: str, size: Tuple[int, int], concentration: float, charge_concentration: float):
+    def generateDomain(self, surface: Surface, shape: str, size: Tuple[int, int], concentration: float, charge_concentration: float) -> Surface:
         '''
         Introduced a new parameter called charge_concentration which determines the concentration of +ve and -ve charge on domain -> can change name later
         The charge_concentration is assumed to be the charge concentration of positives
@@ -50,7 +50,9 @@ class DomainGenerator:
 
 
         # calculate how many domain should generate
-        domainNum = int((surface.length * surface.width * concentration) / (domainWidth * domainLength))
+        # calculation for the number of domains which needs to be generated depends on the shape of the domain
+        if shape.upper() == "DIAMOND":
+            domainNum = int((surface.length * surface.width * concentration) / (domainWidth * domainLength))
 
         showMessage("Domain number is: {}".format(domainNum))
 
@@ -115,12 +117,19 @@ class DomainGenerator:
             # positive charge
             while count_charge[0] < total_charge[0]:
                 # pick a random point
-                x = int(np.random.choice(range(surface.width), 1))
-                y = int(np.random.choice(range(surface.length), 1))
+                x = int(np.random.choice(range(surface.width-50), 1))
+                y = int(np.random.choice(range(surface.length-50), 1))
                 # If the point is either positive or negative, choose a new point
                 if newSurface[y][x] != 0:
                     continue
 
+                # To make things go quicker, add a bunch from specified area and slowly reduce the number of additional generations
+                if total_charge[0] - count_charge[0] > 2500:
+                    for i in range(50):
+                        for j in range(50):
+                            if newSurface[y + j][x + i] == 0:
+                                newSurface[y + j][x + i] = 1
+                                count_charge[0] += 1
                 # Else
                 newSurface[y][x] = 1
 
@@ -130,11 +139,19 @@ class DomainGenerator:
             # negative charge
             while count_charge[1] < total_charge[1]:
                 # pick a random point
-                x = int(np.random.choice(range(surface.width), 1))
-                y = int(np.random.choice(range(surface.length), 1))
+                x = int(np.random.choice(range(surface.width-50), 1))
+                y = int(np.random.choice(range(surface.length-50), 1))
                 # If the point is either positive or negative, choose a new point
                 if newSurface[y][x] != 0:
                     continue
+
+                # To make things go quicker, add a bunch from specified area and slowly reduce the number of additional generations
+                if total_charge[1] - count_charge[1] > 2500:
+                    for i in range(50):
+                        for j in range(50):
+                            if newSurface[y + j][x + i] == 0:
+                                newSurface[y + j][x + i] = -1
+                                count_charge[1] += 1
 
                 # Else
                 newSurface[y][x] = -1
@@ -147,13 +164,21 @@ class DomainGenerator:
             # positive charge
             while count_charge[0] > total_charge[0]:
                 # pick a random point
-                x = int(np.random.choice(range(surface.width), 1))
-                y = int(np.random.choice(range(surface.length), 1))
+                x = int(np.random.choice(range(surface.width-50), 1))
+                y = int(np.random.choice(range(surface.length-50), 1))
                 # If the point is neutral or negative, choose a new point
                 if newSurface[y][x] != 1:
                     continue
 
-                # Else
+                # To make things go quicker, remove a bunch from specified area and slowly reduce the number of additional generations
+                if count_charge[0] - total_charge[0] > 2500:
+                    for i in range(50):
+                        for j in range(50):
+                            if newSurface[y+j][x+i] == 1:
+                                newSurface[y+j][x+i] = 0
+                                count_charge[0] -= 1
+
+                # If the difference is less than 2500, just remove 1 at a time
                 newSurface[y][x] = 0
 
                 # Update the count
@@ -162,12 +187,18 @@ class DomainGenerator:
             # negative charge
             while count_charge[1] > total_charge[1]:
                 # pick a random point
-                x = int(np.random.choice(range(surface.width), 1))
-                y = int(np.random.choice(range(surface.length), 1))
+                x = int(np.random.choice(range(surface.width-50), 1))
+                y = int(np.random.choice(range(surface.length-50), 1))
                 # If the point is either neutral or positive, choose a new point
                 if newSurface[y][x] != -1:
                     continue
-
+                # To make things go quicker, remove a bunch from specified area and slowly reduce the number of additional generations
+                if count_charge[1] - total_charge[1] > 2500:
+                    for i in range(50):
+                        for j in range(50):
+                            if newSurface[y+j][x+i] == -1:
+                                newSurface[y+j][x+i] = 0
+                                count_charge[1] -= 1
                 # Else
                 newSurface[y][x] = 0
 
@@ -186,7 +217,7 @@ class DomainGenerator:
         # return the surface generated based on k value
         return newSurface
 
-    def _makeSurfaceNeutral(self, passInSurface: Surface):
+    def _makeSurfaceNeutral(self, passInSurface: Surface) -> Surface:
         """
         Make the entire surface passed in neutral, which means set all values in the passed in nested list to 0
         """
@@ -275,7 +306,7 @@ class DomainGenerator:
         # return the result as tuple
         return coordinate
 
-    def _generateDiamond(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int], charge_concentration: float, List: list):
+    def _generateDiamond(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int], charge_concentration: float, List: list) -> [Surface, list]:
         """
         This function generate diamond shape domain
         This function is adjusted based on:
@@ -326,7 +357,7 @@ class DomainGenerator:
         # return the generated surface
         return surface, List
 
-    def _generateCross(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]) -> ndarray:
+    def _generateCross(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int], charge_concentration: float, List: list) -> Surface:
         """
         This function generate cross shape for surface
         """
@@ -344,7 +375,7 @@ class DomainGenerator:
 
         return surface
 
-    def _generateOctagon(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]):
+    def _generateOctagon(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]) -> Surface:
         """
         This function generate octagon shape for surface
         """
@@ -470,7 +501,7 @@ class DomainGenerator:
                 surface[int(ed_br[0] + i), int(ed_br[1] - j)] = -1
         return surface
 
-    def _generateSingle(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
+    def _generateSingle(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int) -> Surface:
         """
         This function generate single shape for surface
         """

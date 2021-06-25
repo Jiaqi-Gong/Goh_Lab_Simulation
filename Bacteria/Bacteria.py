@@ -5,6 +5,8 @@ from abc import ABC
 from typing import Tuple
 
 import numpy as np
+from numpy import ndarray
+
 
 from SurfaceGenerator.Domain import DomainGenerator
 from SurfaceGenerator.Surface import Surface
@@ -43,7 +45,7 @@ class Bacteria2D(Bacteria):
         Bacteria.__init__(self, trail, shape, size, seed)
 
 
-    def _generateRec(self):
+    def _generateRec(self) -> ndarray:
         """
         This function generate the matrix space based on the size of the surface
         """

@@ -4,6 +4,8 @@ This program is generating the surface for test
 import abc
 import numpy as np
 
+from numpy import ndarray
+
 # follow constant is for surface, but overwrite by the size passed in, can ignore
 # this can be change, balance the resolution and the time cost
 from typing import Tuple
@@ -49,7 +51,7 @@ class Surface:
         # Init the surface
         self.surfaceWithDomain = None
 
-    def _generateSurface(self):
+    def _generateSurface(self) -> ndarray:
         """
         Generate the corresponding surface, override in subclass
         """
@@ -60,7 +62,7 @@ class Surface:
             return self._generateRec()
 
     @abc.abstractmethod
-    def _generateRec(self):
+    def _generateRec(self) -> ndarray:
         """
         This function generate rectangle shape for 2D, cuboid for 3D, should be implement in the subclass
         """

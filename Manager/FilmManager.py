@@ -50,7 +50,7 @@ class FilmManager:
         # init a variable to store all film
         self.film = []
 
-    def generateFilm(self):
+    def generateFilm(self) -> None:
         """
         This function generate corresponding film need based on the number wanted
         """
@@ -70,7 +70,7 @@ class FilmManager:
         elif self.dimension == 3:
             raise NotImplementedError
 
-    def _generate2DFilm(self, domainGenerator: DomainGenerator):
+    def _generate2DFilm(self, domainGenerator: DomainGenerator) -> None:
         """
         Generate 2D film
         """
