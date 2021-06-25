@@ -95,7 +95,8 @@ class DomainGenerator:
         if generated >= domainNum:
             raise RuntimeError("Domain concentration is too low")
 
-        # Initialize the charge count (NOTE: charge count is a list with the first element being positive charge while second element being negative charge)
+        # Initialize the charge count (NOTE: charge count is a list with the first element being positive charge
+        # while second element being negative charge)
         count_charge = [0, 0]
 
         # Initialize total number of positive and negative charge needed on the surface

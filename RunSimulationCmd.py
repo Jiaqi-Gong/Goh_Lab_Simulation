@@ -5,8 +5,9 @@ Checking all user input is valid at here
 import re
 from typing import Union, Tuple
 
+from EnergyScan import EnergySimulator
 from ExternalIO import getHelp, getRestriction, openLog, showMessage, closeLog, writeLog
-from MainSimulation import Simulation
+from Simulator import EnergyScan
 
 
 def getArgument() -> None:
@@ -543,7 +544,7 @@ def getArgument() -> None:
               bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, filmNum, bacteriaNum,
               interval_x, interval_y])
 
-    sim = Simulation(simulationType, trail, dimension,
+    sim = EnergySimulator(simulationType, trail, dimension,
                      filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
                      filmDomainSize, filmDomainShape, filmDomainCon,
                      bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,

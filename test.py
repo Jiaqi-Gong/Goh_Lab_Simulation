@@ -7,7 +7,7 @@ from openpyxl.utils import get_column_letter
 import time
 
 from ExternalIO import getHelp, getRestriction, openLog
-from MainSimulation import Simulation
+from Simulator.EnergyScan import Simulation
 
 
 def test_diamond():

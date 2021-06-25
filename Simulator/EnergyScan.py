@@ -17,7 +17,7 @@ from openpyxl import Workbook
 from openpyxl.utils import get_column_letter  # allows access to letters of each column
 
 
-class Simulation:
+class EnergySimulator:
     """
     This class is used for simulation
     """
