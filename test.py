@@ -103,9 +103,9 @@ def _output():
 
         # naming the columns in the worksheet
         ws1.cell(1, 1, "Surface Characteristics:")
-        ws1.cell(1, 2, "Bacteria Characteristics:")
-        ws1.cell(1, 3, "Film Seed # ")
-        ws1.cell(1, 4, "Bacteria Seed # ")
+        ws1.cell(1, 2, "BacteriaFile Characteristics:")
+        ws1.cell(1, 3, "FilmFile Seed # ")
+        ws1.cell(1, 4, "BacteriaFile Seed # ")
         ws1.cell(1, 5, "Min Energy:")
         ws1.cell(1, 6, "Min X:")
         ws1.cell(1, 7, "Min Y:")
@@ -197,7 +197,7 @@ def test_simulation():
 
 if __name__ == '__main__':
 
-    # test_diamond()
+    test_diamond()
     # test_random_choice()
 
     # a = A()
@@ -211,6 +211,6 @@ if __name__ == '__main__':
 
     # _output()
 
-    test_simulation()
+    # test_simulation()
 
 

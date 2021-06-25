@@ -27,7 +27,7 @@ reformed and improved based on https://github.com/stanlo229/surface-simulation-g
 2. The special restriction of some variables are listed in the file SpecialRequirement.txt under folder TextFile.  
    The message listed in the file will appear on the screen if you type wrong parameter. The format of SpecialRequirement is :
    VariableName: Restriction : Checking condition  
-   User don't need to understand the checking condition at the end.
+   User don't need to understand the checking condition at the end and should NOT change it.
 
 3. The parameter change from the old version is listed in the file OldNewTransfer.txt.  
    If need to reproduce the result from the old version, please look at this file.
