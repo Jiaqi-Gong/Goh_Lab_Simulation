@@ -2,9 +2,6 @@
 This program is generating the surface for test
 """
 import abc
-import numpy as np
-
-from numpy import ndarray
 
 # follow constant is for surface, but overwrite by the size passed in, can ignore
 # this can be change, balance the resolution and the time cost
@@ -30,7 +27,7 @@ class Surface:
 
 
     @abc.abstractmethod
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int], seed:int):
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int], seed:int=None):
         """
         Init this surface
         1micrometer = 100 points
@@ -51,7 +48,7 @@ class Surface:
         # Init the surface
         self.surfaceWithDomain = None
 
-    def _generateSurface(self) -> ndarray:
+    def _generateSurface(self):
         """
         Generate the corresponding surface, override in subclass
         """
@@ -62,22 +59,11 @@ class Surface:
             return self._generateRec()
 
     @abc.abstractmethod
-    def _generateRec(self) -> ndarray:
+    def _generateRec(self):
         """
         This function generate rectangle shape for 2D, cuboid for 3D, should be implement in the subclass
         """
-        # create empty matrix space
-
-        # if passed in is a 2D surface
-        if self.shape.upper() == "RECTANGLE":
-            return np.zeros((self.length, self.width))
-
-        # if passed in is a 3D surface
-        elif self.shape.upper() == "CUBOID":
-            return np.zereos((self.length, self.width, 3))
-
-        else:
-            raise RuntimeError("Surface passed in is not 2D or 3D")
+        raise NotImplementedError
 
     def importSurface(self, filepath: str):
         """
