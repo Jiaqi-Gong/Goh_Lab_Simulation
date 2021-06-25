@@ -10,7 +10,7 @@ from typing import Tuple
 from SurfaceGenerator.Surface import Surface
 from typing import Tuple, List
 from ExternalIO import showMessage, writeLog
-
+import math
 
 class DomainGenerator:
     """
@@ -53,11 +53,16 @@ class DomainGenerator:
         # calculation for the number of domains which needs to be generated depends on the shape of the domain
         if shape.upper() == "DIAMOND":
             # Number of domains
-            domainNum = int((surface.length * surface.width * concentration) / (domainWidth * domainLength))
+            domainNum = int((surface.length * surface.width * concentration) / ((domainWidth) * (domainLength)))
         elif shape.upper() == "CROSS":
             # Number of domains
             domainNum = int((surface.length * surface.width * concentration) / (2 * domainWidth + 2 * domainLength))
-
+        elif shape.upper() == "OCTAGON":
+            # Number of domains
+            domainNum = int((surface.length * surface.width * concentration) / (2 * (1+math.sqrt(2)) * domainWidth*domainLength))
+        elif shape.upper() == "SINGLE":
+            # Number of domains
+            domainNum = int(surface.length * surface.width * concentration)
         showMessage("Domain number is: {}".format(domainNum))
 
         # first, make entire passed in surface positive
@@ -82,6 +87,7 @@ class DomainGenerator:
         elif shape.upper() == "CROSS":
             generateShape = self._generateCross
         elif shape.upper() == "OCTAGON":
+            # octagon should have the same width and length
             generateShape = self._generateOctagon
         elif shape.upper() == "SINGLE":
             generateShape = self._generateSingle
@@ -119,24 +125,27 @@ class DomainGenerator:
         showMessage("Domain generated done")
 
         showMessage("Generating/removing remaining charges....")
+        writeLog("number of +ve and -ve charge before generation/removal {}".format(count_charge))
+
         # generate additional charge spots on the surface if needed
         if count_charge[0] < total_charge[0] or count_charge[1] < total_charge[1]:
             # positive charge
             while count_charge[0] < total_charge[0]:
                 # pick a random point
-                x = int(np.random.choice(range(surface.width-50), 1))
-                y = int(np.random.choice(range(surface.length-50), 1))
+                x = int(np.random.choice(range(surface.length-50), 1))
+                y = int(np.random.choice(range(surface.width-50), 1))
                 # If the point is either positive or negative, choose a new point
                 if newSurface[y][x] != 0:
                     continue
 
-                # To make things go quicker, add a bunch from specified area and slowly reduce the number of additional generations
-                if total_charge[0] - count_charge[0] > 2500:
-                    for i in range(50):
-                        for j in range(50):
-                            if newSurface[y + j][x + i] == 0:
-                                newSurface[y + j][x + i] = 1
-                                count_charge[0] += 1
+                if shape.upper() != "SINGLE":
+                    # To make things go quicker, add a bunch from specified area and slowly reduce the number of additional generations
+                    if total_charge[0] - count_charge[0] > 2500:
+                        for i in range(50):
+                            for j in range(50):
+                                if newSurface[y + j][x + i] == 0:
+                                    newSurface[y + j][x + i] = 1
+                                    count_charge[0] += 1
                 # Else
                 newSurface[y][x] = 1
 
@@ -146,19 +155,20 @@ class DomainGenerator:
             # negative charge
             while count_charge[1] < total_charge[1]:
                 # pick a random point
-                x = int(np.random.choice(range(surface.width-50), 1))
-                y = int(np.random.choice(range(surface.length-50), 1))
+                x = int(np.random.choice(range(surface.length-50), 1))
+                y = int(np.random.choice(range(surface.width-50), 1))
                 # If the point is either positive or negative, choose a new point
                 if newSurface[y][x] != 0:
                     continue
 
-                # To make things go quicker, add a bunch from specified area and slowly reduce the number of additional generations
-                if total_charge[1] - count_charge[1] > 2500:
-                    for i in range(50):
-                        for j in range(50):
-                            if newSurface[y + j][x + i] == 0:
-                                newSurface[y + j][x + i] = -1
-                                count_charge[1] += 1
+                if shape.upper() != "SINGLE":
+                    # To make things go quicker, add a bunch from specified area and slowly reduce the number of additional generations, except for single
+                    if total_charge[1] - count_charge[1] > 2500:
+                        for i in range(50):
+                            for j in range(50):
+                                if newSurface[y + j][x + i] == 0:
+                                    newSurface[y + j][x + i] = -1
+                                    count_charge[1] += 1
 
                 # Else
                 newSurface[y][x] = -1
@@ -171,19 +181,20 @@ class DomainGenerator:
             # positive charge
             while count_charge[0] > total_charge[0]:
                 # pick a random point
-                x = int(np.random.choice(range(surface.width-50), 1))
-                y = int(np.random.choice(range(surface.length-50), 1))
+                x = int(np.random.choice(range(surface.length-50), 1))
+                y = int(np.random.choice(range(surface.width-50), 1))
                 # If the point is neutral or negative, choose a new point
                 if newSurface[y][x] != 1:
                     continue
 
-                # To make things go quicker, remove a bunch from specified area and slowly reduce the number of additional generations
-                if count_charge[0] - total_charge[0] > 2500:
-                    for i in range(50):
-                        for j in range(50):
-                            if newSurface[y+j][x+i] == 1:
-                                newSurface[y+j][x+i] = 0
-                                count_charge[0] -= 1
+                if shape.upper() != "SINGLE":
+                    # To make things go quicker, remove a bunch from specified area and slowly reduce the number of additional generations
+                    if count_charge[0] - total_charge[0] > 2500:
+                        for i in range(50):
+                            for j in range(50):
+                                if newSurface[y+j][x+i] == 1:
+                                    newSurface[y+j][x+i] = 0
+                                    count_charge[0] -= 1
 
                 # If the difference is less than 2500, just remove 1 at a time
                 newSurface[y][x] = 0
@@ -194,18 +205,20 @@ class DomainGenerator:
             # negative charge
             while count_charge[1] > total_charge[1]:
                 # pick a random point
-                x = int(np.random.choice(range(surface.width-50), 1))
-                y = int(np.random.choice(range(surface.length-50), 1))
+                x = int(np.random.choice(range(surface.length-50), 1))
+                y = int(np.random.choice(range(surface.width-50), 1))
                 # If the point is either neutral or positive, choose a new point
                 if newSurface[y][x] != -1:
                     continue
-                # To make things go quicker, remove a bunch from specified area and slowly reduce the number of additional generations
-                if count_charge[1] - total_charge[1] > 2500:
-                    for i in range(50):
-                        for j in range(50):
-                            if newSurface[y+j][x+i] == -1:
-                                newSurface[y+j][x+i] = 0
-                                count_charge[1] -= 1
+
+                if shape.upper() != "SINGLE":
+                    # To make things go quicker, remove a bunch from specified area and slowly reduce the number of additional generations
+                    if count_charge[1] - total_charge[1] > 2500:
+                        for i in range(50):
+                            for j in range(50):
+                                if newSurface[y+j][x+i] == -1:
+                                    newSurface[y+j][x+i] = 0
+                                    count_charge[1] -= 1
                 # Else
                 newSurface[y][x] = 0
 
@@ -213,7 +226,7 @@ class DomainGenerator:
                 count_charge[1] -= 1
 
         showMessage("Finished generating/removing charges")
-        writeLog("number of +ve and -ve charge generated {}".format(count_charge))
+        writeLog("number of +ve and -ve charge after generation/removal {}".format(count_charge))
         writeLog("number of +ve and -ve charge need in total {}".format(total_charge))
 
         writeLog(newSurface)
@@ -287,23 +300,36 @@ class DomainGenerator:
         # Find random coordinate
         if shape.upper() == "DIAMOND":
             # Set restrictions on where the starting position can be
-            x_possibility = range(domainWidth + 1, surfaceWidth - domainWidth - 1)
-            y_possibility = range(0, surfaceLength - domainLength * 2 - 1)
+            x_possibility = range(domainLength + 1, surfaceLength - domainLength - 1)
+            y_possibility = range(0, surfaceWidth - domainWidth * 2 - 1)
             x = int(np.random.choice(x_possibility, 1, replace=False))
             y = int(np.random.choice(y_possibility, 1, replace=False))
 
         elif shape.upper() == "CROSS":
             # Set restrictions on where the starting positions can be
-            x_possibility = range(domainWidth + 1, surfaceWidth - domainWidth - 1)
-            y_possibility = range(domainLength, surfaceLength - domainLength - 1)
+            x_possibility = range(domainLength + 1, surfaceLength - domainLength - 1)
+            y_possibility = range(domainWidth, surfaceWidth - domainWidth - 1)
             x = int(np.random.choice(x_possibility, 1, replace=False))
             y = int(np.random.choice(y_possibility, 1, replace=False))
 
         elif shape.upper() == "OCTAGON":
-            raise NotImplementedError
+            # Set restriction on where the starting positions can be
+            # Separate cases for when domainLength/domainWidth are either even or odd
+            if domainLength%2 == 0:
+                x_possibility = range(int(domainLength + (domainLength/2) + 1), int(surfaceLength - domainLength - (domainLength/2) - 1))
+                y_possibility = range(int(domainWidth + (domainWidth/2) + 1), int(surfaceWidth - domainWidth - (domainWidth/2) - 1))
+            elif domainLength%2 == 1:
+                x_possibility = range(int(domainLength + ((domainLength+1)/2) + 1), int(surfaceLength - domainLength - ((domainLength+1)/2) - 1))
+                y_possibility = range(int(domainWidth + ((domainWidth+1)/2) + 1), int(surfaceWidth - domainWidth - ((domainWidth+1)/2) - 1))
+            x = int(np.random.choice(x_possibility, 1, replace=False))
+            y = int(np.random.choice(y_possibility, 1, replace=False))
 
         elif shape.upper() == "SINGLE":
-            raise NotImplementedError
+            # Set restriction on where the starting positions can be
+            x_possibility = range(1, surfaceLength - 1)
+            y_possibility = range(1, surfaceWidth - 1)
+            x = int(np.random.choice(x_possibility, 1, replace=False))
+            y = int(np.random.choice(y_possibility, 1, replace=False))
 
         else:
             raise RuntimeError("Wrong shape in the function _randomPoint")
