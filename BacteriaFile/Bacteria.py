@@ -79,8 +79,11 @@ class Bacteria3D(Bacteria, ABC):
 
     def _generateRec(self) -> ndarray:
         """
-        This function generate the matrix space based on the size of the surface
+        This function generate cubic shape of the matrix space based on the size of the surface
         """
         # creating empty matrix space
         # TODO:
         raise NotImplementedError
+
+    # to generate more shape, add new function below, start with def _generateXXX, replace XXX with the new shape you
+    # want to generate, update your new shape in _generateSurface in Surface.py or inform Jiaqi to do update
