@@ -5,9 +5,9 @@ Checking all user input is valid at here
 import re
 from typing import Union, Tuple
 
-from EnergyScan import EnergySimulator
+from SimulatorFile.Dynamic import DynamicSimulator
+from SimulatorFile.EnergyScan import EnergySimulator
 from ExternalIO import getHelp, getRestriction, openLog, showMessage, closeLog, writeLog
-from Simulator import EnergyScan
 
 
 def getArgument() -> None:
@@ -18,8 +18,32 @@ def getArgument() -> None:
     """
     #### taking general info ####
 
+    # take simulator type
+    while True:
+        simulatorType = input("Please enter simulator type: \n")
+
+        # set the name
+        helpName = "Simulator"
+
+        # if enter help
+        if simulatorType.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # check the validity of input and do reaction
+        result = eval(execDict[helpName])
+
+        if result:
+            simulatorType = int(simulatorType)
+            break
+        else:
+            errorInput(helpName)
+
     # take simulation type
     while True:
+        if simulatorType == 2:
+            break
+
         simulationType = input("Please enter simulation type: \n")
 
         # set the name
@@ -65,17 +89,15 @@ def getArgument() -> None:
 
     # take dimension
     while True:
+        if simulatorType == 2:
+            break
+
         # Take user input
         dimension = input("Please enter the dimension you want to simulate (2 for 2D, 3 for 3D, "
                           "help for more information): \n")
 
         # set the name
         helpName = "DIMENSION"
-
-        # if enter help
-        if dimension.upper() == "HELP":
-            helpMessage(helpName)
-            continue
 
         # check the validity of input and do reaction
         result = eval(execDict[helpName])
@@ -272,7 +294,32 @@ def getArgument() -> None:
             else:
                 errorInput(helpName)
 
-    #### taking bacteria info ####
+    # take film surface domain charge concentration
+    while True:
+        # Take user input
+        filmDomainChargeConcentration = input("Please enter the domain charge concentration of the film surface "
+                                              "you want to simulate (help for more information): \n")
+
+        # set the name
+        helpName = "CONCENTRATION"
+
+        if filmDomainChargeConcentration.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # set the variable for check
+        concentration = filmDomainChargeConcentration
+
+        # check the validity of input and do reaction
+        result = eval(execDict[helpName])
+
+        if result:
+            filmDomainChargeConcentration = float(filmDomainChargeConcentration)
+            break
+        else:
+            errorInput(helpName)
+
+    ############# taking bacteria info ############
 
     # take seed of bacteria
     while True:
@@ -463,6 +510,32 @@ def getArgument() -> None:
             else:
                 errorInput(helpName)
 
+    # take bacteria surface domain charge concentration
+    while True:
+        # Take user input
+        bacteriaDomainChargeConcentration = input(
+            "Please enter the domain charge concentration of the bacteria surface you want to "
+            "simulate (help for more information): \n")
+
+        # set the name
+        helpName = "CONCENTRATION"
+
+        if bacteriaDomainChargeConcentration.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # set the variable for check
+        concentration = bacteriaDomainChargeConcentration
+
+        # check the validity of input and do reaction
+        result = eval(execDict[helpName])
+
+        if result:
+            bacteriaDomainChargeConcentration = float(bacteriaDomainChargeConcentration)
+            break
+        else:
+            errorInput(helpName)
+
     # get the interval
     while True:
         # Take user input
@@ -496,6 +569,8 @@ def getArgument() -> None:
 
     # if simulation type is not 1, take in extra info
     while True:
+        if simulatorType == 2:
+            break
 
         # check the simulation type
         if simulationType == 1:
@@ -535,27 +610,82 @@ def getArgument() -> None:
         else:
             errorInput(helpName)
 
+    # if this is dynamic simulator, need timestep
+    while True:
+        if simulatorType == 1:
+            break
+
+        timestep = input("Please enter time step want: \n")
+
+        # set the name
+        helpName = "TIMESTEP"
+
+        # if enter help
+        if timestep.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # check the validity of input and do reaction
+        result = eval(execDict[helpName])
+
+        # check is it a number
+        if not checkNum(timestep):
+            errorInput(helpName)
+        elif result:
+            timestep = int(timestep)
+            break
+        else:
+            errorInput(helpName)
+
+    # if this is dynamic simulator, need probability type
+    while True:
+        if simulatorType == 1:
+            break
+
+        probabilityType = input("Please enter probability type want to use: \n")
+
+        # set the name
+        helpName = "PROBABILITYTYPE"
+
+        # if enter help
+        if probabilityType.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # check the validity of input and do reaction
+        result = eval(execDict[helpName])
+
+        # check result
+        if result:
+            break
+        else:
+            errorInput(helpName)
+
     # generate simulation program
     showMessage("Start to generate the simulation simulator ......")
-    writeLog([simulationType, trail, dimension,
-              filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
-              filmDomainSize, filmDomainShape, filmDomainCon,
-              bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
-              bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, filmNum, bacteriaNum,
-              interval_x, interval_y])
 
-    sim = EnergySimulator(simulationType, trail, dimension,
-                     filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
-                     filmDomainSize, filmDomainShape, filmDomainCon,
-                     bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
-                     bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, filmNum, bacteriaNum,
-                     interval_x, interval_y)
+    # based on the simulator type set the simulator
+    if simulatorType == 1:
+        simulator = EnergySimulator
+    if simulatorType == 2:
+        simulator = DynamicSimulator
+
+    sim = simulator(simulationType, trail, dimension,
+                    filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
+                    filmDomainSize, filmDomainShape, filmDomainCon, filmDomainChargeConcentration,
+                    bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
+                    bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, filmNum, bacteriaNum,
+                    bacteriaDomainChargeConcentration, interval_x, interval_y)
 
     showMessage("Simulator generate done")
 
     # run the simulation
     showMessage("Start to run simulate ......")
-    sim.runSimulate()
+    if simulatorType == 1:
+        sim.runSimulate()
+    if simulatorType == 2:
+        sim.runSimulate(timestep, probabilityType)
+
 
     # finish whole simulation
     showMessage("Whole simulation done")

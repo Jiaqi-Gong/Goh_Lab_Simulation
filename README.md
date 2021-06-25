@@ -55,22 +55,10 @@ Coming soon
       ```bash
       python3.exe RunSimulationCmd.py
       ```
-   * Follow the promotion in the terminal to type in the corresponding value to start the simulation
-   
-2. Run by GUI (Coming soon)
-   * In the terminal with correct directory of program code, type in 
-     * (For macOS)
-     ```bash
-      python3 RunSimulationGUI.py
-      ```
-      * (For Windows)
-      ```bash
-      python3.exe RunSimulationGUI.py
-      ```
-     
-   * Select the simulation you want in the windows and enter the corresponding simulation condition you want to start the simulation
-   
-3. Run by script (Coming soon)
+   * Follow the promotion in the terminal to type in the corresponding value to start the simulation. 
+    
+    
+2. Run by script (Coming soon)
 
 ### Result
 Result of the simulation will be saved in the folder Result
