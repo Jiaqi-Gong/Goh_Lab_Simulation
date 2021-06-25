@@ -81,13 +81,13 @@ class BacteriaManager:
         """
         showMessage("Generate 2D bacteria")
         # generate 2D Film Surface
-        bacteria = Bacteria2D(self.trail, self.bacteriaSurfaceShape, self.bacteriaSize, self.bacteriaSurfaceCharge,
-                              domainGenerator.seed)
+        bacteria = Bacteria2D(self.trail, self.bacteriaSurfaceShape, self.bacteriaSize, self.bacteriaSurfaceCharge)
 
         showMessage("Generate 2D bacteria with domain")
         bacteria.surfaceWithDomain = domainGenerator.generateDomain(bacteria, self.bacteriaDomainShape,
                                                                     self.bacteriaDomainSize,
-                                                                    self.bacteriaDomainConcentration, self.bacteriaDomainChargeConcentration)
+                                                                    self.bacteriaDomainConcentration,
+                                                                    self.bacteriaDomainChargeConcentration)
 
         # save the film into manager
         self.bacteria.append(bacteria)

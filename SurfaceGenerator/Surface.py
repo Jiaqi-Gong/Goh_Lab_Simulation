@@ -2,10 +2,11 @@
 This program is generating the surface for test
 """
 import abc
+from typing import Tuple
+from numpy import ndarray
 
 # follow constant is for surface, but overwrite by the size passed in, can ignore
 # this can be change, balance the resolution and the time cost
-from typing import Tuple
 
 X_AX = 10500  # number of coordinates for x-axis
 Y_AX = 10500  # number of coordinates for y-axis
@@ -23,11 +24,10 @@ class Surface:
     width: int
     trail: int
     shape: str
-    seed: int
-
+    originalSurface: ndarray
 
     @abc.abstractmethod
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int], seed:int) -> None:
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int]) -> None:
         """
         Init this surface
         1micrometer = 100 points
@@ -37,18 +37,17 @@ class Surface:
         """
 
         # set other information about this surface
-        # 1micrometer = 100 points
+        # 1 micrometer = 100 points
         self.length = size[0] * 100
         self.width = size[1] * 100
         self.trail = trail
         self.shape = shape
         self.originalSurface = self._generateSurface()
-        self.seed = seed
 
         # Init the surface
         self.surfaceWithDomain = None
 
-    def _generateSurface(self) -> None:
+    def _generateSurface(self) -> ndarray:
         """
         Generate the corresponding surface, override in subclass
         """
@@ -59,13 +58,13 @@ class Surface:
             return self._generateRec()
 
     @abc.abstractmethod
-    def _generateRec(self) -> None:
+    def _generateRec(self) -> ndarray:
         """
         This function generate rectangle shape for 2D, cuboid for 3D, should be implement in the subclass
         """
         raise NotImplementedError
 
-    def importSurface(self, filepath: str) -> None:
+    def importSurface(self, filepath: str) -> ndarray:
         """
         This function read in the pre-generated surface structure
         :param filepath: file path to the surface structure want to import
