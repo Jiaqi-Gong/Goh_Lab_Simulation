@@ -657,6 +657,7 @@ def getArgument() -> None:
 
         # check result
         if result:
+            probabilityType = probabilityType.upper()
             break
         else:
             errorInput(helpName)
