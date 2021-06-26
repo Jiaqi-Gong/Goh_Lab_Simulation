@@ -88,7 +88,8 @@ class BacteriaManager:
         """
         showMessage("Generate 2D bacteria")
         # generate 2D Film Surface
-        bacteria = Bacteria2D(self.trail, self.bacteriaSurfaceShape, self.bacteriaSize, self.bacteriaSurfaceCharge)
+        bacteria = Bacteria2D(self.trail, self.bacteriaSurfaceShape, self.bacteriaSize, self.bacteriaSurfaceCharge,
+                              domainGenerator.seed)
 
         showMessage("Generate 2D bacteria with domain")
         bacteria.surfaceWithDomain = domainGenerator.generateDomain(bacteria, self.bacteriaDomainShape,

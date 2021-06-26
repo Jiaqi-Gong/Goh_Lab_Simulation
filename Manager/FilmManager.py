@@ -76,7 +76,8 @@ class FilmManager:
         """
         showMessage("Generate 2D film")
         # generate 2D Film Surface
-        film = FilmSurface2D(self.trail, self.filmSurfaceShape, self.filmSurfaceSize, self.filmSurfaceCharge)
+        film = FilmSurface2D(self.trail, self.filmSurfaceShape, self.filmSurfaceSize, self.filmSurfaceCharge,
+                             domainGenerator.seed)
 
         showMessage("Generate 2D film with domain")
         film.surfaceWithDomain = domainGenerator.generateDomain(film, self.filmDomainShape, self.filmDomainSize,

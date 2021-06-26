@@ -17,8 +17,8 @@ class Film(Surface, ABC):
     This is an abstract class of net neutral surface, subclass of Surface, should implement by 2D and 3D version
     """
 
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int]):
-        Surface.__init__(self, trail, shape, size)
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int], seed: int):
+        Surface.__init__(self, trail, shape, size, seed)
 
 
 class FilmSurface2D(Film, ABC):
@@ -30,7 +30,7 @@ class FilmSurface2D(Film, ABC):
     dimension: int
     height: int
 
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int) -> None:
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int) -> None:
         showMessage("start to generate Film surface 2D")
 
         # set the surface charge
@@ -44,7 +44,7 @@ class FilmSurface2D(Film, ABC):
         self.height = 0
 
         # call parent
-        Film.__init__(self, trail, shape, size)
+        Film.__init__(self, trail, shape, size, seed)
 
         showMessage("Generate Film surface 2D done")
         writeLog(self.__dict__)
@@ -67,7 +67,7 @@ class FilmSurface3D(Film, ABC):
     dimension: int
     height: int
 
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int) -> None:
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int) -> None:
         showMessage("start to generate Film surface 2D")
 
         # set the surface charge
@@ -81,7 +81,7 @@ class FilmSurface3D(Film, ABC):
         self.height = 3
 
         # call parent
-        Film.__init__(self, trail, shape, size)
+        Film.__init__(self, trail, shape, size, seed)
 
         showMessage("Generate Film surface 3D done")
         writeLog(self.__dict__)

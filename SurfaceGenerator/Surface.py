@@ -24,17 +24,19 @@ class Surface:
     width: int
     trail: int
     shape: str
+    seed: int
     originalSurface: ndarray
     surfaceWithDomain: Union[None, ndarray]
 
     @abc.abstractmethod
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int]) -> None:
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int], seed: int) -> None:
         """
         Init this surface
         1micrometer = 100 points
         :param trail: trail number
         :param shape: shape of this surface
         :param size: size of the surface, in the format ###x###, in unit micrometer, 1micrometer = 100 points
+        :param seed: seed used to generate this film with domain
         """
 
         # set other information about this surface
@@ -43,6 +45,7 @@ class Surface:
         self.width = size[1] * 100
         self.trail = trail
         self.shape = shape
+        self.seed = seed
         self.originalSurface = self._generateSurface()
 
         # Init the surface
