@@ -47,6 +47,7 @@ class FilmSurface2D(Film, ABC):
     def _generateRec(self) -> ndarray:
         """
         This function generate the matrix space based on the size of the surface
+        Implement the super class abstract method
         """
         # creating empty matrix space
         return np.zeros((self.width, self.length))
@@ -79,7 +80,7 @@ class FilmSurface3D(Film, ABC):
     def _generateRec(self) -> ndarray:
         """
         This function generate the matrix space based on the size of the surface
-        Implement in the super class abstract method
+        Implement the super class abstract method
         """
         # creating empty matrix space
         # TODO:

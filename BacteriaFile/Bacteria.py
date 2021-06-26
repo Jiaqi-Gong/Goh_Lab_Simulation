@@ -41,6 +41,7 @@ class Bacteria2D(Bacteria, ABC):
     def _generateRec(self) -> ndarray:
         """
         This function generate the matrix space based on the size of the surface
+        Implement the super class abstract method
         """
         # creating empty matrix space
         return np.zeros((self.width, self.length))
@@ -52,11 +53,12 @@ class Bacteria3D(Bacteria, ABC):
         This class represent a 3D bacteria
         """
     # Declare the type of all variable
-    surfaceCharge: int
     height: int
     dimension: int
+    position: Tuple[int, int, int]
 
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed):
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int,
+                 position: Tuple[int, int, int]) -> None:
 
         # set the proper height of the bacteria
         # set the height of bacteria here or generate a height in the BacteriaManager, consider it and
@@ -65,7 +67,10 @@ class Bacteria3D(Bacteria, ABC):
         # self.height = ?
 
         # set the proper dimension
-        self.dimension = 2
+        self.dimension = 3
+
+        # set position
+        self.position = position
 
         # call parent to generate bacteria
         Bacteria.__init__(self, trail, shape, size, seed, surfaceCharge)
@@ -73,7 +78,7 @@ class Bacteria3D(Bacteria, ABC):
     def _generateRec(self) -> ndarray:
         """
         This function generate cubic shape of the matrix space based on the size of the surface
-        Implement in the super class abstract method
+        Implement the super class abstract method
         """
         # creating empty matrix space
         # TODO:
