@@ -6,6 +6,8 @@ from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 import time
 
+from Dynamic import DynamicSimulator
+from EnergyScan import EnergySimulator
 from ExternalIO import getHelp, getRestriction, openLog
 
 
@@ -184,7 +186,7 @@ def test_simulation():
     filmDomainSize = (1, 1)
     filmDomainShape = "cross"
     filmDomainCon = 0.5
-    filmDomainChargeCon = 0.5
+    filmDomainChargeConcentration = 0.5
     bacteriaSeed = 10
     bacteriaSize = (5, 5)
     bacteriaSurfaceShape = "rectangle"
@@ -192,15 +194,38 @@ def test_simulation():
     bacteriaDomainSize = (1, 1)
     bacteriaDomainShape = "diamond"
     bacteriaDomainCon = 0.5
-    bacteriaDomainChargeCon = 0.5
+    bacteriaDomainChargeConcentration = 0.5
 
-    sim = Simulation(simulationType, trail, dimension,
-                     filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
-                     filmDomainSize, filmDomainShape, filmDomainCon, filmDomainChargeCon,
-                     bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
-                     bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, bacteriaDomainChargeCon, filmNum, bacteriaNum,
-                     interval_x, interval_y)
+    ### below is new variable
+    simulatorType = 1
+    interactType = "DOT"
 
+    # below are for dynamic simulation, we are not using for now
+    probabilityType = ""
+    timestep = ""
+
+    # take info for simulator
+    if simulatorType == 1:
+        simulator = EnergySimulator
+        # taking info for energy scan simulation
+        parameter = {"interactType": interactType}
+
+    elif simulatorType == 2:
+        simulator = DynamicSimulator
+        # taking info for dynamic simulation
+        parameter = {"probabilityType": probabilityType, "timestep": timestep}
+    else:
+        raise RuntimeError("Unknown simulator type")
+
+    # gnerate simulator
+    sim = simulator(simulationType, trail, dimension,
+                    filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
+                    filmDomainSize, filmDomainShape, filmDomainCon, filmDomainChargeConcentration,
+                    bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
+                    bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, bacteriaDomainChargeConcentration,
+                    filmNum, bacteriaNum, interval_x, interval_y)
+
+    sim.setExtraParameter(parameter)
     sim.runSimulate()
 
 if __name__ == '__main__':
@@ -219,9 +244,9 @@ if __name__ == '__main__':
 
     # _output()
 
-    # test_simulation()
+    test_simulation()
 
-    p = p()
-    t()
+    # p = p()
+    # t()
 
 

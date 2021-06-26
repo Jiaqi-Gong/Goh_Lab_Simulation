@@ -67,7 +67,7 @@ class EnergySimulator(Simulator):
         # only one film and one bacteria
         if self.simulationType == 1:
             end = True
-            self._simulate(currIter, self.filmManager.film[0], self.bacteriaManager.bacteria[0], end)
+            self._simulate(currIter, self.filmManager.film[0], self.bacteriaManager.bacteria[0].surfaceWithDomain, end)
 
         # type 2 simulation
         elif self.simulationType == 2:
@@ -80,7 +80,8 @@ class EnergySimulator(Simulator):
                     end = True
 
                 # start simulation
-                self._simulate(currIter, self.filmManager.film[0], self.bacteriaManager.bacteria[currIter], end)
+                self._simulate(currIter, self.filmManager.film[0],
+                               self.bacteriaManager.bacteria[currIter].surfaceWithDomain, end)
                 currIter += 1
 
         # type 3 simulation
@@ -94,7 +95,8 @@ class EnergySimulator(Simulator):
                     end = True
 
                 # start simulation
-                self._simulate(currIter, self.filmManager.film[currIter], self.bacteriaManager.bacteria[0], end)
+                self._simulate(currIter, self.filmManager.film[currIter],
+                               self.bacteriaManager.bacteria[0].surfaceWithDomain, end)
                 currIter += 1
 
         else:
@@ -255,10 +257,11 @@ class EnergySimulator(Simulator):
         writeLog("This is _interact2D in Simulation")
         showMessage("Start to interact ......")
         writeLog("intervalX is: {}, intervalY is: {}, film is: {}, bacteria is: {}".format(
-            intervalX, intervalY, film.__dict__, bacteria.__dict__))
+            intervalX, intervalY, film.__dict__, bacteria))
 
         # shape of the bacteria
         shape = bacteria.shape
+
 
         # set the range
         range_x = np.arange(0, shape[0], intervalX)

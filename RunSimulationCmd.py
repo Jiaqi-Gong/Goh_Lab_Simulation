@@ -31,13 +31,13 @@ def getArgument() -> None:
     bacteriaSize, bacteriaSurfaceCharge, bacteriaSurfaceShape = getBacteriaArgument(filmSurfaceSize)
 
     # take info for simulator
-    if simulatorType.upper() == 1:
+    if simulatorType == 1:
         simulator = EnergySimulator
         # taking info for energy scan simulation
         bacteriaNum, dimension, filmNum, interactType, simulationType = getEnergyScanArgument()
         parameter = {"interactType": interactType}
 
-    elif simulatorType.upper() == 2:
+    elif simulatorType == 2:
         simulator = DynamicSimulator
         # taking info for dynamic simulation
         probabilityType, timestep, bacteriaNum = getDynamicArgument()
