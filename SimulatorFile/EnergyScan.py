@@ -205,8 +205,8 @@ class EnergySimulator(Simulator):
         # shows the gradient lines position
         grad_strip = min_x // 500
 
-        # set the row position, 1 for the title of the whole sheet
-        row_pos = 1 + currIter
+        # set the row position, 2 for the title of the whole sheet
+        row_pos = 2 + currIter
 
         # write the result
         ws1.cell(row_pos, 1, str(self.filmManager.filmSurfaceShape) + " : " + str(self.filmManager.filmSurfaceSize))
