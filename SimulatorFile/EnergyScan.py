@@ -1,8 +1,8 @@
 """
-This is energy scan simulatior
+This is energy scan simulator
 """
 from datetime import datetime
-from typing import Tuple, Union
+from typing import Tuple, Union, List, Dict
 
 import numpy as np
 from numpy import ndarray
@@ -17,16 +17,44 @@ from Simulator import Simulator
 
 class EnergySimulator(Simulator):
     """
-    This class is used for simulation
+    This class is used for bacteria scan film surface energy simulation
     """
 
-    def runSimulate(self, timestep: int=None, probabilityType: str=None) -> None:
+    def __init__(self, simulationType: int, trail: int, dimension: int,
+                 filmSeed: int, filmSurfaceSize: Tuple[int, int], filmSurfaceShape: str, filmSurfaceCharge: int,
+                 filmDomainSize: Tuple[int, int], filmDomainShape: str, filmDomainConcentration: float,
+                 filmDomainChargeConcentration: float,
+                 bacteriaSeed: int, bacteriaSize: Tuple[int, int], bacteriaSurfaceShape: str,
+                 bacteriaSurfaceCharge: int,
+                 bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float,
+                 bacteriaDomainChargeConcentration: float,
+                 filmNum: int, bacteriaNum: int, intervalX: int, intervalY: int) -> None:
+        """
+        Init the simulation class based on the input info
+        Description of input info are shown in the HelpFile.txt
+        """
+        Simulator.__init__(self, simulationType, trail, dimension,
+                           filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
+                           filmDomainSize, filmDomainShape, filmDomainConcentration, filmDomainChargeConcentration,
+                           bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
+                           bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainConcentration,
+                           bacteriaDomainChargeConcentration,
+                           filmNum, bacteriaNum, intervalX, intervalY)
+
+        # set some variable
+        self.interactType = None
+
+
+    def runSimulate(self) -> None:
         """
         Based on the simulation type, do the corresponding simulation
         """
         writeLog("This is runSimulation in Simulation")
         showMessage("Start to run simulation baed on simulation type")
         writeLog(self.__dict__)
+
+        # check does all parameter is assigned
+        self.checkAllSet()
 
         # record the number of simulation did
         currIter = 0

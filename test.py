@@ -7,7 +7,6 @@ from openpyxl.utils import get_column_letter
 import time
 
 from ExternalIO import getHelp, getRestriction, openLog
-from Simulator.EnergyScan import Simulation
 
 
 def test_diamond():
@@ -55,6 +54,10 @@ class A():
     def __init__(self):
         self.aa = 1
         self.bb = 2
+        self.cc = None
+        for parameter in self.__dict__:
+            if self.__dict__[parameter] == None:
+                raise RuntimeError("parameter {} is not set".format(parameter))
 
     def check(self):
         print("self.aa" in locals())
@@ -63,8 +66,11 @@ class A():
     def b(self):
         self.cc = 3
 
+def p():
+    p = 1
+
 def t():
-    print(a)
+    print(p)
 
 def test_excel():
     from openpyxl import Workbook
@@ -199,7 +205,7 @@ def test_simulation():
 
 if __name__ == '__main__':
 
-    test_diamond()
+    # test_diamond()
     # test_random_choice()
 
     # a = A()
@@ -214,5 +220,8 @@ if __name__ == '__main__':
     # _output()
 
     # test_simulation()
+
+    p = p()
+    t()
 
 

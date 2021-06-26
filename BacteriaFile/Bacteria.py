@@ -80,6 +80,7 @@ class Bacteria3D(Bacteria, ABC):
     def _generateRec(self) -> ndarray:
         """
         This function generate cubic shape of the matrix space based on the size of the surface
+        Implement in the super class abstract method
         """
         # creating empty matrix space
         # TODO:

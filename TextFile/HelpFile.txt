@@ -13,3 +13,5 @@ Number: Number of film/bacteria want to test, for simulation type 2 and 3 use
 Interval: Interval is how many times scan on x/y direction
 Timestep: Time step is how many step want to simulate, in one timestep, all bacteria loop once and calculate and update once
 ProbabilityType: Probability uses for bacteria when decide will bacteria stuck on the film or not, can be Poisson or Boltzmann for now
+InteractType: Way of calculating energy, can be dot calculate or cut-off calculate
+Cutoff: A value, if the distance between point on the bacteria and point on the film exceed this value, then the interact between these two point will not be calculated

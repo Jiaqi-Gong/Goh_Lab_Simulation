@@ -62,6 +62,7 @@ class Surface:
     def _generateRec(self) -> ndarray:
         """
         This function generate rectangle shape for 2D, cuboid for 3D, should be implement in the subclass
+        Abstract method should be implement in the sub class
         """
         raise NotImplementedError
 
