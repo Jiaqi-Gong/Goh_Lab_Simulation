@@ -19,6 +19,7 @@ class EnergySimulator(Simulator):
     """
     This class is used for bacteria scan film surface energy simulation
     """
+    interactType: Union[None, str]
 
     def __init__(self, simulationType: int, trail: int, dimension: int,
                  filmSeed: int, filmSurfaceSize: Tuple[int, int], filmSurfaceShape: str, filmSurfaceCharge: int,
@@ -111,7 +112,12 @@ class EnergySimulator(Simulator):
 
         # call simulation based on the simulation type
         if self.dimension == 2:
-            result = self._interact2D(self.intervalX, self.intervalY, film, bacteria)
+            if self.interactType.upper() == "DOT":
+                result = self._dotInteract2D(self.intervalX, self.intervalY, film, bacteria)
+            elif self.interactType.upper() in ["CUTOFF", "CUT-OFF"]:
+                result = self._cutoffInteract2D(self.intervalX, self.intervalY, film, bacteria)
+            else:
+                raise RuntimeError("Unknown interact type")
         elif self.dimension == 3:
             raise NotImplementedError
         else:
@@ -146,11 +152,12 @@ class EnergySimulator(Simulator):
         ws1.cell(1, 10, "Surface Charge at Min Energy")
         ws1.cell(1, 11, "Min Energy Gradient Strip")
         ws1.cell(1, 12, "Time used")
-        ws1.cell(1, 13, "Histogram")
+        ws1.cell(1, 13, "Interact type")
+        ws1.cell(1, 14, "Histogram")
 
         # create numbering for histogram plot
         count = 0
-        for i in range(14, 31):
+        for i in range(15, 31):
             ws1.cell(1, i, count)
             ws1.cell(2, i, 0)
             count += 1
@@ -213,6 +220,7 @@ class EnergySimulator(Simulator):
         ws1.cell(row_pos, 10, min_energy_charge)
         ws1.cell(row_pos, 11, grad_strip)
         ws1.cell(row_pos, 12, time_consume)
+        ws1.cell(row_pos, 13, self.interactType)
 
         # if this is not the last iterator, update the time and return this
         if not end:
@@ -226,8 +234,8 @@ class EnergySimulator(Simulator):
             for row_num in range(self.bacteriaManager.bacteriaNum):
                 row = 1 + row_num
                 val_id = ws1.cell(row, 11).value
-                val = ws1.cell(2, 13 + int(val_id)).value
-                ws1.cell(2, 13 + int(val_id), int(val) + 1)
+                val = ws1.cell(2, 14 + int(val_id)).value
+                ws1.cell(2, 14 + int(val_id), int(val) + 1)
 
         # save the excel file into folder result
         name = "Simulation type {} trail {}_{}.xlsx".format(str(self.simulationType), self.trail,
@@ -237,7 +245,7 @@ class EnergySimulator(Simulator):
         # call function in ExternalIO to save workbook
         saveResult(wb, file_path)
 
-    def _interact2D(self, intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray) -> \
+    def _dotInteract2D(self, intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray) -> \
             Tuple[int, int, int, int, int, int, int]:
         """
         Do the simulation, scan whole film surface with bacteria
@@ -337,5 +345,14 @@ class EnergySimulator(Simulator):
 
         return result
 
-    def _interact3D(self) -> Tuple[int, int, int, int, int, int, int]:
+    def _dotInteract3D(self) -> Tuple[int, int, int, int, int, int, int]:
+        raise NotImplementedError
+
+    def _cutoffInteract2D(self, intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray) -> \
+            Tuple[int, int, int, int, int, int, int]:
+        """
+        Do the simulation, scan whole film surface with bacteria
+        The energy calculate only between bacteria surface and the film surface directly under the bacteria
+        This code is copy from the old code with minor name change
+        """
         raise NotImplementedError
