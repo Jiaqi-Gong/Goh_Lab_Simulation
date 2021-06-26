@@ -55,13 +55,14 @@ def openLog() -> None:
     This function open a log file
     """
     now = datetime.now()
+    day = now.strftime("%m_%d")
     current_time = now.strftime("%H_%M_%S")
 
     if not os.path.exists("Log"):
         os.mkdir("Log")
 
     global log
-    log = open("Log/log_{}.txt".format(current_time), "w")
+    log = open("Log/log_{}_{}.txt".format(day, current_time), "w")
 
 
 def closeLog() -> None:

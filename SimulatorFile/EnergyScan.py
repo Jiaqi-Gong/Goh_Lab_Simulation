@@ -211,9 +211,9 @@ class EnergySimulator(Simulator):
 
         # write the result
         ws1.cell(row_pos, 1, str(self.filmManager.filmSurfaceShape) + " : " + str(self.filmManager.filmSurfaceSize))
-        ws1.cell(row_pos, 2,
+        ws1.cell(row_pos, 2, str(self.filmManager.filmDomainShape) + " : " + str(self.filmManager.filmDomainSize))
+        ws1.cell(row_pos, 3,
                  str(self.bacteriaManager.bacteriaSurfaceShape) + " : " + str(self.bacteriaManager.bacteriaSize))
-        ws1.cell(row_pos, 3, str(self.filmManager.filmDomainShape) + " : " + str(self.filmManager.filmDomainSize))
         ws1.cell(row_pos, 4,
                  str(self.bacteriaManager.bacteriaDomainShape) + " : " + str(self.bacteriaManager.bacteriaDomainSize))
         ws1.cell(row_pos, 5, self.filmManager.film[currIter].seed)
@@ -242,7 +242,7 @@ class EnergySimulator(Simulator):
                 ws1.cell(2, 14 + int(val_id), int(val) + 1)
 
         # save the excel file into folder result
-        name = "Simulation type {} trail {}_{}.xlsx".format(str(self.simulationType), self.trail,
+        name = "Type_{}_trail_{}-{}-{}.xlsx".format(str(self.simulationType), self.trail,datetime.now().strftime("%m_%d"),
                                                             datetime.now().strftime("%H-%M-%S"))
         file_path = "Result/" + name
 
