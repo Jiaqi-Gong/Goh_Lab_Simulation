@@ -1,6 +1,7 @@
 """
 This file deal with the read/write from the text file
 """
+import os
 from datetime import datetime
 from typing import Dict, IO
 import logging
@@ -56,6 +57,9 @@ def openLog() -> None:
     now = datetime.now()
     current_time = now.strftime("%H_%M_%S")
 
+    if not os.path.exists("Log"):
+        os.mkdir("Log")
+
     global log
     log = open("Log/log_{}.txt".format(current_time), "w")
 
@@ -92,6 +96,9 @@ def saveResult(wb: workbook, path: str) -> None:
     """
     This function take in a wb for the workbook need to save in the path given
     """
+    if not os.path.exists("Result"):
+        os.mkdir("Result")
+
     wb.save(path)
 
     showMessage("Output done, saved at {}".format(path))
