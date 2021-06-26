@@ -25,7 +25,8 @@ class DynamicSimulator(Simulator):
         Init the simulation class based on the input info
         Description of input info are shown in the HelpFile.txt
         """
-        Simulator.__init__(self, simulationType, trail, dimension,
+        simulatorType = 2
+        Simulator.__init__(self, simulationType, trail, dimension, simulatorType,
                            filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
                            filmDomainSize, filmDomainShape, filmDomainConcentration, filmDomainChargeConcentration,
                            bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,

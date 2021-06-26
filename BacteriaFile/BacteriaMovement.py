@@ -11,8 +11,6 @@ class BacteriaMovementGenerator:
 
     # type declaration
 
-
-
     def __init__(self) -> None:
         """
         Init the movement generator
@@ -21,14 +19,13 @@ class BacteriaMovementGenerator:
         # since I don't known the detail on how you guys implement these functions, so I left blank at here
         raise NotImplementedError
 
-
-    def initPosition(self) -> None:
+    def initPosition(self) -> Tuple[int, int, int]:
         """
         This function is used to generate the init position of bacteria
         """
         raise NotImplementedError
 
-    def nextMove(self, probabilityType: str, position: Union[Tuple[int, int], Tuple[int, int, int]]) -> \
+    def nextPosition(self, probabilityType: str, position: Union[Tuple[int, int], Tuple[int, int, int]]) -> \
             Union[bool, Tuple[int, int], Tuple[int, int, int]]:
         """
         This function take in probability type, position
@@ -65,7 +62,7 @@ class BacteriaMovementGenerator:
         """
         raise NotImplementedError
 
-    def _nextPosition(self, position: Union[Tuple[int, int], Tuple[int, int, int]]) ->\
+    def _nextPosition(self, position: Union[Tuple[int, int], Tuple[int, int, int]]) -> \
             Union[Tuple[int, int], Tuple[int, int, int]]:
         """
         This function return new position

@@ -34,7 +34,8 @@ class EnergySimulator(Simulator):
         Init the simulation class based on the input info
         Description of input info are shown in the HelpFile.txt
         """
-        Simulator.__init__(self, simulationType, trail, dimension,
+        simulatorType = 1
+        Simulator.__init__(self, simulationType, trail, dimension, simulatorType,
                            filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
                            filmDomainSize, filmDomainShape, filmDomainConcentration, filmDomainChargeConcentration,
                            bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
@@ -211,7 +212,7 @@ class EnergySimulator(Simulator):
         # write the result
         ws1.cell(row_pos, 1, str(self.filmManager.filmSurfaceShape) + " : " + str(self.filmManager.filmSurfaceSize))
         ws1.cell(row_pos, 2,
-                 str(self.bacteriaManager.bacteriaSurfaceShape) + " : " + str(self.bacteriaManager.bacteriaSurfaceShape))
+                 str(self.bacteriaManager.bacteriaSurfaceShape) + " : " + str(self.bacteriaManager.bacteriaSize))
         ws1.cell(row_pos, 3, str(self.filmManager.filmDomainShape) + " : " + str(self.filmManager.filmDomainSize))
         ws1.cell(row_pos, 4,
                  str(self.bacteriaManager.bacteriaDomainShape) + " : " + str(self.bacteriaManager.bacteriaDomainSize))
