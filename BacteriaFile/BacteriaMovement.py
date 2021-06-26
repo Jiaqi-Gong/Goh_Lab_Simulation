@@ -13,7 +13,13 @@ class BacteriaMovementGenerator:
 
 
 
-
+    def __init__(self) -> None:
+        """
+        Init the movement generator
+        """
+        # depends on do you need new variable for poisson distribution or boltzmann distribution, init your class
+        # since I don't known the detail on how you guys implement these functions, so I left a pass at here
+        pass
 
     def nextMove(self, probabilityType: str, position: Union[Tuple[int, int], Tuple[int, int, int]]) -> \
             Union[bool, Tuple[int, int], Tuple[int, int, int]]:
@@ -36,7 +42,7 @@ class BacteriaMovementGenerator:
         if result is True:
             return False
         else:
-            return self._nextPosition()
+            return self._nextPosition(position)
 
     def _poisson(self) -> bool:
         """
@@ -52,7 +58,8 @@ class BacteriaMovementGenerator:
         """
         raise NotImplementedError
 
-    def _nextPosition(self) -> Union[Tuple[int, int], Tuple[int, int, int]]:
+    def _nextPosition(self, position: Union[Tuple[int, int], Tuple[int, int, int]]) ->\
+            Union[Tuple[int, int], Tuple[int, int, int]]:
         """
         This function return new position
         """
