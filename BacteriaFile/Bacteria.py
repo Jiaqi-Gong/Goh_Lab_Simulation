@@ -15,8 +15,8 @@ class Bacteria(Surface, ABC):
     This class represent a 2D bacteria
     """
 
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int], seed: int):
-        Surface.__init__(self, trail, shape, size, seed)
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int], seed: int, surfaceCharge: int,):
+        Surface.__init__(self, trail, shape, size, seed, surfaceCharge)
 
 
 class Bacteria2D(Bacteria, ABC):
@@ -29,10 +29,6 @@ class Bacteria2D(Bacteria, ABC):
     dimension: int
 
     def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int):
-        # set the surface charge
-        # -1 for negative, 0 for neutral, 1 for positive
-        self.surfaceCharge = surfaceCharge
-
         # set the proper height
         self.height = 3
 
@@ -40,7 +36,7 @@ class Bacteria2D(Bacteria, ABC):
         self.dimension = 2
 
         # call parent to generate bacteria
-        Bacteria.__init__(self, trail, shape, size, seed)
+        Bacteria.__init__(self, trail, shape, size, seed, surfaceCharge)
 
     def _generateRec(self) -> ndarray:
         """
@@ -61,9 +57,6 @@ class Bacteria3D(Bacteria, ABC):
     dimension: int
 
     def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed):
-        # set the surface charge
-        # -1 for negative, 0 for neutral, 1 for positive
-        self.surfaceCharge = surfaceCharge
 
         # set the proper height of the bacteria
         # set the height of bacteria here or generate a height in the BacteriaManager, consider it and
@@ -75,7 +68,7 @@ class Bacteria3D(Bacteria, ABC):
         self.dimension = 2
 
         # call parent to generate bacteria
-        Bacteria.__init__(self, trail, shape, size, seed)
+        Bacteria.__init__(self, trail, shape, size, seed, surfaceCharge)
 
     def _generateRec(self) -> ndarray:
         """

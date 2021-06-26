@@ -17,8 +17,8 @@ class Film(Surface, ABC):
     This is an abstract class of net neutral surface, subclass of Surface, should implement by 2D and 3D version
     """
 
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int], seed: int):
-        Surface.__init__(self, trail, shape, size, seed)
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int,  seed: int):
+        Surface.__init__(self, trail, shape, size, seed, surfaceCharge)
 
 
 class FilmSurface2D(Film, ABC):
@@ -26,16 +26,11 @@ class FilmSurface2D(Film, ABC):
     This is a 2D net neutral surface, subclass of surface
     """
     # Declare the type of all variable
-    charge: int
     dimension: int
     height: int
 
     def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int) -> None:
         showMessage("start to generate Film surface 2D")
-
-        # set the surface charge
-        # -1 for negative, 0 for neutral, 1 for positive
-        self.charge = surfaceCharge
 
         # set the proper dimension and height
         self.dimension = 2
@@ -44,7 +39,7 @@ class FilmSurface2D(Film, ABC):
         self.height = 0
 
         # call parent
-        Film.__init__(self, trail, shape, size, seed)
+        Film.__init__(self, trail, shape, size, surfaceCharge, seed)
 
         showMessage("Generate Film surface 2D done")
         writeLog(self.__dict__)
@@ -63,16 +58,11 @@ class FilmSurface3D(Film, ABC):
        This is a 3D net neutral surface, subclass of surface
     """
     # Declare the type of all variable
-    charge: int
     dimension: int
     height: int
 
     def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int) -> None:
         showMessage("start to generate Film surface 2D")
-
-        # set the surface charge
-        # -1 for negative, 0 for neutral, 1 for positive
-        self.charge = surfaceCharge
 
         # set the proper dimension and height
         self.dimension = 3
@@ -81,7 +71,7 @@ class FilmSurface3D(Film, ABC):
         self.height = 3
 
         # call parent
-        Film.__init__(self, trail, shape, size, seed)
+        Film.__init__(self, trail, shape, size, surfaceCharge, seed)
 
         showMessage("Generate Film surface 3D done")
         writeLog(self.__dict__)
