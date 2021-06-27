@@ -1,6 +1,7 @@
 """
 This program is used to generate the film used for simulation
 """
+import abc
 from abc import ABC
 from typing import Tuple
 
@@ -16,7 +17,7 @@ class Film(Surface, ABC):
     """
     This is an abstract class of net neutral surface, subclass of Surface, should implement by 2D and 3D version
     """
-
+    @abc.abstractmethod
     def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int,  seed: int):
         Surface.__init__(self, trail, shape, size, seed, surfaceCharge)
 

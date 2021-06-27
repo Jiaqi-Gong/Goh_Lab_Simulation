@@ -1,6 +1,7 @@
 """
 This program is used for generate bacteria
 """
+import abc
 from abc import ABC
 from typing import Tuple, Union
 
@@ -14,7 +15,7 @@ class Bacteria(Surface, ABC):
     """
     This class represent a 2D bacteria
     """
-
+    @abc.abstractmethod
     def __init__(self, trail: int, shape: str, size: Tuple[int, int], seed: int, surfaceCharge: int, ):
         Surface.__init__(self, trail, shape, size, seed, surfaceCharge)
 
