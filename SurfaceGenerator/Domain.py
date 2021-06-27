@@ -27,7 +27,7 @@ class DomainGenerator:
         self.seed = seed
 
     def generateDomain(self, surface: Surface, shape: str, size: Tuple[int, int], concentration: float,
-                       charge_concentration: float) -> Surface:
+                       charge_concentration: float) -> ndarray:
         """
         This function takes in a surface, shape and size of domain want to generate on the surface
 
@@ -52,23 +52,36 @@ class DomainGenerator:
 
         # calculate how many domain should generate
         # calculation for the number of domains which needs to be generated depends on the shape of the domain
+        # set corresponding check and generate function
+        # generate the corresponding domain shape
+
+        # more shape coming soon, leave for more extension
+
         if shape.upper() == "DIAMOND":
+            generateShape = self._generateDiamond
             # Number of domains
             domainNum = int((surface.length * surface.width * concentration) / ((domainWidth) * (domainLength)))
         elif shape.upper() == "CROSS":
+            generateShape = self._generateCross
             # Number of domains
             domainNum = int((surface.length * surface.width * concentration) / (2 * domainWidth + 2 * domainLength))
         elif shape.upper() == "OCTAGON":
+            generateShape = self._generateOctagon
             # Number of domains
             domainNum = int((surface.length * surface.width * concentration) / (2 * (1+math.sqrt(2)) * domainWidth*domainLength))
         elif shape.upper() == "SINGLE":
+            generateShape = self._generateSingle
             # Number of domains
             domainNum = int(surface.length * surface.width * concentration)
+        else:
+            raise RuntimeError("Unknown shape")
+
         showMessage("Domain number is: {}".format(domainNum))
 
         # first, make entire passed in surface positive
         # This surface is neutral
-        newSurface = self._makeSurfaceNeutral(surface)
+        # newSurface = self._makeSurfaceNeutral(surface)
+        newSurface = surface.originalSurface[:]
 
         # record info into log
         showMessage("generate new surface done")
@@ -79,21 +92,6 @@ class DomainGenerator:
 
         # set seed for random
         np.random.seed(self.seed)
-
-        # set corresponding check and generate function
-        # generate the corresponding domain shape
-        if shape.upper() == "DIAMOND":
-            # diamond should have same width and length
-            generateShape = self._generateDiamond
-        elif shape.upper() == "CROSS":
-            generateShape = self._generateCross
-        elif shape.upper() == "OCTAGON":
-            # octagon should have the same width and length
-            generateShape = self._generateOctagon
-        elif shape.upper() == "SINGLE":
-            generateShape = self._generateSingle
-
-        # more shape coming soon, leave for more extension
 
         showMessage("Start to generate domain on the surface")
         writeLog(surface)
@@ -342,7 +340,8 @@ class DomainGenerator:
         # return the result as tuple
         return coordinate
 
-    def _generateDiamond(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int], charge_concentration: float, List: list) -> [ndarray, list]:
+    def _generateDiamond(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int],
+                         charge_concentration: float, countCharge: List[int]) -> [ndarray, List[int]]:
         """
         This function generate diamond shape domain
         This function is adjusted based on:
@@ -366,9 +365,9 @@ class DomainGenerator:
                     surface[start[0] + i][start[1] + j] = charge
                     # Add charge count
                     if charge == 1:
-                        List[0] += 1
+                        countCharge[0] += 1
                     elif charge == -1:
-                        List[1] += 1
+                        countCharge[1] += 1
 
             # upper part, width becomes wider
             count += 1
@@ -383,15 +382,15 @@ class DomainGenerator:
                     surface[start[0] + i][start[1] - j] = charge
                     # Add charge count
                     if charge == 1:
-                        List[0] += 1
+                        countCharge[0] += 1
                     elif charge == -1:
-                        List[1] += 1
+                        countCharge[1] += 1
 
             # lower part, width becomes thinner
             count -= 1
 
         # return the generated surface
-        return surface, List
+        return surface, countCharge
 
     def _generateCross(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int],
                        charge_concentration: float, List: list) -> [ndarray, list]:
@@ -697,8 +696,8 @@ class DomainGenerator:
                         List[1] += 1
         return surface, List
 
-    def _generateSingle(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int,
-                        charge_concentration: float, List: list) -> [ndarray, list]:
+    def _generateSingle(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int],
+                        charge_concentration: float, countCharge: List[int]) -> [ndarray, List[int]]:
         """
         This function generate single shape for surface
         """
@@ -708,8 +707,8 @@ class DomainGenerator:
             surface[int(startPoint[0]), int(startPoint[1])] = charge
             # Add charge count
             if charge == 1:
-                List[0] += 1
+                countCharge[0] += 1
             elif charge == -1:
-                List[1] += 1
+                countCharge[1] += 1
 
-        return surface, List
+        return surface, countCharge
