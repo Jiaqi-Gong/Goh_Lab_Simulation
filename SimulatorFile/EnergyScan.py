@@ -155,7 +155,7 @@ class EnergySimulator(Simulator):
         ws1.cell(1, 9, "Min Y")
         ws1.cell(1, 10, "Surface Charge at Min Energy")
         ws1.cell(1, 11, "Min Energy Gradient Strip")
-        ws1.cell(1, 12, "Time used")
+        ws1.cell(1, 12, "Time used (s)")
         ws1.cell(1, 13, "Interact type")
         ws1.cell(1, 14, "Histogram")
 
@@ -175,10 +175,6 @@ class EnergySimulator(Simulator):
             else:
                 column_width = len(text)
             ws1.column_dimensions[get_column_letter(i + 1)].width = column_width
-
-        # record return value
-        writeLog(wb.__dict__)
-        writeLog(ws1.__dict__)
 
         return (wb, ws1)
 
