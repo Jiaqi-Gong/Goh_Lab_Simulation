@@ -16,8 +16,8 @@ class Bacteria(Surface, ABC):
     This class represent a 2D bacteria
     """
     @abc.abstractmethod
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int], seed: int, surfaceCharge: int, ):
-        Surface.__init__(self, trail, shape, size, seed, surfaceCharge)
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int], seed: int, surfaceCharge: int, dimension: int):
+        Surface.__init__(self, trail, shape, size, seed, surfaceCharge, dimension)
 
 
 class Bacteria2D(Bacteria, ABC):
@@ -34,10 +34,10 @@ class Bacteria2D(Bacteria, ABC):
         self.height = 3
 
         # set the proper dimension
-        self.dimension = 2
+        dimension = 2
 
         # call parent to generate bacteria
-        Bacteria.__init__(self, trail, shape, size, seed, surfaceCharge)
+        Bacteria.__init__(self, trail, shape, size, seed, surfaceCharge, dimension)
 
     def _generateRec(self) -> ndarray:
         """
@@ -67,14 +67,14 @@ class Bacteria3D(Bacteria, ABC):
         # self.height = ?
 
         # set the proper dimension
-        self.dimension = 3
+        dimension = 3
 
         # set position
         # can be none if use this bacteria for energy scan simulation
         self.position = position
 
         # call parent to generate bacteria
-        Bacteria.__init__(self, trail, shape, size, seed, surfaceCharge)
+        Bacteria.__init__(self, trail, shape, size, seed, surfaceCharge, dimension)
 
     def _generateRec(self) -> ndarray:
         """
