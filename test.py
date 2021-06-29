@@ -6,8 +6,8 @@ from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 import time
 
-from Dynamic import DynamicSimulator
-from EnergyScan import EnergySimulator
+from SimulatorFile.Dynamic import DynamicSimulator
+from SimulatorFile.EnergyScan import EnergySimulator
 from ExternalIO import getHelp, getRestriction, openLog
 
 
@@ -192,7 +192,7 @@ def test_simulation():
     bacteriaSurfaceShape = "rectangle"
     bacteriaSurfaceCharge = 0
     bacteriaDomainSize = (1, 1)
-    bacteriaDomainShape = "single"
+    bacteriaDomainShape = "octagon"
     bacteriaDomainCon = 0.5
     bacteriaDomainChargeConcentration = 0.5
 
