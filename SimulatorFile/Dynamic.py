@@ -7,7 +7,7 @@ from openpyxl import Workbook
 from openpyxl.worksheet._write_only import WriteOnlyWorksheet
 from openpyxl.worksheet.worksheet import Worksheet
 
-from Simulator import Simulator
+from SimulatorFile.Simulator import Simulator
 
 
 class DynamicSimulator(Simulator):

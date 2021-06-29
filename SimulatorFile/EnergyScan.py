@@ -12,7 +12,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 from ExternalIO import showMessage, writeLog, saveResult
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter  # allows access to letters of each column
-from Simulator import Simulator
+from SimulatorFile.Simulator import Simulator
 
 
 class EnergySimulator(Simulator):

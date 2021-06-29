@@ -11,6 +11,7 @@ from SurfaceGenerator.Surface import Surface
 from typing import Tuple, List
 from ExternalIO import showMessage, writeLog
 import math
+import time
 
 class DomainGenerator:
     """
@@ -109,6 +110,7 @@ class DomainGenerator:
 
         # start to generate the domain on surface
         while generated < domainNum:
+            start_time = time.time()
             # pick a point in the matrix as the start point of generate domain
             # randint pick x and y, leave the enough space for not touching the edge
             start = self._randomPoint(surface.length, surface.width, domainLength, domainWidth, shape)
@@ -120,7 +122,10 @@ class DomainGenerator:
             # update generated number
             generated += 1
 
+            total_time = time.time() - start_time
+
             showMessage("Generated number is: {}".format(generated))
+            showMessage("Time it took to generate is: {}".format(total_time))
 
         showMessage("Domain generated done")
 
@@ -348,52 +353,52 @@ class DomainGenerator:
         https://www.studymite.com/python/examples/program-to-print-diamond-pattern-in-python/
         :return return the surface with diamond domain on it
         """
-        # set the new name
-        n = domainWidth
-        start = startPoint
-
-        # set a variable for checking the width
-        count = 0
-
-        # make upper diamond
-        for i in range(0, n + 1):
-            for j in range(-count + 1, count):
+        ln = domainWidth
+        # Fill out diamond triangles
+        eg = domainWidth + 1
+        for i in range(0, ln + 1):
+            for j in range(0, eg):
                 # Initialize either positive or negative charge
                 charge = self._generatePositiveNegative(charge_concentration)
-                # Add the charge if the position is neutral
-                if surface[start[0] + i][start[1] + j] == 0:
-                    surface[start[0] + i][start[1] + j] = charge
+                # top right
+                if surface[int(startPoint[0] - i), int(startPoint[1] + j)] == 0:
+                    surface[int(startPoint[0] - i), int(startPoint[1] + j)] = charge
                     # Add charge count
                     if charge == 1:
                         countCharge[0] += 1
                     elif charge == -1:
                         countCharge[1] += 1
-
-            # upper part, width becomes wider
-            count += 1
-
-        # make lower diamond
-        for i in range(n + 1, 2 * (n + 1) + 1):
-            for j in range(-count + 1, count):
-                # Initialize either positive or negative charge
-                charge = self._generatePositiveNegative(charge_concentration)
-                # Add the charge if the position is neutral
-                if surface[start[0] + i][start[1] - j] == 0:
-                    surface[start[0] + i][start[1] - j] = charge
+                # top left
+                if surface[int(startPoint[0] - i), int(startPoint[1] - j)] == 0:
+                    surface[int(startPoint[0] - i), int(startPoint[1] - j)] = charge
                     # Add charge count
                     if charge == 1:
                         countCharge[0] += 1
                     elif charge == -1:
                         countCharge[1] += 1
-
-            # lower part, width becomes thinner
-            count -= 1
+                # bottom right
+                if surface[int(startPoint[0] + i), int(startPoint[1] + j)] == 0:
+                    surface[int(startPoint[0] + i), int(startPoint[1] + j)] = 1
+                    # Add charge count
+                    if charge == 1:
+                        countCharge[0] += 1
+                    elif charge == -1:
+                        countCharge[1] += 1
+                # bottom left
+                if surface[int(startPoint[0] + i), int(startPoint[1] - j)] == 0:
+                    surface[int(startPoint[0] + i), int(startPoint[1] - j)] = charge
+                    # Add charge count
+                    if charge == 1:
+                        countCharge[0] += 1
+                    elif charge == -1:
+                        countCharge[1] += 1
+            eg -= 1
 
         # return the generated surface
         return surface, countCharge
 
     def _generateCross(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int],
-                       charge_concentration: float, List: list) -> [ndarray, list]:
+                       charge_concentration: float, countCharge: list) -> [ndarray, list]:
         """
         This function generate cross shape for surface
         """
@@ -409,17 +414,17 @@ class DomainGenerator:
                 surface[cen[0] + i - 1, cen[1] - 1] = charge
                 # Add charge count
                 if charge == 1:
-                    List[0] += 1
+                    countCharge[0] += 1
                 elif charge == -1:
-                    List[1] += 1
+                    countCharge[1] += 1
             # Add the charge if the position is neutral
             if surface[cen[0] - i - 1, cen[1] - 1] == 0:
                 surface[cen[0] - i - 1, cen[1] - 1] = charge
                 # Add charge count
                 if charge == 1:
-                    List[0] += 1
+                    countCharge[0] += 1
                 elif charge == -1:
-                    List[1] += 1
+                    countCharge[1] += 1
 
 
         # create the horizontal line of the cross
@@ -431,21 +436,21 @@ class DomainGenerator:
                 surface[cen[0] - 1, cen[1] + j - 1] = charge
                 # Add charge count
                 if charge == 1:
-                    List[0] += 1
+                    countCharge[0] += 1
                 elif charge == -1:
-                    List[1] += 1
+                    countCharge[1] += 1
             if surface[cen[0] - 1, cen[1] - j - 1] == 0:
                 surface[cen[0] - 1, cen[1] - j - 1] = charge
                 # Add charge count
                 if charge == 1:
-                    List[0] += 1
+                    countCharge[0] += 1
                 elif charge == -1:
-                    List[1] += 1
+                    countCharge[1] += 1
 
-        return surface, List
+        return surface, countCharge
 
     def _generateOctagon(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int],
-                         charge_concentration: float, List: list) -> [ndarray, list]:
+                         charge_concentration: float, countCharge: list) -> [ndarray, list]:
         """
         This function generate octagon shape for surface
         """
@@ -465,17 +470,6 @@ class DomainGenerator:
                 cen = [cen[0], cen[1] - 0.5]
             elif cen[1] % 2 == 1:
                 cen = [cen[0] - 0.5, cen[1]]
-        # If the length is an even number, the center of the octagon should be located on a point (ie center point should end as .0)
-        elif cen[0] % 2 == cen[1] % 2 and ln % 2 == 0:
-            if cen[0] % 2 == 1:
-                cen = [cen[0] - 0.5, cen[1] - 0.5]
-            elif cen[0] % 2 == 0:
-                cen = [cen[0], cen[1]]
-        elif cen[0] % 2 != cen[1] % 2 and ln % 2 == 0:
-            if cen[0] % 2 == 1:
-                cen = [cen[0] - 0.5, cen[1]]
-            elif cen[1] % 2 == 1:
-                cen = [cen[0], cen[1] - 0.5]
 
         # Separate conditions between if the length is odd or even
         # If the length is odd
@@ -490,36 +484,36 @@ class DomainGenerator:
                         surface[int(cen[0] + (0.5 + i)), int(cen[1] + (0.5 + j))] = charge
                         # Add charge count
                         if charge == 1:
-                            List[0] += 1
+                            countCharge[0] += 1
                         elif charge == -1:
-                            List[1] += 1
+                            countCharge[1] += 1
                     if surface[int(cen[0] + (0.5 + i)), int(cen[1] - (0.5 + j))] == 0:
                         # Initialize charge
                         charge = self._generatePositiveNegative(charge_concentration)
                         surface[int(cen[0] + (0.5 + i)), int(cen[1] - (0.5 + j))] = charge
                         # Add charge count
                         if charge == 1:
-                            List[0] += 1
+                            countCharge[0] += 1
                         elif charge == -1:
-                            List[1] += 1
+                            countCharge[1] += 1
                     if surface[int(cen[0] - (0.5 + i)), int(cen[1] + (0.5 + j))] == 0:
                         # Initialize charge
                         charge = self._generatePositiveNegative(charge_concentration)
                         surface[int(cen[0] - (0.5 + i)), int(cen[1] + (0.5 + j))] = charge
                         # Add charge count
                         if charge == 1:
-                            List[0] += 1
+                            countCharge[0] += 1
                         elif charge == -1:
-                            List[1] += 1
+                            countCharge[1] += 1
                     if surface[int(cen[0] - (0.5 + i)), int(cen[1] - (0.5 + j))] == 0:
                         # Initialize charge
                         charge = self._generatePositiveNegative(charge_concentration)
                         surface[int(cen[0] - (0.5 + i)), int(cen[1] - (0.5 + j))] = charge
                         # Add charge count
                         if charge == 1:
-                            List[0] += 1
+                            countCharge[0] += 1
                         elif charge == -1:
-                            List[1] += 1
+                            countCharge[1] += 1
 
             # Index edges of the square
             # top right edge
@@ -543,36 +537,36 @@ class DomainGenerator:
                         surface[int(cen[0] + i), int(cen[1] + j)] = charge
                         # Add charge count
                         if charge == 1:
-                            List[0] += 1
+                            countCharge[0] += 1
                         elif charge == -1:
-                            List[1] += 1
+                            countCharge[1] += 1
                     if surface[int(cen[0] + i), int(cen[1] - j)] == 0:
                         # Initialize charge
                         charge = self._generatePositiveNegative(charge_concentration)
                         surface[int(cen[0] + i), int(cen[1] - j)] = charge
                         # Add charge count
                         if charge == 1:
-                            List[0] += 1
+                            countCharge[0] += 1
                         elif charge == -1:
-                            List[1] += 1
+                            countCharge[1] += 1
                     if surface[int(cen[0] - i), int(cen[1] + j)] == 0:
                         # Initialize charge
                         charge = self._generatePositiveNegative(charge_concentration)
                         surface[int(cen[0] - i), int(cen[1] + j)] = charge
                         # Add charge count
                         if charge == 1:
-                            List[0] += 1
+                            countCharge[0] += 1
                         elif charge == -1:
-                            List[1] += 1
+                            countCharge[1] += 1
                     if surface[int(cen[0] - i), int(cen[1] - j)] == 0:
                         # Initialize charge
                         charge = self._generatePositiveNegative(charge_concentration)
                         surface[int(cen[0] - i), int(cen[1] - j)] = charge
                         # Add charge count
                         if charge == 1:
-                            List[0] += 1
+                            countCharge[0] += 1
                         elif charge == -1:
-                            List[1] += 1
+                            countCharge[1] += 1
 
             # Index edges of the square
             # top right edge
@@ -585,116 +579,83 @@ class DomainGenerator:
             ed_bl = [int(cen[0] + ln / 2), int(cen[1] - ln / 2)]
 
         # Fill out the 4 triangles
-        # top right
-        nu_tr = ln + 1
+        eg = ln + 1
         for i in range(0, ln + 1):
-            for j in range(0, nu_tr):
+            for j in range(0, eg):
                 # Initialize charge
                 charge = self._generatePositiveNegative(charge_concentration)
+                # top right  
                 if surface[int(ed_tr[0] - i), int(ed_tr[1] + j)] == 0:
                     surface[int(ed_tr[0] - i), int(ed_tr[1] + j)] = charge
                     # Add charge count
                     if charge == 1:
-                        List[0] += 1
+                        countCharge[0] += 1
                     elif charge == -1:
-                        List[1] += 1
-            nu_tr -= 1
-
-        # top left
-        nu_tl = ln + 1
-        for i in range(0, ln + 1):
-            for j in range(0, nu_tl):
-                # Initialize charge
-                charge = self._generatePositiveNegative(charge_concentration)
+                        countCharge[1] += 1
+                # top left
                 if surface[int(ed_tl[0] - i), int(ed_tl[1] - j)] == 0:
                     surface[int(ed_tl[0] - i), int(ed_tl[1] - j)] = charge
                     # Add charge count
                     if charge == 1:
-                        List[0] += 1
+                        countCharge[0] += 1
                     elif charge == -1:
-                        List[1] += 1
-            nu_tl -= 1
-
-        # bottom right
-        nu_br = ln + 1
-        for i in range(0, ln + 1):
-            for j in range(0, nu_br):
-                # Initialize charge
-                charge = self._generatePositiveNegative(charge_concentration)
+                        countCharge[1] += 1
+                # bottom right
                 if surface[int(ed_br[0] + i), int(ed_br[1] + j)] == 0:
                     surface[int(ed_br[0] + i), int(ed_br[1] + j)] = charge
                     # Add charge count
                     if charge == 1:
-                        List[0] += 1
+                        countCharge[0] += 1
                     elif charge == -1:
-                        List[1] += 1
-            nu_br -= 1
-
-        # bottom left triangle
-        nu_bl = ln + 1
-        for i in range(0, ln + 1):
-            for j in range(0, nu_bl):
-                # Initialize charge
-                charge = self._generatePositiveNegative(charge_concentration)
+                        countCharge[1] += 1
+                # bottom left
                 if surface[int(ed_bl[0] + i), int(ed_bl[1] - j)] == 0:
                     surface[int(ed_bl[0] + i), int(ed_bl[1] - j)] = charge
                     # Add charge count
                     if charge == 1:
-                        List[0] += 1
+                        countCharge[0] += 1
                     elif charge == -1:
-                        List[1] += 1
-            nu_bl -= 1
+                        countCharge[1] += 1
+            eg -= 1
 
         # Finally, fill out the remaining 4 squares
-        # top square
         for i in range(1, ln + 1):
             for j in range(1, ln + 1):
                 # Initialize charge
                 charge = self._generatePositiveNegative(charge_concentration)
+                # top square
                 if surface[int(ed_tl[0] - i), int(ed_tl[1] + j)] == 0:
                     surface[int(ed_tl[0] - i), int(ed_tl[1] + j)] = charge
                     # Add charge count
                     if charge == 1:
-                        List[0] += 1
+                        countCharge[0] += 1
                     elif charge == -1:
-                        List[1] += 1
-        # left square
-        for i in range(1, ln + 1):
-            for j in range(1, ln + 1):
-                # Initialize charge
-                charge = self._generatePositiveNegative(charge_concentration)
+                        countCharge[1] += 1
+                # left square
                 if surface[int(ed_tl[0] + i), int(ed_tl[1] - j)] == 0:
                     surface[int(ed_tl[0] + i), int(ed_tl[1] - j)] = charge
                     # Add charge count
                     if charge == 1:
-                        List[0] += 1
+                        countCharge[0] += 1
                     elif charge == -1:
-                        List[1] += 1
-        # right square
-        for i in range(1, ln + 1):
-            for j in range(1, ln + 1):
-                # Initialize charge
-                charge = self._generatePositiveNegative(charge_concentration)
+                        countCharge[1] += 1
+                # right square
                 if surface[int(ed_br[0] - i), int(ed_br[1] + j)] == 0:
                     surface[int(ed_br[0] - i), int(ed_br[1] + j)] = charge
                     # Add charge count
                     if charge == 1:
-                        List[0] += 1
+                        countCharge[0] += 1
                     elif charge == -1:
-                        List[1] += 1
-        # bottom square
-        for i in range(1, ln + 1):
-            for j in range(1, ln + 1):
-                # Initialize charge
-                charge = self._generatePositiveNegative(charge_concentration)
+                        countCharge[1] += 1
+                # bottom square
                 if surface[int(ed_br[0] + i), int(ed_br[1] - j)] == 0:
                     surface[int(ed_br[0] + i), int(ed_br[1] - j)] = charge
                     # Add charge count
                     if charge == 1:
-                        List[0] += 1
+                        countCharge[0] += 1
                     elif charge == -1:
-                        List[1] += 1
-        return surface, List
+                        countCharge[1] += 1
+        return surface, countCharge
 
     def _generateSingle(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int],
                         charge_concentration: float, countCharge: List[int]) -> [ndarray, List[int]]:
