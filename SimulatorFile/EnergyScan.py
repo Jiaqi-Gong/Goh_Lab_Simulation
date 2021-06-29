@@ -232,7 +232,7 @@ class EnergySimulator(Simulator):
         if self.simulationType == 2:
             showMessage("WARNING: Potential bug here")
             for row_num in range(self.bacteriaManager.bacteriaNum):
-                row = 1 + row_num
+                row = 2 + row_num
                 val_id = ws1.cell(row, 11).value
                 val = ws1.cell(2, 14 + int(val_id)).value
                 ws1.cell(2, 14 + int(val_id), int(val) + 1)
