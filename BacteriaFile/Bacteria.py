@@ -15,6 +15,7 @@ class Bacteria(Surface, ABC):
     """
     This class represent a 2D bacteria
     """
+
     @abc.abstractmethod
     def __init__(self, trail: int, shape: str, size: Tuple[int, int], seed: int, surfaceCharge: int, dimension: int):
         Surface.__init__(self, trail, shape, size, seed, surfaceCharge, dimension)
@@ -25,9 +26,7 @@ class Bacteria2D(Bacteria, ABC):
     This class represent a 2D bacteria
     """
     # Declare the type of all variable
-    surfaceCharge: int
     height: int
-    dimension: int
 
     def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int):
         # set the proper height
@@ -38,6 +37,18 @@ class Bacteria2D(Bacteria, ABC):
 
         # call parent to generate bacteria
         Bacteria.__init__(self, trail, shape, size, seed, surfaceCharge, dimension)
+
+    def _generateSurface(self) -> ndarray:
+        """
+        Generate the corresponding surface, override in subclass
+        """
+        print("Start to generating surface with shape: ", self.shape)
+
+        # generate corresponding shape
+        if self.shape.upper() == "RECTANGLE" or self.shape.upper() == "CUBOID":
+            return self._generateRec()
+        else:
+            raise RuntimeError("Bacteria 2D doesn't have this shape")
 
     def _generateRec(self) -> ndarray:
         """
@@ -55,7 +66,6 @@ class Bacteria3D(Bacteria, ABC):
         """
     # Declare the type of all variable
     height: int
-    dimension: int
     position: Union[None, Tuple[int, int, int]]
 
     def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int,
@@ -75,6 +85,22 @@ class Bacteria3D(Bacteria, ABC):
 
         # call parent to generate bacteria
         Bacteria.__init__(self, trail, shape, size, seed, surfaceCharge, dimension)
+
+    def _generateSurface(self) -> ndarray:
+        """
+        Generate the corresponding surface, override in subclass
+        """
+        print("Start to generating surface with shape: ", self.shape)
+
+        # generate corresponding shape
+        if self.shape.upper() == "CUBOID":
+            return self._generateRec()
+        elif self.shape.upper() == "SPHERE":
+            return self._generateSphere()
+        elif self.shape.upper() == "CYLINDER":
+            return self._generateCyl()
+        elif self.shape.upper() == "ROD":
+            return self._generateRod()
 
     def _generateRec(self) -> ndarray:
         """
@@ -124,7 +150,7 @@ class Bacteria3D(Bacteria, ABC):
                 return np.ones(shape=(self.length, self.width, self.height)) * (circle <= r) * (abs(d) <= sl)
             else:
                 return np.ones(shape=(self.length, self.width, self.height)) * (circle <= r) * (abs(d) <= sl) * (
-                            d != -sl)
+                        d != -sl)
         for d in range(-sl - r, -sl):
             return 1 * (distl <= r)
         for d in range(sl, sl + r):

@@ -40,6 +40,7 @@ def test_diamond():
 
     print(a)
 
+
 def test_random_choice():
     a = np.zeros((20, 20))
 
@@ -51,6 +52,7 @@ def test_random_choice():
 
     x = random.randint(domainWidth, surfaceWidth - domainWidth)
     y = random.randint(domainLength, surfaceLength - domainLength)
+
 
 class A():
     def __init__(self):
@@ -68,11 +70,14 @@ class A():
     def b(self):
         self.cc = 3
 
+
 def p():
     p = 1
 
+
 def t():
     print(p)
+
 
 def test_excel():
     from openpyxl import Workbook
@@ -93,74 +98,76 @@ def test_excel():
     file_path = "Result/" + name
     book.save(file_path)
 
+
 def _output():
-        """
+    """
         Output the simulation result into a file
         Copy from old code with minor change
         """
-        startTime = datetime.now()
-        time.sleep(3)
+    startTime = datetime.now()
+    time.sleep(3)
 
-        # calculate the time use
-        time_consume = (datetime.now() - startTime)
-        time_consume = time_consume.seconds
+    # calculate the time use
+    time_consume = (datetime.now() - startTime)
+    time_consume = time_consume.seconds
 
-        # creates excel file
-        wb = Workbook()
-        ws1 = wb.create_sheet("Results", 0)
+    # creates excel file
+    wb = Workbook()
+    ws1 = wb.create_sheet("Results", 0)
 
-        # naming the columns in the worksheet
-        ws1.cell(1, 1, "Surface Characteristics:")
-        ws1.cell(1, 2, "BacteriaFile Characteristics:")
-        ws1.cell(1, 3, "FilmFile Seed # ")
-        ws1.cell(1, 4, "BacteriaFile Seed # ")
-        ws1.cell(1, 5, "Min Energy:")
-        ws1.cell(1, 6, "Min X:")
-        ws1.cell(1, 7, "Min Y:")
-        ws1.cell(1, 8, "Surface Charge at Min Energy:")
-        ws1.cell(1, 9, "Min Energy Gradient Strip: ")
-        ws1.cell(1, 10, "Histogram: ")
+    # naming the columns in the worksheet
+    ws1.cell(1, 1, "Surface Characteristics:")
+    ws1.cell(1, 2, "BacteriaFile Characteristics:")
+    ws1.cell(1, 3, "FilmFile Seed # ")
+    ws1.cell(1, 4, "BacteriaFile Seed # ")
+    ws1.cell(1, 5, "Min Energy:")
+    ws1.cell(1, 6, "Min X:")
+    ws1.cell(1, 7, "Min Y:")
+    ws1.cell(1, 8, "Surface Charge at Min Energy:")
+    ws1.cell(1, 9, "Min Energy Gradient Strip: ")
+    ws1.cell(1, 10, "Histogram: ")
 
-        # create numbering for histogram plot
-        count = 0
-        for i in range(10, 31):
-            ws1.cell(1, i, count)
-            ws1.cell(2, i, 0)
-            count += 1
+    # create numbering for histogram plot
+    count = 0
+    for i in range(10, 31):
+        ws1.cell(1, i, count)
+        ws1.cell(2, i, 0)
+        count += 1
 
-        # adjust column width to text length
-        for i in range(ws1.max_column):
-            text = ws1.cell(1, i + 1).value
-            if type(text) == int:
-                text = str(text)
-                column_width = len(text) + 1
-            else:
-                column_width = len(text)
-            ws1.column_dimensions[get_column_letter(i + 1)].width = column_width
+    # adjust column width to text length
+    for i in range(ws1.max_column):
+        text = ws1.cell(1, i + 1).value
+        if type(text) == int:
+            text = str(text)
+            column_width = len(text) + 1
+        else:
+            column_width = len(text)
+        ws1.column_dimensions[get_column_letter(i + 1)].width = column_width
 
-        # split the result
-        min_energy, min_x, min_y, min_energy_charge, min_charge, min_charge_x, min_charge_y = (91,92,93,94,95,96,97)
+    # split the result
+    min_energy, min_x, min_y, min_energy_charge, min_charge, min_charge_x, min_charge_y = (91, 92, 93, 94, 95, 96, 97)
 
-        # shows the gradient lines position
-        grad_strip = min_x // 500
+    # shows the gradient lines position
+    grad_strip = min_x // 500
 
-        # write the result
-        ws1.cell(3, 1, str(1) + " : " + str(2))
-        ws1.cell(3, 2, str(1) + " : " + str(2))
-        ws1.cell(3, 3, 3)
-        ws1.cell(3, 4, 4)
-        ws1.cell(3, 5, min_energy)
-        ws1.cell(3, 6, min_x)
-        ws1.cell(3, 7, min_x)
-        ws1.cell(3, 8, min_energy_charge)
-        ws1.cell(3, 9, grad_strip)
-        ws1.cell(4, 9, time_consume)
+    # write the result
+    ws1.cell(3, 1, str(1) + " : " + str(2))
+    ws1.cell(3, 2, str(1) + " : " + str(2))
+    ws1.cell(3, 3, 3)
+    ws1.cell(3, 4, 4)
+    ws1.cell(3, 5, min_energy)
+    ws1.cell(3, 6, min_x)
+    ws1.cell(3, 7, min_x)
+    ws1.cell(3, 8, min_energy_charge)
+    ws1.cell(3, 9, grad_strip)
+    ws1.cell(4, 9, time_consume)
 
-        # special count for simulation type 2
-        # save the excel file into folder result
-        name = "Simulation type {} trail {}_{}.xlsx".format(str(2), 1, datetime.now().strftime("%H-%M-%S"))
-        file_path = "Result/" + name
-        wb.save(file_path)
+    # special count for simulation type 2
+    # save the excel file into folder result
+    name = "Simulation type {} trail {}_{}.xlsx".format(str(2), 1, datetime.now().strftime("%H-%M-%S"))
+    file_path = "Result/" + name
+    wb.save(file_path)
+
 
 def test_simulation():
     # get the help info
@@ -217,7 +224,7 @@ def test_simulation():
     else:
         raise RuntimeError("Unknown simulator type")
 
-    # gnerate simulator
+    # generate simulator
     sim = simulator(simulationType, trail, dimension,
                     filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
                     filmDomainSize, filmDomainShape, filmDomainCon, filmDomainChargeConcentration,
@@ -228,8 +235,8 @@ def test_simulation():
     sim.setExtraParameter(parameter)
     sim.runSimulate()
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     # test_diamond()
     # test_random_choice()
 
@@ -248,5 +255,3 @@ if __name__ == '__main__':
 
     # p = p()
     # t()
-
-

@@ -63,15 +63,12 @@ class Surface:
         # Init the surface
         self.surfaceWithDomain = None
 
+    @abc.abstractmethod
     def _generateSurface(self) -> ndarray:
         """
         Generate the corresponding surface, override in subclass
         """
-        print("Start to generating surface with shape: ", self.shape)
-
-        # generate corresponding shape
-        if self.shape.upper() == "RECTANGLE" or self.shape.upper() == "CUBOID":
-            return self._generateRec()
+        raise NotImplementedError
 
     @abc.abstractmethod
     def _generateRec(self) -> ndarray:
@@ -80,6 +77,16 @@ class Surface:
         Abstract method should be implement in the sub class
         """
         raise NotImplementedError
+
+    @abc.abstractmethod
+    def _generateSphere(self) -> ndarray:
+        """
+        This function generate circle shape for 2D, sphere for 3D, should be implement in the subclass
+        Abstract method should be implement in the sub class
+        """
+        raise NotImplementedError
+
+
 
     def importSurface(self, filepath: str) -> ndarray:
         """
