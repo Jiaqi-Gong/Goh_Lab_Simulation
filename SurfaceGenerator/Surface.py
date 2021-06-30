@@ -70,24 +70,6 @@ class Surface:
         """
         raise NotImplementedError
 
-    @abc.abstractmethod
-    def _generateRec(self) -> ndarray:
-        """
-        This function generate rectangle shape for 2D, cuboid for 3D, should be implement in the subclass
-        Abstract method should be implement in the sub class
-        """
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def _generateSphere(self) -> ndarray:
-        """
-        This function generate circle shape for 2D, sphere for 3D, should be implement in the subclass
-        Abstract method should be implement in the sub class
-        """
-        raise NotImplementedError
-
-
-
     def importSurface(self, filepath: str) -> ndarray:
         """
         This function read in the pre-generated surface structure
