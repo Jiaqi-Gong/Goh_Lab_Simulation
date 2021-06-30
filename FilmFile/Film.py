@@ -27,7 +27,6 @@ class FilmSurface2D(Film, ABC):
     This is a 2D net neutral surface, subclass of surface
     """
     # Declare the type of all variable
-    dimension: int
     height: int
 
     def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int) -> None:
@@ -72,7 +71,6 @@ class FilmSurface3D(Film, ABC):
        This is a 3D net neutral surface, subclass of surface
     """
     # Declare the type of all variable
-    dimension: int
     height: int
 
     def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int) -> None:
