@@ -132,8 +132,6 @@ class Bacteria3D(Bacteria, ABC):
         else:
             return np.ones(shape=(self.length, self.width, self.height)) * (circle <= r) * (abs(d) <= sl) * (d != -sl)
 
-    # unfinished below
-
     def _generateRod(self, r, l):
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
         # set semi-length
