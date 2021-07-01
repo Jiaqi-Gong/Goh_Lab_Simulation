@@ -114,7 +114,7 @@ class Bacteria3D(Bacteria, ABC):
         # indexes the array
         index_x, index_y, index_z = np.indices((self.length, self.width, self.height))
         dist = ((index_x - center[0]) ** 2 + (index_y - center[1]) ** 2 + (index_z - center[2]) ** 2) ** 0.5
-        return 1 * (dist <= radius)
+        #return 1 * (dist <= radius)
 
     def _generateCyl(self, r, l):
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
