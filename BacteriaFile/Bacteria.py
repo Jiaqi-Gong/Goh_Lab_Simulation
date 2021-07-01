@@ -110,7 +110,7 @@ class Bacteria3D(Bacteria, ABC):
         # creating empty matrix space
         return np.zeros(self.length, self.width, self.height)
 
-    def _generateSphere(self, radius):
+    def _generateSphere(self):
         # finds center of array
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
         # indexes the array

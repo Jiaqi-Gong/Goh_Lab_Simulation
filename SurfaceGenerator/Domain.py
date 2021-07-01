@@ -2,11 +2,8 @@
 This program is generating the domain with some charge on it
 Can be used for 2D, 3D and for testing surface, bacteria surface
 """
-import random
-
 from numpy import ndarray
 import numpy as np
-from typing import Tuple
 from SurfaceGenerator.Surface import Surface
 from typing import Tuple, List
 from ExternalIO import showMessage, writeLog
@@ -61,7 +58,7 @@ class DomainGenerator:
         if shape.upper() == "DIAMOND":
             generateShape = self._generateDiamond
             # Number of domains
-            domainNum = int((surface.length * surface.width * concentration) / ((domainWidth) * (domainLength)))
+            domainNum = int((surface.length * surface.width * concentration) / (domainWidth * domainLength))
         elif shape.upper() == "CROSS":
             generateShape = self._generateCross
             # Number of domains
@@ -138,7 +135,7 @@ class DomainGenerator:
 
     def _balanceCharge(self, count_charge, newSurface, shape, surface, total_charge) -> ndarray:
         """
-        This function is used to balance any excess or lack charge for the sueface
+        This function is used to balance any excess or lack charge for the surface
         """
         showMessage("Generating/removing remaining charges....")
         writeLog("number of +ve and -ve charge before generation/removal {}".format(count_charge))
@@ -154,7 +151,8 @@ class DomainGenerator:
                     continue
 
                 if shape.upper() != "SINGLE":
-                    # To make things go quicker, add a bunch from specified area and slowly reduce the number of additional generations
+                    # To make things go quicker, add a bunch from specified area and slowly reduce the number of
+                    # additional generations
                     if total_charge[0] - count_charge[0] > 2500:
                         for i in range(50):
                             for j in range(50):
@@ -177,7 +175,8 @@ class DomainGenerator:
                     continue
 
                 if shape.upper() != "SINGLE":
-                    # To make things go quicker, add a bunch from specified area and slowly reduce the number of additional generations, except for single
+                    # To make things go quicker, add a bunch from specified area and slowly reduce the number of
+                    # additional generations, except for single
                     if total_charge[1] - count_charge[1] > 2500:
                         for i in range(50):
                             for j in range(50):
