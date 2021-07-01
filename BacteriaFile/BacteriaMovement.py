@@ -71,4 +71,9 @@ class BacteriaMovementGenerator:
         """
         This function return new position
         """
+
+        # should judge the input is 2D or 3D or if decide dynamic simulation is only for 3D
+        # then only accept 3D coordinate input,
+        # change position: Union[Tuple[int, int], Tuple[int, int, int]] to position: Tuple[int, int, int]
+        # change -> Union[Tuple[int, int], Tuple[int, int, int]]: to -> Tuple[int, int, int]
         raise NotImplementedError
