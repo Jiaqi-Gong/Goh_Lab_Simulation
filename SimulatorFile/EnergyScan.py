@@ -100,7 +100,6 @@ class EnergySimulator(Simulator):
                 self._simulate(currIter, self.filmManager.film[currIter].surfaceWithDomain,
                                self.bacteriaManager.bacteria[0].surfaceWithDomain, end)
                 currIter += 1
-
         else:
             raise RuntimeError("Wrong simulation type")
 
