@@ -80,7 +80,7 @@ class FilmSurface3D(Film, ABC):
         dimension = 3
 
         # set the proper height
-        self.height = 3
+        self.height = 0
 
         # call parent
         Film.__init__(self, trail, shape, size, surfaceCharge, seed, dimension)

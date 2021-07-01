@@ -19,7 +19,7 @@ class BacteriaManager:
     dimension: int
     simulatorType: int
     bacteriaSeed: int
-    bacteriaSize: Tuple[int, int]
+    bacteriaSize: Union[Tuple[int, int], Tuple[int, int, int]]
     bacteriaSurfaceShape: str
     bacteriaSurfaceCharge: int
     bacteriaDomainSize: Tuple[int, int]
@@ -31,7 +31,7 @@ class BacteriaManager:
     bacteria: list
 
     def __init__(self, trail: int, dimension: int, simulatorType: int,
-                 bacteriaSeed: int, bacteriaSize: Tuple[int, int], bacteriaSurfaceShape: str,
+                 bacteriaSeed: int, bacteriaSize: Tuple[int, int, int], bacteriaSurfaceShape: str,
                  bacteriaSurfaceCharge: int,
                  bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float,
                  bacteriaDomainChargeConcentration: float, bacteriaNum: int):
@@ -41,18 +41,22 @@ class BacteriaManager:
         self.trail = trail
         self.dimension = dimension
         self.simulatorType = simulatorType
-        # self.seed = bacteriaSeed
 
         # set bacteria variable
         self.bacteriaNum = bacteriaNum
         self.bacteriaSeed = bacteriaSeed
-        self.bacteriaSize = bacteriaSize
         self.bacteriaSurfaceShape = bacteriaSurfaceShape
         self.bacteriaSurfaceCharge = bacteriaSurfaceCharge
         self.bacteriaDomainSize = bacteriaDomainSize
         self.bacteriaDomainShape = bacteriaDomainShape
         self.bacteriaDomainConcentration = bacteriaDomainConcentration
         self.bacteriaDomainChargeConcentration = bacteriaDomainChargeConcentration
+
+        # depends on the dimension, set bacteria size
+        if dimension == 2:
+            self.bacteriaSize = bacteriaSize[:2]
+        else:
+            self.bacteriaSize = bacteriaSize
 
         # generate domain generator
         self.bacteriaDomainGenerator = DomainGenerator(self.bacteriaSeed)
@@ -112,8 +116,7 @@ class BacteriaManager:
         showMessage("2D bacteria generate done")
         writeLog(self.bacteria)
 
-    def _generate3DBacteria(self, domainGenerator: DomainGenerator)\
-            -> None:
+    def _generate3DBacteria(self, domainGenerator: DomainGenerator) -> None:
         """
         Generate 3D bacteria
         """

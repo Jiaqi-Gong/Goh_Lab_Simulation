@@ -68,7 +68,7 @@ def getArgument() -> None:
     showMessage("Whole simulation done")
 
 
-def getDynamicArgument():
+def getDynamicArgument() -> [str, int, int]:
     # if this is dynamic simulator, need timestep
     while True:
 
@@ -144,7 +144,7 @@ def getDynamicArgument():
     return probabilityType, timestep, bacteriaNum
 
 
-def getEnergyScanArgument():
+def getEnergyScanArgument() -> [int, int, int, str, int]:
     # take simulation type
     while True:
         simulationType = input("Please enter simulation type: \n")
@@ -273,7 +273,7 @@ def getEnergyScanArgument():
     return bacteriaNum, dimension, filmNum, interactType, simulationType
 
 
-def getBacteriaArgument(filmSurfaceSize):
+def getBacteriaArgument(filmSurfaceSize: Tuple[int, int], dimension: int):
     # take seed of bacteria
     while True:
         bacteriaSeed = input("Please enter bacteria seed number: \n")
@@ -327,8 +327,8 @@ def getBacteriaArgument(filmSurfaceSize):
     while True:
         # Take user input
         bacteriaSize = input("Please enter the bacteria surface area you want to simulate  "
-                             "(in format: ###x### (length x width) or "
-                             "help for more information): \n")
+                             "(in format: ###x### (length x width) for 2D, ###x###x### (length x width x height) for "
+                             "3D or help for more information): \n")
 
         # set the name
         helpName = "SIZE"
@@ -337,8 +337,13 @@ def getBacteriaArgument(filmSurfaceSize):
         if bacteriaSize.upper() == "HELP":
             helpMessage(helpName)
         else:
-            # check the format of the input
-            if bool(re.match("\d+[x]\d+", bacteriaSize)):
+            # check the format of the input based on dimension
+            if dimension == 2:
+                formatValid = bool(re.match("\d+[x]\d+", bacteriaSize))
+            else:
+                formatValid = bool(re.match("\d+[x]\d+[x]\d+", bacteriaSize))
+
+            if formatValid:
                 # check this input size if valid
                 valid = checkSize(bacteriaSurfaceShape, bacteriaSize)
 
@@ -710,7 +715,7 @@ def getGeneralArgument():
         simulatorType = input("Please enter simulator type: \n")
 
         # set the name
-        helpName = "Simulator"
+        helpName = "SIMULATOR"
 
         # if enter help
         if simulatorType.upper() == "HELP":
@@ -792,7 +797,7 @@ def errorInput(helpName: str) -> None:
     print(infoDict[helpName].replace("\\n", "\n"))
 
 
-def checkSize(shape: str, size: str) -> Union[bool, Tuple[int, int]]:
+def checkSize(shape: str, size: str) -> Union[bool, Tuple[int, int], Tuple[int, int, int]]:
     """
     This function checks the size input is satisfied the restriction of the shape
     return False if not satisfy, else return a Tuple with (length, width)
@@ -803,6 +808,12 @@ def checkSize(shape: str, size: str) -> Union[bool, Tuple[int, int]]:
     length = int(size[0])
     width = int(size[1])
 
+    # get height, if exist
+    if len(size) == 3:
+        height = int(size[2])
+    else:
+        height = 0
+
     # set the checker
     result = eval(execDict[shape.upper()])
 
@@ -810,7 +821,7 @@ def checkSize(shape: str, size: str) -> Union[bool, Tuple[int, int]]:
     if not result:
         return False
     else:
-        return (length, width)
+        return (length, width, height)
 
 
 def helpMessage(helpName: str) -> None:

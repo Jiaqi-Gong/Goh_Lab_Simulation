@@ -68,13 +68,11 @@ class Bacteria3D(Bacteria, ABC):
     height: int
     position: Union[None, Tuple[int, int, int]]
 
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int,
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int, int], surfaceCharge: int, seed: int,
                  position: Union[None, Tuple[int, int, int]] = None) -> None:
-        # set the proper height of the bacteria
-        # set the height of bacteria here or generate a height in the BacteriaManager, consider it and
-        # talk with Rei
-        # TODO:
-        self.height = self.length
+        # set the proper height of the bacteria's size
+        # set the height of bacteria here or generate a height in the BacteriaManager
+        self.height = size[2]
 
         # set the proper dimension
         dimension = 3
@@ -84,7 +82,7 @@ class Bacteria3D(Bacteria, ABC):
         self.position = position
 
         # call parent to generate bacteria
-        Bacteria.__init__(self, trail, shape, size, seed, surfaceCharge, dimension)
+        Bacteria.__init__(self, trail, shape, size[:2], seed, surfaceCharge, dimension)
 
     def _generateSurface(self) -> ndarray:
         """
