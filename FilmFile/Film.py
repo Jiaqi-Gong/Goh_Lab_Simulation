@@ -27,7 +27,6 @@ class FilmSurface2D(Film, ABC):
     This is a 2D net neutral surface, subclass of surface
     """
     # Declare the type of all variable
-    dimension: int
     height: int
 
     def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int) -> None:
@@ -45,6 +44,18 @@ class FilmSurface2D(Film, ABC):
         showMessage("Generate Film surface 2D done")
         writeLog(self.__dict__)
 
+    def _generateSurface(self) -> ndarray:
+        """
+        Generate the corresponding surface, override in subclass
+        """
+        print("Start to generating surface with shape: ", self.shape)
+
+        # generate corresponding shape
+        if self.shape.upper() == "RECTANGLE":
+            return self._generateRec()
+        else:
+            raise RuntimeError("Film 2D doesn't have this shape")
+
     def _generateRec(self) -> ndarray:
         """
         This function generate the matrix space based on the size of the surface
@@ -60,7 +71,6 @@ class FilmSurface3D(Film, ABC):
        This is a 3D net neutral surface, subclass of surface
     """
     # Declare the type of all variable
-    dimension: int
     height: int
 
     def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int) -> None:
@@ -77,6 +87,18 @@ class FilmSurface3D(Film, ABC):
 
         showMessage("Generate Film surface 3D done")
         writeLog(self.__dict__)
+
+    def _generateSurface(self) -> ndarray:
+        """
+        Generate the corresponding surface, override in subclass
+        """
+        print("Start to generating surface with shape: ", self.shape)
+
+        # generate corresponding shape
+        if self.shape.upper() == "RECTANGLE":
+            return self._generateRec()
+        else:
+            raise RuntimeError("Film 3D doesn't have this shape")
 
     def _generateRec(self) -> ndarray:
         """

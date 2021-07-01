@@ -123,7 +123,12 @@ class EnergySimulator(Simulator):
             else:
                 raise RuntimeError("Unknown interact type")
         elif self.dimension == 3:
-            raise NotImplementedError
+            if self.interactType.upper() == "DOT":
+                result = self._dotInteract3D()
+            elif self.interactType.upper() in ["CUTOFF", "CUT-OFF"]:
+                result = self._cutoffInteract3D(self.intervalX, self.intervalY, film, bacteria)
+            else:
+                raise RuntimeError("Unknown interact type")
         else:
             raise RuntimeError("Wrong dimension in _simulate")
 
@@ -356,4 +361,7 @@ class EnergySimulator(Simulator):
         The energy calculate only between bacteria surface and the film surface directly under the bacteria
         This code is copy from the old code with minor name change
         """
+        raise NotImplementedError
+
+    def _cutoffInteract3D(self, intervalX, intervalY, film, bacteria):
         raise NotImplementedError

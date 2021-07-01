@@ -53,6 +53,9 @@ class BacteriaMovementGenerator:
         This function uses Poisson distribution to decide stuck or not
         return True for stuck
         """
+
+        # Should consider how to get the value of lambda, fix it or ask user to input and how this probability
+        # connect to decide bacteria stuck or not
         raise NotImplementedError
 
     def _boltzmann(self) -> bool:
@@ -60,6 +63,9 @@ class BacteriaMovementGenerator:
         This function uses Boltzmann distribution to decide stuck or not
         return True for stuck
         """
+
+        # Look at the boltzmann distribution first and decide how to relate it to the probability of bacteria stuck
+        # or not
         raise NotImplementedError
 
     def _nextPosition(self, position: Union[Tuple[int, int], Tuple[int, int, int]]) -> \
@@ -67,4 +73,9 @@ class BacteriaMovementGenerator:
         """
         This function return new position
         """
+
+        # should judge the input is 2D or 3D or if decide dynamic simulation is only for 3D
+        # then only accept 3D coordinate input,
+        # change position: Union[Tuple[int, int], Tuple[int, int, int]] to position: Tuple[int, int, int]
+        # change -> Union[Tuple[int, int], Tuple[int, int, int]]: to -> Tuple[int, int, int]
         raise NotImplementedError
