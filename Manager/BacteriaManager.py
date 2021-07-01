@@ -1,9 +1,10 @@
 """
 This program is used to save and manage all bacteria
 """
-from typing import Tuple
+from typing import Tuple, Union
 
 from BacteriaFile.Bacteria import Bacteria2D, Bacteria3D
+from BacteriaMovement import BacteriaMovementGenerator
 from SurfaceGenerator.Domain import DomainGenerator
 from ExternalIO import showMessage, writeLog
 
@@ -16,6 +17,7 @@ class BacteriaManager:
     # Declare the type of all variable
     trail: int
     dimension: int
+    simulatorType: int
     bacteriaSeed: int
     bacteriaSize: Tuple[int, int]
     bacteriaSurfaceShape: str
@@ -25,19 +27,21 @@ class BacteriaManager:
     bacteriaDomainConcentration: float
     bacteriaNum: int
     bacteriaDomainGenerator: DomainGenerator
+    bacteriaMovementGenerator: BacteriaMovementGenerator
     bacteria: list
 
-    def __init__(self, trail: int, dimension: int,
+    def __init__(self, trail: int, dimension: int, simulatorType: int,
                  bacteriaSeed: int, bacteriaSize: Tuple[int, int], bacteriaSurfaceShape: str,
                  bacteriaSurfaceCharge: int,
-                 bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float, bacteriaDomainChargeConcentration: float,
-                 bacteriaNum: int):
+                 bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float,
+                 bacteriaDomainChargeConcentration: float, bacteriaNum: int):
         """
         Init the film manager, take in the
         """
         self.trail = trail
         self.dimension = dimension
-        self.seed = bacteriaSeed
+        self.simulatorType = simulatorType
+        # self.seed = bacteriaSeed
 
         # set bacteria variable
         self.bacteriaNum = bacteriaNum
@@ -52,6 +56,10 @@ class BacteriaManager:
 
         # generate domain generator
         self.bacteriaDomainGenerator = DomainGenerator(self.bacteriaSeed)
+
+        # if this is dynamic simulator, generate bacteria movement generator
+        if self.simulatorType == 2:
+            self.bacteriaMovementGenerator = BacteriaMovementGenerator()
 
         # init a variable to store all bacteria
         self.bacteria = []
@@ -87,7 +95,7 @@ class BacteriaManager:
         Generate 2D bacteria
         """
         showMessage("Generate 2D bacteria")
-        # generate 2D Film Surface
+        # generate 2D bacteria Surface
         bacteria = Bacteria2D(self.trail, self.bacteriaSurfaceShape, self.bacteriaSize, self.bacteriaSurfaceCharge,
                               domainGenerator.seed)
 
@@ -97,20 +105,31 @@ class BacteriaManager:
                                                                     self.bacteriaDomainConcentration,
                                                                     self.bacteriaDomainChargeConcentration)
 
-        # save the film into manager
+        # save the bacteria into manager
         self.bacteria.append(bacteria)
 
         # write into log
         showMessage("2D bacteria generate done")
         writeLog(self.bacteria)
 
-    def _generate3DBacteria(self, domainGenerator: DomainGenerator) -> None:
+    def _generate3DBacteria(self, domainGenerator: DomainGenerator)\
+            -> None:
         """
         Generate 3D bacteria
         """
         showMessage("Generate 3D bacteria")
-        # generate 2D Film Surface
-        bacteria = Bacteria3D(self.trail, self.bacteriaSurfaceShape, self.bacteriaSize, self.bacteriaSurfaceCharge)
+
+        # depends on the simulator type, generate position for bacteria
+        if self.simulatorType == 1:
+            position = None
+        elif self.simulatorType == 2:
+            position = self.bacteriaMovementGenerator.initPosition()
+        else:
+            raise RuntimeError("Unknown simulator type")
+
+        # generate 3D bacteria Surface
+        bacteria = Bacteria3D(self.trail, self.bacteriaSurfaceShape, self.bacteriaSize, self.bacteriaSurfaceCharge,
+                              domainGenerator.seed, position)
 
         showMessage("Generate 3D bacteria with domain")
         bacteria.surfaceWithDomain = domainGenerator.generateDomain(bacteria, self.bacteriaDomainShape,
@@ -118,7 +137,7 @@ class BacteriaManager:
                                                                     self.bacteriaDomainConcentration,
                                                                     self.bacteriaDomainChargeConcentration)
 
-        # save the film into manager
+        # save the bacteria into manager
         self.bacteria.append(bacteria)
 
         # write into log

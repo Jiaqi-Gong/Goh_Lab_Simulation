@@ -25,6 +25,7 @@ class Simulator(ABC):
     trail: int
     dimension: int
     simulationType: int
+    simulatorType: int
     intervalX: int
     intervalY: int
     filmManager: FilmManager
@@ -32,7 +33,7 @@ class Simulator(ABC):
     startTime: datetime
     output: Tuple[Workbook, Union[WriteOnlyWorksheet, Worksheet]]
 
-    def __init__(self, simulationType: int, trail: int, dimension: int,
+    def __init__(self, simulationType: int, trail: int, dimension: int, simulatorType: int,
                  filmSeed: int, filmSurfaceSize: Tuple[int, int], filmSurfaceShape: str, filmSurfaceCharge: int,
                  filmDomainSize: Tuple[int, int], filmDomainShape: str, filmDomainConcentration: float,
                  filmDomainChargeConcentration: float,
@@ -52,6 +53,7 @@ class Simulator(ABC):
         self.trail = trail
         self.dimension = dimension
         self.simulationType = simulationType
+        self.simulatorType = simulatorType
         self.intervalX = intervalX
         self.intervalY = intervalY
 
@@ -60,10 +62,10 @@ class Simulator(ABC):
                                        filmDomainSize, filmDomainShape, filmDomainConcentration,
                                        filmDomainChargeConcentration, filmNum)
 
-        self.bacteriaManager = BacteriaManager(trail, dimension, bacteriaSeed, bacteriaSize, bacteriaSurfaceShape,
-                                               bacteriaSurfaceCharge, bacteriaDomainSize, bacteriaDomainShape,
-                                               bacteriaDomainConcentration, bacteriaDomainChargeConcentration,
-                                               bacteriaNum)
+        self.bacteriaManager = BacteriaManager(trail, dimension, simulatorType, bacteriaSeed, bacteriaSize,
+                                               bacteriaSurfaceShape, bacteriaSurfaceCharge, bacteriaDomainSize,
+                                               bacteriaDomainShape, bacteriaDomainConcentration,
+                                               bacteriaDomainChargeConcentration, bacteriaNum)
         self.startTime = datetime.now()
         self.output = self._initOutput()
 

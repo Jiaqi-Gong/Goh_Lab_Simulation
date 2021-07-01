@@ -34,7 +34,8 @@ class EnergySimulator(Simulator):
         Init the simulation class based on the input info
         Description of input info are shown in the HelpFile.txt
         """
-        Simulator.__init__(self, simulationType, trail, dimension,
+        simulatorType = 1
+        Simulator.__init__(self, simulationType, trail, dimension, simulatorType,
                            filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
                            filmDomainSize, filmDomainShape, filmDomainConcentration, filmDomainChargeConcentration,
                            bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
@@ -154,7 +155,7 @@ class EnergySimulator(Simulator):
         ws1.cell(1, 9, "Min Y")
         ws1.cell(1, 10, "Surface Charge at Min Energy")
         ws1.cell(1, 11, "Min Energy Gradient Strip")
-        ws1.cell(1, 12, "Time used")
+        ws1.cell(1, 12, "Time used (s)")
         ws1.cell(1, 13, "Interact type")
         ws1.cell(1, 14, "Histogram")
 
@@ -174,10 +175,6 @@ class EnergySimulator(Simulator):
             else:
                 column_width = len(text)
             ws1.column_dimensions[get_column_letter(i + 1)].width = column_width
-
-        # record return value
-        writeLog(wb.__dict__)
-        writeLog(ws1.__dict__)
 
         return (wb, ws1)
 
@@ -210,9 +207,9 @@ class EnergySimulator(Simulator):
 
         # write the result
         ws1.cell(row_pos, 1, str(self.filmManager.filmSurfaceShape) + " : " + str(self.filmManager.filmSurfaceSize))
-        ws1.cell(row_pos, 2,
-                 str(self.bacteriaManager.bacteriaSurfaceShape) + " : " + str(self.bacteriaManager.bacteriaSurfaceShape))
-        ws1.cell(row_pos, 3, str(self.filmManager.filmDomainShape) + " : " + str(self.filmManager.filmDomainSize))
+        ws1.cell(row_pos, 2, str(self.filmManager.filmDomainShape) + " : " + str(self.filmManager.filmDomainSize))
+        ws1.cell(row_pos, 3,
+                 str(self.bacteriaManager.bacteriaSurfaceShape) + " : " + str(self.bacteriaManager.bacteriaSize))
         ws1.cell(row_pos, 4,
                  str(self.bacteriaManager.bacteriaDomainShape) + " : " + str(self.bacteriaManager.bacteriaDomainSize))
         ws1.cell(row_pos, 5, self.filmManager.film[currIter].seed)
@@ -235,13 +232,13 @@ class EnergySimulator(Simulator):
         if self.simulationType == 2:
             showMessage("WARNING: Potential bug here")
             for row_num in range(self.bacteriaManager.bacteriaNum):
-                row = 1 + row_num
+                row = 2 + row_num
                 val_id = ws1.cell(row, 11).value
                 val = ws1.cell(2, 14 + int(val_id)).value
                 ws1.cell(2, 14 + int(val_id), int(val) + 1)
 
         # save the excel file into folder result
-        name = "Simulation type {} trail {}_{}.xlsx".format(str(self.simulationType), self.trail,
+        name = "Type_{}_trail_{}-{}-{}.xlsx".format(str(self.simulationType), self.trail,datetime.now().strftime("%m_%d"),
                                                             datetime.now().strftime("%H-%M-%S"))
         file_path = "Result/" + name
 
