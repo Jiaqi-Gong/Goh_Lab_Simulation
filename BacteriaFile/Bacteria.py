@@ -132,7 +132,7 @@ class Bacteria3D(Bacteria, ABC):
         else:
             return np.ones(shape=(self.length, self.width, self.height)) * (circle <= r) * (abs(d) <= sl) * (d != -sl)
 
-        # unfinished below
+    # unfinished below
 
     def _generateRod(self, r, l):
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
@@ -141,20 +141,18 @@ class Bacteria3D(Bacteria, ABC):
         index_x, index_y, index_z = np.indices((self.length, self.width, self.height))
         d = index_x - center[0]
         rbound = center[0] + sl, center[1], center[2]
-        lbound = rbound[0] - l, center[1], center[2]
+        lbound = rbound[0] - l + 1, center[1], center[2]
         distl = ((index_x - lbound[0]) ** 2 + (index_y - lbound[1]) ** 2 + (index_z - lbound[2]) ** 2) ** 0.5
         distr = ((index_x - rbound[0]) ** 2 + (index_y - rbound[1]) ** 2 + (index_z - rbound[2]) ** 2) ** 0.5
         circle = ((index_y - center[1]) ** 2 + (index_z - center[2]) ** 2) ** 0.5
-        for d in range(-sl, sl):
-            if l % 2 == 1:
-                return np.ones(shape=(self.length, self.width, self.height)) * (circle <= r) * (abs(d) <= sl)
-            else:
-                return np.ones(shape=(self.length, self.width, self.height)) * (circle <= r) * (abs(d) <= sl) * (
-                        d != -sl)
-        for d in range(-sl - r, -sl):
-            return 1 * (distl <= r)
-        for d in range(sl, sl + r):
-            return 1 * (distr <= r)
+        if l % 2 == 1:
+            return (np.ones(shape=(self.length, self.width, self.height)) * (abs(d) <= sl) * (circle <= r) + np.ones(
+                shape=(self.length, self.width, self.height)) * (distl <= r) + np.ones(
+                shape=(self.length, self.width, self.height)) * (distr <= r))
+        else:
+            return (np.ones(shape=(self.length, self.width, self.height)) * (circle <= r) * (abs(d) <= sl) * (
+                        d != -sl) + np.ones(shape=(self.length, self.width, self.height)) * (distl <= r) + np.ones(
+                shape=(self.length, self.width, self.height)) * (distr <= r))
 
     # to generate more shape, add new function below, start with def _generateXXX, replace XXX with the new shape you
     # want to generate, update your new shape in _generateSurface in Surface.py or inform Jiaqi to do update
