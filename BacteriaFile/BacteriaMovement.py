@@ -2,7 +2,9 @@
 This file contains several function to generate next move of bacteria
 """
 from typing import Tuple, Union
-
+from SurfaceGenerator.Surface import Surface
+from BacteriaFile.Bacteria import Bacteria2D, Bacteria3D
+import numpy as np
 
 class BacteriaMovementGenerator:
     """
@@ -10,14 +12,16 @@ class BacteriaMovementGenerator:
     """
 
     # type declaration
+    seed: int
 
-    def __init__(self) -> None:
+    def __init__(self, seed: int) -> None:
         """
         Init the movement generator
+        :param: seed for random, if using same seed can repeat the simulation
         """
+        self.seed = seed
         # depends on do you need new variable for poisson distribution or boltzmann distribution, init your class
         # since I don't known the detail on how you guys implement these functions, so I left blank at here
-        raise NotImplementedError
 
     def initPosition(self) -> Tuple[int, int, int]:
         """
@@ -67,13 +71,101 @@ class BacteriaMovementGenerator:
         # or not
         raise NotImplementedError
 
-    def _nextPosition(self, position: Tuple[int, int, int]) -> Tuple[int, int, int]:
+    def _nextPosition2D(self, position: Tuple[int, int, int], surface: Surface, z_restriction: int) -> Tuple[int, int, int]:
         """
-        This function return new position
+        This function return new position for 2D bacteria (currently next position is based on random movement of bacteria)
+        position is based on the left-lower most part of the bacteria (ie. closest to the origin if the bacteria was in
+        the first quadrant in a 3D cartesian coordinate system)
         """
+        # set seed for random
+        np.random.seed(self.seed)
 
-        # should judge the input is 2D or 3D or if decide dynamic simulation is only for 3D
-        # then only accept 3D coordinate input,
-        # change position: Union[Tuple[int, int], Tuple[int, int, int]] to position: Tuple[int, int, int]
-        # change -> Union[Tuple[int, int], Tuple[int, int, int]]: to -> Tuple[int, int, int]
-        raise NotImplementedError
+        movement = False
+        while not movement:
+            # create variable called "movement" to determine which direction the bacteria will move in
+            x_movement = int(np.random.choice([-1, 0, 1], 1, replace=False))
+            y_movement = int(np.random.choice([-1, 0, 1], 1, replace=False))
+            z_movement = int(np.random.choice([-1, 0, 1], 1, replace=False))
+
+            # set restrictions (ie. position can't be off the surface)
+            # x direction
+            if position[0] == 0:
+                x_movement = int(np.random.choice([0, 1], 1, replace=False))
+            elif position[0] == surface.length - Bacteria2D.size[0]:
+                x_movement = int(np.random.choice([-1, 0], 1, replace=False))
+
+            # y direction
+            if position[1] == 0:
+                y_movement = int(np.random.choice([0, 1], 1, replace=False))
+            elif position[1] == surface.width - Bacteria2D.size[1]:
+                y_movement = int(np.random.choice([-1, 0], 1, replace=False))
+
+            # z direction
+            if position[2] == 0:
+                z_movement = int(np.random.choice([0, 1], 1, replace=False))
+            elif position[2] == z_restriction - 3: # the restriction for how far off the bacteria can be from the surface is arbitrary and can be changed
+                z_movement = int(np.random.choice([-1, 0], 1, replace=False))
+
+            # if all three movement is 0, rerun the movements
+            if x_movement == 0 and y_movement == 0 and z_movement == 0:
+                movement = False
+            else:
+                movement = True
+
+        # create new position for the bacteria
+        # directions
+        x = position[0] + x_movement
+        y = position[1] + y_movement
+        z = position[2] + z_movement
+
+        return (x,y,z)
+
+    def _nextPosition3D(self, position: Tuple[int, int, int], surface: Surface, z_restriction: int) -> Tuple[int, int, int]:
+        """
+        This function return new position for 3D bacteria (currently next position is based on random movement of bacteria)
+        position is based on the left-lower most part of the bacteria (ie. closest to the origin if the bacteria was in
+        the first quadrant in a 3D cartesian coordinate system)
+        """
+        # set seed for random
+        np.random.seed(self.seed)
+
+        movement = False
+        while not movement:
+            # create variable called "movement" to determine which direction the bacteria will move in
+            x_movement = int(np.random.choice([-1, 0, 1], 1, replace=False))
+            y_movement = int(np.random.choice([-1, 0, 1], 1, replace=False))
+            z_movement = int(np.random.choice([-1, 0, 1], 1, replace=False))
+
+            # set restrictions (ie. position can't be off the surface)
+            # x direction
+            if position[0] == 0:
+                x_movement = int(np.random.choice([0, 1], 1, replace=False))
+            elif position[0] == surface.length - Bacteria3D.size[0]:
+                x_movement = int(np.random.choice([-1, 0], 1, replace=False))
+
+            # y direction
+            if position[1] == 0:
+                y_movement = int(np.random.choice([0, 1], 1, replace=False))
+            elif position[1] == surface.width - Bacteria3D.size[1]:
+                y_movement = int(np.random.choice([-1, 0], 1, replace=False))
+
+            # z direction
+            if position[2] == 0:
+                z_movement = int(np.random.choice([0, 1], 1, replace=False))
+            elif position[2] == z_restriction - Bacteria3D.size[2]: # the restriction for how far off the bacteria can be from the surface is arbitrary and can be changed
+                z_movement = int(np.random.choice([-1, 0], 1, replace=False))
+
+            # if all three movement is 0, rerun the movements
+            if x_movement == 0 and y_movement == 0 and z_movement == 0:
+                movement = False
+            else:
+                movement = True
+
+        # create new position for the bacteria
+        # directions
+        x = position[0] + x_movement
+        y = position[1] + y_movement
+        z = position[2] + z_movement
+
+        return (x,y,z)
+
