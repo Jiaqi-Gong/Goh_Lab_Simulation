@@ -111,14 +111,17 @@ class Bacteria3D(Bacteria, ABC):
     def _generateSphere(self):
         # finds center of array
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
+        radius = min(np.floor(self.length / 2), np.floor(self.width / 2), np.floor(self.height / 2))
         # indexes the array
         index_x, index_y, index_z = np.indices((self.length, self.width, self.height))
         dist = ((index_x - center[0]) ** 2 + (index_y - center[1]) ** 2 + (index_z - center[2]) ** 2) ** 0.5
-        #return 1 * (dist <= radius)
+        return 1 * (dist <= radius)
 
-    def _generateCyl(self, r, l):
+    def _generateCyl(self):
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
         # set semi-length
+        l = max(self.length, self.width, self.height)
+        r = min(np.floor(self.length / 2), np.floor(self.width / 2), np.floor(self.height / 2))
         sl = int(l * 0.5)
         index_x, index_y, index_z = np.indices((self.length, self.width, self.height))
         # calculates distance from center to any point on the x-axis
@@ -130,9 +133,11 @@ class Bacteria3D(Bacteria, ABC):
         else:
             return np.ones(shape=(self.length, self.width, self.height)) * (circle <= r) * (abs(d) <= sl) * (d != -sl)
 
-    def _generateRod(self, r, l):
+    def _generateRod(self):
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
         # set semi-length
+        l = max(self.length, self.width, self.height)
+        r = min(np.floor(self.length/2), np.floor(self.width/2), np.floor(self.height/2))
         sl = int(l * 0.5)
         index_x, index_y, index_z = np.indices((self.length, self.width, self.height))
         d = index_x - center[0]
