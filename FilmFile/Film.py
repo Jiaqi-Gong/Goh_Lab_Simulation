@@ -74,7 +74,7 @@ class FilmSurface3D(Film, ABC):
     height: int
 
     def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int) -> None:
-        showMessage("start to generate Film surface 2D")
+        showMessage("start to generate Film surface 3D")
 
         # set the proper dimension and height
         dimension = 3
