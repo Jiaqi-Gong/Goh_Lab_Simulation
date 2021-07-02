@@ -2,11 +2,8 @@
 This program is generating the domain with some charge on it
 Can be used for 2D, 3D and for testing surface, bacteria surface
 """
-import random
-
 from numpy import ndarray
 import numpy as np
-from typing import Tuple
 from SurfaceGenerator.Surface import Surface
 from typing import Tuple, List
 from ExternalIO import showMessage, writeLog
@@ -61,7 +58,7 @@ class DomainGenerator:
         if shape.upper() == "DIAMOND":
             generateShape = self._generateDiamond
             # Number of domains
-            domainNum = int((surface.length * surface.width * concentration) / ((domainWidth) * (domainLength)))
+            domainNum = int((surface.length * surface.width * concentration) / (domainWidth * domainLength))
         elif shape.upper() == "CROSS":
             generateShape = self._generateCross
             # Number of domains
@@ -121,12 +118,15 @@ class DomainGenerator:
                                                        charge_concentration, count_charge)
 
             # update generated number
-            generated += 1
+            if shape.upper() == "SINGLE":
+                generated += 5
+            else:
+                generated += 1
 
             total_time = time.time() - start_time
 
             showMessage("Generated number is: {}".format(generated))
-            showMessage("Time it took to generate is: {}".format(total_time))
+            showMessage("Time it took to generate is: {} seconds".format(total_time))
 
         showMessage("Domain generated done")
 
@@ -138,7 +138,7 @@ class DomainGenerator:
 
     def _balanceCharge(self, count_charge, newSurface, shape, surface, total_charge) -> ndarray:
         """
-        This function is used to balance any excess or lack charge for the sueface
+        This function is used to balance any excess or lack charge for the surface
         """
         showMessage("Generating/removing remaining charges....")
         writeLog("number of +ve and -ve charge before generation/removal {}".format(count_charge))
@@ -153,14 +153,15 @@ class DomainGenerator:
                 if newSurface[y][x] != 0:
                     continue
 
-                if shape.upper() != "SINGLE":
-                    # To make things go quicker, add a bunch from specified area and slowly reduce the number of additional generations
-                    if total_charge[0] - count_charge[0] > 2500:
-                        for i in range(50):
-                            for j in range(50):
-                                if newSurface[y + j][x + i] == 0:
-                                    newSurface[y + j][x + i] = 1
-                                    count_charge[0] += 1
+                # if shape.upper() != "SINGLE":
+                # To make things go quicker, add a bunch from specified area and slowly reduce the number of
+                    # additional generations
+                if total_charge[0] - count_charge[0] > 2500:
+                    for i in range(50):
+                        for j in range(50):
+                            if newSurface[y + j][x + i] == 0:
+                                newSurface[y + j][x + i] = 1
+                                count_charge[0] += 1
                 # Else
                 newSurface[y][x] = 1
 
@@ -176,14 +177,14 @@ class DomainGenerator:
                 if newSurface[y][x] != 0:
                     continue
 
-                if shape.upper() != "SINGLE":
-                    # To make things go quicker, add a bunch from specified area and slowly reduce the number of additional generations, except for single
-                    if total_charge[1] - count_charge[1] > 2500:
-                        for i in range(50):
-                            for j in range(50):
-                                if newSurface[y + j][x + i] == 0:
-                                    newSurface[y + j][x + i] = -1
-                                    count_charge[1] += 1
+                # if shape.upper() != "SINGLE":
+                # To make things go quicker, add a bunch from specified area and slowly reduce the number of additional generations, except for single
+                if total_charge[1] - count_charge[1] > 2500:
+                    for i in range(50):
+                        for j in range(50):
+                            if newSurface[y + j][x + i] == 0:
+                                newSurface[y + j][x + i] = -1
+                                count_charge[1] += 1
 
                 # Else
                 newSurface[y][x] = -1
@@ -202,14 +203,14 @@ class DomainGenerator:
                 if newSurface[y][x] != 1:
                     continue
 
-                if shape.upper() != "SINGLE":
-                    # To make things go quicker, remove a bunch from specified area and slowly reduce the number of additional generations
-                    if count_charge[0] - total_charge[0] > 2500:
-                        for i in range(50):
-                            for j in range(50):
-                                if newSurface[y + j][x + i] == 1:
-                                    newSurface[y + j][x + i] = 0
-                                    count_charge[0] -= 1
+                # if shape.upper() != "SINGLE":
+                # To make things go quicker, remove a bunch from specified area and slowly reduce the number of additional generations
+                if count_charge[0] - total_charge[0] > 2500:
+                    for i in range(50):
+                        for j in range(50):
+                            if newSurface[y + j][x + i] == 1:
+                                newSurface[y + j][x + i] = 0
+                                count_charge[0] -= 1
 
                 # If the difference is less than 2500, just remove 1 at a time
                 newSurface[y][x] = 0
@@ -226,14 +227,14 @@ class DomainGenerator:
                 if newSurface[y][x] != -1:
                     continue
 
-                if shape.upper() != "SINGLE":
-                    # To make things go quicker, remove a bunch from specified area and slowly reduce the number of additional generations
-                    if count_charge[1] - total_charge[1] > 2500:
-                        for i in range(50):
-                            for j in range(50):
-                                if newSurface[y + j][x + i] == -1:
-                                    newSurface[y + j][x + i] = 0
-                                    count_charge[1] -= 1
+                # if shape.upper() != "SINGLE":
+                # To make things go quicker, remove a bunch from specified area and slowly reduce the number of additional generations
+                if count_charge[1] - total_charge[1] > 2500:
+                    for i in range(50):
+                        for j in range(50):
+                            if newSurface[y + j][x + i] == -1:
+                                newSurface[y + j][x + i] = 0
+                                count_charge[1] -= 1
                 # Else
                 newSurface[y][x] = 0
 
@@ -344,8 +345,8 @@ class DomainGenerator:
 
         elif shape.upper() == "SINGLE":
             # Set restriction on where the starting positions can be
-            x_possibility = range(1, surfaceLength - 1)
-            y_possibility = range(1, surfaceWidth - 1)
+            x_possibility = range(2, surfaceLength - 2)
+            y_possibility = range(2, surfaceWidth - 2)
             x = int(np.random.choice(x_possibility, 1, replace=False))
             y = int(np.random.choice(y_possibility, 1, replace=False))
 
@@ -683,5 +684,36 @@ class DomainGenerator:
                 countCharge[0] += 1
             elif charge == -1:
                 countCharge[1] += 1
+
+        # Used to increase speed for generating domains since it takes a long time to generate all the domains
+        if surface[int(startPoint[0]+1), int(startPoint[1]+1)] == 0:
+            surface[int(startPoint[0]+1), int(startPoint[1]+1)] = charge
+            # Add charge count
+            if charge == 1:
+                countCharge[0] += 1
+            elif charge == -1:
+                countCharge[1] += 1
+        if surface[int(startPoint[0]-1), int(startPoint[1]-1)] == 0:
+            surface[int(startPoint[0]-1), int(startPoint[1]-1)] = charge
+            # Add charge count
+            if charge == 1:
+                countCharge[0] += 1
+            elif charge == -1:
+                countCharge[1] += 1
+        if surface[int(startPoint[0]+1), int(startPoint[1]-1)] == 0:
+            surface[int(startPoint[0]+1), int(startPoint[1]-1)] = charge
+            # Add charge count
+            if charge == 1:
+                countCharge[0] += 1
+            elif charge == -1:
+                countCharge[1] += 1
+        if surface[int(startPoint[0]-1), int(startPoint[1]+1)] == 0:
+            surface[int(startPoint[0]-1), int(startPoint[1]+1)] = charge
+            # Add charge count
+            if charge == 1:
+                countCharge[0] += 1
+            elif charge == -1:
+                countCharge[1] += 1
+
 
         return surface, countCharge

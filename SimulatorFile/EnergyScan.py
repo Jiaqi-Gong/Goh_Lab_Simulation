@@ -12,6 +12,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 from ExternalIO import showMessage, writeLog, saveResult
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter  # allows access to letters of each column
+
 from SimulatorFile.Simulator import Simulator
 
 
@@ -45,7 +46,6 @@ class EnergySimulator(Simulator):
 
         # set some variable
         self.interactType = None
-
 
     def runSimulate(self) -> None:
         """
@@ -100,7 +100,6 @@ class EnergySimulator(Simulator):
                 self._simulate(currIter, self.filmManager.film[currIter].surfaceWithDomain,
                                self.bacteriaManager.bacteria[0].surfaceWithDomain, end)
                 currIter += 1
-
         else:
             raise RuntimeError("Wrong simulation type")
 
@@ -243,8 +242,9 @@ class EnergySimulator(Simulator):
                 ws1.cell(2, 14 + int(val_id), int(val) + 1)
 
         # save the excel file into folder result
-        name = "Type_{}_trail_{}-{}-{}.xlsx".format(str(self.simulationType), self.trail,datetime.now().strftime("%m_%d"),
-                                                            datetime.now().strftime("%H-%M-%S"))
+        name = "Type_{}_trail_{}-{}-{}.xlsx".format(str(self.simulationType), self.trail,
+                                                    datetime.now().strftime("%m_%d"),
+                                                    datetime.now().strftime("%H-%M-%S"))
         file_path = "Result/" + name
 
         # call function in ExternalIO to save workbook
@@ -264,7 +264,6 @@ class EnergySimulator(Simulator):
 
         # shape of the bacteria
         shape = bacteria.shape
-
 
         # set the range
         range_x = np.arange(0, shape[0], intervalX)
@@ -363,5 +362,11 @@ class EnergySimulator(Simulator):
         """
         raise NotImplementedError
 
-    def _cutoffInteract3D(self, intervalX, intervalY, film, bacteria):
+    def _cutoffInteract3D(self, intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray) -> \
+            Tuple[int, int, int, int, int, int, int]:
+        """
+        Do the simulation, scan whole film surface with bacteria
+        The energy calculate only between bacteria surface and the film surface directly under the bacteria
+        This code is copy from the old code with minor name change
+        """
         raise NotImplementedError

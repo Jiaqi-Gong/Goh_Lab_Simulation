@@ -68,13 +68,11 @@ class Bacteria3D(Bacteria, ABC):
     height: int
     position: Union[None, Tuple[int, int, int]]
 
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int,
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int, int], surfaceCharge: int, seed: int,
                  position: Union[None, Tuple[int, int, int]] = None) -> None:
-        # set the proper height of the bacteria
-        # set the height of bacteria here or generate a height in the BacteriaManager, consider it and
-        # talk with Rei
-        # TODO:
-        self.height = self.length
+        # set the proper height of the bacteria's size
+        # set the height of bacteria here or generate a height in the BacteriaManager
+        self.height = size[2]
 
         # set the proper dimension
         dimension = 3
@@ -84,7 +82,7 @@ class Bacteria3D(Bacteria, ABC):
         self.position = position
 
         # call parent to generate bacteria
-        Bacteria.__init__(self, trail, shape, size, seed, surfaceCharge, dimension)
+        Bacteria.__init__(self, trail, shape, size[:2], seed, surfaceCharge, dimension)
 
     def _generateSurface(self) -> ndarray:
         """
@@ -110,13 +108,13 @@ class Bacteria3D(Bacteria, ABC):
         # creating empty matrix space
         return np.zeros(self.length, self.width, self.height)
 
-    def _generateSphere(self, radius):
+    def _generateSphere(self):
         # finds center of array
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
         # indexes the array
         index_x, index_y, index_z = np.indices((self.length, self.width, self.height))
         dist = ((index_x - center[0]) ** 2 + (index_y - center[1]) ** 2 + (index_z - center[2]) ** 2) ** 0.5
-        return 1 * (dist <= radius)
+        #return 1 * (dist <= radius)
 
     def _generateCyl(self, r, l):
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))

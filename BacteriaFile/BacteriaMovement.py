@@ -25,8 +25,7 @@ class BacteriaMovementGenerator:
         """
         raise NotImplementedError
 
-    def nextPosition(self, probabilityType: str, position: Union[Tuple[int, int], Tuple[int, int, int]]) -> \
-            Union[bool, Tuple[int, int], Tuple[int, int, int]]:
+    def nextPosition(self, probabilityType: str, position: Tuple[int, int, int]) -> Union[bool, Tuple[int, int, int]]:
         """
         This function take in probability type, position
         return False if this bacteria is stuck
@@ -68,8 +67,7 @@ class BacteriaMovementGenerator:
         # or not
         raise NotImplementedError
 
-    def _nextPosition(self, position: Union[Tuple[int, int], Tuple[int, int, int]]) -> \
-            Union[Tuple[int, int], Tuple[int, int, int]]:
+    def _nextPosition(self, position: Tuple[int, int, int]) -> Tuple[int, int, int]:
         """
         This function return new position
         """
