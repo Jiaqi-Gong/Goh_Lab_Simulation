@@ -119,7 +119,7 @@ class BacteriaMovementGenerator:
         if result is True:
             return False
         else:
-            return self._nextPosition3D(position)
+            return self._nextPosition(position)
 
     def _nextPosition(self, position: Tuple[int, int, int]) -> Tuple[int, int, int]:
         """
