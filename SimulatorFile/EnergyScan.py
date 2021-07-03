@@ -161,11 +161,12 @@ class EnergySimulator(Simulator):
         ws1.cell(1, 11, "Min Energy Gradient Strip")
         ws1.cell(1, 12, "Time used (s)")
         ws1.cell(1, 13, "Interact type")
-        ws1.cell(1, 14, "Histogram")
 
         # create numbering for histogram plot
         count = 0
-        for i in range(15, 31):
+        # number is how many strip
+        number = 20
+        for i in range(14, 14 + number):
             ws1.cell(1, i, count)
             ws1.cell(2, i, 0)
             count += 1
@@ -235,9 +236,11 @@ class EnergySimulator(Simulator):
         # count number of min_energy locations at each gradient strip
         if self.simulationType == 2:
             showMessage("WARNING: Potential bug here")
+            a = self.bacteriaManager.bacteriaNum
             for row_num in range(self.bacteriaManager.bacteriaNum):
                 row = 2 + row_num
                 val_id = ws1.cell(row, 11).value
+                print("This is val_id",val_id)
                 val = ws1.cell(2, 14 + int(val_id)).value
                 ws1.cell(2, 14 + int(val_id), int(val) + 1)
 
@@ -273,9 +276,9 @@ class EnergySimulator(Simulator):
 
         # init some variable
         # randomly, just not negative
-        min_energy = 1000
-        min_charge = 1000
-        min_energy_charge = 1000
+        min_energy = 999999
+        min_charge = 999999
+        min_energy_charge = 999999
         min_charge_x = 0
         min_charge_y = 0
         min_x = -1

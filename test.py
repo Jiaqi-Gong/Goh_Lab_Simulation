@@ -179,7 +179,7 @@ def test_simulation():
     # get log file
     openLog()
 
-    simulationType = 1
+    simulationType = 2
     trail = 1
     dimension = 2
     filmSeed = 1
