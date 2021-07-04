@@ -51,6 +51,7 @@ class EnergySimulator(Simulator):
 
         # set some variable
         self.interactType = None
+        self.cutoff = -1
 
     def runSimulate(self) -> None:
         """
@@ -123,6 +124,8 @@ class EnergySimulator(Simulator):
             if self.interactType.upper() == "DOT":
                 result = self._dotInteract2D(self.intervalX, self.intervalY, film, bacteria)
             elif self.interactType.upper() in ["CUTOFF", "CUT-OFF"]:
+                if self.cutoff < 0:
+                    raise RuntimeError("Cut-off value is not assign or not assign properly")
                 result = self._cutoffInteract2D(self.intervalX, self.intervalY, film, bacteria)
             else:
                 raise RuntimeError("Unknown interact type")
@@ -130,6 +133,8 @@ class EnergySimulator(Simulator):
             if self.interactType.upper() == "DOT":
                 result = self._dotInteract3D()
             elif self.interactType.upper() in ["CUTOFF", "CUT-OFF"]:
+                if self.cutoff < 0:
+                    raise RuntimeError("Cut-off value is not assign or not assign properly")
                 result = self._cutoffInteract3D(self.intervalX, self.intervalY, film, bacteria)
             else:
                 raise RuntimeError("Unknown interact type")
@@ -265,7 +270,7 @@ class EnergySimulator(Simulator):
         The energy calculate only between bacteria surface and the film surface directly under the bacteria
         This code is copy from the old code with minor name change
         """
-        writeLog("This is _interact2D in Simulation")
+        writeLog("This is _dotInteract2D in Simulation")
         showMessage("Start to interact ......")
         writeLog("intervalX is: {}, intervalY is: {}, film is: {}, bacteria is: {}".format(
             intervalX, intervalY, film, bacteria))
@@ -368,6 +373,38 @@ class EnergySimulator(Simulator):
         The energy calculate only between bacteria surface and the film surface directly under the bacteria
         This code is copy from the old code with minor name change
         """
+        writeLog("This is _cutoffInteract2D in Simulation")
+        showMessage("Start to interact ......")
+        writeLog("intervalX is: {}, intervalY is: {}, film is: {}, bacteria is: {}".format(
+            intervalX, intervalY, film, bacteria))
+
+        # shape of the bacteria
+        shape = film.shape
+
+        # set the range
+        range_x = np.arange(0, shape[0], intervalX)
+        range_y = np.arange(0, shape[1], intervalY)
+
+        writeLog("shape is : {}, range_x is: {}, range_y is: {}".format(shape, range_x, range_y))
+
+        # init some variable
+        # randomly, just not negative
+        min_energy = 999999
+        min_charge = 999999
+        min_energy_charge = 999999
+        min_charge_x = 0
+        min_charge_y = 0
+        min_x = -1
+        min_y = -1
+
+        # change ndarray to tuple
+        filmTuple = self._ndarrayToTuple(film)
+        bacteriaTuple = self._ndarrayToTuple(bacteria)
+
+        # select proper area on the film to interact with bacteria
+
+
+
         raise NotImplementedError
 
     def _cutoffInteract3D(self, intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray) -> \
@@ -379,9 +416,9 @@ class EnergySimulator(Simulator):
         """
         raise NotImplementedError
 
-    def _ndarrayToTuple(self, arrayList: ndarray) -> List[Tuple[int, int, int, int]]:
+    def _ndarrayToTuple(self, arrayList: ndarray) -> List[List[Tuple[int, int, int, int]]]:
         """
-        This function takes in a ndarray and rephase this array into a list
+        This function takes in a ndarray and rephase this array into a nested list
         Each tuple in list represent (x_coordinate, y_coordinate, z_coordinate, charge)
         """
         writeLog("This is ndarrayToTuple")
@@ -392,16 +429,19 @@ class EnergySimulator(Simulator):
 
         # depends on the dimension rephrase ndarray
         for x in range(len(arrayList)):
+            temp = []
             for y in range(len(arrayList[x])):
                 if self.dimension == 2:
                     z = 3
                     # Note, for 2D, the height of bacteria is fixed to 3, which means z-coordinate is 3
                     position = (x, y, z, arrayList[x][y])
-                    tupleList.append(position)
+                    temp.append(position)
 
                 elif self.dimension == 3:
-                    pass
+                    raise NotImplementedError
                 else:
                     raise RuntimeError("Unknown dimension")
 
+            tupleList.append(temp)
 
+        return tupleList

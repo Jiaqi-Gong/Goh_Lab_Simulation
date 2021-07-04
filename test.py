@@ -180,6 +180,29 @@ def test3D():
     dist = ((index_x - center[0]) ** 2 + (index_y - center[1]) ** 2 + (index_z - center[2]) ** 2) ** 0.5
     return 1 * (dist <= radius) - 1 * (dist <= radius-1)
 
+def testchange():
+    dimension = 2
+    arrayList = np.zeros((4,4))
+    # init the list
+    tupleList = []
+
+    # depends on the dimension rephrase ndarray
+    for x in range(len(arrayList)):
+        for y in range(len(arrayList[x])):
+            if dimension == 2:
+                z = 3
+                # Note, for 2D, the height of bacteria is fixed to 3, which means z-coordinate is 3
+                position = (x, y, z, arrayList[x][y])
+                tupleList.append(position)
+
+            elif dimension == 3:
+                raise NotImplementedError
+            else:
+                raise RuntimeError("Unknown dimension")
+
+    return tupleList
+
+
 def test_simulation():
     # get the help info
     helpDict = getHelp()
@@ -267,4 +290,6 @@ if __name__ == '__main__':
     # p = p()
     # t()
 
-    print(test3D())
+    # print(test3D())
+
+    print(testchange())
