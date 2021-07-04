@@ -36,6 +36,11 @@ class EnergySimulator(Simulator):
         Description of input info are shown in the HelpFile.txt
         """
         simulatorType = 1
+
+        # if simulation type is 1, fix the bacteria number to 1
+        if simulationType == 1:
+            bacteriaNum = 1
+
         Simulator.__init__(self, simulationType, trail, dimension, simulatorType,
                            filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
                            filmDomainSize, filmDomainShape, filmDomainConcentration, filmDomainChargeConcentration,
