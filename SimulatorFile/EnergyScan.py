@@ -75,7 +75,7 @@ class EnergySimulator(Simulator):
         elif self.simulationType == 2:
             # One film, multiple different bacteria, every bacteria scan the surface once
             for i in range(self.bacteriaManager.bacteriaNum):
-                showMessage("This is type 2 simulation with simulation #: {}".format({i}))
+                showMessage("This is type 2 simulation with simulation #: {}".format(i))
 
                 # change end indicator
                 if i == self.bacteriaManager.bacteriaNum - 1:
@@ -266,7 +266,7 @@ class EnergySimulator(Simulator):
             intervalX, intervalY, film, bacteria))
 
         # shape of the bacteria
-        shape = bacteria.shape
+        shape = film.shape
 
         # set the range
         range_x = np.arange(0, shape[0], intervalX)
@@ -294,7 +294,7 @@ class EnergySimulator(Simulator):
                 x_boundary = shape[0] + x
                 y_boundary = shape[1] + y
 
-                writeLog("x_boundary is: {}, y_boundary is: {}".format(x_boundary, y_boundary))
+                writeLog("x_boundary is: {}, y_boundary is: {}, shpae is:{} ".format(x_boundary, y_boundary, shape))
 
                 # check if bacteria surface is exceed range of film surface
                 if x_boundary > shape[0] or y_boundary > shape[1]:

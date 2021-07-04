@@ -9,7 +9,7 @@ import numpy as np
 
 # separate the bacteria movement for when the bacteria is 2D and when bacteria is 3D
 # define an abstract class which will be used for the 2D and 3D bacteria class to inherit
-class DistributionGenerator:
+class BacteriaMovementGenerator:
     """
     This class defines the boltzmann and poisson distribution to be used in the 2 child classes
     """
@@ -38,7 +38,7 @@ class DistributionGenerator:
         raise NotImplementedError
 
 
-class BacteriaMovementGenerator2D(DistributionGenerator):
+class BacteriaMovementGenerator2D(BacteriaMovementGenerator):
     """
     This class is a generator generate next move of 2D bacteria
     """
@@ -158,7 +158,7 @@ class BacteriaMovementGenerator2D(DistributionGenerator):
 
         return (x,y,z)
 
-class BacteriaMovementGenerator3D(DistributionGenerator):
+class BacteriaMovementGenerator3D(BacteriaMovementGenerator):
     """
     This class is a generator generate next move of 3D bacteria
     """

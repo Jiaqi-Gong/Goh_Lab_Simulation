@@ -186,7 +186,7 @@ def test_simulation():
     filmSurfaceSize = (10, 10)
     filmSurfaceShape = "rectangle"
     filmNum = 1
-    bacteriaNum = 1
+    bacteriaNum = 10
     interval_x = 50
     interval_y = 50
     filmSurfaceCharge = 0

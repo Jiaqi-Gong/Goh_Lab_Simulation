@@ -125,8 +125,8 @@ class DomainGenerator:
 
             total_time = time.time() - start_time
 
-            showMessage("Generated number is: {}".format(generated))
-            showMessage("Time it took to generate is: {} seconds".format(total_time))
+            # showMessage("Generated number is: {}".format(generated))
+            # showMessage("Time it took to generate is: {} seconds".format(total_time))
 
         showMessage("Domain generated done")
 
@@ -309,8 +309,8 @@ class DomainGenerator:
         Randomly pick a point on the surface given
         :return a tuple represent a point in the surface in the matrix
         """
-        writeLog("This is _randomPoint in Domain.py")
-        writeLog([self.__dict__, surfaceLength, surfaceWidth, domainLength, domainWidth, shape])
+        # writeLog("This is _randomPoint in Domain.py")
+        # writeLog([self.__dict__, surfaceLength, surfaceWidth, domainLength, domainWidth, shape])
 
         # Find random coordinate
         if shape.upper() == "DIAMOND":
