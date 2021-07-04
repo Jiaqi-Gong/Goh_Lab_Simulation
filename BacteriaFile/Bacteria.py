@@ -72,7 +72,7 @@ class Bacteria3D(Bacteria, ABC):
                  position: Union[None, Tuple[int, int, int]] = None) -> None:
         # set the proper height of the bacteria's size
         # set the height of bacteria here or generate a height in the BacteriaManager
-        self.height = size[2]
+        self.height = size[2] * 100
 
         # set the proper dimension
         dimension = 3
@@ -99,6 +99,8 @@ class Bacteria3D(Bacteria, ABC):
             return self._generateCyl()
         elif self.shape.upper() == "ROD":
             return self._generateRod()
+        else:
+            raise RuntimeError("Bacteria 2D doesn't have this shape")
 
     def _generateRec(self) -> ndarray:
         """

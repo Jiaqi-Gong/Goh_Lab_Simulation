@@ -378,3 +378,30 @@ class EnergySimulator(Simulator):
         This code is copy from the old code with minor name change
         """
         raise NotImplementedError
+
+    def _ndarrayToTuple(self, arrayList: ndarray) -> List[Tuple[int, int, int, int]]:
+        """
+        This function takes in a ndarray and rephase this array into a list
+        Each tuple in list represent (x_coordinate, y_coordinate, z_coordinate, charge)
+        """
+        writeLog("This is ndarrayToTuple")
+        writeLog(arrayList)
+
+        # init the list
+        tupleList = []
+
+        # depends on the dimension rephrase ndarray
+        for x in range(len(arrayList)):
+            for y in range(len(arrayList[x])):
+                if self.dimension == 2:
+                    z = 3
+                    # Note, for 2D, the height of bacteria is fixed to 3, which means z-coordinate is 3
+                    position = (x, y, z, arrayList[x][y])
+                    tupleList.append(position)
+
+                elif self.dimension == 3:
+                    pass
+                else:
+                    raise RuntimeError("Unknown dimension")
+
+

@@ -168,6 +168,17 @@ def _output():
     file_path = "Result/" + name
     wb.save(file_path)
 
+def test3D():
+    length = 5
+    width = 5
+    height = 5
+    # finds center of array
+    center = int(np.floor(length / 2)), int(np.floor(width / 2)), int(np.floor(height / 2))
+    radius = min(np.floor(length / 2), np.floor(width / 2), np.floor(height / 2))
+    # indexes the array
+    index_x, index_y, index_z = np.indices((length, width, height))
+    dist = ((index_x - center[0]) ** 2 + (index_y - center[1]) ** 2 + (index_z - center[2]) ** 2) ** 0.5
+    return 1 * (dist <= radius) - 1 * (dist <= radius-1)
 
 def test_simulation():
     # get the help info
@@ -251,7 +262,9 @@ if __name__ == '__main__':
 
     # _output()
 
-    test_simulation()
+    # test_simulation()
 
     # p = p()
     # t()
+
+    print(test3D())
