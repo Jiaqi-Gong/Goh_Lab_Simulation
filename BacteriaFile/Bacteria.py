@@ -117,7 +117,7 @@ class Bacteria3D(Bacteria, ABC):
         # indexes the array
         index_z, index_y, index_x = np.indices((self.height+1, self.width, self.length))
         dist = ((index_x - center[0]) ** 2 + (index_y - center[1]) ** 2 + (index_z - center[2]) ** 2) ** 0.5
-        return 1 * (dist <= radius) - 1 * (dist <= radius-1)
+        return np.argwhere(1 * (dist <= radius) - 1 * (dist <= radius-1))
 
     def _generateCyl(self):
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
@@ -136,9 +136,9 @@ class Bacteria3D(Bacteria, ABC):
         outertwo = np.ones(shape=(self.length, self.width, self.height)) * (circle <= r) * (abs(d) <= sl) * (d != -sl)
         innertwo = np.ones(shape=(self.length, self.width, self.height)) * (circle <= r-1) * (abs(d) <= sl-1) * (d != 1-sl)
         if l % 2 == 1:
-            return outerone - innerone
+            return np.argwhere(outerone - innerone)
         else:
-            return outertwo - innertwo
+            return np.argwhere(outertwo - innertwo)
 
     def _generateRod(self):
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
@@ -170,9 +170,9 @@ class Bacteria3D(Bacteria, ABC):
         even_outer[even_outer >= 1] = 1
         even_inner[even_inner >= 1] = 1
         if l % 2 == 1:
-            return odd_outer - odd_inner
+            return np.argwhere(odd_outer - odd_inner)
         else:
-            return even_outer - even_inner
+            return np.argwhere(even_outer - even_inner)
 
     # to generate more shape, add new function below, start with def _generateXXX, replace XXX with the new shape you
     # want to generate, update your new shape in _generateSurface in Surface.py or inform Jiaqi to do update
