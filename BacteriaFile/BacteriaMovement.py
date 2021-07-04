@@ -16,14 +16,14 @@ class BacteriaMovementGenerator:
     This class is a generator generate next move of bacteria
     """
     # Type declaration
-    Lambda: int
+    Lambda: float
     z_restriction: int
     seed: int
     shape: str
     film3D: FilmSurface3D
     bacteria3D: Bacteria3D
 
-    def __init__(self, Lambda: int, z_restriction: int, seed: int, shape: str, film3D: FilmSurface3D, bacteria3D: Bacteria3D):
+    def __init__(self, Lambda: float, z_restriction: int, seed: int, shape: str, film3D: FilmSurface3D, bacteria3D: Bacteria3D):
         self.Lambda = Lambda
         self.z_restriction = z_restriction
         self.seed = seed
@@ -52,7 +52,7 @@ class BacteriaMovementGenerator:
         return stick
 
 
-    def _boltzmann(self) -> bool:
+    def _boltzmann(self, temperature: float, energy: float) -> bool:
         """
         This function uses Boltzmann distribution to decide stuck or not
         return True for stuck
