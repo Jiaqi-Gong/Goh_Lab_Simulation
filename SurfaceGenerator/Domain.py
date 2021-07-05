@@ -354,7 +354,7 @@ class DomainGenerator:
             raise RuntimeError("Wrong shape in the function _randomPoint")
 
         coordinate = (y, x)
-        writeLog("Point picked is: {}".format(coordinate))
+        # writeLog("Point picked is: {}".format(coordinate))
 
         # return the result as tuple
         return coordinate

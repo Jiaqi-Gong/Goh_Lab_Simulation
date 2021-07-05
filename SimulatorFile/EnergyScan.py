@@ -320,7 +320,7 @@ class EnergySimulator(Simulator):
                           y_boundary > film_shape[1] - bact_shape[1]))
 
                 # check if bacteria surface is exceed range of film surface
-                if x_boundary > film_shape[0] - bact_shape[0] or y_boundary > film_shape[1] - bact_shape[1]:
+                if x_boundary > film_shape[0] or y_boundary > film_shape[1]:
                     # if exceed the surface, go to next iteration
                     writeLog("outside the range, continue")
                     continue
@@ -330,10 +330,6 @@ class EnergySimulator(Simulator):
                 # change the corresponding film surface into 1D
                 film_use = film[x: x_boundary, y: y_boundary]
                 film_1D = np.reshape(film_use, (-1,))
-
-                # show the film and bacteria to image
-                visPlot(film_use, "film_use")
-
 
                 # calculate energy, uses electrostatic energy formula, assuming that r = 1
                 # WARNING: r should be change based on the height difference between film and bacteria in future
