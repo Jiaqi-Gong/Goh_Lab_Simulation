@@ -127,12 +127,15 @@ def visPlot(array: ndarray, picName: str) -> None:
     neg_x = neg[0]
     neg_y = neg[1]
 
-    fig = plt.figure(figsize=(25, 25))
+    if 'BACT' in picName.upper():
+        fig = plt.figure(figsize=(10, 10))
+    else:
+        fig = plt.figure(figsize=(25, 25))
     ax = fig.add_subplot(111)
 
-    ax.scatter(pos_x, pos_y, s=5, c='blue', label='pos')
-    ax.scatter(neu_x, neu_y, s=5, c='green', label='neu')
-    ax.scatter(neg_x, neg_y, s=5, c='red', label='neg')
+    ax.scatter(pos_x, pos_y, s=1, c='blue', label='pos')
+    ax.scatter(neu_x, neu_y, s=1, c='green', label='neu')
+    ax.scatter(neg_x, neg_y, s=1, c='red', label='neg')
 
     ax.legend(loc="upper right")
     ax.set_xlabel("X")
