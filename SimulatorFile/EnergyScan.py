@@ -172,14 +172,16 @@ class EnergySimulator(Simulator):
         ws1.cell(1, 12, "Time used (s)")
         ws1.cell(1, 13, "Interact type")
 
-        # create numbering for histogram plot
-        count = 0
-        # number is how many strip
-        number = 20
-        for i in range(14, 14 + number):
-            ws1.cell(1, i, count)
-            ws1.cell(2, i, 0)
-            count += 1
+        # if simulation type is 2, do the count
+        if self.simulationType == 2:
+            # create numbering for histogram plot
+            count = 0
+            # number is how many strip
+            number = 20
+            for i in range(14, 14 + number):
+                ws1.cell(1, i, count)
+                ws1.cell(2, i, 0)
+                count += 1
 
         # adjust column width to text length
         for i in range(ws1.max_column):
