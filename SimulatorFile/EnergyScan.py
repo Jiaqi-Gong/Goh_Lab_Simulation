@@ -277,6 +277,10 @@ class EnergySimulator(Simulator):
         writeLog("intervalX is: {}, intervalY is: {}, film is: {}, bacteria is: {}".format(
             intervalX, intervalY, film, bacteria))
 
+        # show image of whole film and bacteria
+        visPlot(film, "whole_film")
+        visPlot(bacteria, "whole_bacteria")
+
         # shape of the film
         film_shape = film.shape
 
@@ -329,7 +333,7 @@ class EnergySimulator(Simulator):
 
                 # show the film and bacteria to image
                 visPlot(film_use, "film_use")
-                visPlot(bacteria, "bacteria_use")
+
 
                 # calculate energy, uses electrostatic energy formula, assuming that r = 1
                 # WARNING: r should be change based on the height difference between film and bacteria in future
