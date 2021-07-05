@@ -9,7 +9,7 @@ from numpy import ndarray
 from openpyxl.worksheet._write_only import WriteOnlyWorksheet
 from openpyxl.worksheet.worksheet import Worksheet
 
-from ExternalIO import showMessage, writeLog, saveResult
+from ExternalIO import showMessage, writeLog, saveResult, visPlot
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter  # allows access to letters of each column
 
@@ -327,10 +327,15 @@ class EnergySimulator(Simulator):
                 film_use = film[x: x_boundary, y: y_boundary]
                 film_1D = np.reshape(film_use, (-1,))
 
+                # show the film and bacteria to image
+                visPlot(film_use, "film_use")
+                visPlot(bacteria, "bacteria_use")
+
                 # calculate energy, uses electrostatic energy formula, assuming that r = 1
                 # WARNING: r should be change based on the height difference between film and bacteria in future
                 writeLog(["This is surface and film uses to calcualte energy", film_1D, bacteria_1D])
                 energy = np.dot(film_1D, bacteria_1D)
+
                 writeLog("WARNING: r should be change based on the height difference between film and bacteria in "
                          "future")
 

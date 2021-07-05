@@ -304,6 +304,7 @@ def testVisible():
 def testPic():
     from ExternalIO import visPlot
     data = np.zeros((100, 100))
+    np.reshape(data, (-1,))
     data[2][2] = 1
     data[1][1] = -1
 
@@ -326,7 +327,7 @@ if __name__ == '__main__':
 
     # _output()
 
-    # test_simulation()
+    test_simulation()
 
     # p = p()
     # t()
@@ -337,4 +338,4 @@ if __name__ == '__main__':
 
     # testVisible()
 
-    testPic()
+    # testPic()
