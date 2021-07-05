@@ -269,6 +269,47 @@ def test_simulation():
     sim.setExtraParameter(parameter)
     sim.runSimulate()
 
+def testVisible():
+    from matplotlib import pyplot as plt
+    data = np.zeros((100, 100))
+    data[2][2] = 1
+    data[1][1] = -1
+    pos = np.where(data == 1)
+    neu = np.where(data == 0)
+    neg = np.where(data == -1)
+
+    pos_x = pos[0]
+    pos_y = pos[1]
+    neu_x = neu[0]
+    neu_y = neu[1]
+    neg_x = neg[0]
+    neg_y = neg[1]
+
+    fig = plt.figure(figsize=(10, 10))
+    ax = fig.add_subplot(111)
+
+    ax.scatter(pos_x, pos_y, c='blue', label='pos')
+    ax.scatter(neu_x, neu_y, c='green', label='neu')
+    ax.scatter(neg_x, neg_y, c='red', label='neg')
+    ax.legend(loc="upper right")
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.xaxis.set_ticks_position('top')
+    ax.xaxis.set_label_position('top')
+
+    plt.imshow(data, interpolation='nearest')
+    plt.show()
+    plt.savefig("test.png")
+
+def testPic():
+    from ExternalIO import visPlot
+    data = np.zeros((100, 100))
+    data[2][2] = 1
+    data[1][1] = -1
+
+    picName = "test"
+
+    visPlot(data, picName)
 
 if __name__ == '__main__':
     # test_diamond()
@@ -285,7 +326,7 @@ if __name__ == '__main__':
 
     # _output()
 
-    test_simulation()
+    # test_simulation()
 
     # p = p()
     # t()
@@ -293,3 +334,7 @@ if __name__ == '__main__':
     # print(test3D())
 
     # print(testchange())
+
+    # testVisible()
+
+    testPic()

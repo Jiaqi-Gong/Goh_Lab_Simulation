@@ -311,8 +311,9 @@ class EnergySimulator(Simulator):
 
                 writeLog("x_boundary is: {}, y_boundary is: {}, film_shape is:{}, bacteria shape is: {} ".format(
                     x_boundary, y_boundary, film_shape, bact_shape))
-                writeLog(["Range check", x_boundary > film_shape[0] - bact_shape[0],
-                          y_boundary > film_shape[1] - bact_shape[1]])
+                writeLog("Range check: x_boundary > film_shape[0] - bact_shape[0] is :{}, y_boundary > "
+                         "film_shape[1] - bact_shape[1] is: {} ".format(x_boundary > film_shape[0] - bact_shape[0],
+                          y_boundary > film_shape[1] - bact_shape[1]))
 
                 # check if bacteria surface is exceed range of film surface
                 if x_boundary > film_shape[0] - bact_shape[0] or y_boundary > film_shape[1] - bact_shape[1]:
