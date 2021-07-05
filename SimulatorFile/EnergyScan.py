@@ -275,14 +275,17 @@ class EnergySimulator(Simulator):
         writeLog("intervalX is: {}, intervalY is: {}, film is: {}, bacteria is: {}".format(
             intervalX, intervalY, film, bacteria))
 
-        # shape of the bacteria
-        shape = film.shape
+        # shape of the film
+        film_shape = film.shape
+
+        # shape of bacteria
+        bact_shape = bacteria.shape
 
         # set the range
-        range_x = np.arange(0, shape[0], intervalX)
-        range_y = np.arange(0, shape[1], intervalY)
+        range_x = np.arange(0, film_shape[0], intervalX)
+        range_y = np.arange(0, film_shape[1], intervalY)
 
-        writeLog("shape is : {}, range_x is: {}, range_y is: {}".format(shape, range_x, range_y))
+        writeLog("shape is : {}, range_x is: {}, range_y is: {}".format(film_shape, range_x, range_y))
 
         # init some variable
         # randomly, just not negative
@@ -301,24 +304,29 @@ class EnergySimulator(Simulator):
         for x in range_x:
             for y in range_y:
                 # set the x boundary and y boundary
-                x_boundary = shape[0] + x
-                y_boundary = shape[1] + y
+                x_boundary = bact_shape[0] + x
+                y_boundary = bact_shape[1] + y
 
-                writeLog("x_boundary is: {}, y_boundary is: {}, shpae is:{} ".format(x_boundary, y_boundary, shape))
+                writeLog("x_boundary is: {}, y_boundary is: {}, film_shape is:{}, bacteria shape is: {} ".format(
+                    x_boundary, y_boundary, film_shape, bact_shape))
+                writeLog(["Range check", x_boundary > film_shape[0] - bact_shape[0],
+                          y_boundary > film_shape[1] - bact_shape[1]])
 
                 # check if bacteria surface is exceed range of film surface
-                if x_boundary > shape[0] or y_boundary > shape[1]:
+                if x_boundary > film_shape[0] - bact_shape[0] or y_boundary > film_shape[1] - bact_shape[1]:
                     # if exceed the surface, go to next iteration
+                    writeLog("outside the range, continue")
                     continue
 
                 # do the calculation
 
                 # change the corresponding film surface into 1D
                 film_use = film[x: x_boundary, y: y_boundary]
-                film_1D = np.reshape(film_use, (-1))
+                film_1D = np.reshape(film_use, (-1,))
 
                 # calculate energy, uses electrostatic energy formula, assuming that r = 1
                 # WARNING: r should be change based on the height difference between film and bacteria in future
+                writeLog(["This is surface and film uses to calcualte energy", film_1D, bacteria_1D])
                 energy = np.dot(film_1D, bacteria_1D)
                 writeLog("WARNING: r should be change based on the height difference between film and bacteria in "
                          "future")

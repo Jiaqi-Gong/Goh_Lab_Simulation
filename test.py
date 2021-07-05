@@ -285,11 +285,11 @@ if __name__ == '__main__':
 
     # _output()
 
-    # test_simulation()
+    test_simulation()
 
     # p = p()
     # t()
 
     # print(test3D())
 
-    print(testchange())
+    # print(testchange())
