@@ -130,9 +130,9 @@ def visPlot(array: ndarray, picName: str) -> None:
     fig = plt.figure(figsize=(25, 25))
     ax = fig.add_subplot(111)
 
-    ax.scatter(pos_x, pos_y, s=10, c='blue', label='pos')
-    ax.scatter(neu_x, neu_y, s=10, c='green', label='neu')
-    ax.scatter(neg_x, neg_y, s=10, c='red', label='neg')
+    ax.scatter(pos_x, pos_y, s=5, c='blue', label='pos')
+    ax.scatter(neu_x, neu_y, s=5, c='green', label='neu')
+    ax.scatter(neg_x, neg_y, s=5, c='red', label='neg')
 
     ax.legend(loc="upper right")
     ax.set_xlabel("X")
@@ -142,21 +142,21 @@ def visPlot(array: ndarray, picName: str) -> None:
 
     plt.imshow(array, interpolation='nearest')
 
+    now = datetime.now()
+    day = now.strftime("%m_%d")
+    current_time = now.strftime("%H_%M_%S")
+
     global picFolder
     if "picFolder" not in globals():
         # save the image
         if not os.path.exists("Image"):
             os.mkdir("Image")
 
-        now = datetime.now()
-        day = now.strftime("%m_%d")
-        current_time = now.strftime("%H_%M_%S")
-
         picFolder = "Image/{}_{}".format(day, current_time)
         if not os.path.exists(picFolder):
             os.mkdir(picFolder)
 
-    picPath = "{}/{}".format(picFolder, picName)
+    picPath = "{}/{}_{}".format(picFolder, picName, current_time)
     plt.savefig(picPath)
 
     plt.show()

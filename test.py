@@ -213,14 +213,14 @@ def test_simulation():
     # get log file
     openLog()
 
-    simulationType = 1
+    simulationType = 2
     trail = 1
     dimension = 2
     filmSeed = 1
     filmSurfaceSize = (10, 10)
     filmSurfaceShape = "rectangle"
     filmNum = 1
-    bacteriaNum = 10
+    bacteriaNum = 5
     interval_x = 50
     interval_y = 50
     filmSurfaceCharge = 0
