@@ -110,8 +110,12 @@ def saveResult(wb: workbook, path: str) -> None:
 
 def visPlot(array: ndarray, picName: str) -> None:
     """
-    This function take in a ndarray and save this array as a image with given name
+    This function take in a 2D ndarray and save this array as a image with given name
     """
+    if len(array.shape) != 2:
+        showMessage("WARNING, the array passed in visPlot is not 2D, no picture will generate")
+        pass
+
     pos = np.where(array == 1)
     neu = np.where(array == 0)
     neg = np.where(array == -1)
