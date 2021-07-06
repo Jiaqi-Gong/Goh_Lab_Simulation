@@ -229,8 +229,15 @@ class EnergySimulator(Simulator):
                  str(self.bacteriaManager.bacteriaSurfaceShape) + " : " + str(self.bacteriaManager.bacteriaSize))
         ws1.cell(row_pos, 4,
                  str(self.bacteriaManager.bacteriaDomainShape) + " : " + str(self.bacteriaManager.bacteriaDomainSize))
-        ws1.cell(row_pos, 5, self.filmManager.film[0].seed)
-        ws1.cell(row_pos, 6, self.bacteriaManager.bacteria[currIter].seed)
+
+        if self.simulationType == 3:
+            ws1.cell(row_pos, 5, self.filmManager.film[currIter].seed)
+            ws1.cell(row_pos, 6, self.bacteriaManager.bacteria[0].seed)
+
+        else:
+            ws1.cell(row_pos, 5, self.filmManager.film[0].seed)
+            ws1.cell(row_pos, 6, self.bacteriaManager.bacteria[currIter].seed)
+
         ws1.cell(row_pos, 7, min_energy)
         ws1.cell(row_pos, 8, min_x)
         ws1.cell(row_pos, 9, min_x)
