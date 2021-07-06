@@ -18,7 +18,7 @@ class Film(Surface, ABC):
     This is an abstract class of net neutral surface, subclass of Surface, should implement by 2D and 3D version
     """
     @abc.abstractmethod
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int,  seed: int, dimension: int):
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int, int], surfaceCharge: int,  seed: int, dimension: int):
         Surface.__init__(self, trail, shape, size, seed, surfaceCharge, dimension)
 
 
@@ -36,7 +36,7 @@ class FilmSurface2D(Film, ABC):
         dimension = 2
 
         # set the proper height
-        self.height = 0
+        size = (size[0], size[1], 0)
 
         # call parent
         Film.__init__(self, trail, shape, size, surfaceCharge, seed, dimension)
@@ -80,7 +80,7 @@ class FilmSurface3D(Film, ABC):
         dimension = 3
 
         # set the proper height
-        self.height = 0
+        size = (size[0], size[1], 0)
 
         # call parent
         Film.__init__(self, trail, shape, size, surfaceCharge, seed, dimension)
