@@ -31,7 +31,7 @@ class Surface:
     surfaceWithDomain: Union[None, ndarray]
 
     @abc.abstractmethod
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int], seed: int, surfaceCharge: int, dimension: int) \
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int, int], seed: int, surfaceCharge: int, dimension: int) \
             -> None:
         """
         Init this surface
@@ -46,6 +46,7 @@ class Surface:
         # 1 micrometer = 100 points
         self.length = size[0] * 100
         self.width = size[1] * 100
+        self.height = size[2] * 100
         self.trail = trail
         self.shape = shape
         self.seed = seed
