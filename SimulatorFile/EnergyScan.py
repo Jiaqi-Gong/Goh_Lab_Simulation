@@ -9,7 +9,7 @@ from numpy import ndarray
 from openpyxl.worksheet._write_only import WriteOnlyWorksheet
 from openpyxl.worksheet.worksheet import Worksheet
 
-from ExternalIO import showMessage, writeLog, saveResult
+from ExternalIO import showMessage, writeLog, saveResult, visPlot
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter  # allows access to letters of each column
 
@@ -51,6 +51,7 @@ class EnergySimulator(Simulator):
 
         # set some variable
         self.interactType = None
+        self.cutoff = -1
 
     def runSimulate(self) -> None:
         """
@@ -123,6 +124,8 @@ class EnergySimulator(Simulator):
             if self.interactType.upper() == "DOT":
                 result = self._dotInteract2D(self.intervalX, self.intervalY, film, bacteria)
             elif self.interactType.upper() in ["CUTOFF", "CUT-OFF"]:
+                if self.cutoff < 0:
+                    raise RuntimeError("Cut-off value is not assign or not assign properly")
                 result = self._cutoffInteract2D(self.intervalX, self.intervalY, film, bacteria)
             else:
                 raise RuntimeError("Unknown interact type")
@@ -130,6 +133,8 @@ class EnergySimulator(Simulator):
             if self.interactType.upper() == "DOT":
                 result = self._dotInteract3D()
             elif self.interactType.upper() in ["CUTOFF", "CUT-OFF"]:
+                if self.cutoff < 0:
+                    raise RuntimeError("Cut-off value is not assign or not assign properly")
                 result = self._cutoffInteract3D(self.intervalX, self.intervalY, film, bacteria)
             else:
                 raise RuntimeError("Unknown interact type")
@@ -167,14 +172,16 @@ class EnergySimulator(Simulator):
         ws1.cell(1, 12, "Time used (s)")
         ws1.cell(1, 13, "Interact type")
 
-        # create numbering for histogram plot
-        count = 0
-        # number is how many strip
-        number = 20
-        for i in range(14, 14 + number):
-            ws1.cell(1, i, count)
-            ws1.cell(2, i, 0)
-            count += 1
+        # if simulation type is 2, do the count
+        if self.simulationType == 2:
+            # create numbering for histogram plot
+            count = 0
+            # number is how many strip
+            number = 20
+            for i in range(14, 14 + number):
+                ws1.cell(1, i, count)
+                ws1.cell(2, i, 0)
+                count += 1
 
         # adjust column width to text length
         for i in range(ws1.max_column):
@@ -222,8 +229,15 @@ class EnergySimulator(Simulator):
                  str(self.bacteriaManager.bacteriaSurfaceShape) + " : " + str(self.bacteriaManager.bacteriaSize))
         ws1.cell(row_pos, 4,
                  str(self.bacteriaManager.bacteriaDomainShape) + " : " + str(self.bacteriaManager.bacteriaDomainSize))
-        ws1.cell(row_pos, 5, self.filmManager.film[currIter].seed)
-        ws1.cell(row_pos, 6, self.bacteriaManager.bacteria[currIter].seed)
+
+        if self.simulationType == 3:
+            ws1.cell(row_pos, 5, self.filmManager.film[currIter].seed)
+            ws1.cell(row_pos, 6, self.bacteriaManager.bacteria[0].seed)
+
+        else:
+            ws1.cell(row_pos, 5, self.filmManager.film[0].seed)
+            ws1.cell(row_pos, 6, self.bacteriaManager.bacteria[currIter].seed)
+
         ws1.cell(row_pos, 7, min_energy)
         ws1.cell(row_pos, 8, min_x)
         ws1.cell(row_pos, 9, min_x)
@@ -245,7 +259,6 @@ class EnergySimulator(Simulator):
             for row_num in range(self.bacteriaManager.bacteriaNum):
                 row = 2 + row_num
                 val_id = ws1.cell(row, 11).value
-                print("This is val_id",val_id)
                 val = ws1.cell(2, 14 + int(val_id)).value
                 ws1.cell(2, 14 + int(val_id), int(val) + 1)
 
@@ -265,19 +278,26 @@ class EnergySimulator(Simulator):
         The energy calculate only between bacteria surface and the film surface directly under the bacteria
         This code is copy from the old code with minor name change
         """
-        writeLog("This is _interact2D in Simulation")
+        writeLog("This is _dotInteract2D in Simulation")
         showMessage("Start to interact ......")
         writeLog("intervalX is: {}, intervalY is: {}, film is: {}, bacteria is: {}".format(
             intervalX, intervalY, film, bacteria))
 
-        # shape of the bacteria
-        shape = film.shape
+        # show image of whole film and bacteria
+        visPlot(film, "whole_film")
+        visPlot(bacteria, "whole_bacteria")
+
+        # shape of the film
+        film_shape = film.shape
+
+        # shape of bacteria
+        bact_shape = bacteria.shape
 
         # set the range
-        range_x = np.arange(0, shape[0], intervalX)
-        range_y = np.arange(0, shape[1], intervalY)
+        range_x = np.arange(0, film_shape[0], intervalX)
+        range_y = np.arange(0, film_shape[1], intervalY)
 
-        writeLog("shape is : {}, range_x is: {}, range_y is: {}".format(shape, range_x, range_y))
+        writeLog("shape is : {}, range_x is: {}, range_y is: {}".format(film_shape, range_x, range_y))
 
         # init some variable
         # randomly, just not negative
@@ -296,25 +316,32 @@ class EnergySimulator(Simulator):
         for x in range_x:
             for y in range_y:
                 # set the x boundary and y boundary
-                x_boundary = shape[0] + x
-                y_boundary = shape[1] + y
+                x_boundary = bact_shape[0] + x
+                y_boundary = bact_shape[1] + y
 
-                writeLog("x_boundary is: {}, y_boundary is: {}, shpae is:{} ".format(x_boundary, y_boundary, shape))
+                writeLog("x_boundary is: {}, y_boundary is: {}, film_shape is:{}, bacteria shape is: {} ".format(
+                    x_boundary, y_boundary, film_shape, bact_shape))
+                writeLog("Range check: x_boundary > film_shape[0] - bact_shape[0] is :{}, y_boundary > "
+                         "film_shape[1] - bact_shape[1] is: {} ".format(x_boundary > film_shape[0] - bact_shape[0],
+                          y_boundary > film_shape[1] - bact_shape[1]))
 
                 # check if bacteria surface is exceed range of film surface
-                if x_boundary > shape[0] or y_boundary > shape[1]:
+                if x_boundary > film_shape[0] or y_boundary > film_shape[1]:
                     # if exceed the surface, go to next iteration
+                    writeLog("outside the range, continue")
                     continue
 
                 # do the calculation
 
                 # change the corresponding film surface into 1D
                 film_use = film[x: x_boundary, y: y_boundary]
-                film_1D = np.reshape(film_use, (-1))
+                film_1D = np.reshape(film_use, (-1,))
 
                 # calculate energy, uses electrostatic energy formula, assuming that r = 1
                 # WARNING: r should be change based on the height difference between film and bacteria in future
+                writeLog(["This is surface and film uses to calcualte energy", film_1D, bacteria_1D])
                 energy = np.dot(film_1D, bacteria_1D)
+
                 writeLog("WARNING: r should be change based on the height difference between film and bacteria in "
                          "future")
 
@@ -368,6 +395,38 @@ class EnergySimulator(Simulator):
         The energy calculate only between bacteria surface and the film surface directly under the bacteria
         This code is copy from the old code with minor name change
         """
+        writeLog("This is _cutoffInteract2D in Simulation")
+        showMessage("Start to interact ......")
+        writeLog("intervalX is: {}, intervalY is: {}, film is: {}, bacteria is: {}".format(
+            intervalX, intervalY, film, bacteria))
+
+        # shape of the bacteria
+        shape = film.shape
+
+        # set the range
+        range_x = np.arange(0, shape[0], intervalX)
+        range_y = np.arange(0, shape[1], intervalY)
+
+        writeLog("shape is : {}, range_x is: {}, range_y is: {}".format(shape, range_x, range_y))
+
+        # init some variable
+        # randomly, just not negative
+        min_energy = 999999
+        min_charge = 999999
+        min_energy_charge = 999999
+        min_charge_x = 0
+        min_charge_y = 0
+        min_x = -1
+        min_y = -1
+
+        # change ndarray to tuple
+        filmTuple = self._ndarrayToTuple(film)
+        bacteriaTuple = self._ndarrayToTuple(bacteria)
+
+        # select proper area on the film to interact with bacteria
+
+
+
         raise NotImplementedError
 
     def _cutoffInteract3D(self, intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray) -> \
@@ -379,9 +438,9 @@ class EnergySimulator(Simulator):
         """
         raise NotImplementedError
 
-    def _ndarrayToTuple(self, arrayList: ndarray) -> List[Tuple[int, int, int, int]]:
+    def _ndarrayToTuple(self, arrayList: ndarray) -> List[List[Tuple[int, int, int, int]]]:
         """
-        This function takes in a ndarray and rephase this array into a list
+        This function takes in a ndarray and rephase this array into a nested list
         Each tuple in list represent (x_coordinate, y_coordinate, z_coordinate, charge)
         """
         writeLog("This is ndarrayToTuple")
@@ -392,16 +451,19 @@ class EnergySimulator(Simulator):
 
         # depends on the dimension rephrase ndarray
         for x in range(len(arrayList)):
+            temp = []
             for y in range(len(arrayList[x])):
                 if self.dimension == 2:
                     z = 3
                     # Note, for 2D, the height of bacteria is fixed to 3, which means z-coordinate is 3
                     position = (x, y, z, arrayList[x][y])
-                    tupleList.append(position)
+                    temp.append(position)
 
                 elif self.dimension == 3:
-                    pass
+                    raise NotImplementedError
                 else:
                     raise RuntimeError("Unknown dimension")
 
+            tupleList.append(temp)
 
+        return tupleList

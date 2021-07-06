@@ -180,6 +180,29 @@ def test3D():
     dist = ((index_x - center[0]) ** 2 + (index_y - center[1]) ** 2 + (index_z - center[2]) ** 2) ** 0.5
     return 1 * (dist <= radius) - 1 * (dist <= radius-1)
 
+def testchange():
+    dimension = 2
+    arrayList = np.zeros((4,4))
+    # init the list
+    tupleList = []
+
+    # depends on the dimension rephrase ndarray
+    for x in range(len(arrayList)):
+        for y in range(len(arrayList[x])):
+            if dimension == 2:
+                z = 3
+                # Note, for 2D, the height of bacteria is fixed to 3, which means z-coordinate is 3
+                position = (x, y, z, arrayList[x][y])
+                tupleList.append(position)
+
+            elif dimension == 3:
+                raise NotImplementedError
+            else:
+                raise RuntimeError("Unknown dimension")
+
+    return tupleList
+
+
 def test_simulation():
     # get the help info
     helpDict = getHelp()
@@ -197,7 +220,7 @@ def test_simulation():
     filmSurfaceSize = (10, 10)
     filmSurfaceShape = "rectangle"
     filmNum = 1
-    bacteriaNum = 10
+    bacteriaNum = 5
     interval_x = 50
     interval_y = 50
     filmSurfaceCharge = 0
@@ -246,6 +269,48 @@ def test_simulation():
     sim.setExtraParameter(parameter)
     sim.runSimulate()
 
+def testVisible():
+    from matplotlib import pyplot as plt
+    data = np.zeros((100, 100))
+    data[2][2] = 1
+    data[1][1] = -1
+    pos = np.where(data == 1)
+    neu = np.where(data == 0)
+    neg = np.where(data == -1)
+
+    pos_x = pos[0]
+    pos_y = pos[1]
+    neu_x = neu[0]
+    neu_y = neu[1]
+    neg_x = neg[0]
+    neg_y = neg[1]
+
+    fig = plt.figure(figsize=(10, 10))
+    ax = fig.add_subplot(111)
+
+    ax.scatter(pos_x, pos_y, c='blue', label='pos')
+    ax.scatter(neu_x, neu_y, c='green', label='neu')
+    ax.scatter(neg_x, neg_y, c='red', label='neg')
+    ax.legend(loc="upper right")
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.xaxis.set_ticks_position('top')
+    ax.xaxis.set_label_position('top')
+
+    plt.imshow(data, interpolation='nearest')
+    plt.show()
+    plt.savefig("test.png")
+
+def testPic():
+    from ExternalIO import visPlot
+    data = np.zeros((100, 100))
+    np.reshape(data, (-1,))
+    data[2][2] = 1
+    data[1][1] = -1
+
+    picName = "test"
+
+    visPlot(data, picName)
 
 if __name__ == '__main__':
     # test_diamond()
@@ -262,9 +327,15 @@ if __name__ == '__main__':
 
     # _output()
 
-    # test_simulation()
+    test_simulation()
 
     # p = p()
     # t()
 
-    print(test3D())
+    # print(test3D())
+
+    # print(testchange())
+
+    # testVisible()
+
+    # testPic()
