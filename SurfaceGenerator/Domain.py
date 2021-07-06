@@ -246,42 +246,42 @@ class DomainGenerator:
         writeLog("number of +ve and -ve charge need in total {}".format(total_charge))
 
         return newSurface
-
-    def _makeSurfaceNeutral(self, passInSurface: Surface) -> ndarray:
-        """
-        Make the entire surface passed in neutral, which means set all values in the passed in nested list to 0
-        """
-        writeLog("This is _makeSurfaceNeutral in Domain.py")
-        showMessage("start to make surface neutral")
-        writeLog(passInSurface.__dict__)
-        # get the original surface in the passed in surface
-        neutralSurface = passInSurface.originalSurface
-
-        # if passed in is a 2D surface
-        if passInSurface.dimension == 2:
-            # access each row
-            for i in range(len(neutralSurface)):
-                # access each point
-                for j in range(len(neutralSurface[i])):
-                    # set the value in position to 1, which means positive
-                    neutralSurface[i][j] = 0
-
-        # if passed in is a 3D surface
-        elif passInSurface.dimension == 3:
-            # access each row
-            for i in range(len(neutralSurface)):
-                # access each column
-                for j in range(len(neutralSurface[i])):
-                    # access each height
-                    for k in range(len(neutralSurface[i][j])):
-                        # set the value in position to 1, which means positive
-                        neutralSurface[i][j][k] = 0
-
-        else:
-            raise RuntimeError("Surface passed in is not 2D or 3D")
-
-        # return the generated result
-        return neutralSurface
+    #
+    # def _makeSurfaceNeutral(self, passInSurface: Surface) -> ndarray:
+    #     """
+    #     Make the entire surface passed in neutral, which means set all values in the passed in nested list to 0
+    #     """
+    #     writeLog("This is _makeSurfaceNeutral in Domain.py")
+    #     showMessage("start to make surface neutral")
+    #     writeLog(passInSurface.__dict__)
+    #     # get the original surface in the passed in surface
+    #     neutralSurface = passInSurface.originalSurface
+    #
+    #     # if passed in is a 2D surface
+    #     if passInSurface.dimension == 2:
+    #         # access each row
+    #         for i in range(len(neutralSurface)):
+    #             # access each point
+    #             for j in range(len(neutralSurface[i])):
+    #                 # set the value in position to 1, which means positive
+    #                 neutralSurface[0][i][j] = 0
+    #
+    #     # if passed in is a 3D surface
+    #     elif passInSurface.dimension == 3:
+    #         # access each row
+    #         for i in range(len(neutralSurface)):
+    #             # access each column
+    #             for j in range(len(neutralSurface[i])):
+    #                 # access each height
+    #                 for k in range(len(neutralSurface[i][j])):
+    #                     # set the value in position to 1, which means positive
+    #                     neutralSurface[i][j][k] = 0
+    #
+    #     else:
+    #         raise RuntimeError("Surface passed in is not 2D or 3D")
+    #
+    #     # return the generated result
+    #     return neutralSurface
 
     def _generatePositiveNegative(self, charge_concentration: float) -> int:
         """
@@ -303,7 +303,7 @@ class DomainGenerator:
         total = [positive, negative]
         return total
 
-    def _randomPoint(self, surface: Surface, surfaceLength: int, surfaceWidth: int, surfaceHeight: int, domainLength: int, domainWidth: int, shape: str) -> Tuple[int, int]:
+    def _randomPoint(self, surface: Surface, surfaceLength: int, surfaceWidth: int, surfaceHeight: int, domainLength: int, domainWidth: int, shape: str) -> Tuple[int, int, int]:
         """
         Randomly pick a point on the surface given
         :return a tuple represent a point in the surface in the matrix
@@ -326,9 +326,9 @@ class DomainGenerator:
             elif surface.dimension == 3:
                 if surface.shape.upper() == "SPHERE":
                     # define all the possible coordinates where domain can be generated
-                    x_possibility = range(domainLength + 1, surfaceLength - domainLength - 1)
-                    y_possibility = range(domainWidth + 1, surfaceWidth - domainWidth - 1)
-                    z_possibility = range(domainWidth + 1, surfaceHeight - domainWidth - 1)
+                    x_possibility = range(domainLength + 2, surfaceLength - domainLength - 2)
+                    y_possibility = range(domainWidth + 2, surfaceWidth - domainWidth - 2)
+                    z_possibility = range(domainWidth + 2, surfaceHeight - domainWidth - 2)
 
                     # first chose a random coordinate on the point
                     x = int(np.random.choice(x_possibility, 1, replace=False))
@@ -346,8 +346,6 @@ class DomainGenerator:
                     elif plane == "z":
                         # z will be either zero or surface.size[0] - 1
                         z = int(np.random.choice([0, surface.size[0]], 1, replace=False))
-
-
 
 
         elif shape.upper() == "CROSS":
