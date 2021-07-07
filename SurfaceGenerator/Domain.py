@@ -130,15 +130,16 @@ class DomainGenerator:
 
         showMessage("Domain generated done")
 
-        newSurface = self._balanceCharge(count_charge, newSurface, shape, surface, total_charge)
+        newSurface = self._balanceCharge(count_charge, newSurface, domainLength, domainWidth, total_charge)
 
         writeLog(newSurface)
         # return the surface generated based on k value
         return newSurface
 
-    def _balanceCharge(self, count_charge, newSurface, shape, surface, total_charge) -> ndarray:
+    def _balanceCharge(self, count_charge: List[int,int], surface: Surface, domainLength: int, domainWidth: int, total_charge: List[int,int]) -> ndarray:
         """
         This function is used to balance any excess or lack charge for the surface
+        To do this, this function will take in the domain shape and continue to generate/remove it until it reaches the proper charge count
         """
         showMessage("Generating/removing remaining charges....")
         writeLog("number of +ve and -ve charge before generation/removal {}".format(count_charge))
@@ -146,9 +147,15 @@ class DomainGenerator:
         if count_charge[0] < total_charge[0] or count_charge[1] < total_charge[1]:
             # positive charge
             while count_charge[0] < total_charge[0]:
-                # pick a random point
+                # pick a random point within the range
+                # if the surface is 2D, then we can pass in surfaceHeight as zero
+                # otherwise, if the surface is 3D, then we pass in the surfaceHeight of the surface
+                if surface.dimension == 2:
+                    (x,y,z) = self._randomPoint(surface, surface.length, surface.width, 0, )
                 x = int(np.random.choice(range(surface.length - 50), 1))
                 y = int(np.random.choice(range(surface.width - 50), 1))
+
+
                 # If the point is either positive or negative, choose a new point
                 if newSurface[y][x] != 0:
                     continue
