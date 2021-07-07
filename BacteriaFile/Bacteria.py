@@ -55,7 +55,7 @@ class Bacteria2D(Bacteria, ABC):
         Implement the super class abstract method
         """
         # creating empty matrix space
-        return np.zeros((self.width, self.length))
+        return np.zeros((1, self.width, self.length))
 
 
 class Bacteria3D(Bacteria, ABC):

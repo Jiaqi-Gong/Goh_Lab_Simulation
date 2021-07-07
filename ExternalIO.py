@@ -143,7 +143,7 @@ def visPlot(array: ndarray, picName: str) -> None:
     ax.xaxis.set_ticks_position('top')
     ax.xaxis.set_label_position('top')
 
-    plt.imshow(array, interpolation='nearest')
+    plt.imshow(array[0], interpolation='nearest')
 
     now = datetime.now()
     day = now.strftime("%m_%d")

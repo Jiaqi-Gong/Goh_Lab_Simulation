@@ -107,21 +107,24 @@ class DomainGenerator:
         total_charge = self._totalNumberCharge(surface, concentration, charge_concentration)
 
         # start to generate the domain on surface
-        while generated < domainNum:
+        charge_balance = False
+        while not charge_balance:
             start_time = time.time()
             # pick a point in the matrix as the start point of generate domain
             # randint pick x and y, leave the enough space for not touching the edge
-            start = self._randomPoint(surface.length, surface.width, surface.height, domainLength, domainWidth, shape)
+            start = self._randomPoint(surface, surface.length, surface.width, surface.height, domainLength, domainWidth, shape)
 
             # generate this shape's domain
-            [newSurface, count_charge] = generateShape(newSurface, domainWidth, domainLength, start,
-                                                       charge_concentration, count_charge)
+            [newSurface, count_charge] = generateShape(newSurface, domainWidth, domainLength, start, charge_concentration, count_charge, total_charge)
 
-            # update generated number
-            if shape.upper() == "SINGLE":
-                generated += 5
-            else:
-                generated += 1
+            if count_charge[0] == total_charge[0] and count_charge[1] == total_charge[1]:
+                charge_balance = True
+
+            # # update generated number
+            # if shape.upper() == "SINGLE":
+            #     generated += 5
+            # else:
+            #     generated += 1
 
             total_time = time.time() - start_time
 
@@ -129,172 +132,33 @@ class DomainGenerator:
             # showMessage("Time it took to generate is: {} seconds".format(total_time))
 
         showMessage("Domain generated done")
+        showMessage("count charge is {}".format(count_charge))
+        showMessage("total charge is {}".format(total_charge))
 
-        newSurface = self._balanceCharge(count_charge, newSurface, domainLength, domainWidth, total_charge)
+        # newSurface = self._balanceCharge(count_charge, newSurface, domainLength, domainWidth, total_charge)
 
         writeLog(newSurface)
         # return the surface generated based on k value
         return newSurface
 
-    def _balanceCharge(self, count_charge: List[int,int], surface: Surface, domainLength: int, domainWidth: int, total_charge: List[int,int]) -> ndarray:
-        """
-        This function is used to balance any excess or lack charge for the surface
-        To do this, this function will take in the domain shape and continue to generate/remove it until it reaches the proper charge count
-        """
-        showMessage("Generating/removing remaining charges....")
-        writeLog("number of +ve and -ve charge before generation/removal {}".format(count_charge))
-        # generate additional charge spots on the surface if needed
-        if count_charge[0] < total_charge[0] or count_charge[1] < total_charge[1]:
-            # positive charge
-            while count_charge[0] < total_charge[0]:
-                # pick a random point within the range
-                # if the surface is 2D, then we can pass in surfaceHeight as zero
-                # otherwise, if the surface is 3D, then we pass in the surfaceHeight of the surface
-                if surface.dimension == 2:
-                    (x,y,z) = self._randomPoint(surface, surface.length, surface.width, 0, )
-                x = int(np.random.choice(range(surface.length - 50), 1))
-                y = int(np.random.choice(range(surface.width - 50), 1))
-
-
-                # If the point is either positive or negative, choose a new point
-                if newSurface[y][x] != 0:
-                    continue
-
-                # if shape.upper() != "SINGLE":
-                # To make things go quicker, add a bunch from specified area and slowly reduce the number of
-                    # additional generations
-                if total_charge[0] - count_charge[0] > 2500:
-                    for i in range(50):
-                        for j in range(50):
-                            if newSurface[y + j][x + i] == 0:
-                                newSurface[y + j][x + i] = 1
-                                count_charge[0] += 1
-                # Else
-                newSurface[y][x] = 1
-
-                # Update the count
-                count_charge[0] += 1
-
-            # negative charge
-            while count_charge[1] < total_charge[1]:
-                # pick a random point
-                x = int(np.random.choice(range(surface.length - 50), 1))
-                y = int(np.random.choice(range(surface.width - 50), 1))
-                # If the point is either positive or negative, choose a new point
-                if newSurface[y][x] != 0:
-                    continue
-
-                # if shape.upper() != "SINGLE":
-                # To make things go quicker, add a bunch from specified area and slowly reduce the number of additional generations, except for single
-                if total_charge[1] - count_charge[1] > 2500:
-                    for i in range(50):
-                        for j in range(50):
-                            if newSurface[y + j][x + i] == 0:
-                                newSurface[y + j][x + i] = -1
-                                count_charge[1] += 1
-
-                # Else
-                newSurface[y][x] = -1
-
-                # Update the count
-                count_charge[1] += 1
-
-        # remove additional charges if needed
-        elif count_charge[0] > total_charge[0] or count_charge[1] > total_charge[1]:
-            # positive charge
-            while count_charge[0] > total_charge[0]:
-                # pick a random point
-                x = int(np.random.choice(range(surface.length - 50), 1))
-                y = int(np.random.choice(range(surface.width - 50), 1))
-                # If the point is neutral or negative, choose a new point
-                if newSurface[y][x] != 1:
-                    continue
-
-                # if shape.upper() != "SINGLE":
-                # To make things go quicker, remove a bunch from specified area and slowly reduce the number of additional generations
-                if count_charge[0] - total_charge[0] > 2500:
-                    for i in range(50):
-                        for j in range(50):
-                            if newSurface[y + j][x + i] == 1:
-                                newSurface[y + j][x + i] = 0
-                                count_charge[0] -= 1
-
-                # If the difference is less than 2500, just remove 1 at a time
-                newSurface[y][x] = 0
-
-                # Update the count
-                count_charge[0] -= 1
-
-            # negative charge
-            while count_charge[1] > total_charge[1]:
-                # pick a random point
-                x = int(np.random.choice(range(surface.length - 50), 1))
-                y = int(np.random.choice(range(surface.width - 50), 1))
-                # If the point is either neutral or positive, choose a new point
-                if newSurface[y][x] != -1:
-                    continue
-
-                # if shape.upper() != "SINGLE":
-                # To make things go quicker, remove a bunch from specified area and slowly reduce the number of additional generations
-                if count_charge[1] - total_charge[1] > 2500:
-                    for i in range(50):
-                        for j in range(50):
-                            if newSurface[y + j][x + i] == -1:
-                                newSurface[y + j][x + i] = 0
-                                count_charge[1] -= 1
-                # Else
-                newSurface[y][x] = 0
-
-                # Update the count
-                count_charge[1] -= 1
-
-        showMessage("Finished generating/removing charges")
-        writeLog("number of +ve and -ve charge after generation/removal {}".format(count_charge))
-        writeLog("number of +ve and -ve charge need in total {}".format(total_charge))
-
-        return newSurface
-    #
-    # def _makeSurfaceNeutral(self, passInSurface: Surface) -> ndarray:
-    #     """
-    #     Make the entire surface passed in neutral, which means set all values in the passed in nested list to 0
-    #     """
-    #     writeLog("This is _makeSurfaceNeutral in Domain.py")
-    #     showMessage("start to make surface neutral")
-    #     writeLog(passInSurface.__dict__)
-    #     # get the original surface in the passed in surface
-    #     neutralSurface = passInSurface.originalSurface
-    #
-    #     # if passed in is a 2D surface
-    #     if passInSurface.dimension == 2:
-    #         # access each row
-    #         for i in range(len(neutralSurface)):
-    #             # access each point
-    #             for j in range(len(neutralSurface[i])):
-    #                 # set the value in position to 1, which means positive
-    #                 neutralSurface[0][i][j] = 0
-    #
-    #     # if passed in is a 3D surface
-    #     elif passInSurface.dimension == 3:
-    #         # access each row
-    #         for i in range(len(neutralSurface)):
-    #             # access each column
-    #             for j in range(len(neutralSurface[i])):
-    #                 # access each height
-    #                 for k in range(len(neutralSurface[i][j])):
-    #                     # set the value in position to 1, which means positive
-    #                     neutralSurface[i][j][k] = 0
-    #
-    #     else:
-    #         raise RuntimeError("Surface passed in is not 2D or 3D")
-    #
-    #     # return the generated result
-    #     return neutralSurface
-
-    def _generatePositiveNegative(self, charge_concentration: float) -> int:
+    def _generatePositiveNegative(self, charge_concentration: float, countCharge: List[int], totalCharge: List[int]) -> int:
         """
         Generates either a positive charge or negative charge depending on the charge_concentration
         """
         charge = int(np.random.choice([-1, 1], 1, p=[1 - charge_concentration, charge_concentration]))
+
+        # if the total charge equals count charge for the positive, it will only output negative
+        if countCharge[0] == totalCharge[0]:
+            charge = -1
+
+        # if the total charge equals count charge for the negative, it will only output positive
+        if countCharge[1] == totalCharge[1]:
+            charge = 1
+
+        # if the total charge on the surface is larger than expected, raise
+        if countCharge[0] > totalCharge[0] or countCharge[1] > totalCharge[1]:
+            raise RuntimeError("Charge too many")
+
         return charge
 
     def _totalNumberCharge(self, surface: Surface, charge_concentration: float, concentration: float) -> list:
@@ -394,23 +258,26 @@ class DomainGenerator:
         # return the result as tuple
         return coordinate
 
-    def nearestPoint(self, surface, point) -> Tuple[int, int, int]:
+    def nearestPoint(self, surface: Surface, point: Tuple[int, int, int]) -> Tuple[int, int, int]:
         """
         This function takes in a point and returns a point closest to that point on the surface
         NOTE: the function takes in point differently than other functions
         point = Tuple[z,y,x]
         nearestPoint = Tuple[z,y,x]
         """
-        # define condition where closest point is found
-        found = False
 
         # for a 2D surface, return the point since we don't need to traverse through the z-axis
-        if surface.dimension == 2:
+        if surface.shape[0] == 1:
             return point
 
+        # showMessage("surface shape is {}".format(surface.shape))
+
         # if the point is already on the surface, return the point
-        if surface[point[0], point[1], point[2]] != 0:
+        if surface[point[0], point[1], point[2]] != 2:
             return point
+
+        # define condition where closest point is found
+        found = False
 
         # Split the condition into different scenarios
         # if the point is generated on the far right side of the array
@@ -419,7 +286,7 @@ class DomainGenerator:
                 # search by moving left
                 point[2] -= 1
                 # check if the point is on the surface
-                if surface[point[0], point[1], point[2]] != 0:
+                if surface[point[0], point[1], point[2]] != 2:
                     found = True
 
         # if the point is generated on the far left side of the array
@@ -428,7 +295,7 @@ class DomainGenerator:
                 # search by moving right
                 point[2] += 1
                 # check if the point is on the surface
-                if surface[point[0], point[1], point[2]] != 0:
+                if surface[point[0], point[1], point[2]] != 2:
                     found = True
 
         # if the point is generated on the far behind the array
@@ -437,7 +304,7 @@ class DomainGenerator:
                 # search by moving down
                 point[1] += 1
                 # check if the point is on the surface
-                if surface[point[0], point[1], point[2]] != 0:
+                if surface[point[0], point[1], point[2]] != 2:
                     found = True
 
         # if the point is generated on the far infront the array
@@ -446,7 +313,7 @@ class DomainGenerator:
                 # search by moving up
                 point[1] -= 1
                 # check if the point is on the surface
-                if surface[point[0], point[1], point[2]] != 0:
+                if surface[point[0], point[1], point[2]] != 2:
                     found = True
 
         # if the point is generated on the far above the array
@@ -455,7 +322,7 @@ class DomainGenerator:
                 # search by moving below
                 point[0] += 1
                 # check if the point is on the surface
-                if surface[point[0], point[1], point[2]] != 0:
+                if surface[point[0], point[1], point[2]] != 2:
                     found = True
 
         # if the point is generated on the far below the array
@@ -464,12 +331,12 @@ class DomainGenerator:
                 # search by moving below
                 point[0] -= 1
                 # check if the point is on the surface
-                if surface[point[0], point[1], point[2]] != 0:
+                if surface[point[0], point[1], point[2]] != 2:
                     found = True
         return point
 
     def _generateDiamond(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int, int],
-                         charge_concentration: float, countCharge: List[int]) -> [ndarray, List[int]]:
+                         charge_concentration: float, countCharge: List[int], totalCharge: List[int]) -> [ndarray, List[int]]:
         """
         This function generate diamond shape domain
         This function is adjusted based on:
@@ -485,172 +352,235 @@ class DomainGenerator:
         if startPoint[1] == 0 or startPoint[1] == surface.shape[1] - 1:
             for i in range(0, ln + 1):
                 for j in range(0, eg):
-                    # Initialize either positive or negative charge
-                    charge = self._generatePositiveNegative(charge_concentration)
+
                     # top right
                     point = self.nearestPoint(surface, [int(startPoint[2] - i), startPoint[1], int(startPoint[0] + j)])
                     if surface[point[0], point[1], point[2]] == 0:
+                        # Initialize either positive or negative charge
+                        charge = self._generatePositiveNegative(charge_concentration, countCharge, totalCharge)
                         surface[point[0], point[1], point[2]] = charge
                         # Add charge count
                         if charge == 1:
                             countCharge[0] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
                         elif charge == -1:
                             countCharge[1] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
+
                     # top left
                     point = self.nearestPoint(surface, [int(startPoint[2] - i), startPoint[1], int(startPoint[0] - j)])
                     if surface[point[0], point[1], point[2]] == 0:
+                        # Initialize either positive or negative charge
+                        charge = self._generatePositiveNegative(charge_concentration, countCharge, totalCharge)
                         surface[point[0], point[1], point[2]] = charge
                         # Add charge count
                         if charge == 1:
                             countCharge[0] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
                         elif charge == -1:
                             countCharge[1] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
+
                     # bottom right
                     point = self.nearestPoint(surface, [int(startPoint[2] + i), startPoint[1], int(startPoint[0] + j)])
                     if surface[point[0], point[1], point[2]] == 0:
+                        # Initialize either positive or negative charge
+                        charge = self._generatePositiveNegative(charge_concentration, countCharge, totalCharge)
                         surface[point[0], point[1], point[2]] = charge
                         # Add charge count
                         if charge == 1:
                             countCharge[0] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
                         elif charge == -1:
                             countCharge[1] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
+
                     # bottom left
                     point = self.nearestPoint(surface, [int(startPoint[2] + i), startPoint[1], int(startPoint[0] - j)])
                     if surface[point[0], point[1], point[2]] == 0:
+                        # Initialize either positive or negative charge
+                        charge = self._generatePositiveNegative(charge_concentration, countCharge, totalCharge)
                         surface[point[0], point[1], point[2]] = charge
                         # Add charge count
                         if charge == 1:
                             countCharge[0] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
                         elif charge == -1:
                             countCharge[1] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
                 eg -= 1
 
         # in x-y plane
         if startPoint[2] == 0 or startPoint[2] == surface.shape[0] - 1:
             for i in range(0, ln + 1):
                 for j in range(0, eg):
-                    # Initialize either positive or negative charge
-                    charge = self._generatePositiveNegative(charge_concentration)
+
                     # top right
                     point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1] - i), int(startPoint[0] + j)])
                     if surface[point[0], point[1], point[2]] == 0:
+                        # Initialize either positive or negative charge
+                        charge = self._generatePositiveNegative(charge_concentration, countCharge, totalCharge)
                         surface[point[0], point[1], point[2]] = charge
                         # Add charge count
                         if charge == 1:
                             countCharge[0] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
                         elif charge == -1:
                             countCharge[1] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
+
                     # top left
                     point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1] - i), int(startPoint[0] - j)])
                     if surface[point[0], point[1], point[2]] == 0:
+                        # Initialize either positive or negative charge
+                        charge = self._generatePositiveNegative(charge_concentration, countCharge, totalCharge)
                         surface[point[0], point[1], point[2]] = charge
                         # Add charge count
                         if charge == 1:
                             countCharge[0] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
                         elif charge == -1:
                             countCharge[1] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
+
                     # bottom right
                     point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1] + i), int(startPoint[0] + j)])
                     if surface[point[0], point[1], point[2]] == 0:
+                        # Initialize either positive or negative charge
+                        charge = self._generatePositiveNegative(charge_concentration, countCharge, totalCharge)
                         surface[point[0], point[1], point[2]] = charge
                         # Add charge count
                         if charge == 1:
                             countCharge[0] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
                         elif charge == -1:
                             countCharge[1] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
+
                     # bottom left
                     point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1] + i), int(startPoint[0] - j)])
                     if surface[point[0], point[1], point[2]] == 0:
+                        # Initialize either positive or negative charge
+                        charge = self._generatePositiveNegative(charge_concentration, countCharge, totalCharge)
                         surface[point[0], point[1], point[2]] = charge
                         # Add charge count
                         if charge == 1:
                             countCharge[0] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
                         elif charge == -1:
                             countCharge[1] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
                 eg -= 1
 
         # in y-z plane
         if startPoint[0] == 0 or startPoint[0] == surface.shape[2] - 1:
             for i in range(0, ln + 1):
                 for j in range(0, eg):
-                    # Initialize either positive or negative charge
-                    charge = self._generatePositiveNegative(charge_concentration)
+
                     # top right
                     point = self.nearestPoint(surface, [int(startPoint[2] - i), int(startPoint[1] + j), startPoint[0]])
                     if surface[point[0], point[1], point[2]] == 0:
+                        # Initialize either positive or negative charge
+                        charge = self._generatePositiveNegative(charge_concentration, countCharge, totalCharge)
                         surface[point[0], point[1], point[2]] = charge
                         # Add charge count
                         if charge == 1:
                             countCharge[0] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
                         elif charge == -1:
                             countCharge[1] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
+
                     # top left
                     point = self.nearestPoint(surface, [int(startPoint[2] - i), int(startPoint[1] - j), startPoint[0]])
                     if surface[point[0], point[1], point[2]] == 0:
+                        # Initialize either positive or negative charge
+                        charge = self._generatePositiveNegative(charge_concentration, countCharge, totalCharge)
                         surface[point[0], point[1], point[2]] = charge
                         # Add charge count
                         if charge == 1:
                             countCharge[0] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
                         elif charge == -1:
                             countCharge[1] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
+
                     # bottom right
                     point = self.nearestPoint(surface, [int(startPoint[2] + i), int(startPoint[1] + j), startPoint[0]])
                     if surface[point[0], point[1], point[2]] == 0:
+                        # Initialize either positive or negative charge
+                        charge = self._generatePositiveNegative(charge_concentration, countCharge, totalCharge)
                         surface[point[0], point[1], point[2]] = charge
                         # Add charge count
                         if charge == 1:
                             countCharge[0] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
                         elif charge == -1:
                             countCharge[1] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
+
                     # bottom left
                     point = self.nearestPoint(surface, [int(startPoint[2] + i), int(startPoint[1] - j), startPoint[0]])
                     if surface[point[0], point[1], point[2]] == 0:
+                        # Initialize either positive or negative charge
+                        charge = self._generatePositiveNegative(charge_concentration, countCharge, totalCharge)
                         surface[point[0], point[1], point[2]] = charge
                         # Add charge count
                         if charge == 1:
                             countCharge[0] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
                         elif charge == -1:
                             countCharge[1] += 1
+                            # check if the countCharge is the same as the total charge
+                            if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
+                                return surface, countCharge
                 eg -= 1
-
-
-        # for i in range(0, ln + 1):
-        #     for j in range(0, eg):
-        #         # Initialize either positive or negative charge
-        #         charge = self._generatePositiveNegative(charge_concentration)
-        #         # top right
-        #         if surface[int(startPoint[0] - i), int(startPoint[1] + j)] == 0:
-        #             surface[int(startPoint[0] - i), int(startPoint[1] + j)] = charge
-        #             # Add charge count
-        #             if charge == 1:
-        #                 countCharge[0] += 1
-        #             elif charge == -1:
-        #                 countCharge[1] += 1
-        #         # top left
-        #         if surface[int(startPoint[0] - i), int(startPoint[1] - j)] == 0:
-        #             surface[int(startPoint[0] - i), int(startPoint[1] - j)] = charge
-        #             # Add charge count
-        #             if charge == 1:
-        #                 countCharge[0] += 1
-        #             elif charge == -1:
-        #                 countCharge[1] += 1
-        #         # bottom right
-        #         if surface[int(startPoint[0] + i), int(startPoint[1] + j)] == 0:
-        #             surface[int(startPoint[0] + i), int(startPoint[1] + j)] = 1
-        #             # Add charge count
-        #             if charge == 1:
-        #                 countCharge[0] += 1
-        #             elif charge == -1:
-        #                 countCharge[1] += 1
-        #         # bottom left
-        #         if surface[int(startPoint[0] + i), int(startPoint[1] - j)] == 0:
-        #             surface[int(startPoint[0] + i), int(startPoint[1] - j)] = charge
-        #             # Add charge count
-        #             if charge == 1:
-        #                 countCharge[0] += 1
-        #             elif charge == -1:
-        #                 countCharge[1] += 1
-        #     eg -= 1
 
         # return the generated surface
         return surface, countCharge
