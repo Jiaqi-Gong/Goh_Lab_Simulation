@@ -8,8 +8,7 @@ import numpy as np
 from numpy import ndarray
 from openpyxl.worksheet._write_only import WriteOnlyWorksheet
 from openpyxl.worksheet.worksheet import Worksheet
-from EnergyCalculator import *
-from EnergyCalculator import _dotInteract2D, _cutoffInteract2D, _dotInteract3D, _cutoffInteract3D
+from SimulatorFile.EnergyCalculator import _dotInteract2D, _cutoffInteract2D, _dotInteract3D, _cutoffInteract3D
 from ExternalIO import showMessage, writeLog, saveResult, visPlot
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter  # allows access to letters of each column
@@ -140,6 +139,8 @@ class EnergySimulator(Simulator):
                 raise RuntimeError("Unknown interact type")
         else:
             raise RuntimeError("Wrong dimension in _simulate")
+
+        showMessage("Interact done")
 
         # set the output
         self._output(result, currIter, end)

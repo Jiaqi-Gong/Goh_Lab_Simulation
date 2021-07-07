@@ -112,6 +112,8 @@ def visPlot(array: ndarray, picName: str) -> None:
     """
     This function take in a 2D ndarray and save this array as a image with given name
     """
+    showMessage("Start to generate image")
+
     pos = np.where(array == 1)
     neu = np.where(array == 0)
     neg = np.where(array == -1)
@@ -158,4 +160,6 @@ def visPlot(array: ndarray, picName: str) -> None:
     picPath = "{}/{}_{}".format(picFolder, picName, current_time)
     plt.savefig(picPath)
 
-    plt.show()
+    showMessage("Image generate done")
+
+    # plt.show()
