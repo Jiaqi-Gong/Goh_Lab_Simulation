@@ -30,7 +30,7 @@ class EnergySimulator(Simulator):
                  bacteriaSurfaceCharge: int,
                  bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float,
                  bacteriaDomainChargeConcentration: float,
-                 filmNum: int, bacteriaNum: int, intervalX: int, intervalY: int) -> None:
+                 filmNum: int, bacteriaNum: int, intervalX: int, intervalY: int, parameters: Dict) -> None:
         """
         Init the simulation class based on the input info
         Description of input info are shown in the HelpFile.txt
@@ -47,7 +47,7 @@ class EnergySimulator(Simulator):
                            bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
                            bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainConcentration,
                            bacteriaDomainChargeConcentration,
-                           filmNum, bacteriaNum, intervalX, intervalY)
+                           filmNum, bacteriaNum, intervalX, intervalY, parameters)
 
         # set some variable
         self.interactType = None
@@ -60,9 +60,6 @@ class EnergySimulator(Simulator):
         writeLog("This is runSimulation in Simulation")
         showMessage("Start to run simulation baed on simulation type")
         writeLog(self.__dict__)
-
-        # check does all parameter is assigned
-        self.checkAllSet()
 
         # record the number of simulation did
         currIter = 0

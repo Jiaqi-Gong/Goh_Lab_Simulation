@@ -46,8 +46,9 @@ def runSimulation():
     interactType = "DOT"
 
     # below are for dynamic simulation, we are not using for now
-    probabilityType = ""
-    timestep = ""
+    probabilityType = "POISSON"
+    timestep = 1000
+    Lambda = 10
 
     # take info for simulator
     if simulatorType == 1:
@@ -59,6 +60,9 @@ def runSimulation():
         simulator = DynamicSimulator
         # taking info for dynamic simulation
         parameter = {"probabilityType": probabilityType, "timestep": timestep}
+
+        if probabilityType.upper() == "POISSON":
+            parameter["Lambda"] = Lambda
     else:
         raise RuntimeError("Unknown simulator type")
 
@@ -68,9 +72,9 @@ def runSimulation():
                     filmDomainSize, filmDomainShape, filmDomainCon, filmDomainChargeConcentration,
                     bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
                     bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, bacteriaDomainChargeConcentration,
-                    filmNum, bacteriaNum, interval_x, interval_y)
+                    filmNum, bacteriaNum, interval_x, interval_y, parameter)
 
-    sim.setExtraParameter(parameter)
+
     sim.runSimulate()
 
 if __name__ == '__main__':
