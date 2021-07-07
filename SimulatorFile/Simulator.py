@@ -26,6 +26,7 @@ class Simulator(ABC):
     dimension: int
     simulationType: int
     simulatorType: int
+    bacteriaNum: int
     intervalX: int
     intervalY: int
     parameters: Union[None, Dict]
@@ -55,6 +56,7 @@ class Simulator(ABC):
         self.dimension = dimension
         self.simulationType = simulationType
         self.simulatorType = simulatorType
+        self.bacteriaNum = bacteriaNum
         self.intervalX = intervalX
         self.intervalY = intervalY
         self.parameters = parameters
