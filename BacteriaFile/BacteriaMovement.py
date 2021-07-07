@@ -9,6 +9,7 @@ import numpy as np
 import math
 from fractions import Fraction
 
+
 # separate the bacteria movement for when the bacteria is 2D and when bacteria is 3D
 # define an abstract class which will be used for the 2D and 3D bacteria class to inherit
 class BacteriaMovementGenerator:
@@ -16,22 +17,21 @@ class BacteriaMovementGenerator:
     This class is a generator generate next move of bacteria
     """
     # Type declaration
-    Lambda: float
     z_restriction: int
     seed: int
     shape: str
     film3D: FilmSurface3D
     bacteria3D: Bacteria3D
 
-    def __init__(self, Lambda: float, z_restriction: int, seed: int, shape: str, film3D: FilmSurface3D, bacteria3D: Bacteria3D):
-        self.Lambda = Lambda
+    def __init__(self, z_restriction: int, seed: int, shape: str, film3D: FilmSurface3D,
+                 bacteria3D: Bacteria3D):
         self.z_restriction = z_restriction
         self.seed = seed
         self.shape = shape
         self.film3D = film3D
         self.bacteria3D = bacteria3D
 
-    def _poisson(self) -> bool:
+    def _poisson(self, Lambda: float) -> bool:
         """
         This function uses Poisson distribution to decide stuck or not
         return True for stuck
@@ -41,16 +41,19 @@ class BacteriaMovementGenerator:
         # lambda will depend on condition of surface and bacteria -> user will probably have to calculate it or take
         # a guess. Could also write a code to calculate this?
 
+        # check does Lambda set
+        if Lambda is None:
+            raise RuntimeError("Lambda is not given")
+
         # since we want to determine the probability for sticking on the surface once, the random variable X will be 1
         X = 1
         # equation for poisson distribution
-        probability = ((self.Lambda ** X) * (math.exp(-self.Lambda))) / (math.factorial(X))
+        probability = ((Lambda ** X) * (math.exp(-Lambda))) / (math.factorial(X))
 
         # return either true or false based on the probability of sticking
         stick = np.random.choice([True, False], 1, p=[probability, 1 - probability])
 
         return stick
-
 
     def _boltzmann(self, temperature: float, energy: float) -> bool:
         """
@@ -62,6 +65,9 @@ class BacteriaMovementGenerator:
         # or not
 
         # values needed: Temperature, Energy,
+        if temperature is None or energy is None:
+            raise RuntimeError("Temperature or energy is not set")
+
         raise NotImplementedError
 
     def ratioConstant(self, *args) -> int:
@@ -99,9 +105,10 @@ class BacteriaMovementGenerator:
         y = np.random.choice(y_possibility, 1, replace=False)
         z = np.random.choice(z_possibility, 1, replace=False)
 
-        return (x,y,z)
+        return (x, y, z)
 
-    def nextPosition(self, probabilityType: str, position: Tuple[int, int, int]) -> Union[bool, Tuple[int, int, int]]:
+    def nextPosition(self, probabilityType: str, position: Tuple[int, int, int], Lambda: float = None,
+                     temperature: float = None, energy: float = None) -> Union[bool, Tuple[int, int, int]]:
         """
         This function take in probability type, position
         return False if this bacteria is stuck
@@ -110,9 +117,9 @@ class BacteriaMovementGenerator:
 
         # call appropriate probability function to decide stuck or not
         if probabilityType == "POISSON":
-            result = self._poisson()
+            result = self._poisson(Lambda)
         elif probabilityType == "BOLTZMANN":
-            result = self._boltzmann()
+            result = self._boltzmann(temperature, energy)
         else:
             raise RuntimeError("Unknown probability type")
 
@@ -198,4 +205,4 @@ class BacteriaMovementGenerator:
         y = position[1] + y_movement
         z = position[2] + z_movement
 
-        return (x,y,z)
+        return (x, y, z)
