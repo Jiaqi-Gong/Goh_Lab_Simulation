@@ -46,7 +46,7 @@ def runSimulation():
     interactType = "DOT"
 
     # below are for dynamic simulation, we are not using for now
-    probabilityType = ""
+    probabilityType = "POISSON"
     timestep = ""
 
     # take info for simulator
@@ -58,7 +58,7 @@ def runSimulation():
     elif simulatorType == 2:
         simulator = DynamicSimulator
         # taking info for dynamic simulation
-        parameter = {"probabilityType": probabilityType, "timestep": timestep}
+        parameter = {"probabilityType": probabilityType, "timestep": timestep, "Lambda": 10}
     else:
         raise RuntimeError("Unknown simulator type")
 
