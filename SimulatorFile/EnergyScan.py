@@ -41,6 +41,11 @@ class EnergySimulator(Simulator):
         if simulationType == 1:
             bacteriaNum = 1
 
+        # set some variable
+        self.interactType = None
+        self.cutoff = -1
+
+        # call parent to generate simulator
         Simulator.__init__(self, simulationType, trail, dimension, simulatorType,
                            filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
                            filmDomainSize, filmDomainShape, filmDomainConcentration, filmDomainChargeConcentration,
@@ -49,9 +54,7 @@ class EnergySimulator(Simulator):
                            bacteriaDomainChargeConcentration,
                            filmNum, bacteriaNum, intervalX, intervalY, parameters)
 
-        # set some variable
-        self.interactType = None
-        self.cutoff = -1
+
 
     def runSimulate(self) -> None:
         """
@@ -281,8 +284,8 @@ class EnergySimulator(Simulator):
             intervalX, intervalY, film, bacteria))
 
         # show image of whole film and bacteria
-        visPlot(film, "whole_film")
-        visPlot(bacteria, "whole_bacteria")
+        visPlot(film[0], "whole_film")
+        visPlot(bacteria[0], "whole_bacteria")
 
         # shape of the film
         film_shape = film.shape
@@ -291,8 +294,8 @@ class EnergySimulator(Simulator):
         bact_shape = bacteria.shape
 
         # set the range
-        range_x = np.arange(0, film_shape[0], intervalX)
-        range_y = np.arange(0, film_shape[1], intervalY)
+        range_x = np.arange(0, film_shape[1], intervalX)
+        range_y = np.arange(0, film_shape[2], intervalY)
 
         writeLog("shape is : {}, range_x is: {}, range_y is: {}".format(film_shape, range_x, range_y))
 
@@ -313,14 +316,14 @@ class EnergySimulator(Simulator):
         for x in range_x:
             for y in range_y:
                 # set the x boundary and y boundary
-                x_boundary = bact_shape[0] + x
-                y_boundary = bact_shape[1] + y
+                x_boundary = bact_shape[1] + x
+                y_boundary = bact_shape[2] + y
 
                 writeLog("x_boundary is: {}, y_boundary is: {}, film_shape is:{}, bacteria shape is: {} ".format(
                     x_boundary, y_boundary, film_shape, bact_shape))
-                writeLog("Range check: x_boundary > film_shape[0] - bact_shape[0] is :{}, y_boundary > "
-                         "film_shape[1] - bact_shape[1] is: {} ".format(x_boundary > film_shape[0] - bact_shape[0],
-                          y_boundary > film_shape[1] - bact_shape[1]))
+                writeLog("Range check: x_boundary > film_shape[1] - bact_shape[1] is :{}, y_boundary > "
+                         "film_shape[2] - bact_shape[2] is: {} ".format(x_boundary > film_shape[1] - bact_shape[1],
+                          y_boundary > film_shape[2] - bact_shape[2]))
 
                 # check if bacteria surface is exceed range of film surface
                 if x_boundary > film_shape[0] or y_boundary > film_shape[1]:

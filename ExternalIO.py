@@ -112,10 +112,6 @@ def visPlot(array: ndarray, picName: str) -> None:
     """
     This function take in a 2D ndarray and save this array as a image with given name
     """
-    if len(array.shape) != 2:
-        showMessage("WARNING, the array passed in visPlot is not 2D, no picture will generate")
-        pass
-
     pos = np.where(array == 1)
     neu = np.where(array == 0)
     neg = np.where(array == -1)
@@ -143,7 +139,7 @@ def visPlot(array: ndarray, picName: str) -> None:
     ax.xaxis.set_ticks_position('top')
     ax.xaxis.set_label_position('top')
 
-    plt.imshow(array[0], interpolation='nearest')
+    plt.imshow(array, interpolation='nearest')
 
     now = datetime.now()
     day = now.strftime("%m_%d")

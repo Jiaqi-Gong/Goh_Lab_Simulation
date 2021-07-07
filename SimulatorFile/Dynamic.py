@@ -27,6 +27,15 @@ class DynamicSimulator(Simulator):
         Init the simulation class based on the input info
         Description of input info are shown in the HelpFile.txt
         """
+        # set some variable
+        self.probabilityType = None
+        self.timestep = None
+
+        # based on type, set parameter
+        if parameters["probabilityType"].upper() == "POISSON":
+            self.Lambda = None
+
+        # call parent to generate simulator
         simulatorType = 2
         Simulator.__init__(self, simulationType, trail, dimension, simulatorType,
                            filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
@@ -36,13 +45,7 @@ class DynamicSimulator(Simulator):
                            bacteriaDomainChargeConcentration,
                            filmNum, bacteriaNum, intervalX, intervalY, parameters)
 
-        # set some variable
-        self.probabilityType = None
-        self.timestep = None
 
-        # based on type, set parameter
-        if parameters["probabilityType"].upper() == "POISSON":
-            self.Lambda = None
 
     def runSimulate(self) -> None:
         """
