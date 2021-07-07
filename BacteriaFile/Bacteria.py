@@ -17,7 +17,7 @@ class Bacteria(Surface, ABC):
     """
 
     @abc.abstractmethod
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int, int], seed: int, surfaceCharge: int, dimension: int):
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int], seed: int, surfaceCharge: int, dimension: int):
         Surface.__init__(self, trail, shape, size, seed, surfaceCharge, dimension)
 
 
@@ -26,10 +26,11 @@ class Bacteria2D(Bacteria, ABC):
     This class represent a 2D bacteria
     """
     # Declare the type of all variable
+    height: int
 
     def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int):
         # set the proper height
-        size = (size[0], size[1], 3)
+        self.height = 3
 
         # set the proper dimension
         dimension = 2
@@ -64,12 +65,14 @@ class Bacteria3D(Bacteria, ABC):
         This class represent a 3D bacteria
         """
     # Declare the type of all variable
+    height: int
     position: Union[None, Tuple[int, int, int]]
 
     def __init__(self, trail: int, shape: str, size: Tuple[int, int, int], surfaceCharge: int, seed: int,
                  position: Union[None, Tuple[int, int, int]] = None) -> None:
         # set the proper height of the bacteria's size
         # set the height of bacteria here or generate a height in the BacteriaManager
+        self.height = size[2] * 100
 
         # set the proper dimension
         dimension = 3
@@ -79,7 +82,7 @@ class Bacteria3D(Bacteria, ABC):
         self.position = position
 
         # call parent to generate bacteria
-        Bacteria.__init__(self, trail, shape, size, seed, surfaceCharge, dimension)
+        Bacteria.__init__(self, trail, shape, size[:2], seed, surfaceCharge, dimension)
 
     def _generateSurface(self) -> ndarray:
         """
@@ -112,7 +115,7 @@ class Bacteria3D(Bacteria, ABC):
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
         radius = min(np.floor(self.length / 2), np.floor(self.width / 2), np.floor(self.height / 2))
         # indexes the array
-        index_z, index_y, index_x = np.indices((self.height+1, self.width+1, self.length+1))
+        index_x, index_y, index_z = np.indices((self.length, self.width, self.height))
         dist = ((index_x - center[0]) ** 2 + (index_y - center[1]) ** 2 + (index_z - center[2]) ** 2) ** 0.5
         return 1 * (dist <= radius) - 1 * (dist <= radius-1)
 
@@ -132,17 +135,10 @@ class Bacteria3D(Bacteria, ABC):
         innerone = np.ones(shape=(self.length, self.width, self.height)) * (circle <= r-1) * (abs(d) <= sl-1)
         outertwo = np.ones(shape=(self.length, self.width, self.height)) * (circle <= r) * (abs(d) <= sl) * (d != -sl)
         innertwo = np.ones(shape=(self.length, self.width, self.height)) * (circle <= r-1) * (abs(d) <= sl-1) * (d != 1-sl)
-        odd = outerone - innerone
-        even = outertwo - innertwo
-        # surface value converter: 0 is surface, 2 is empty
-        odd[odd == 0] = 2
-        odd[odd == 1] = 0
-        even[even == 0] = 2
-        even[even == 1] = 0
         if l % 2 == 1:
-            return odd
+            return outerone - innerone
         else:
-            return even
+            return outertwo - innertwo
 
     def _generateRod(self):
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
@@ -173,17 +169,10 @@ class Bacteria3D(Bacteria, ABC):
         odd_inner[odd_inner >= 1] = 1
         even_outer[even_outer >= 1] = 1
         even_inner[even_inner >= 1] = 1
-        odd = odd_outer - odd_inner
-        even = even_outer - even_inner
-        odd[odd == 0] = 2
-        odd[odd == 1] = 0
-        even[even == 0] = 2
-        even[even == 1] = 0
-
         if l % 2 == 1:
-            return odd
+            return odd_outer - odd_inner
         else:
-            return even
+            return even_outer - even_inner
 
     # to generate more shape, add new function below, start with def _generateXXX, replace XXX with the new shape you
     # want to generate, update your new shape in _generateSurface in Surface.py or inform Jiaqi to do update
