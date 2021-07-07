@@ -90,8 +90,8 @@ class BacteriaMovementGenerator:
         # the initial position of the bacteria will be randomly placed on the film
         # however, need to set restrictions on where the bacteria will be placed since bacteria can't go off the surface
         # for 3D bacteria
-        if self.shape.upper() == "CUBOID" or self.shape.upper() == "SPHERE" or self.shape.upper() == "CYLINDER" \
-                or self.shape.upper() == "ROD":
+
+        if self.shape.upper() in ["CUBOID", "SPHERE", "CYLINDER", "ROD"]:
             # set upperbound and lowerbound possibilities for the position of x,y,z
             x_possibility = range(int(0 + self.bacteria3D.length / 2),
                                   int(self.film3D.length - self.bacteria3D.length / 2))
@@ -99,6 +99,8 @@ class BacteriaMovementGenerator:
                                   int(self.film3D.width - self.bacteria3D.width / 2))
             z_possibility = range(int(0 + self.bacteria3D.height / 2),
                                   int(self.z_restriction - self.bacteria3D.height / 2))
+        else:
+            raise RuntimeError("Unknown shape")
 
         # choose a random coordinate for the bacteria to start its position in
         x = np.random.choice(x_possibility, 1, replace=False)
@@ -128,9 +130,9 @@ class BacteriaMovementGenerator:
         if result is True:
             return False
         else:
-            return self._nextPosition(position)
+            return self._nextPositionHelper(position)
 
-    def _nextPosition(self, position: Tuple[int, int, int]) -> Tuple[int, int, int]:
+    def _nextPositionHelper(self, position: Tuple[int, int, int]) -> Tuple[int, int, int]:
         """
         This function return new position for 3D bacteria (next position is based on random movement of bacteria)
         position points at the center of the bacteria
@@ -151,8 +153,7 @@ class BacteriaMovementGenerator:
         r_fs = self.ratioConstant(p_f, p_s)
         r_sb = self.ratioConstant(p_s, p_b)
 
-        movement = False
-        while not movement:
+        while True:
             # probability
             prob = r_t * np.array([p_b, p_s, p_f])
 
@@ -194,10 +195,8 @@ class BacteriaMovementGenerator:
                 z_movement = int(np.random.choice([-1, 0], 1, p=prob, replace=False))
 
             # if all three movement is 0, rerun the movements
-            if x_movement == 0 and y_movement == 0 and z_movement == 0:
-                movement = False
-            else:
-                movement = True
+            if x_movement != 0 and y_movement != 0 and z_movement != 0:
+                break
 
         # create new position for the bacteria
         # directions
