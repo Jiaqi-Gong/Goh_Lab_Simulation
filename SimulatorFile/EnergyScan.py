@@ -8,7 +8,7 @@ import numpy as np
 from numpy import ndarray
 from openpyxl.worksheet._write_only import WriteOnlyWorksheet
 from openpyxl.worksheet.worksheet import Worksheet
-from SimulatorFile.EnergyCalculator import dotInteract2D, cutoffInteract2D, dotInteract3D, cutoffInteract3D
+from SimulatorFile.EnergyCalculator import interact2D, interact3D
 from ExternalIO import showMessage, writeLog, saveResult
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter  # allows access to letters of each column
@@ -122,28 +122,20 @@ class EnergySimulator(Simulator):
         writeLog("self is: {}, currIter is: {}, film is: {}, bacteria is: {}, end is: {}".format(
             self.__dict__, currIter, film, bacteria, end))
 
+        # check does cutoff value set
+        if self.interactType.upper() in ["CUTOFF", "CUT-OFF"]:
+            if self.cutoff < 0:
+                raise RuntimeError("Cut-off value is not assign or not assign properly")
+            else:
+                cutoff = self.cutoff
+        else:
+            cutoff = 0
+
         # call simulation based on the simulation type
         if self.dimension == 2:
-            # change the format of film and bacteria
-            film = film[0]
-            bacteria = bacteria[0]
-            if self.interactType.upper() == "DOT":
-                result = dotInteract2D(self.intervalX, self.intervalY, film, bacteria, currIter)
-            elif self.interactType.upper() in ["CUTOFF", "CUT-OFF"]:
-                if self.cutoff < 0:
-                    raise RuntimeError("Cut-off value is not assign or not assign properly")
-                result = cutoffInteract2D(self.intervalX, self.intervalY, film, bacteria, currIter)
-            else:
-                raise RuntimeError("Unknown interact type")
+            result = interact2D(self.interactType, self.intervalX, self.intervalY, film, bacteria, currIter, cutoff)
         elif self.dimension == 3:
-            if self.interactType.upper() == "DOT":
-                result = dotInteract3D(self.intervalX, self.intervalY, film, bacteria, currIter)
-            elif self.interactType.upper() in ["CUTOFF", "CUT-OFF"]:
-                if self.cutoff < 0:
-                    raise RuntimeError("Cut-off value is not assign or not assign properly")
-                result = cutoffInteract3D(self.intervalX, self.intervalY, film, bacteria, currIter)
-            else:
-                raise RuntimeError("Unknown interact type")
+            result = interact3D(self.interactType, self.intervalX, self.intervalY, film, bacteria, currIter, cutoff)
         else:
             raise RuntimeError("Wrong dimension in _simulate")
 

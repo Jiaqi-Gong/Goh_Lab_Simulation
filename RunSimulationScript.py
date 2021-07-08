@@ -17,7 +17,7 @@ def runSimulation():
 
     time.sleep(3)
 
-    simulationType = 2
+    simulationType = 1
     trail = 1
     dimension = 2
     filmSeed = 1
