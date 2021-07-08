@@ -157,11 +157,25 @@ def _cutoffInteract2D(intervalX: int, intervalY: int, film: ndarray, bacteria: n
     min_y = -1
 
     # change ndarray to tuple
-    filmTuple = _ndarrayToTuple(film, len(film.shape))
-    bacteriaTuple = _ndarrayToTuple(bacteria, len(bacteria.shape))
+    filmTuple = _ndarrayToTuple(film)
+    bacteriaTuple = _ndarrayToTuple(bacteria)
 
     # select proper area on the film to interact with bacteria
 
+
+
+
+
+
+
+
+    # save the result
+    result = (min_energy, min_x, min_y, min_energy_charge, min_charge, min_charge_x, min_charge_y)
+
+    showMessage("Interact done")
+    writeLog(result)
+
+    # return result
     raise NotImplementedError
 
 
@@ -175,7 +189,7 @@ def _cutoffInteract3D(intervalX: int, intervalY: int, film: ndarray, bacteria: n
     raise NotImplementedError
 
 
-def _ndarrayToTuple(arrayList: ndarray, dimension: int) -> List[List[Tuple[int, int, int, int]]]:
+def _ndarrayToTuple(arrayList: ndarray) -> List[List[List[Tuple[int, int, int, int]]]]:
     """
     This function takes in a ndarray and rephase this array into a nested list
     Each tuple in list represent (x_coordinate, y_coordinate, z_coordinate, charge)
@@ -186,21 +200,15 @@ def _ndarrayToTuple(arrayList: ndarray, dimension: int) -> List[List[Tuple[int, 
     # init the list
     tupleList = []
 
-    # depends on the dimension rephrase ndarray
+    # rephrase ndarray to tuple
     for x in range(len(arrayList)):
-        temp = []
+        temp1 = []
         for y in range(len(arrayList[x])):
-            if dimension == 2:
-                z = 3
-                # Note, for 2D, the height of bacteria is fixed to 3, which means z-coordinate is 3
-                position = (x, y, z, arrayList[x][y])
-                temp.append(position)
-
-            elif dimension == 3:
-                raise NotImplementedError
-            else:
-                raise RuntimeError("Unknown dimension")
-
-        tupleList.append(temp)
+            temp2 = []
+            for z in range(len(arrayList[x][y])):
+                position = (x, y, z, arrayList[x][y][z])
+                temp2.append(position)
+            temp1.append(temp2)
+        tupleList.append(temp1)
 
     return tupleList
