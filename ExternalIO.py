@@ -170,7 +170,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
         if not os.path.exists(picFolder):
             os.mkdir(picFolder)
 
-    picPath = "{}/{}_{}".format(picFolder, picName, current_time)
+    picPath = "{}/{}".format(picFolder, picName)
     plt.savefig(picPath)
 
     showMessage("Image generate done")
