@@ -17,7 +17,7 @@ def runSimulation():
 
     time.sleep(3)
 
-    simulationType = 1
+    simulationType = 2
     trail = 1
     dimension = 2
     filmSeed = 1
@@ -54,7 +54,7 @@ def runSimulation():
     if simulatorType == 1:
         simulator = EnergySimulator
         # taking info for energy scan simulation
-        parameter = {"interactType": interactType}
+        parameter = {"interactType": interactType, "simulationType": simulationType}
 
     elif simulatorType == 2:
         simulator = DynamicSimulator
@@ -67,7 +67,7 @@ def runSimulation():
         raise RuntimeError("Unknown simulator type")
 
     # generate simulator
-    sim = simulator(simulationType, trail, dimension,
+    sim = simulator(trail, dimension,
                     filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
                     filmDomainSize, filmDomainShape, filmDomainCon, filmDomainChargeConcentration,
                     bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,

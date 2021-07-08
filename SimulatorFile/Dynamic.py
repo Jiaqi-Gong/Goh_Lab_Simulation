@@ -14,7 +14,7 @@ from SimulatorFile.Simulator import Simulator
 
 class DynamicSimulator(Simulator):
 
-    def __init__(self, simulationType: int, trail: int, dimension: int,
+    def __init__(self, trail: int, dimension: int,
                  filmSeed: int, filmSurfaceSize: Tuple[int, int], filmSurfaceShape: str, filmSurfaceCharge: int,
                  filmDomainSize: Tuple[int, int], filmDomainShape: str, filmDomainConcentration: float,
                  filmDomainChargeConcentration: float,
@@ -30,6 +30,9 @@ class DynamicSimulator(Simulator):
         # set some variable
         self.probabilityType = None
         self.timestep = None
+
+        # simulation type is not applicable for dynamic simulator
+        simulationType = -1
 
         # based on type, set parameter
         if parameters["probabilityType"].upper() == "POISSON":

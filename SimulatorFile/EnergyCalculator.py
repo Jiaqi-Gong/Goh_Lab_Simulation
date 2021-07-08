@@ -1,13 +1,13 @@
 """
 This file contains method to calculate the energy of the surface
 """
-from typing import Tuple, List
+from typing import Tuple, List, Union
 from numpy import ndarray
 from ExternalIO import *
 
 
-def dotInteract2D(intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray) -> \
-        Tuple[int, int, int, int, int, int, int]:
+def dotInteract2D(intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray, currIter: int) -> \
+        Tuple[Union[float, int], int, int, Union[float, int], Union[float, int], int, int]:
     """
     Do the simulation, scan whole film surface with bacteria
     The energy calculate only between bacteria surface and the film surface directly under the bacteria
@@ -19,8 +19,8 @@ def dotInteract2D(intervalX: int, intervalY: int, film: ndarray, bacteria: ndarr
         intervalX, intervalY, film, bacteria))
 
     # show image of whole film and bacteria
-    visPlot(film[0], "whole_film")
-    visPlot(bacteria[0], "whole_bacteria")
+    visPlot(film, "whole_film_{}".format(currIter))
+    visPlot(bacteria, "whole_bacteria_{}".format(currIter))
 
     # shape of the film
     film_shape = film.shape
@@ -29,16 +29,16 @@ def dotInteract2D(intervalX: int, intervalY: int, film: ndarray, bacteria: ndarr
     bact_shape = bacteria.shape
 
     # set the range
-    range_x = np.arange(0, film_shape[1], intervalX)
-    range_y = np.arange(0, film_shape[2], intervalY)
+    range_x = np.arange(0, film_shape[0], intervalX)
+    range_y = np.arange(0, film_shape[1], intervalY)
 
     writeLog("shape is : {}, range_x is: {}, range_y is: {}".format(film_shape, range_x, range_y))
 
     # init some variable
     # randomly, just not negative
-    min_energy = 999999
-    min_charge = 999999
-    min_energy_charge = 999999
+    min_energy = float("INF")
+    min_charge = float("INF")
+    min_energy_charge = float("INF")
     min_charge_x = 0
     min_charge_y = 0
     min_x = -1
@@ -51,14 +51,11 @@ def dotInteract2D(intervalX: int, intervalY: int, film: ndarray, bacteria: ndarr
     for x in range_x:
         for y in range_y:
             # set the x boundary and y boundary
-            x_boundary = bact_shape[1] + x
-            y_boundary = bact_shape[2] + y
+            x_boundary = bact_shape[0] + x
+            y_boundary = bact_shape[1] + y
 
             writeLog("x_boundary is: {}, y_boundary is: {}, film_shape is:{}, bacteria shape is: {} ".format(
                 x_boundary, y_boundary, film_shape, bact_shape))
-            writeLog("Range check: x_boundary > film_shape[1] - bact_shape[1] is :{}, y_boundary > "
-                     "film_shape[2] - bact_shape[2] is: {} ".format(x_boundary > film_shape[1] - bact_shape[1],
-                                                                    y_boundary > film_shape[2] - bact_shape[2]))
 
             # check if bacteria surface is exceed range of film surface
             if x_boundary > film_shape[0] or y_boundary > film_shape[1]:
@@ -121,12 +118,12 @@ def dotInteract2D(intervalX: int, intervalY: int, film: ndarray, bacteria: ndarr
     return result
 
 
-def dotInteract3D(intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray) -> \
+def dotInteract3D(intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray, currIter: int) -> \
         Tuple[int, int, int, int, int, int, int]:
     raise NotImplementedError
 
 
-def cutoffInteract2D(intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray) -> \
+def cutoffInteract2D(intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray, currIter: int) -> \
         Tuple[int, int, int, int, int, int, int]:
     """
     Do the simulation, scan whole film surface with bacteria
@@ -180,7 +177,7 @@ def cutoffInteract2D(intervalX: int, intervalY: int, film: ndarray, bacteria: nd
     raise NotImplementedError
 
 
-def cutoffInteract3D(intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray) -> \
+def cutoffInteract3D(intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray, currIter: int) -> \
         Tuple[int, int, int, int, int, int, int]:
     """
     Do the simulation, scan whole film surface with bacteria

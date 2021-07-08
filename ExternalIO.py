@@ -110,6 +110,19 @@ def saveResult(wb: workbook, path: str) -> None:
 
 def visPlot(array: ndarray, picName: str) -> None:
     """
+    THis function based on the dimension of passed in ndarray to call appropriate function
+    """
+    dimension = len(array.shape)
+    if dimension == 2:
+        _visPlot2D(array, picName)
+    elif dimension == 3:
+        _visPlot3D(array, picName)
+    else:
+        raise RuntimeError("Unknown dimension of array pass in")
+
+
+def _visPlot2D(array: ndarray, picName: str) -> None:
+    """
     This function take in a 2D ndarray and save this array as a image with given name
     """
     showMessage("Start to generate image")
@@ -163,3 +176,10 @@ def visPlot(array: ndarray, picName: str) -> None:
     showMessage("Image generate done")
 
     # plt.show()
+
+
+def _visPlot3D(array: ndarray, picName: str) -> None:
+    """
+    This function take in a 3D ndarray and save this array as a image with given name
+    """
+    raise NotImplementedError

@@ -9,7 +9,7 @@ from numpy import ndarray
 from openpyxl.worksheet._write_only import WriteOnlyWorksheet
 from openpyxl.worksheet.worksheet import Worksheet
 from SimulatorFile.EnergyCalculator import dotInteract2D, cutoffInteract2D, dotInteract3D, cutoffInteract3D
-from ExternalIO import showMessage, writeLog, saveResult, visPlot
+from ExternalIO import showMessage, writeLog, saveResult
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter  # allows access to letters of each column
 from SimulatorFile.Simulator import Simulator
@@ -21,7 +21,7 @@ class EnergySimulator(Simulator):
     """
     interactType: Union[None, str]
 
-    def __init__(self, simulationType: int, trail: int, dimension: int,
+    def __init__(self, trail: int, dimension: int,
                  filmSeed: int, filmSurfaceSize: Tuple[int, int], filmSurfaceShape: str, filmSurfaceCharge: int,
                  filmDomainSize: Tuple[int, int], filmDomainShape: str, filmDomainConcentration: float,
                  filmDomainChargeConcentration: float,
@@ -35,6 +35,12 @@ class EnergySimulator(Simulator):
         Description of input info are shown in the HelpFile.txt
         """
         simulatorType = 1
+
+        # get simulationType
+        if "simulationType" not in parameters:
+            raise RuntimeError("simulation type is not enetered")
+        else:
+            simulationType = parameters["simulationType"]
 
         # if simulation type is 1, fix the bacteria number to 1
         if simulationType == 1:
@@ -52,8 +58,6 @@ class EnergySimulator(Simulator):
                            bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainConcentration,
                            bacteriaDomainChargeConcentration,
                            filmNum, bacteriaNum, intervalX, intervalY, parameters)
-
-
 
     def runSimulate(self) -> None:
         """
@@ -120,21 +124,24 @@ class EnergySimulator(Simulator):
 
         # call simulation based on the simulation type
         if self.dimension == 2:
+            # change the format of film and bacteria
+            film = film[0]
+            bacteria = bacteria[0]
             if self.interactType.upper() == "DOT":
-                result = dotInteract2D(self.intervalX, self.intervalY, film, bacteria)
+                result = dotInteract2D(self.intervalX, self.intervalY, film, bacteria, currIter)
             elif self.interactType.upper() in ["CUTOFF", "CUT-OFF"]:
                 if self.cutoff < 0:
                     raise RuntimeError("Cut-off value is not assign or not assign properly")
-                result = cutoffInteract2D(self.intervalX, self.intervalY, film, bacteria)
+                result = cutoffInteract2D(self.intervalX, self.intervalY, film, bacteria, currIter)
             else:
                 raise RuntimeError("Unknown interact type")
         elif self.dimension == 3:
             if self.interactType.upper() == "DOT":
-                result = dotInteract3D(self.intervalX, self.intervalY, film, bacteria)
+                result = dotInteract3D(self.intervalX, self.intervalY, film, bacteria, currIter)
             elif self.interactType.upper() in ["CUTOFF", "CUT-OFF"]:
                 if self.cutoff < 0:
                     raise RuntimeError("Cut-off value is not assign or not assign properly")
-                result = cutoffInteract3D(self.intervalX, self.intervalY, film, bacteria)
+                result = cutoffInteract3D(self.intervalX, self.intervalY, film, bacteria, currIter)
             else:
                 raise RuntimeError("Unknown interact type")
         else:
@@ -256,10 +263,13 @@ class EnergySimulator(Simulator):
         # count number of min_energy locations at each gradient strip
         if self.simulationType == 2:
             showMessage("WARNING: Potential bug here")
-            a = self.bacteriaManager.bacteriaNum
             for row_num in range(self.bacteriaManager.bacteriaNum):
                 row = 2 + row_num
                 val_id = ws1.cell(row, 11).value
+
+                # check the value read from column 11
+                if val_id < 0:
+                    continue
                 val = ws1.cell(2, 14 + int(val_id)).value
                 ws1.cell(2, 14 + int(val_id), int(val) + 1)
 
