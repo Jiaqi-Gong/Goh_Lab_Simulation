@@ -8,7 +8,7 @@ import numpy as np
 from numpy import ndarray
 from openpyxl.worksheet._write_only import WriteOnlyWorksheet
 from openpyxl.worksheet.worksheet import Worksheet
-from SimulatorFile.EnergyCalculator import _dotInteract2D, _cutoffInteract2D, _dotInteract3D, _cutoffInteract3D
+from SimulatorFile.EnergyCalculator import dotInteract2D, cutoffInteract2D, dotInteract3D, cutoffInteract3D
 from ExternalIO import showMessage, writeLog, saveResult, visPlot
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter  # allows access to letters of each column
@@ -121,20 +121,20 @@ class EnergySimulator(Simulator):
         # call simulation based on the simulation type
         if self.dimension == 2:
             if self.interactType.upper() == "DOT":
-                result = _dotInteract2D(self.intervalX, self.intervalY, film, bacteria)
+                result = dotInteract2D(self.intervalX, self.intervalY, film, bacteria)
             elif self.interactType.upper() in ["CUTOFF", "CUT-OFF"]:
                 if self.cutoff < 0:
                     raise RuntimeError("Cut-off value is not assign or not assign properly")
-                result = _cutoffInteract2D(self.intervalX, self.intervalY, film, bacteria)
+                result = cutoffInteract2D(self.intervalX, self.intervalY, film, bacteria)
             else:
                 raise RuntimeError("Unknown interact type")
         elif self.dimension == 3:
             if self.interactType.upper() == "DOT":
-                result = _dotInteract3D(self.intervalX, self.intervalY, film, bacteria)
+                result = dotInteract3D(self.intervalX, self.intervalY, film, bacteria)
             elif self.interactType.upper() in ["CUTOFF", "CUT-OFF"]:
                 if self.cutoff < 0:
                     raise RuntimeError("Cut-off value is not assign or not assign properly")
-                result = _cutoffInteract3D(self.intervalX, self.intervalY, film, bacteria)
+                result = cutoffInteract3D(self.intervalX, self.intervalY, film, bacteria)
             else:
                 raise RuntimeError("Unknown interact type")
         else:

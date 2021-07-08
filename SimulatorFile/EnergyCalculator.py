@@ -6,7 +6,7 @@ from numpy import ndarray
 from ExternalIO import *
 
 
-def _dotInteract2D(intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray) -> \
+def dotInteract2D(intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray) -> \
         Tuple[int, int, int, int, int, int, int]:
     """
     Do the simulation, scan whole film surface with bacteria
@@ -121,11 +121,12 @@ def _dotInteract2D(intervalX: int, intervalY: int, film: ndarray, bacteria: ndar
     return result
 
 
-def _dotInteract3D(self) -> Tuple[int, int, int, int, int, int, int]:
+def dotInteract3D(intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray) -> \
+        Tuple[int, int, int, int, int, int, int]:
     raise NotImplementedError
 
 
-def _cutoffInteract2D(intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray) -> \
+def cutoffInteract2D(intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray) -> \
         Tuple[int, int, int, int, int, int, int]:
     """
     Do the simulation, scan whole film surface with bacteria
@@ -179,7 +180,7 @@ def _cutoffInteract2D(intervalX: int, intervalY: int, film: ndarray, bacteria: n
     raise NotImplementedError
 
 
-def _cutoffInteract3D(intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray) -> \
+def cutoffInteract3D(intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray) -> \
         Tuple[int, int, int, int, int, int, int]:
     """
     Do the simulation, scan whole film surface with bacteria
