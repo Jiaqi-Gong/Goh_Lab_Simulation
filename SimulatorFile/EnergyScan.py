@@ -125,7 +125,7 @@ class EnergySimulator(Simulator):
         # check does cutoff value set
         if self.interactType.upper() in ["CUTOFF", "CUT-OFF"]:
             if self.cutoff < 0:
-                raise RuntimeError("Cut-off value is not assign or not assign properly")
+                raise RuntimeError("Cutoff value is not assign or not assign properly")
             else:
                 cutoff = self.cutoff
         else:

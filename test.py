@@ -322,6 +322,27 @@ def testPic():
 
     visPlot(data, picName)
 
+
+def testCutoff():
+    from SimulatorFile.EnergyCalculator import interact2D
+
+    film = np.zeros((1,10,10))
+    film[0][2][2] = 1
+    film[0][2][4] = 1
+    film[0][1][2] = 1
+    film[0][1][5] = 1
+    film[0][0][2] = 1
+    film[0][0][8] = 1
+    film[0][1][7] = 1
+
+    bacteria = np.zeros((1,3,3))
+    bacteria[0][1][1] = 1
+    bacteria[0][2][2] = -1
+
+    result = interact2D("CUTOFF", 2, 2, film, bacteria, 1, 6)
+
+    return result
+
 if __name__ == '__main__':
     # test_diamond()
     # test_random_choice()
@@ -344,8 +365,10 @@ if __name__ == '__main__':
 
     # print(test3D())
 
-    print(testchange())
+    # print(testchange())
 
     # testVisible()
 
     # testPic()
+
+    print(testCutoff())

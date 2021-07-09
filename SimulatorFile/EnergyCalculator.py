@@ -58,6 +58,9 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     # change the bacteria surface into 1D
     bacteria_1D = np.reshape(bacteria, (-1))
 
+    # for debug, delete later
+    all_energy = []
+
     # scan through the surface and make calculation
     for x in range_x:
         for y in range_y:
@@ -93,19 +96,24 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
                 # calculate energy by using cutoff calculation function
 
                 # prepare bacteria tuple uses
-                bacteriaTuple_use = []
-                for i in bacteriaTuple:
-                    for j in i:
-                        bacteriaTuple_use.extend(j)
+                bacteriaTuple_use = bacteriaTuple
 
-                # prepare film tuple use
+                # prepare film tuple use, the size of film is bigger than the size of bacteria due to cutoff value
                 filmTuple_use = []
-                for y_pos in range(y, y_boundary):
-                    for x_pos in range(x, x_boundary):
-                        filmTuple_use.append(filmTuple[0][y_pos][x_pos])
+                for z_pos in range(len(filmTuple)):
+                    temp1 = []
+                    for y_pos in range(max(y - cutoff, 0), min(y_boundary + cutoff, len(filmTuple[z_pos]))):
+                        temp2 = []
+                        for x_pos in range(max(x - cutoff, 0), min(x_boundary + cutoff, len(filmTuple[z_pos][y_pos]))):
+                            temp2.append(filmTuple[0][y_pos][x_pos])
+                        temp1.append(temp2)
+                    filmTuple_use.append(temp1)
 
                 # call function to calculate energy
+                showMessage("Start to calculate cutoff energy, this step is slow")
                 energy = _twoPointEnergy(filmTuple_use, bacteriaTuple_use, cutoff)
+
+                all_energy.append(energy)
 
             else:
                 raise RuntimeError("Unknown interact type")
@@ -145,58 +153,13 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     # save the result
     result = (min_energy, min_x, min_y, min_energy_charge, min_charge, min_charge_x, min_charge_y)
 
+    # for debug, delete later
+    print(all_energy)
+
     showMessage("Interact done")
     writeLog(result)
 
     return result
-
-def cutoffInteract2D(intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray, cutoff: int, currIter: int) -> \
-        Tuple[int, int, int, int, int, int, int]:
-    """
-    Do the simulation, scan whole film surface with bacteria
-    The energy calculate only between bacteria surface and the film surface directly under the bacteria
-    This code is copy from the old code with minor name change
-    """
-    writeLog("This is _cutoffInteract2D in Simulation")
-    showMessage("Start to interact ......")
-    writeLog("intervalX is: {}, intervalY is: {}, film is: {}, bacteria is: {}".format(
-        intervalX, intervalY, film, bacteria))
-
-    # shape of the film
-    film_shape = film.shape
-
-    # shape of bacteria
-    bact_shape = bacteria.shape
-
-    # set the range
-    range_x = np.arange(0, film_shape[0], intervalX)
-    range_y = np.arange(0, film_shape[1], intervalY)
-
-    writeLog("shape is : {}, range_x is: {}, range_y is: {}".format(film_shape, range_x, range_y))
-
-    # init some variable
-    # randomly, just not negative
-    min_energy = float("INF")
-    min_charge = float("INF")
-    min_energy_charge = float("INF")
-    min_charge_x = 0
-    min_charge_y = 0
-    min_x = -1
-    min_y = -1
-
-
-
-    # select proper area on the film to interact with bacteria
-
-
-    # save the result
-    result = (min_energy, min_x, min_y, min_energy_charge, min_charge, min_charge_x, min_charge_y)
-
-    showMessage("Interact done")
-    writeLog(result)
-
-    # return result
-    raise NotImplementedError
 
 
 def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray, currIter: int,
@@ -275,7 +238,8 @@ def _ndarrayToTuple3D(arrayList: ndarray) -> List[List[List[Tuple[int, int, int,
     return tupleList
 
 
-def _twoPointEnergy(pointList1: List[Tuple[int, int, int, int]], pointList2: List[Tuple[int, int, int, int]],
+def _twoPointEnergy(film:  List[List[List[Tuple[int, int, int, int]]]],
+                    bacteria:  List[List[List[Tuple[int, int, int, int]]]],
                     cutoff: int) -> float:
     """
     This function takes in two point list in tuple format and calculate the energy between every tep points based
@@ -285,18 +249,48 @@ def _twoPointEnergy(pointList1: List[Tuple[int, int, int, int]], pointList2: Lis
     # init variable uses
     total_energy = 0
 
-    for point1 in pointList1:
-        for point2 in pointList2:
-            # get distance between two point
-            distance = ((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2 + (point1[2] - point2[2]) ** 2) ** 0.5
+    # loop the point on the bacteria
+    for z in range(len(bacteria)):
+        for y in range(len(bacteria[z])):
+            for x in range(len(bacteria[z][y])):
+                point1 = list(bacteria[z][y][x])
 
-            if distance > cutoff:
-                total_energy += 0
-            else:
-                charge1 = point1[3]
-                charge2 = point2[3]
-                energy = COULOMB_CONSTANT * charge1 * charge2 / distance
+                # generate the point on the surface should interact with this point on the bacteria based on the
+                # position of current bacteria point and cutoff value
+                # range on x direction
+                film_x_start = max(0, point1[2] - cutoff)
+                film_x_end = min(len(film[z][y]), point1[2] + cutoff)
 
-                total_energy += energy
+                # range on z direction
+                film_y_start = max(0, point1[1] - cutoff)
+                film_y_end = min(len(film[z]), point1[1] + cutoff)
+
+                # get film needed
+                film_list = []
+
+                for film_z in range(len(film)):
+                    for film_y in range(film_y_start, film_y_end):
+                        for film_x in range(film_x_start, film_x_end):
+                            point2 = list(film[film_z][film_y][film_x])
+
+                            film_list.append(point2)
+
+                # calculate distance between current bacteria point and film_list points
+                for point2 in film_list:
+                    distance = ((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2 +
+                                (point1[2] - point2[2]) ** 2) ** 0.5
+
+                    # if distance bigger than cutoff, ignore it
+                    if distance > cutoff:
+                        # print("distance is {}, cutoff is {}".format(distance, cutoff))
+                        total_energy += 0
+                    else:
+                        charge1 = point1[3]
+                        charge2 = point2[3]
+                        energy = COULOMB_CONSTANT * charge1 * charge2 / distance
+
+                        total_energy += energy
 
     return total_energy
+
+

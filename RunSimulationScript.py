@@ -43,7 +43,9 @@ def runSimulation():
 
     ### below is new variable
     simulatorType = 1
-    interactType = "DOT"
+    # interactType = "DOT"
+    interactType = "CUTOFF"
+
 
     # below are for dynamic simulation, we are not using for now
     probabilityType = "POISSON"
@@ -54,7 +56,7 @@ def runSimulation():
     if simulatorType == 1:
         simulator = EnergySimulator
         # taking info for energy scan simulation
-        parameter = {"interactType": interactType, "simulationType": simulationType}
+        parameter = {"interactType": interactType, "simulationType": simulationType, "cutoff": 2}
 
     elif simulatorType == 2:
         simulator = DynamicSimulator
