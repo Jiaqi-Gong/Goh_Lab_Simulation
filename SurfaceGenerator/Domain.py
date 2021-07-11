@@ -104,7 +104,7 @@ class DomainGenerator:
         count_charge = [0, 0]
 
         # Initialize total number of positive and negative charge needed on the surface
-        total_charge = self._totalNumberCharge(surface, concentration, charge_concentration)
+        total_charge = self._totalNumberCharge(surface, charge_concentration, concentration)
 
         # Determine all the possible points allowed to be chosen as the start point to begin generating the domain
         possiblePoint = self._allPossiblePoint(surface, surface.length, surface.width, surface.height, domainLength,
@@ -145,7 +145,8 @@ class DomainGenerator:
         # return the surface generated based on k value
         return newSurface
 
-    def _generatePositiveNegative(self, charge_concentration: float, countCharge: List[int], totalCharge: List[int]) -> int:
+    def _generatePositiveNegative(self, charge_concentration: float, countCharge: List[int], totalCharge: List[int]) \
+            -> int:
         """
         Generates either a positive charge or negative charge depending on the charge_concentration
         """
@@ -159,7 +160,7 @@ class DomainGenerator:
         if countCharge[1] == totalCharge[1]:
             charge = 1
 
-        # if the total charge on the surface is larger than expected, raise
+        # if the total charge on the surface is larger than expected, raise error
         if countCharge[0] > totalCharge[0] or countCharge[1] > totalCharge[1]:
             raise RuntimeError("Charge too many")
 
