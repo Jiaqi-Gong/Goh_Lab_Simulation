@@ -1944,47 +1944,4 @@ class DomainGenerator:
                 if countCharge[0] == totalCharge[0] and countCharge[1] == totalCharge[1]:
                     return surface, countCharge
 
-        # in the x-z plane (keep y constant)
-
-        #
-        # # Initialize charge
-        # charge = self._generatePositiveNegative(charge_concentration)
-        # if surface[int(startPoint[0]), int(startPoint[1])] == 0:
-        #     surface[int(startPoint[0]), int(startPoint[1])] = charge
-        #     # Add charge count
-        #     if charge == 1:
-        #         countCharge[0] += 1
-        #     elif charge == -1:
-        #         countCharge[1] += 1
-        #
-        # # Used to increase speed for generating domains since it takes a long time to generate all the domains
-        # if surface[int(startPoint[0]+1), int(startPoint[1]+1)] == 0:
-        #     surface[int(startPoint[0]+1), int(startPoint[1]+1)] = charge
-        #     # Add charge count
-        #     if charge == 1:
-        #         countCharge[0] += 1
-        #     elif charge == -1:
-        #         countCharge[1] += 1
-        # if surface[int(startPoint[0]-1), int(startPoint[1]-1)] == 0:
-        #     surface[int(startPoint[0]-1), int(startPoint[1]-1)] = charge
-        #     # Add charge count
-        #     if charge == 1:
-        #         countCharge[0] += 1
-        #     elif charge == -1:
-        #         countCharge[1] += 1
-        # if surface[int(startPoint[0]+1), int(startPoint[1]-1)] == 0:
-        #     surface[int(startPoint[0]+1), int(startPoint[1]-1)] = charge
-        #     # Add charge count
-        #     if charge == 1:
-        #         countCharge[0] += 1
-        #     elif charge == -1:
-        #         countCharge[1] += 1
-        # if surface[int(startPoint[0]-1), int(startPoint[1]+1)] == 0:
-        #     surface[int(startPoint[0]-1), int(startPoint[1]+1)] = charge
-        #     # Add charge count
-        #     if charge == 1:
-        #         countCharge[0] += 1
-        #     elif charge == -1:
-        #         countCharge[1] += 1
-
         return surface, countCharge
