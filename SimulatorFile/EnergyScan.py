@@ -8,11 +8,10 @@ import numpy as np
 from numpy import ndarray
 from openpyxl.worksheet._write_only import WriteOnlyWorksheet
 from openpyxl.worksheet.worksheet import Worksheet
-
-from ExternalIO import showMessage, writeLog, saveResult, visPlot
+from SimulatorFile.EnergyCalculator import interact2D, interact3D
+from ExternalIO import showMessage, writeLog, saveResult
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter  # allows access to letters of each column
-
 from SimulatorFile.Simulator import Simulator
 
 
@@ -22,7 +21,7 @@ class EnergySimulator(Simulator):
     """
     interactType: Union[None, str]
 
-    def __init__(self, simulationType: int, trail: int, dimension: int,
+    def __init__(self, trail: int, dimension: int,
                  filmSeed: int, filmSurfaceSize: Tuple[int, int], filmSurfaceShape: str, filmSurfaceCharge: int,
                  filmDomainSize: Tuple[int, int], filmDomainShape: str, filmDomainConcentration: float,
                  filmDomainChargeConcentration: float,
@@ -30,28 +29,35 @@ class EnergySimulator(Simulator):
                  bacteriaSurfaceCharge: int,
                  bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float,
                  bacteriaDomainChargeConcentration: float,
-                 filmNum: int, bacteriaNum: int, intervalX: int, intervalY: int) -> None:
+                 filmNum: int, bacteriaNum: int, intervalX: int, intervalY: int, parameters: Dict) -> None:
         """
         Init the simulation class based on the input info
         Description of input info are shown in the HelpFile.txt
         """
         simulatorType = 1
 
+        # get simulationType
+        if "simulationType" not in parameters:
+            raise RuntimeError("simulation type is not enetered")
+        else:
+            simulationType = parameters["simulationType"]
+
         # if simulation type is 1, fix the bacteria number to 1
         if simulationType == 1:
             bacteriaNum = 1
 
+        # set some variable
+        self.interactType = None
+        self.cutoff = -1
+
+        # call parent to generate simulator
         Simulator.__init__(self, simulationType, trail, dimension, simulatorType,
                            filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
                            filmDomainSize, filmDomainShape, filmDomainConcentration, filmDomainChargeConcentration,
                            bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
                            bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainConcentration,
                            bacteriaDomainChargeConcentration,
-                           filmNum, bacteriaNum, intervalX, intervalY)
-
-        # set some variable
-        self.interactType = None
-        self.cutoff = -1
+                           filmNum, bacteriaNum, intervalX, intervalY, parameters)
 
     def runSimulate(self) -> None:
         """
@@ -60,9 +66,6 @@ class EnergySimulator(Simulator):
         writeLog("This is runSimulation in Simulation")
         showMessage("Start to run simulation baed on simulation type")
         writeLog(self.__dict__)
-
-        # check does all parameter is assigned
-        self.checkAllSet()
 
         # record the number of simulation did
         currIter = 0
@@ -119,27 +122,24 @@ class EnergySimulator(Simulator):
         writeLog("self is: {}, currIter is: {}, film is: {}, bacteria is: {}, end is: {}".format(
             self.__dict__, currIter, film, bacteria, end))
 
+        # check does cutoff value set
+        if self.interactType.upper() in ["CUTOFF", "CUT-OFF"]:
+            if self.cutoff < 0:
+                raise RuntimeError("Cutoff value is not assign or not assign properly")
+            else:
+                cutoff = self.cutoff
+        else:
+            cutoff = 0
+
         # call simulation based on the simulation type
         if self.dimension == 2:
-            if self.interactType.upper() == "DOT":
-                result = self._dotInteract2D(self.intervalX, self.intervalY, film, bacteria)
-            elif self.interactType.upper() in ["CUTOFF", "CUT-OFF"]:
-                if self.cutoff < 0:
-                    raise RuntimeError("Cut-off value is not assign or not assign properly")
-                result = self._cutoffInteract2D(self.intervalX, self.intervalY, film, bacteria)
-            else:
-                raise RuntimeError("Unknown interact type")
+            result = interact2D(self.interactType, self.intervalX, self.intervalY, film, bacteria, currIter, cutoff)
         elif self.dimension == 3:
-            if self.interactType.upper() == "DOT":
-                result = self._dotInteract3D()
-            elif self.interactType.upper() in ["CUTOFF", "CUT-OFF"]:
-                if self.cutoff < 0:
-                    raise RuntimeError("Cut-off value is not assign or not assign properly")
-                result = self._cutoffInteract3D(self.intervalX, self.intervalY, film, bacteria)
-            else:
-                raise RuntimeError("Unknown interact type")
+            result = interact3D(self.interactType, self.intervalX, self.intervalY, film, bacteria, currIter, cutoff)
         else:
             raise RuntimeError("Wrong dimension in _simulate")
+
+        showMessage("Interact done")
 
         # set the output
         self._output(result, currIter, end)
@@ -255,10 +255,13 @@ class EnergySimulator(Simulator):
         # count number of min_energy locations at each gradient strip
         if self.simulationType == 2:
             showMessage("WARNING: Potential bug here")
-            a = self.bacteriaManager.bacteriaNum
             for row_num in range(self.bacteriaManager.bacteriaNum):
                 row = 2 + row_num
                 val_id = ws1.cell(row, 11).value
+
+                # check the value read from column 11
+                if val_id < 0:
+                    continue
                 val = ws1.cell(2, 14 + int(val_id)).value
                 ws1.cell(2, 14 + int(val_id), int(val) + 1)
 
@@ -271,199 +274,3 @@ class EnergySimulator(Simulator):
         # call function in ExternalIO to save workbook
         saveResult(wb, file_path)
 
-    def _dotInteract2D(self, intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray) -> \
-            Tuple[int, int, int, int, int, int, int]:
-        """
-        Do the simulation, scan whole film surface with bacteria
-        The energy calculate only between bacteria surface and the film surface directly under the bacteria
-        This code is copy from the old code with minor name change
-        """
-        writeLog("This is _dotInteract2D in Simulation")
-        showMessage("Start to interact ......")
-        writeLog("intervalX is: {}, intervalY is: {}, film is: {}, bacteria is: {}".format(
-            intervalX, intervalY, film, bacteria))
-
-        # show image of whole film and bacteria
-        visPlot(film, "whole_film")
-        visPlot(bacteria, "whole_bacteria")
-
-        # shape of the film
-        film_shape = film.shape
-
-        # shape of bacteria
-        bact_shape = bacteria.shape
-
-        # set the range
-        range_x = np.arange(0, film_shape[0], intervalX)
-        range_y = np.arange(0, film_shape[1], intervalY)
-
-        writeLog("shape is : {}, range_x is: {}, range_y is: {}".format(film_shape, range_x, range_y))
-
-        # init some variable
-        # randomly, just not negative
-        min_energy = 999999
-        min_charge = 999999
-        min_energy_charge = 999999
-        min_charge_x = 0
-        min_charge_y = 0
-        min_x = -1
-        min_y = -1
-
-        # change the bacteria surface into 1D
-        bacteria_1D = np.reshape(bacteria, (-1))
-
-        # scan through the surface and make calculation
-        for x in range_x:
-            for y in range_y:
-                # set the x boundary and y boundary
-                x_boundary = bact_shape[0] + x
-                y_boundary = bact_shape[1] + y
-
-                writeLog("x_boundary is: {}, y_boundary is: {}, film_shape is:{}, bacteria shape is: {} ".format(
-                    x_boundary, y_boundary, film_shape, bact_shape))
-                writeLog("Range check: x_boundary > film_shape[0] - bact_shape[0] is :{}, y_boundary > "
-                         "film_shape[1] - bact_shape[1] is: {} ".format(x_boundary > film_shape[0] - bact_shape[0],
-                          y_boundary > film_shape[1] - bact_shape[1]))
-
-                # check if bacteria surface is exceed range of film surface
-                if x_boundary > film_shape[0] or y_boundary > film_shape[1]:
-                    # if exceed the surface, go to next iteration
-                    writeLog("outside the range, continue")
-                    continue
-
-                # do the calculation
-
-                # change the corresponding film surface into 1D
-                film_use = film[x: x_boundary, y: y_boundary]
-                film_1D = np.reshape(film_use, (-1,))
-
-                # calculate energy, uses electrostatic energy formula, assuming that r = 1
-                # WARNING: r should be change based on the height difference between film and bacteria in future
-                writeLog(["This is surface and film uses to calcualte energy", film_1D, bacteria_1D])
-                energy = np.dot(film_1D, bacteria_1D)
-
-                writeLog("WARNING: r should be change based on the height difference between film and bacteria in "
-                         "future")
-
-                # count and unique
-                unique, counts = np.unique(film_use, return_counts=True)
-
-                # record all variables
-                writeLog("film_use is: {}, film_1D is: {}, energy is: {}, unique is: {}, counts is: {}".format(
-                    film_use, film_1D, energy, unique, counts))
-
-                # check the calculation result and change corresponding value
-                if len(unique) == 1:
-                    if unique[0] == -1:
-                        charge = -counts[0]
-                    else:
-                        charge = counts[0]
-                elif unique[0] == -1:
-                    charge = -counts[0] + counts[1]
-                elif unique[0] == 1:
-                    charge = counts[0] - counts[1]
-                else:
-                    raise RuntimeError("Variable 'charge' in _interact2D not init, caused by the error in unique")
-
-                if charge < min_charge:
-                    min_charge = charge
-                    min_charge_x = x
-                    min_charge_y = y
-
-                # find minimum energy and location
-                if energy < min_energy:
-                    min_energy = energy
-                    min_x = x
-                    min_y = y
-                    min_energy_charge = charge
-
-        # save the result
-        result = (min_energy, min_x, min_y, min_energy_charge, min_charge, min_charge_x, min_charge_y)
-
-        showMessage("Interact done")
-        writeLog(result)
-
-        return result
-
-    def _dotInteract3D(self) -> Tuple[int, int, int, int, int, int, int]:
-        raise NotImplementedError
-
-    def _cutoffInteract2D(self, intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray) -> \
-            Tuple[int, int, int, int, int, int, int]:
-        """
-        Do the simulation, scan whole film surface with bacteria
-        The energy calculate only between bacteria surface and the film surface directly under the bacteria
-        This code is copy from the old code with minor name change
-        """
-        writeLog("This is _cutoffInteract2D in Simulation")
-        showMessage("Start to interact ......")
-        writeLog("intervalX is: {}, intervalY is: {}, film is: {}, bacteria is: {}".format(
-            intervalX, intervalY, film, bacteria))
-
-        # shape of the bacteria
-        shape = film.shape
-
-        # set the range
-        range_x = np.arange(0, shape[0], intervalX)
-        range_y = np.arange(0, shape[1], intervalY)
-
-        writeLog("shape is : {}, range_x is: {}, range_y is: {}".format(shape, range_x, range_y))
-
-        # init some variable
-        # randomly, just not negative
-        min_energy = 999999
-        min_charge = 999999
-        min_energy_charge = 999999
-        min_charge_x = 0
-        min_charge_y = 0
-        min_x = -1
-        min_y = -1
-
-        # change ndarray to tuple
-        filmTuple = self._ndarrayToTuple(film)
-        bacteriaTuple = self._ndarrayToTuple(bacteria)
-
-        # select proper area on the film to interact with bacteria
-
-
-
-        raise NotImplementedError
-
-    def _cutoffInteract3D(self, intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray) -> \
-            Tuple[int, int, int, int, int, int, int]:
-        """
-        Do the simulation, scan whole film surface with bacteria
-        The energy calculate only between bacteria surface and the film surface directly under the bacteria
-        This code is copy from the old code with minor name change
-        """
-        raise NotImplementedError
-
-    def _ndarrayToTuple(self, arrayList: ndarray) -> List[List[Tuple[int, int, int, int]]]:
-        """
-        This function takes in a ndarray and rephase this array into a nested list
-        Each tuple in list represent (x_coordinate, y_coordinate, z_coordinate, charge)
-        """
-        writeLog("This is ndarrayToTuple")
-        writeLog(arrayList)
-
-        # init the list
-        tupleList = []
-
-        # depends on the dimension rephrase ndarray
-        for x in range(len(arrayList)):
-            temp = []
-            for y in range(len(arrayList[x])):
-                if self.dimension == 2:
-                    z = 3
-                    # Note, for 2D, the height of bacteria is fixed to 3, which means z-coordinate is 3
-                    position = (x, y, z, arrayList[x][y])
-                    temp.append(position)
-
-                elif self.dimension == 3:
-                    raise NotImplementedError
-                else:
-                    raise RuntimeError("Unknown dimension")
-
-            tupleList.append(temp)
-
-        return tupleList

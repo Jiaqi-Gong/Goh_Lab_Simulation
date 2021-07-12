@@ -110,11 +110,22 @@ def saveResult(wb: workbook, path: str) -> None:
 
 def visPlot(array: ndarray, picName: str) -> None:
     """
+    THis function based on the dimension of passed in ndarray to call appropriate function
+    """
+    dimension = len(array.shape)
+    if dimension == 2:
+        _visPlot2D(array, picName)
+    elif dimension == 3:
+        _visPlot3D(array, picName)
+    else:
+        raise RuntimeError("Unknown dimension of array pass in")
+
+
+def _visPlot2D(array: ndarray, picName: str) -> None:
+    """
     This function take in a 2D ndarray and save this array as a image with given name
     """
-    if len(array.shape) != 2:
-        showMessage("WARNING, the array passed in visPlot is not 2D, no picture will generate")
-        pass
+    showMessage("Start to generate image")
 
     pos = np.where(array == 1)
     neu = np.where(array == 0)
@@ -127,10 +138,10 @@ def visPlot(array: ndarray, picName: str) -> None:
     neg_x = neg[0]
     neg_y = neg[1]
 
-    if 'BACT' in picName.upper():
-        fig = plt.figure(figsize=(10, 10))
-    else:
-        fig = plt.figure(figsize=(25, 25))
+    img_length = len(array[0]) // 100
+    img_width = len(array) // 100
+
+    fig = plt.figure(figsize=(img_length, img_width))
     ax = fig.add_subplot(111)
 
     ax.scatter(pos_x, pos_y, s=1, c='blue', label='pos')
@@ -143,7 +154,7 @@ def visPlot(array: ndarray, picName: str) -> None:
     ax.xaxis.set_ticks_position('top')
     ax.xaxis.set_label_position('top')
 
-    plt.imshow(array[0], interpolation='nearest')
+    plt.imshow(array, interpolation='nearest')
 
     now = datetime.now()
     day = now.strftime("%m_%d")
@@ -159,7 +170,16 @@ def visPlot(array: ndarray, picName: str) -> None:
         if not os.path.exists(picFolder):
             os.mkdir(picFolder)
 
-    picPath = "{}/{}_{}".format(picFolder, picName, current_time)
+    picPath = "{}/{}".format(picFolder, picName)
     plt.savefig(picPath)
 
-    plt.show()
+    showMessage("Image generate done")
+
+    # plt.show()
+
+
+def _visPlot3D(array: ndarray, picName: str) -> None:
+    """
+    This function take in a 3D ndarray and save this array as a image with given name
+    """
+    raise NotImplementedError
