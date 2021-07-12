@@ -116,7 +116,7 @@ class DomainGenerator:
         # initialize how long we want the code to run
         # if its running for too long, that means we most likely reached the maximum amount of domains on the surface and
         # end the while loop
-        timeout = time.time() + 15      # 1 minute from now
+        timeout = time.time() + 60      # 1 minute from now
         # start to generate the domain on surface
         while generated < domainNum:
             writeLog(timeout - time.time())
@@ -536,7 +536,7 @@ class DomainGenerator:
         return True
 
     def _generateDiamond(self, surface: Surface, domainWidth: int, domainLength: int, startPoint: int, charge: int) \
-            -> ndarray:
+            -> Surface:
         """
         This function generate diamond shape domain
         :return return the surface with diamond domain on it
@@ -552,33 +552,21 @@ class DomainGenerator:
 
                     # top right
                     point = self.nearestPoint(surface, [int(startPoint[2] - i), startPoint[1], int(startPoint[0] + j)])
-                    # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
-                        raise RuntimeError("Domain is being generated on an existing domain")
                     # generate charge on the domain
                     surface[point[0], point[1], point[2]] = charge
 
                     # top left
                     point = self.nearestPoint(surface, [int(startPoint[2] - i), startPoint[1], int(startPoint[0] - j)])
-                    # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
-                        raise RuntimeError("Domain is being generated on an existing domain")
                     # generate charge on the domain
                     surface[point[0], point[1], point[2]] = charge
 
                     # bottom right
                     point = self.nearestPoint(surface, [int(startPoint[2] + i), startPoint[1], int(startPoint[0] + j)])
-                    # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
-                        raise RuntimeError("Domain is being generated on an existing domain")
                     # generate charge on the domain
                     surface[point[0], point[1], point[2]] = charge
 
                     # bottom left
                     point = self.nearestPoint(surface, [int(startPoint[2] + i), startPoint[1], int(startPoint[0] - j)])
-                    # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
-                        raise RuntimeError("Domain is being generated on an existing domain")
                     # generate charge on the domain
                     surface[point[0], point[1], point[2]] = charge
 
@@ -618,33 +606,21 @@ class DomainGenerator:
 
                     # top right
                     point = self.nearestPoint(surface, [int(startPoint[2] - i), int(startPoint[1] + j), startPoint[0]])
-                    # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
-                        raise RuntimeError("Domain is being generated on an existing domain")
                     # generate charge on the domain
                     surface[point[0], point[1], point[2]] = charge
 
                     # top left
                     point = self.nearestPoint(surface, [int(startPoint[2] - i), int(startPoint[1] - j), startPoint[0]])
-                    # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
-                        raise RuntimeError("Domain is being generated on an existing domain")
                     # generate charge on the domain
                     surface[point[0], point[1], point[2]] = charge
 
                     # bottom right
                     point = self.nearestPoint(surface, [int(startPoint[2] + i), int(startPoint[1] + j), startPoint[0]])
-                    # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
-                        raise RuntimeError("Domain is being generated on an existing domain")
                     # generate charge on the domain
                     surface[point[0], point[1], point[2]] = charge
 
                     # bottom left
                     point = self.nearestPoint(surface, [int(startPoint[2] + i), int(startPoint[1] - j), startPoint[0]])
-                    # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
-                        raise RuntimeError("Domain is being generated on an existing domain")
                     # generate charge on the domain
                     surface[point[0], point[1], point[2]] = charge
                 eg -= 1
