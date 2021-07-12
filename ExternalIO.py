@@ -138,8 +138,8 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     neg_x = neg[0]
     neg_y = neg[1]
 
-    img_length = len(array[0])
-    img_width = len(array)
+    img_length = len(array[0]) // 100
+    img_width = len(array) // 100
 
     fig = plt.figure(figsize=(img_length, img_width))
     ax = fig.add_subplot(111)
