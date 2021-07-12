@@ -234,7 +234,7 @@ def test_simulation():
     bacteriaNum = 5
     interval_x = 50
     interval_y = 50
-    filmSurfaceCharge = 0
+    filmSurfaceCharge = -1
     filmDomainSize = (1, 1)
     filmDomainShape = "octagon"
     filmDomainCon = 0.5
@@ -242,9 +242,9 @@ def test_simulation():
     bacteriaSeed = 10
     bacteriaSize = (5, 5)
     bacteriaSurfaceShape = "rectangle"
-    bacteriaSurfaceCharge = 0
+    bacteriaSurfaceCharge = 1
     bacteriaDomainSize = (1, 1)
-    bacteriaDomainShape = "single"
+    bacteriaDomainShape = "octagon"
     bacteriaDomainCon = 0.5
     bacteriaDomainChargeConcentration = 0.5
 
