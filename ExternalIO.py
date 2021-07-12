@@ -138,10 +138,10 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     neg_x = neg[0]
     neg_y = neg[1]
 
-    if 'BACT' in picName.upper():
-        fig = plt.figure(figsize=(10, 10))
-    else:
-        fig = plt.figure(figsize=(50, 50))
+    img_length = len(array[0])
+    img_width = len(array)
+
+    fig = plt.figure(figsize=(img_length, img_width))
     ax = fig.add_subplot(111)
 
     ax.scatter(pos_x, pos_y, s=1, c='blue', label='pos')
