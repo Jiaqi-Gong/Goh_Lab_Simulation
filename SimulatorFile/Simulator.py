@@ -26,8 +26,10 @@ class Simulator(ABC):
     dimension: int
     simulationType: int
     simulatorType: int
+    bacteriaNum: int
     intervalX: int
     intervalY: int
+    parameters: Union[None, Dict]
     filmManager: FilmManager
     bacteriaManager: BacteriaManager
     startTime: datetime
@@ -41,7 +43,7 @@ class Simulator(ABC):
                  bacteriaSurfaceCharge: int,
                  bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float,
                  bacteriaDomainChargeConcentration: float,
-                 filmNum: int, bacteriaNum: int, intervalX: int, intervalY: int) -> None:
+                 filmNum: int, bacteriaNum: int, intervalX: int, intervalY: int, parameters: Dict) -> None:
         """
         Init the simulation class based on the input info
         Description of input info are shown in the HelpFile.txt
@@ -54,10 +56,14 @@ class Simulator(ABC):
         self.dimension = dimension
         self.simulationType = simulationType
         self.simulatorType = simulatorType
+        self.bacteriaNum = bacteriaNum
         self.intervalX = intervalX
         self.intervalY = intervalY
+        self.parameters = parameters
 
         # init some variable
+        self._setExtraParameter()
+        self._checkAllSet()
         self.filmManager = FilmManager(trail, dimension, filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
                                        filmDomainSize, filmDomainShape, filmDomainConcentration,
                                        filmDomainChargeConcentration, filmNum)
@@ -80,7 +86,7 @@ class Simulator(ABC):
         writeLog(self.filmManager.__dict__)
         writeLog(self.bacteriaManager.__dict__)
 
-    def checkAllSet(self) -> None:
+    def _checkAllSet(self) -> None:
         """
         This function uses to check does all parameter for this class is set
         """
@@ -88,16 +94,16 @@ class Simulator(ABC):
             if self.__dict__[parameter] is None:
                 raise RuntimeError("parameter {} is not set".format(parameter))
 
-    def setExtraParameter(self, parameters: Dict) -> None:
+    def _setExtraParameter(self, ) -> None:
         """
         This function uses to set extra parameter for the simulator
         parameters is a dictionary, key is parameter name, value is the value want assign to parameter
         """
-        for parameter in parameters:
-            if type(parameters[parameter]) == str:
-                execString = "self.{} = '{}'".format(parameter, parameters[parameter])
+        for parameter in self.parameters:
+            if type(self.parameters[parameter]) == str:
+                execString = "self.{} = '{}'".format(parameter, self.parameters[parameter])
             else:
-                execString = "self.{} = {}".format(parameter, parameters[parameter])
+                execString = "self.{} = {}".format(parameter, self.parameters[parameter])
 
             # execute the assign command
             exec(execString)

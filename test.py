@@ -181,24 +181,35 @@ def test3D():
     return 1 * (dist <= radius) - 1 * (dist <= radius-1)
 
 def testchange():
-    dimension = 2
-    arrayList = np.zeros((4,4))
+    arrayList = np.zeros((1,10,10))
+    arrayList[0][1][1] = 1
+    arrayList[0][0][1] = 2
+    arrayList[0][1][0] = 3
     # init the list
     tupleList = []
 
-    # depends on the dimension rephrase ndarray
-    for x in range(len(arrayList)):
-        for y in range(len(arrayList[x])):
-            if dimension == 2:
-                z = 3
-                # Note, for 2D, the height of bacteria is fixed to 3, which means z-coordinate is 3
-                position = (x, y, z, arrayList[x][y])
-                tupleList.append(position)
+    # rephrase ndarray to tuple
+    for z in range(len(arrayList)):
+        temp1 = []
+        for y in range(len(arrayList[z])):
+            temp2 = []
+            for x in range(len(arrayList[z][y])):
+                position = (x, y, z, arrayList[z][y][x])
+                temp2.append(position)
+            temp1.append(temp2)
+        tupleList.append(temp1)
 
-            elif dimension == 3:
-                raise NotImplementedError
-            else:
-                raise RuntimeError("Unknown dimension")
+    a = []
+    for x in tupleList:
+        for y in x:
+            a.extend(y)
+
+    y, y_boundary = 0, 2
+    x, x_boundary = 0, 3
+    filmTuple_use = []
+    for y_pos in range(y, y_boundary):
+        for x_pos in range(x, x_boundary):
+            filmTuple_use.append(tupleList[0][y_pos][x_pos])
 
     return tupleList
 
@@ -264,9 +275,8 @@ def test_simulation():
                     filmDomainSize, filmDomainShape, filmDomainCon, filmDomainChargeConcentration,
                     bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
                     bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, bacteriaDomainChargeConcentration,
-                    filmNum, bacteriaNum, interval_x, interval_y)
+                    filmNum, bacteriaNum, interval_x, interval_y, parameter)
 
-    sim.setExtraParameter(parameter)
     sim.runSimulate()
 
 def testVisible():
@@ -312,6 +322,27 @@ def testPic():
 
     visPlot(data, picName)
 
+
+def testCutoff():
+    from SimulatorFile.EnergyCalculator import interact2D
+
+    film = np.zeros((1,10,10))
+    film[0][2][2] = 1
+    film[0][2][4] = 1
+    film[0][1][2] = 1
+    film[0][1][5] = 1
+    film[0][0][2] = 1
+    film[0][0][8] = 1
+    film[0][1][7] = 1
+
+    bacteria = np.zeros((1,3,3))
+    bacteria[0][1][1] = 1
+    bacteria[0][2][2] = -1
+
+    result = interact2D("CUTOFF", 2, 2, film, bacteria, 1, 6)
+
+    return result
+
 if __name__ == '__main__':
     # test_diamond()
     # test_random_choice()
@@ -327,7 +358,7 @@ if __name__ == '__main__':
 
     # _output()
 
-    test_simulation()
+    # test_simulation()
 
     # p = p()
     # t()
@@ -339,3 +370,5 @@ if __name__ == '__main__':
     # testVisible()
 
     # testPic()
+
+    print(testCutoff())

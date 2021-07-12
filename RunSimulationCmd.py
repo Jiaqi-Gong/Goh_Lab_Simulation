@@ -35,10 +35,13 @@ def getArgument() -> None:
         simulator = EnergySimulator
         # taking info for energy scan simulation
         bacteriaNum, dimension, filmNum, interactType, simulationType = getEnergyScanArgument()
-        parameter = {"interactType": interactType}
+        parameter = {"interactType": interactType, "simulationType": simulationType}
 
     elif simulatorType == 2:
         simulator = DynamicSimulator
+        # set some fixed parameter
+        dimension = 3
+        filmNum = 1
         # taking info for dynamic simulation
         probabilityType, timestep, bacteriaNum = getDynamicArgument()
         parameter = {"probabilityType": probabilityType, "timestep": timestep}
@@ -48,20 +51,19 @@ def getArgument() -> None:
     # generate simulation program
     showMessage("Start to generate the simulation simulator ......")
 
-    # gnerate simulator
-    sim = simulator(simulationType, trail, dimension,
+    # generate simulator
+    sim = simulator(trail, dimension,
                     filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
                     filmDomainSize, filmDomainShape, filmDomainCon, filmDomainChargeConcentration,
                     bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
                     bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, bacteriaDomainChargeConcentration,
-                    filmNum, bacteriaNum, interval_x, interval_y)
+                    filmNum, bacteriaNum, interval_x, interval_y, parameter)
 
     showMessage("Simulator generate done")
 
     # run the simulation
     showMessage("Start to run simulate ......")
 
-    sim.setExtraParameter(parameter)
     sim.runSimulate()
 
     # finish whole simulation
@@ -273,7 +275,7 @@ def getEnergyScanArgument() -> [int, int, int, str, int]:
     return bacteriaNum, dimension, filmNum, interactType, simulationType
 
 
-def getBacteriaArgument(filmSurfaceSize: Tuple[int, int], dimension: int):
+def getBacteriaArgument(filmSurfaceSize: Tuple[int, int]):
     # take seed of bacteria
     while True:
         bacteriaSeed = input("Please enter bacteria seed number: \n")
@@ -337,11 +339,8 @@ def getBacteriaArgument(filmSurfaceSize: Tuple[int, int], dimension: int):
         if bacteriaSize.upper() == "HELP":
             helpMessage(helpName)
         else:
-            # check the format of the input based on dimension
-            if dimension == 2:
-                formatValid = bool(re.match("\d+[x]\d+", bacteriaSize))
-            else:
-                formatValid = bool(re.match("\d+[x]\d+[x]\d+", bacteriaSize))
+            # check the format of the input mach 2D format or 3D format
+            formatValid = bool(re.match("\d+[x]\d+", bacteriaSize)) or bool(re.match("\d+[x]\d+[x]\d+", bacteriaSize))
 
             if formatValid:
                 # check this input size if valid
