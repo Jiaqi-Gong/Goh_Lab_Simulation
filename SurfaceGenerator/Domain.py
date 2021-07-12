@@ -96,6 +96,7 @@ class DomainGenerator:
         showMessage("generate new surface done")
         writeLog(newSurface)
         writeLog("Charge of the surface is {}".format(surfaceCharge))
+        writeLog("Charge of domain is {}".format(charge))
 
         # set the seed for random
         np.random.seed(self.seed)
@@ -140,8 +141,6 @@ class DomainGenerator:
             timeout = time.time() + 10  # 10 seconds from now
 
             showMessage("Generated domain number {}".format(generated))
-
-        # return the surface generated based on k value
         return newSurface
 
     def _allPossiblePoint(self, surface: Surface, surfaceLength: int, surfaceWidth: int, surfaceHeight: int,
@@ -344,7 +343,6 @@ class DomainGenerator:
         # writeLog([self.__dict__, surfaceLength, surfaceWidth, domainLength, domainWidth, shape])
         # choose a random index
         index = np.random.randint(len(possiblePoint))
-        writeLog(index)
         # return the coordinate
         coordinate = possiblePoint[index]
         # remove the chosen coordinate from all possiblepoints
@@ -434,10 +432,10 @@ class DomainGenerator:
                     found = True
         return point
 
-    def _diamondEmpty(self, surface: Surface, domainWidth: int, domainLength: int, startPoint: int, charge: int) \
-            -> bool:
+    def _diamondEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int, int],
+                      charge: int) -> bool:
         """
-        This function check the position want to generate diamond whether is empty
+        This function check the position we want to generate diamond is empty
         :return True if all empty, False for no
         """
 
@@ -538,8 +536,8 @@ class DomainGenerator:
 
         return True
 
-    def _generateDiamond(self, surface: Surface, domainWidth: int, domainLength: int, startPoint: int, charge: int) \
-            -> Surface:
+    def _generateDiamond(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int, int],
+                         charge: int) -> ndarray:
         """
         This function generate diamond shape domain
         :return return the surface with diamond domain on it
@@ -630,44 +628,187 @@ class DomainGenerator:
 
         return surface
 
-    def _crossEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
+    def _crossEmpty(self, surface: Surface, domainWidth: int, domainLength: int, startPoint: Tuple[int, int, int],
+                    charge: int) -> bool:
         """
-        This function check the position want to generate octagon is empty
+        This function check the position we want to generate cross is empty
+        :return True if all empty, False for no
         """
-        # Change the names for each variable
-        cen = startPoint
-        # create the vertical line of the cross
-        for i in range(domainWidth + 1):
-            if surface[cen[0] + i - 1, cen[1] - 1] == 1:
-                return False
-            if surface[cen[0] - i - 1, cen[1] - 1] == 1:
-                return False
 
-        # create the horizontal line of the cross
-        for j in range(domainLength + 1):
-            if surface[cen[0] - 1, cen[1] + j - 1] == 1:
-                return False
-            if surface[cen[0] - 1, cen[1] - j - 1] == 1:
-                return False
+        # in the y-z plane (keep x constant)
+        if startPoint[0] == 0 or startPoint[0] == int(surface.shape[2]) - 1:
+            # create the vertical line of the cross
+            for i in range(domainWidth + 1):
+                # bottom line
+                point = self.nearestPoint(surface, [int(startPoint[2] + i), int(startPoint[1]), startPoint[0]])
+                if surface[point[0], point[1], point[2]] == charge:
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    return False
 
+                # top line
+                point = self.nearestPoint(surface, [int(startPoint[2] - i), int(startPoint[1]), startPoint[0]])
+                if surface[point[0], point[1], point[2]] == charge:
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    return False
+
+            # create the horizontal line of the cross
+            for j in range(domainLength + 1):
+                # right line
+                point = self.nearestPoint(surface, [int(startPoint[2]), int(startPoint[1] + j), startPoint[0]])
+                if surface[point[0], point[1], point[2]] == charge:
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    return False
+
+                # left line
+                point = self.nearestPoint(surface, [int(startPoint[2]), int(startPoint[1] - j), startPoint[0]])
+                if surface[point[0], point[1], point[2]] == 0:
+                    if surface[point[0], point[1], point[2]] == charge:
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        return False
+
+        # in the x-z plane (keep y constant)
+        if startPoint[1] == 0 or startPoint[0] == int(surface.shape[1]) - 1:
+            # create the vertical line of the cross
+            for i in range(domainWidth + 1):
+                # bottom line
+                point = self.nearestPoint(surface, [int(startPoint[2] + i), startPoint[1], int(startPoint[0])])
+                if surface[point[0], point[1], point[2]] == 0:
+                    if surface[point[0], point[1], point[2]] == charge:
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        return False
+
+                # top line
+                point = self.nearestPoint(surface, [int(startPoint[2] - i), startPoint[1], int(startPoint[0])])
+                if surface[point[0], point[1], point[2]] == charge:
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    return False
+
+            # create the horizontal line of the cross
+            for j in range(domainLength + 1):
+                # right line
+                point = self.nearestPoint(surface, [int(startPoint[2]), startPoint[1], int(startPoint[0] + j)])
+                if surface[point[0], point[1], point[2]] == charge:
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    return False
+
+                # left line
+                point = self.nearestPoint(surface, [int(startPoint[2]), startPoint[1], int(startPoint[0] - j)])
+                if surface[point[0], point[1], point[2]] == charge:
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    return False
+
+        # in the x-y plane (keep z constant)
+        if startPoint[2] == 0 or startPoint[2] == int(surface.shape[0]) - 1:
+            # create the vertical line of the cross
+            for i in range(domainWidth + 1):
+                # bottom line
+                point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1] + i), int(startPoint[0])])
+                if surface[point[0], point[1], point[2]] == charge:
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    return False
+
+                # top line
+                point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1] - i), int(startPoint[0])])
+                if surface[point[0], point[1], point[2]] == charge:
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    return False
+
+            # create the horizontal line of the cross
+            for j in range(domainLength + 1):
+                # right line
+                point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1]), int(startPoint[0] + j)])
+                if surface[point[0], point[1], point[2]] == charge:
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    return False
+
+                # left line
+                point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1]), int(startPoint[0] - j)])
+                if surface[point[0], point[1], point[2]] == charge:
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    return False
         return True
-
-    def _generateCross(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]):
+    def _generateCross(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int, int],
+                       charge: int) -> ndarray:
         """
         This function generate cross shape for surface
         """
-        # Change the names for each variable
-        cen = startPoint
-        # create the vertical line of the cross
-        for i in range(domainWidth + 1):
-            surface[cen[0] + i - 1, cen[1] - 1] = 1
-            surface[cen[0] - i - 1, cen[1] - 1] = 1
+        # in the y-z plane (keep x constant)
+        if startPoint[0] == 0 or startPoint[0] == int(surface.shape[2]) - 1:
+            # create the vertical line of the cross
+            for i in range(domainWidth + 1):
+                # bottom line
+                point = self.nearestPoint(surface, [int(startPoint[2] + i), int(startPoint[1]), startPoint[0]])
+                # generate charge on the domain
+                surface[point[0], point[1], point[2]] = charge
 
-        # create the horizontal line of the cross
-        for j in range(domainLength + 1):
-            surface[cen[0] - 1, cen[1] + j - 1] = 1
-            surface[cen[0] - 1, cen[1] - j - 1] = 1
+                # top line
+                point = self.nearestPoint(surface, [int(startPoint[2] - i), int(startPoint[1]), startPoint[0]])
+                # generate charge on the domain
+                surface[point[0], point[1], point[2]] = charge
 
+            # create the horizontal line of the cross
+            for j in range(domainLength + 1):
+                # right line
+                point = self.nearestPoint(surface, [int(startPoint[2]), int(startPoint[1] + j), startPoint[0]])
+                # generate charge on the domain
+                surface[point[0], point[1], point[2]] = charge
+
+                # left line
+                point = self.nearestPoint(surface, [int(startPoint[2]), int(startPoint[1] - j), startPoint[0]])
+                # generate charge on the domain
+                surface[point[0], point[1], point[2]] = charge
+
+        # in the x-z plane (keep y constant)
+        if startPoint[1] == 0 or startPoint[0] == int(surface.shape[1]) - 1:
+            # create the vertical line of the cross
+            for i in range(domainWidth + 1):
+                # bottom line
+                point = self.nearestPoint(surface, [int(startPoint[2] + i), startPoint[1], int(startPoint[0])])
+                # generate charge on the domain
+                surface[point[0], point[1], point[2]] = charge
+
+                # top line
+                point = self.nearestPoint(surface, [int(startPoint[2] - i), startPoint[1], int(startPoint[0])])
+                # generate charge on the domain
+                surface[point[0], point[1], point[2]] = charge
+
+            # create the horizontal line of the cross
+            for j in range(domainLength + 1):
+                # right line
+                point = self.nearestPoint(surface, [int(startPoint[2]), startPoint[1], int(startPoint[0] + j)])
+                # generate charge on the domain
+                surface[point[0], point[1], point[2]] = charge
+
+                # left line
+                point = self.nearestPoint(surface, [int(startPoint[2]), startPoint[1], int(startPoint[0] - j)])
+                # generate charge on the domain
+                surface[point[0], point[1], point[2]] = charge
+
+        # in the x-y plane (keep z constant)
+        if startPoint[2] == 0 or startPoint[2] == int(surface.shape[0]) - 1:
+            # create the vertical line of the cross
+            for i in range(domainWidth + 1):
+                # bottom line
+                point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1] + i), int(startPoint[0])])
+                # generate charge on the domain
+                surface[point[0], point[1], point[2]] = charge
+
+                # top line
+                point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1] - i), int(startPoint[0])])
+                # generate charge on the domain
+                surface[point[0], point[1], point[2]] = charge
+
+            # create the horizontal line of the cross
+            for j in range(domainLength + 1):
+                # right line
+                point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1]), int(startPoint[0] + j)])
+                # generate charge on the domain
+                surface[point[0], point[1], point[2]] = charge
+
+                # left line
+                point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1]), int(startPoint[0] - j)])
+                # generate charge on the domain
+                surface[point[0], point[1], point[2]] = charge
         return surface
 
     def _octagonEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]):
@@ -948,7 +1089,6 @@ class DomainGenerator:
         """
         This function check the position want to generate single is empty
         """
-        # TODO:
         if surface[int(startPoint[0]),int(startPoint[1])] == 1:
             return False
 
@@ -958,6 +1098,5 @@ class DomainGenerator:
         """
         This function generate single shape for surface
         """
-        # TODO:
         surface[int(startPoint[0]),int(startPoint[1])] = 1
         return surface
