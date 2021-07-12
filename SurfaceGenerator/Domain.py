@@ -811,292 +811,774 @@ class DomainGenerator:
                 surface[point[0], point[1], point[2]] = charge
         return surface
 
-    def _octagonEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]):
+    def _octagonEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int, int],
+                      charge: int) -> bool:
         """
         This function check the position want to generate cross is empty
         """
-        # domainWidth and domainLength should be the same
-        if domainWidth != domainLength:
-            return 'domainWidth and domainLength should be the same'
-
-        # Rename variables
+        # Rename variables and change startPoint from tuple to list
         ln = domainWidth
-        cen = startPoint
-
-        # Find the center of the hexagon
+        cen = list(startPoint)
+        # Find the center of the octagon
         # If the length is an odd number, the center of the octagon should be located between 4 points (ie center point should end as .5)
-        if cen[0] % 2 == cen[1] % 2 and ln % 2 == 1:
-            if cen[0] % 2 == 1:
-                cen = [cen[0], cen[1]]
-            elif cen[0] % 2 == 0:
-                cen = [cen[0] - 0.5, cen[1] - 0.5]
-        elif cen[0] % 2 != cen[1] % 2 and ln % 2 == 1:
-            if cen[0] % 2 == 1:
-                cen = [cen[0], cen[1] - 0.5]
-            elif cen[1] % 2 == 1:
-                cen = [cen[0] - 0.5, cen[1]]
-        # If the length is an even number, the center of the octagon should be located on a point (ie center point should end as .0)
-        elif cen[0] % 2 == cen[1] % 2 and ln % 2 == 0:
-            if cen[0] % 2 == 1:
-                cen = [cen[0] - 0.5, cen[1] - 0.5]
-            elif cen[0] % 2 == 0:
-                cen = [cen[0], cen[1]]
-        elif cen[0] % 2 != cen[1] % 2 and ln % 2 == 0:
-            if cen[0] % 2 == 1:
-                cen = [cen[0] - 0.5, cen[1]]
-            elif cen[1] % 2 == 1:
-                cen = [cen[0], cen[1] - 0.5]
+        # for x
+        if cen[0] % 2 == 0 and ln % 2 == 1 and cen[0] != 0 and cen[0] != surface.shape[2] - 1:
+            cen[0] = cen[0] - 0.5
 
-        # Separate conditions between if the length is odd or even
-        # If the length is odd
-        if ln % 2 == 1:
-            # Initial square surrounding the center
-            n = int(ln / 2 + 0.5)
-            for i in range(n):
-                for j in range(n):
-                    if surface[int(cen[0] + (0.5 + i)), int(cen[1] + (0.5 + j))] == 1:
-                        return False
-                    if surface[int(cen[0] + (0.5 + i)), int(cen[1] - (0.5 + j))] == 1:
-                        return False
-                    if surface[int(cen[0] - (0.5 + i)), int(cen[1] + (0.5 + j))] == 1:
-                        return False
-                    if surface[int(cen[0] - (0.5 + i)), int(cen[1] - (0.5 + j))] == 1:
-                        return False
+        # for y
+        if cen[1] % 2 == 0 and ln % 2 == 1 and cen[1] != 0 and cen[1] != surface.shape[1] - 1:
+            cen[1] = cen[1] - 0.5
 
-            # Index edges of the square
-            # top right edge
-            ed_tr = [int(cen[0] - ln / 2), int(cen[1] + ln / 2)]
-            # top left edge
-            ed_tl = [int(cen[0] - ln / 2), int(cen[1] - ln / 2)]
-            # bottom right edge
-            ed_br = [int(cen[0] + ln / 2), int(cen[1] + ln / 2)]
-            # bottom left edge
-            ed_bl = [int(cen[0] + ln / 2), int(cen[1] - ln / 2)]
+        # for z
+        if cen[2] % 2 == 0 and ln % 2 == 1 and cen[2] != 0 and cen[2] != surface.shape[0] - 1:
+            cen[2] = cen[2] - 0.5
+
+        # in y-z plane (keep x constant)
+        if startPoint[0] == 0 or startPoint[0] == surface.shape[2] - 1:
+            # Separate conditions between if the length is odd or even
+            # If the length is odd
+            if ln % 2 == 1:
+                # Initial square surrounding the center
+                n = int(ln / 2 + 0.5)
+                for i in range(n):
+                    for j in range(n):
+                        # 1st point
+                        point = self.nearestPoint(surface, [int(cen[2] + (0.5 + i)), int(cen[1] - (0.5 + j)), cen[0]])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
+                        # 2nd point
+                        point = self.nearestPoint(surface, [int(cen[2] + (0.5 + i)), int(cen[1] + (0.5 + j)), cen[0]])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
+                        # 3rd point
+                        point = self.nearestPoint(surface, [int(cen[2] - (0.5 + i)), int(cen[1] + (0.5 + j)), cen[0]])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
+                        # 4th point
+                        point = self.nearestPoint(surface, [int(cen[2] - (0.5 + i)), int(cen[1] - (0.5 + j)), cen[0]])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
+
             # If the length is even
-        elif ln % 2 == 0:
-            # Initial square surrounding the center
-            n = int(ln / 2)
-            for i in range(n + 1):
-                for j in range(n + 1):
-                    if surface[int(cen[0] + i), int(cen[1] + j)] == 1:
-                        return False
-                    if surface[int(cen[0] + i), int(cen[1] - j)] == 1:
-                        return False
-                    if surface[int(cen[0] - i), int(cen[1] + j)] == 1:
-                        return False
-                    if surface[int(cen[0] - i), int(cen[1] - j)] == 1:
-                        return False
+            elif ln % 2 == 0:
+                # Initial square surrounding the center
+                n = int(ln / 2)
+                for i in range(n + 1):
+                    for j in range(n + 1):
+                        # 1st points
+                        point = self.nearestPoint(surface, [int(cen[2] + i), int(cen[1] + j), cen[0]])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
+                        # 2nd points
+                        point = self.nearestPoint(surface, [int(cen[2] + i), int(cen[1] - j), cen[0]])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
+                        # 3rd points
+                        point = self.nearestPoint(surface, [int(cen[2] - i), int(cen[1] + j), cen[0]])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
+                        # 4th points
+                        point = self.nearestPoint(surface, [int(cen[2] - i), int(cen[1] - j), cen[0]])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
 
             # Index edges of the square
             # top right edge
-            ed_tr = [int(cen[0] - ln / 2), int(cen[1] + ln / 2)]
+            ed_tr = [int(cen[2] - ln / 2), int(cen[1] + ln / 2), cen[0]]
             # top left edge
-            ed_tl = [int(cen[0] - ln / 2), int(cen[1] - ln / 2)]
+            ed_tl = [int(cen[2] - ln / 2), int(cen[1] - ln / 2), cen[0]]
             # bottom right edge
-            ed_br = [int(cen[0] + ln / 2), int(cen[1] + ln / 2)]
+            ed_br = [int(cen[2] + ln / 2), int(cen[1] + ln / 2), cen[0]]
             # bottom left edge
-            ed_bl = [int(cen[0] + ln / 2), int(cen[1] - ln / 2)]
+            ed_bl = [int(cen[2] + ln / 2), int(cen[1] - ln / 2), cen[0]]
 
-        # Fill out the 4 triangles
-        # top right
-        nu_tr = ln + 1
-        for i in range(0, ln + 1):
-            for j in range(0, nu_tr):
-                if surface[int(ed_tr[0] - i), int(ed_tr[1] + j)] == 1:
-                    return False
-            nu_tr -= 1
+            # Fill out the 4 triangles
+            # top right
+            eg = ln + 1
+            for i in range(0, ln + 1):
+                for j in range(0, eg):
+                    # top right
+                    point = self.nearestPoint(surface, [int(ed_tr[0] - i), int(ed_tr[1] + j), ed_tr[2]])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
+                    # top left
+                    point = self.nearestPoint(surface, [int(ed_tl[0] - i), int(ed_tl[1] - j), ed_tl[2]])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
+                    # bottom right
+                    point = self.nearestPoint(surface, [int(ed_br[0] + i), int(ed_br[1] + j), ed_br[2]])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
+                    # bottom left
+                    point = self.nearestPoint(surface, [int(ed_bl[0] + i), int(ed_bl[1] - j), ed_bl[2]])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
 
-        # top left
-        nu_tl = ln + 1
-        for i in range(0, ln + 1):
-            for j in range(0, nu_tl):
-                if surface[int(ed_tl[0] - i), int(ed_tl[1] - j)] == 1:
-                    return False
-            nu_tl -= 1
+                eg -= 1
 
-        # bottom right
-        nu_br = ln + 1
-        for i in range(0, ln + 1):
-            for j in range(0, nu_br):
-                if surface[int(ed_br[0] + i), int(ed_br[1] + j)] == 1:
-                    return False
-            nu_br -= 1
+            # Finally, fill out the remaining 4 squares
+            for i in range(1, ln + 1):
+                for j in range(1, ln + 1):
+                    # top square
+                    point = self.nearestPoint(surface, [int(ed_tl[0] - i), int(ed_tl[1] + j), ed_tl[2]])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
+                    # left square
+                    point = self.nearestPoint(surface, [int(ed_tl[0] + i), int(ed_tl[1] - j), ed_tl[2]])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
+                    # right square
+                    point = self.nearestPoint(surface, [int(ed_br[0] - i), int(ed_br[1] + j), ed_br[2]])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
+                    # bottom square
+                    point = self.nearestPoint(surface, [int(ed_br[0] + i), int(ed_br[1] - j), ed_br[2]])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
 
-        # bottom left triangle
-        nu_bl = ln + 1
-        for i in range(0, ln + 1):
-            for j in range(0, nu_bl):
-                if surface[int(ed_bl[0] + i), int(ed_bl[1] - j)] == 1:
-                    return False
-            nu_bl -= 1
+        # in x-z plane (keep y constant)
+        if startPoint[1] == 0 or startPoint[1] == surface.shape[1] - 1:
+            # Separate conditions between if the length is odd or even
+            # If the length is odd
+            if ln % 2 == 1:
+                # Initial square surrounding the center
+                n = int(ln / 2 + 0.5)
+                for i in range(n):
+                    for j in range(n):
+                        # 1st point
+                        point = self.nearestPoint(surface, [int(cen[2] + (0.5 + i)), cen[1], int(cen[0] - (0.5 + j))])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
+                        # 2nd point
+                        point = self.nearestPoint(surface, [int(cen[2] + (0.5 + i)), cen[1], int(cen[0] + (0.5 + j))])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
+                        # 3rd point
+                        point = self.nearestPoint(surface, [int(cen[2] - (0.5 + i)), cen[1], int(cen[0] + (0.5 + j))])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
+                        # 4th point
+                        point = self.nearestPoint(surface, [int(cen[2] - (0.5 + i)), cen[1], int(cen[0] - (0.5 + j))])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
 
-        # Finally, fill out the remaining 4 squares
-        # top square
-        for i in range(1, ln + 1):
-            for j in range(1, ln + 1):
-                if surface[int(ed_tl[0] - i), int(ed_tl[1] + j)] == 1:
-                    return False
+            # If the length is even
+            elif ln % 2 == 0:
+                # Initial square surrounding the center
+                n = int(ln / 2)
+                for i in range(n + 1):
+                    for j in range(n + 1):
+                        # 1st point
+                        point = self.nearestPoint(surface, [int(cen[2] + i), cen[1], int(cen[0] + j)])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
+                        # 2nd point
+                        point = self.nearestPoint(surface, [int(cen[2] + i), cen[1], int(cen[0] - j)])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
+                        # 3rd point
+                        point = self.nearestPoint(surface, [int(cen[2] - i), cen[1], int(cen[0] + j)])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
+                        # 4th point
+                        point = self.nearestPoint(surface, [int(cen[2] - i), cen[1], int(cen[0] - j)])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
 
-        # left square
-        for i in range(1, ln + 1):
-            for j in range(1, ln + 1):
-                if surface[int(ed_tl[0] + i), int(ed_tl[1] - j)] == 1:
-                    return False
+            # Index edges of the square
+            # top right edge
+            ed_tr = [int(cen[2] - ln / 2), cen[1], int(cen[0] + ln / 2)]
+            # top left edge
+            ed_tl = [int(cen[2] - ln / 2), cen[1], int(cen[0] - ln / 2)]
+            # bottom right edge
+            ed_br = [int(cen[2] + ln / 2), cen[1], int(cen[0] + ln / 2)]
+            # bottom left edge
+            ed_bl = [int(cen[2] + ln / 2), cen[1], int(cen[0] - ln / 2)]
 
-        # right square
-        for i in range(1, ln + 1):
-            for j in range(1, ln + 1):
-                if surface[int(ed_br[0] - i), int(ed_br[1] + j)] == 1:
-                    return False
+            # Fill out the 4 triangles
+            eg = ln + 1
+            for i in range(0, ln + 1):
+                for j in range(0, eg):
+                    # top right
+                    point = self.nearestPoint(surface, [int(ed_tr[0] - i), ed_tr[1], int(ed_tr[2] + j)])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
+                    # top left
+                    point = self.nearestPoint(surface, [int(ed_tl[0] - i), ed_tl[1], int(ed_tl[2] - j)])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
+                    # bottom right
+                    point = self.nearestPoint(surface, [int(ed_br[0] + i), ed_br[1], int(ed_br[2] + j)])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
+                    # bottom left
+                    point = self.nearestPoint(surface, [int(ed_bl[0] + i), ed_bl[1], int(ed_bl[2] - j)])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
 
-        # bottom square
-        for i in range(1, ln + 1):
-            for j in range(1, ln + 1):
-                if surface[int(ed_br[0] + i), int(ed_br[1] - j)] == 1:
-                    return False
+                eg -= 1
+
+            # Finally, fill out the remaining 4 squares
+            for i in range(1, ln + 1):
+                for j in range(1, ln + 1):
+                    # top square
+                    point = self.nearestPoint(surface, [int(ed_tl[0] - i), ed_tl[1], int(ed_tl[2] + j)])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
+                    # left square
+                    point = self.nearestPoint(surface, [int(ed_tl[0] + i), ed_tl[1], int(ed_tl[2] - j)])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
+                    # right square
+                    point = self.nearestPoint(surface, [int(ed_br[0] - i), ed_br[1], int(ed_br[2] + j)])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
+                    # bottom square
+                    point = self.nearestPoint(surface, [int(ed_br[0] + i), ed_br[1], int(ed_br[2] - j)])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
+
+        # in x-y plane (keep z constant)
+        if startPoint[2] == 0 or startPoint[2] == surface.shape[0] - 1:
+            # Separate conditions between if the length is odd or even
+            # If the length is odd
+            if ln % 2 == 1:
+                # Initial square surrounding the center
+                n = int(ln / 2 + 0.5)
+                for i in range(n):
+                    for j in range(n):
+                        # 1st point
+                        point = self.nearestPoint(surface, [cen[2], int(cen[1] + (0.5 + i)), int(cen[0] - (0.5 + j))])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
+                        # 2nd point
+                        point = self.nearestPoint(surface, [cen[2], int(cen[1] + (0.5 + i)), int(cen[0] + (0.5 + j))])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
+                        # 3rd point
+                        point = self.nearestPoint(surface, [cen[2], int(cen[1] - (0.5 + i)), int(cen[0] + (0.5 + j))])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
+                        # 4th point
+                        point = self.nearestPoint(surface, [cen[2], int(cen[1] - (0.5 + i)), int(cen[0] - (0.5 + j))])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
+
+            # If the length is even
+            elif ln % 2 == 0:
+                # Initial square surrounding the center
+                n = int(ln / 2)
+                for i in range(n + 1):
+                    for j in range(n + 1):
+                        # 1st point
+                        point = self.nearestPoint(surface, [cen[2], int(cen[1] + i), int(cen[0] + j)])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
+                        # 2nd point
+                        point = self.nearestPoint(surface, [cen[2], int(cen[1] + i), int(cen[0] - j)])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
+                        # 3rd point
+                        point = self.nearestPoint(surface, [cen[2], int(cen[1] - i), int(cen[0] + j)])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
+                        # 4th point
+                        point = self.nearestPoint(surface, [cen[2], int(cen[1] - i), int(cen[0] - j)])
+                        # if the point is on a domain charge, location is not empty and need to choose new starting point
+                        if surface[point[0], point[1], point[2]] == charge:
+                            return False
+
+            # Index edges of the square
+            # top right edge
+            ed_tr = [cen[2], int(cen[1] - ln / 2), int(cen[0] + ln / 2)]
+            # top left edge
+            ed_tl = [cen[2], int(cen[1] - ln / 2), int(cen[0] - ln / 2)]
+            # bottom right edge
+            ed_br = [cen[2], int(cen[1] + ln / 2), int(cen[0] + ln / 2)]
+            # bottom left edge
+            ed_bl = [cen[2], int(cen[1] + ln / 2), int(cen[0] - ln / 2)]
+
+            # Fill out the 4 triangles
+            eg = ln + 1
+            for i in range(0, ln + 1):
+                for j in range(0, eg):
+                    # top right
+                    point = self.nearestPoint(surface, [ed_tr[0], int(ed_tr[1] - i), int(ed_tr[2] + j)])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
+                    # top left
+                    point = self.nearestPoint(surface, [ed_tl[0], int(ed_tl[1] - i), int(ed_tl[2] - j)])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
+                    # bottom right
+                    point = self.nearestPoint(surface, [ed_br[0], int(ed_br[1] + i), int(ed_br[2] + j)])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
+                    # bottom left
+                    point = self.nearestPoint(surface, [ed_bl[0], int(ed_bl[1] + i), int(ed_bl[2] - j)])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
+
+                eg -= 1
+
+            # Finally, fill out the remaining 4 squares
+            for i in range(1, ln + 1):
+                for j in range(1, ln + 1):
+                    # top square
+                    point = self.nearestPoint(surface, [ed_tl[0], int(ed_tl[1] - i), int(ed_tl[2] + j)])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
+                    # left square
+                    point = self.nearestPoint(surface, [ed_tl[0], int(ed_tl[1] + i), int(ed_tl[2] - j)])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
+                    # right square
+                    point = self.nearestPoint(surface, [ed_br[0], int(ed_br[1] - i), int(ed_br[2] + j)])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
+                    # bottom square
+                    point = self.nearestPoint(surface, [ed_br[0], int(ed_br[1] + i), int(ed_br[2] - j)])
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    if surface[point[0], point[1], point[2]] == charge:
+                        return False
+
         return True
-    def _generateOctagon(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int]):
+    def _generateOctagon(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int, int],
+                         charge: int) -> ndarray:
         """
         This function generate octagon shape for surface
         """
-        # TODO:
-        # domainWidth and domainLength should be the same
-        if domainWidth != domainLength:
-            return 'domainWidth and domainLength should be the same'
-
-        # Rename variables
+        # Rename variables and change startPoint from tuple to list
         ln = domainWidth
-        cen = startPoint
-        # Find the center of the hexagon
+        cen = list(startPoint)
+        # Find the center of the octagon
         # If the length is an odd number, the center of the octagon should be located between 4 points (ie center point should end as .5)
-        if cen[0] % 2 == cen[1] % 2 and ln % 2 == 1:
-            if cen[0] % 2 == 1:
-                cen = [cen[0], cen[1]]
-            elif cen[0] % 2 == 0:
-                cen = [cen[0] - 0.5, cen[1] - 0.5]
-        elif cen[0] % 2 != cen[1] % 2 and ln % 2 == 1:
-            if cen[0] % 2 == 1:
-                cen = [cen[0], cen[1] - 0.5]
-            elif cen[1] % 2 == 1:
-                cen = [cen[0] - 0.5, cen[1]]
-                # If the length is an even number, the center of the octagon should be located on a point (ie center point should end as .0)
-        elif cen[0] % 2 == cen[1] % 2 and ln % 2 == 0:
-            if cen[0] % 2 == 1:
-                cen = [cen[0] - 0.5, cen[1] - 0.5]
-            elif cen[0] % 2 == 0:
-                cen = [cen[0], cen[1]]
-        elif cen[0] % 2 != cen[1] % 2 and ln % 2 == 0:
-            if cen[0] % 2 == 1:
-                cen = [cen[0] - 0.5, cen[1]]
-            elif cen[1] % 2 == 1:
-                cen = [cen[0], cen[1] - 0.5]
+        # for x
+        if cen[0] % 2 == 0 and ln % 2 == 1 and cen[0] != 0 and cen[0] != surface.shape[2] - 1:
+            cen[0] = cen[0] - 0.5
 
-        # Separate conditions between if the length is odd or even
-        # If the length is odd
-        if ln % 2 == 1:
-            # Initial square surrounding the center
-            n = int(ln / 2 + 0.5)
-            for i in range(n):
-                for j in range(n):
-                    surface[int(cen[0] + (0.5 + i)), int(cen[1] + (0.5 + j))] = 1
-                    surface[int(cen[0] + (0.5 + i)), int(cen[1] - (0.5 + j))] = 1
-                    surface[int(cen[0] - (0.5 + i)), int(cen[1] + (0.5 + j))] = 1
-                    surface[int(cen[0] - (0.5 + i)), int(cen[1] - (0.5 + j))] = 1
+        # for y
+        if cen[1] % 2 == 0 and ln % 2 == 1 and cen[1] != 0 and cen[1] != surface.shape[1] - 1:
+            cen[1] = cen[1] - 0.5
+
+        # for z
+        if cen[2] % 2 == 0 and ln % 2 == 1 and cen[2] != 0 and cen[2] != surface.shape[0] - 1:
+            cen[2] = cen[2] - 0.5
+
+        # in y-z plane (keep x constant)
+        if startPoint[0] == 0 or startPoint[0] == surface.shape[2] - 1:
+            # Separate conditions between if the length is odd or even
+            # If the length is odd
+            if ln % 2 == 1:
+                # Initial square surrounding the center
+                n = int(ln / 2 + 0.5)
+                for i in range(n):
+                    for j in range(n):
+                        # 1st point
+                        point = self.nearestPoint(surface, [int(cen[2] + (0.5 + i)), int(cen[1] - (0.5 + j)), cen[0]])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
+
+                        # 2nd point
+                        point = self.nearestPoint(surface, [int(cen[2] + (0.5 + i)), int(cen[1] + (0.5 + j)), cen[0]])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
+
+                        # 3rd point
+                        point = self.nearestPoint(surface, [int(cen[2] - (0.5 + i)), int(cen[1] + (0.5 + j)), cen[0]])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
+
+                        # 4th point
+                        point = self.nearestPoint(surface, [int(cen[2] - (0.5 + i)), int(cen[1] - (0.5 + j)), cen[0]])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
+
+
+            # If the length is even
+            elif ln % 2 == 0:
+                # Initial square surrounding the center
+                n = int(ln / 2)
+                for i in range(n + 1):
+                    for j in range(n + 1):
+                        # 1st points
+                        point = self.nearestPoint(surface, [int(cen[2] + i), int(cen[1] + j), cen[0]])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
+
+                        # 2nd points
+                        point = self.nearestPoint(surface, [int(cen[2] + i), int(cen[1] - j), cen[0]])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
+
+                        # 3rd points
+                        point = self.nearestPoint(surface, [int(cen[2] - i), int(cen[1] + j), cen[0]])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
+
+                        # 4th points
+                        point = self.nearestPoint(surface, [int(cen[2] - i), int(cen[1] - j), cen[0]])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
 
             # Index edges of the square
             # top right edge
-            ed_tr = [int(cen[0] - ln / 2), int(cen[1] + ln / 2)]
+            ed_tr = [int(cen[2] - ln / 2), int(cen[1] + ln / 2), cen[0]]
             # top left edge
-            ed_tl = [int(cen[0] - ln / 2), int(cen[1] - ln / 2)]
+            ed_tl = [int(cen[2] - ln / 2), int(cen[1] - ln / 2), cen[0]]
             # bottom right edge
-            ed_br = [int(cen[0] + ln / 2), int(cen[1] + ln / 2)]
+            ed_br = [int(cen[2] + ln / 2), int(cen[1] + ln / 2), cen[0]]
             # bottom left edge
-            ed_bl = [int(cen[0] + ln / 2), int(cen[1] - ln / 2)]
+            ed_bl = [int(cen[2] + ln / 2), int(cen[1] - ln / 2), cen[0]]
 
-        # If the length is even
-        elif ln % 2 == 0:
-            # Initial square surrounding the center
-            n = int(ln / 2)
-            for i in range(n + 1):
-                for j in range(n + 1):
-                    surface[int(cen[0] + i), int(cen[1] + j)] = 1
-                    surface[int(cen[0] + i), int(cen[1] - j)] = 1
-                    surface[int(cen[0] - i), int(cen[1] + j)] = 1
-                    surface[int(cen[0] - i), int(cen[1] - j)] = 1
+            # Fill out the 4 triangles
+            # top right
+            eg = ln + 1
+            for i in range(0, ln + 1):
+                for j in range(0, eg):
+                    # top right
+                    point = self.nearestPoint(surface, [int(ed_tr[0] - i), int(ed_tr[1] + j), ed_tr[2]])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
+
+                    # top left
+                    point = self.nearestPoint(surface, [int(ed_tl[0] - i), int(ed_tl[1] - j), ed_tl[2]])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
+
+                    # bottom right
+                    point = self.nearestPoint(surface, [int(ed_br[0] + i), int(ed_br[1] + j), ed_br[2]])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
+
+                    # bottom left
+                    point = self.nearestPoint(surface, [int(ed_bl[0] + i), int(ed_bl[1] - j), ed_bl[2]])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
+
+
+                eg -= 1
+
+            # Finally, fill out the remaining 4 squares
+            for i in range(1, ln + 1):
+                for j in range(1, ln + 1):
+                    # top square
+                    point = self.nearestPoint(surface, [int(ed_tl[0] - i), int(ed_tl[1] + j), ed_tl[2]])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
+
+                    # left square
+                    point = self.nearestPoint(surface, [int(ed_tl[0] + i), int(ed_tl[1] - j), ed_tl[2]])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
+
+                    # right square
+                    point = self.nearestPoint(surface, [int(ed_br[0] - i), int(ed_br[1] + j), ed_br[2]])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
+
+                    # bottom square
+                    point = self.nearestPoint(surface, [int(ed_br[0] + i), int(ed_br[1] - j), ed_br[2]])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
+
+        # in x-z plane (keep y constant)
+        if startPoint[1] == 0 or startPoint[1] == surface.shape[1] - 1:
+            # Separate conditions between if the length is odd or even
+            # If the length is odd
+            if ln % 2 == 1:
+                # Initial square surrounding the center
+                n = int(ln / 2 + 0.5)
+                for i in range(n):
+                    for j in range(n):
+                        # 1st point
+                        point = self.nearestPoint(surface, [int(cen[2] + (0.5 + i)), cen[1], int(cen[0] - (0.5 + j))])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
+
+                        # 2nd point
+                        point = self.nearestPoint(surface, [int(cen[2] + (0.5 + i)), cen[1], int(cen[0] + (0.5 + j))])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
+
+                        # 3rd point
+                        point = self.nearestPoint(surface, [int(cen[2] - (0.5 + i)), cen[1], int(cen[0] + (0.5 + j))])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
+
+                        # 4th point
+                        point = self.nearestPoint(surface, [int(cen[2] - (0.5 + i)), cen[1], int(cen[0] - (0.5 + j))])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
+
+            # If the length is even
+            elif ln % 2 == 0:
+                # Initial square surrounding the center
+                n = int(ln / 2)
+                for i in range(n + 1):
+                    for j in range(n + 1):
+                        # 1st point
+                        point = self.nearestPoint(surface, [int(cen[2] + i), cen[1], int(cen[0] + j)])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
+
+                        # 2nd point
+                        point = self.nearestPoint(surface, [int(cen[2] + i), cen[1], int(cen[0] - j)])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
+
+                        # 3rd point
+                        point = self.nearestPoint(surface, [int(cen[2] - i), cen[1], int(cen[0] + j)])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
+
+                        # 4th point
+                        point = self.nearestPoint(surface, [int(cen[2] - i), cen[1], int(cen[0] - j)])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
 
             # Index edges of the square
             # top right edge
-            ed_tr = [int(cen[0] - ln / 2), int(cen[1] + ln / 2)]
+            ed_tr = [int(cen[2] - ln / 2), cen[1], int(cen[0] + ln / 2)]
             # top left edge
-            ed_tl = [int(cen[0] - ln / 2), int(cen[1] - ln / 2)]
+            ed_tl = [int(cen[2] - ln / 2), cen[1], int(cen[0] - ln / 2)]
             # bottom right edge
-            ed_br = [int(cen[0] + ln / 2), int(cen[1] + ln / 2)]
+            ed_br = [int(cen[2] + ln / 2), cen[1], int(cen[0] + ln / 2)]
             # bottom left edge
-            ed_bl = [int(cen[0] + ln / 2), int(cen[1] - ln / 2)]
+            ed_bl = [int(cen[2] + ln / 2), cen[1], int(cen[0] - ln / 2)]
 
-        # Fill out the 4 triangles
-        # top right
-        nu_tr = ln + 1
-        for i in range(0, ln + 1):
-            for j in range(0, nu_tr):
-                surface[int(ed_tr[0] - i), int(ed_tr[1] + j)] = 1
-            nu_tr -= 1
+            # Fill out the 4 triangles
+            eg = ln + 1
+            for i in range(0, ln + 1):
+                for j in range(0, eg):
+                    # top right
+                    point = self.nearestPoint(surface, [int(ed_tr[0] - i), ed_tr[1], int(ed_tr[2] + j)])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
 
-        # top left
-        nu_tl = ln + 1
-        for i in range(0, ln + 1):
-            for j in range(0, nu_tl):
-                surface[int(ed_tl[0] - i), int(ed_tl[1] - j)] = 1
-            nu_tl -= 1
+                    # top left
+                    point = self.nearestPoint(surface, [int(ed_tl[0] - i), ed_tl[1], int(ed_tl[2] - j)])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
 
-        # bottom right
-        nu_br = ln + 1
-        for i in range(0, ln + 1):
-            for j in range(0, nu_br):
-                surface[int(ed_br[0] + i), int(ed_br[1] + j)] = 1
-            nu_br -= 1
+                    # bottom right
+                    point = self.nearestPoint(surface, [int(ed_br[0] + i), ed_br[1], int(ed_br[2] + j)])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
 
-        # bottom left triangle
-        nu_bl = ln + 1
-        for i in range(0, ln + 1):
-            for j in range(0, nu_bl):
-                surface[int(ed_bl[0] + i), int(ed_bl[1] - j)] = 1
-            nu_bl -= 1
+                    # bottom left
+                    point = self.nearestPoint(surface, [int(ed_bl[0] + i), ed_bl[1], int(ed_bl[2] - j)])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
 
-        # Finally, fill out the remaining 4 squares
-        # top square
-        for i in range(1, ln + 1):
-            for j in range(1, ln + 1):
-                surface[int(ed_tl[0] - i), int(ed_tl[1] + j)] = 1
+                eg -= 1
 
-        # left square
-        for i in range(1, ln + 1):
-            for j in range(1, ln + 1):
-                surface[int(ed_tl[0] + i), int(ed_tl[1] - j)] = 1
+            # Finally, fill out the remaining 4 squares
+            for i in range(1, ln + 1):
+                for j in range(1, ln + 1):
+                    # top square
+                    point = self.nearestPoint(surface, [int(ed_tl[0] - i), ed_tl[1], int(ed_tl[2] + j)])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
 
-        # right square
-        for i in range(1, ln + 1):
-            for j in range(1, ln + 1):
-                surface[int(ed_br[0] - i), int(ed_br[1] + j)] = 1
+                    # left square
+                    point = self.nearestPoint(surface, [int(ed_tl[0] + i), ed_tl[1], int(ed_tl[2] - j)])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
 
-        # bottom square
-        for i in range(1, ln + 1):
-            for j in range(1, ln + 1):
-                surface[int(ed_br[0] + i), int(ed_br[1] - j)] = 1
+                    # right square
+                    point = self.nearestPoint(surface, [int(ed_br[0] - i), ed_br[1], int(ed_br[2] + j)])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
+
+                    # bottom square
+                    point = self.nearestPoint(surface, [int(ed_br[0] + i), ed_br[1], int(ed_br[2] - j)])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
+
+        # in x-y plane (keep z constant)
+        if startPoint[2] == 0 or startPoint[2] == surface.shape[0] - 1:
+            # Separate conditions between if the length is odd or even
+            # If the length is odd
+            if ln % 2 == 1:
+                # Initial square surrounding the center
+                n = int(ln / 2 + 0.5)
+                for i in range(n):
+                    for j in range(n):
+                        # 1st point
+                        point = self.nearestPoint(surface, [cen[2], int(cen[1] + (0.5 + i)), int(cen[0] - (0.5 + j))])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
+
+                        # 2nd point
+                        point = self.nearestPoint(surface, [cen[2], int(cen[1] + (0.5 + i)), int(cen[0] + (0.5 + j))])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
+
+                        # 3rd point
+                        point = self.nearestPoint(surface, [cen[2], int(cen[1] - (0.5 + i)), int(cen[0] + (0.5 + j))])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
+
+                        # 4th point
+                        point = self.nearestPoint(surface, [cen[2], int(cen[1] - (0.5 + i)), int(cen[0] - (0.5 + j))])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
+
+            # If the length is even
+            elif ln % 2 == 0:
+                # Initial square surrounding the center
+                n = int(ln / 2)
+                for i in range(n + 1):
+                    for j in range(n + 1):
+                        # 1st point
+                        point = self.nearestPoint(surface, [cen[2], int(cen[1] + i), int(cen[0] + j)])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
+
+                        # 2nd point
+                        point = self.nearestPoint(surface, [cen[2], int(cen[1] + i), int(cen[0] - j)])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
+
+                        # 3rd point
+                        point = self.nearestPoint(surface, [cen[2], int(cen[1] - i), int(cen[0] + j)])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
+
+                        # 4th point
+                        point = self.nearestPoint(surface, [cen[2], int(cen[1] - i), int(cen[0] - j)])
+                        # generate charge on the domain
+                        surface[point[0], point[1], point[2]] = charge
+
+            # Index edges of the square
+            # top right edge
+            ed_tr = [cen[2], int(cen[1] - ln / 2), int(cen[0] + ln / 2)]
+            # top left edge
+            ed_tl = [cen[2], int(cen[1] - ln / 2), int(cen[0] - ln / 2)]
+            # bottom right edge
+            ed_br = [cen[2], int(cen[1] + ln / 2), int(cen[0] + ln / 2)]
+            # bottom left edge
+            ed_bl = [cen[2], int(cen[1] + ln / 2), int(cen[0] - ln / 2)]
+
+            # Fill out the 4 triangles
+            eg = ln + 1
+            for i in range(0, ln + 1):
+                for j in range(0, eg):
+                    # top right
+                    point = self.nearestPoint(surface, [ed_tr[0], int(ed_tr[1] - i), int(ed_tr[2] + j)])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
+
+                    # top left
+                    point = self.nearestPoint(surface, [ed_tl[0], int(ed_tl[1] - i), int(ed_tl[2] - j)])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
+
+                    # bottom right
+                    point = self.nearestPoint(surface, [ed_br[0], int(ed_br[1] + i), int(ed_br[2] + j)])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
+
+                    # bottom left
+                    point = self.nearestPoint(surface, [ed_bl[0], int(ed_bl[1] + i), int(ed_bl[2] - j)])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
+
+                eg -= 1
+
+            # Finally, fill out the remaining 4 squares
+            for i in range(1, ln + 1):
+                for j in range(1, ln + 1):
+                    # top square
+                    point = self.nearestPoint(surface, [ed_tl[0], int(ed_tl[1] - i), int(ed_tl[2] + j)])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
+
+                    # left square
+                    point = self.nearestPoint(surface, [ed_tl[0], int(ed_tl[1] + i), int(ed_tl[2] - j)])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
+
+                    # right square
+                    point = self.nearestPoint(surface, [ed_br[0], int(ed_br[1] - i), int(ed_br[2] + j)])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
+
+                    # bottom square
+                    point = self.nearestPoint(surface, [ed_br[0], int(ed_br[1] + i), int(ed_br[2] - j)])
+                    # generate charge on the domain
+                    surface[point[0], point[1], point[2]] = charge
+
         return surface
 
-    def _singleEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
+    def _singleEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int, int],
+                     charge: int) -> bool:
         """
         This function check the position want to generate single is empty
         """
-        if surface[int(startPoint[0]),int(startPoint[1])] == 1:
+        # locate the closest valid point
+        point = self.nearestPoint(surface, [startPoint[2], startPoint[1], startPoint[0]])
+        # if the point is on a domain charge, location is not empty and need to choose new starting point
+        if surface[point[0], point[1], point[2]] == charge:
             return False
 
         return True
 
-    def _generateSingle(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: int):
+    def _generateSingle(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int, int],
+                        charge: int) -> ndarray:
         """
         This function generate single shape for surface
         """
-        surface[int(startPoint[0]),int(startPoint[1])] = 1
+        # locate the closest valid point
+        point = self.nearestPoint(surface, [startPoint[2], startPoint[1], startPoint[0]])
+        # generate charge on the domain
+        surface[point[0], point[1], point[2]] = charge
+
         return surface
