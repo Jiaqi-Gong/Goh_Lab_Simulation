@@ -40,7 +40,7 @@ class DynamicSimulator(Simulator):
         # based on type, set parameter
         if parameters["probabilityType"].upper() == "POISSON":
             self.Lambda = None
-        elif self.probabilityType.upper() == "BOLTZMANN":
+        elif parameters["probabilityType"].upper() == "BOLTZMANN":
             self.temperature = None
             self.energy = None
 
@@ -61,25 +61,27 @@ class DynamicSimulator(Simulator):
         This function do the simulation
         Implement in the super class abstract method
         """
-        raise NotImplementedError
 
-        """
-        1. Call initposition function in bact movement give all bacteria an init position
-        2. Do a loop, in each loop, call stickOrNot and give new position unti the end of timeStep
-        3. If bacteria is stick, change it from free list to stick list
-        4. At the end, give the length of free and length of stick
-        """
+        raise NotImplementedError
 
         # set some variable, will replaced by user input
         z_restriction = 4
         self.bacteriaMovementSeed = 10
         bacteriaShape = self.bacteriaManager.bacteriaSurfaceShape
-        film3D = self.filmManager.film
-        bacteria3D = self.bacteriaManager.bacteria
 
         # create bacteria movement generator
+        # film and bacteria should be 3D and all film and bacteria should be same, only diff is domain distribution
+        film = self.filmManager.film[0]
+        bacteria = self.bacteriaManager.bacteria[0]
+
+        # check film and bacteria type
+        if film.dimension != 3 or bacteria.dimension != 3:
+            raise RuntimeError("The film and bacteria dimension should be 3D for dynamic simulation")
+
+        filmSize = (film.length, film.width, film.height)
+        bacteriaSize = (bacteria.length, bacteria.width, bacteria.height)
         bactMoveGenerator = BacteriaMovementGenerator(z_restriction, self.bacteriaMovementSeed, bacteriaShape,
-                                                      film3D, bacteria3D)
+                                                      filmSize, bacteriaSize)
 
         # init position for every bacteria
         for bacteria in self.bacteriaManager.bacteria:
@@ -93,7 +95,7 @@ class DynamicSimulator(Simulator):
                 end = True
 
             # do the simulate
-            self._simulate()
+            self._simulate(bactMoveGenerator)
             result = [len(self.bacteriaManager.freeBacteria), len(self.bacteriaManager.stuckBacteria)]
 
             # update the output based on the dump step
@@ -204,8 +206,39 @@ class DynamicSimulator(Simulator):
         # call function in ExternalIO to save workbook
         saveResult(wb, file_path)
 
-    def _simulate(self):
+    def _simulate(self, bactMoveGenerator: BacteriaMovementGenerator) -> None:
         """
         This function do the simulate
         """
-        raise NotImplementedError
+        """
+        1. Call initposition function in bact movement give all bacteria an init position
+        2. Do a loop, in each loop, call stickOrNot and give new position unti the end of timeStep
+        3. If bacteria is stick, change it from free list to stick list
+        4. At the end, give the length of free and length of stick
+        """
+        # raise NotImplementedError
+
+        writeLog("Start simulation in dynamic simulator")
+
+        # if no free bacteria, do nothing
+        if len(self.bacteriaManager.freeBacteria) == 0:
+            return None
+
+        # if probability type is Boltzmann, need to update self.temperature and self.energy
+        # how to implement it wait until next meeting
+
+        # loop all free bacteria
+        for bact in self.bacteriaManager.freeBacteria:
+            # get next position
+            bactNextPos = bactMoveGenerator.nextPosition(self.probabilityType, bact.position, self.Lambda,
+                                                         self.temperature, self.energy)
+
+            # based on next position, move the bacteria
+            if not bactNextPos:
+                # bacteria is stuck, move from free list to stuck list
+                self.bacteriaManager.freeBacteria.remove(bact)
+                self.bacteriaManager.stuckBacteria.append(bact)
+            else:
+                # bacteria is not stuck, update the position
+                bact.position = bactNextPos
+
