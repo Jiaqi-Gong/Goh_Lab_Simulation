@@ -8,8 +8,9 @@ from openpyxl import Workbook
 from openpyxl.worksheet._write_only import WriteOnlyWorksheet
 from openpyxl.worksheet.worksheet import Worksheet
 
-from ExternalIO import writeLog, showMessage
+from ExternalIO import writeLog, showMessage, saveResult
 from SimulatorFile.Simulator import Simulator
+from BacteriaFile.BacteriaMovement import BacteriaMovementGenerator
 
 
 class DynamicSimulator(Simulator):
@@ -29,7 +30,9 @@ class DynamicSimulator(Simulator):
         """
         # set some variable
         self.probabilityType = None
-        self.timestep = None
+        self.timeStep = None
+        self.bacteriaMovementSeed = None
+        self.dumpStep = None
 
         # simulation type is not applicable for dynamic simulator
         simulationType = -1
@@ -37,6 +40,9 @@ class DynamicSimulator(Simulator):
         # based on type, set parameter
         if parameters["probabilityType"].upper() == "POISSON":
             self.Lambda = None
+        elif self.probabilityType.upper() == "BOLTZMANN":
+            self.temperature = None
+            self.energy = None
 
         # call parent to generate simulator
         simulatorType = 2
@@ -56,6 +62,50 @@ class DynamicSimulator(Simulator):
         Implement in the super class abstract method
         """
         raise NotImplementedError
+
+        """
+        1. Call initposition function in bact movement give all bacteria an init position
+        2. Do a loop, in each loop, call stickOrNot and give new position unti the end of timeStep
+        3. If bacteria is stick, change it from free list to stick list
+        4. At the end, give the length of free and length of stick
+        """
+
+        # set some variable, will replaced by user input
+        z_restriction = 4
+        self.bacteriaMovementSeed = 10
+        bacteriaShape = self.bacteriaManager.bacteriaSurfaceShape
+        film3D = self.filmManager.film
+        bacteria3D = self.bacteriaManager.bacteria
+
+        # create bacteria movement generator
+        bactMoveGenerator = BacteriaMovementGenerator(z_restriction, self.bacteriaMovementSeed, bacteriaShape,
+                                                      film3D, bacteria3D)
+
+        # init position for every bacteria
+        for bacteria in self.bacteriaManager.bacteria:
+            bacteria.position = bactMoveGenerator.initPosition()
+
+        # do the simulation
+        end = False
+        for currIter in range(self.timeStep):
+            # check the end of timeStep
+            if currIter == self.timeStep - 1:
+                end = True
+
+            # do the simulate
+            self._simulate()
+            result = [len(self.bacteriaManager.freeBacteria), len(self.bacteriaManager.stuckBacteria)]
+
+            # update the output based on the dump step
+            if currIter % self.dumpStep == 0:
+                self._output(result, currIter, end)
+
+        # save the last simulate, if it is not saved in the loop
+        if (self.timeStep - 1) % self.dumpStep != 0:
+            self._output(result, currIter, end)
+
+        showMessage("Simulation done")
+
 
     def _initOutput(self) -> Tuple[Workbook, Union[WriteOnlyWorksheet, Worksheet]]:
         """
@@ -78,26 +128,27 @@ class DynamicSimulator(Simulator):
         ws1.cell(1, 5, "Film Seed # ")
         ws1.cell(1, 6, "Start Bacteria Seed # ")
         ws1.cell(1, 7, "Total bacteria number")
-        ws1.cell(1, 8, "Time used (s)")
-        ws1.cell(1, 9, "Time step")
+        ws1.cell(1, 8, "Bacteria Movement generator seed")
+        ws1.cell(1, 9, "Time used (s)")
         ws1.cell(1, 10, "Probability type")
-        ws1.cell(1, 11, "Free bacteria number")
-        ws1.cell(1, 12, "Stick bacteria number")
+        ws1.cell(1, 11, "Time step")
+        ws1.cell(1, 12, "Free bacteria number")
+        ws1.cell(1, 13, "Stuck bacteria number")
 
         if self.probabilityType.upper() == "POISSON":
-            ws1.cell(1, 13, "Lambda value")
+            ws1.cell(1, 14, "Lambda value")
         elif self.probabilityType.upper() == "BOLTZMANN":
-            ws1.cell(1, 13, "Temperature")
-            ws1.cell(1, 14, "Energy")
+            ws1.cell(1, 14, "Temperature")
+            ws1.cell(1, 15, "Energy")
 
         return (wb, ws1)
 
-    def _output(self, result: Tuple, currIter: int, end: bool) -> None:
+    def _output(self, result: List[int], currIter: int, end: bool) -> None:
         """
         This function generate the info need to output
         Implement in the super class abstract method
         """
-        writeLog("This is _output in Simulation")
+        writeLog("This is _output in dynamic simulator")
         showMessage("Start to write result into out put")
         writeLog("self is: {}, result is: {}, currIter is: {}, end is: {}".format(
             self.__dict__, result, currIter, end))
@@ -114,7 +165,7 @@ class DynamicSimulator(Simulator):
         row_pos = 2 + currIter
 
         # get the result
-
+        freeBactNum, stuckBactNum = result
 
         # write the result
         ws1.cell(row_pos, 1, str(self.filmManager.filmSurfaceShape) + " : " + str(self.filmManager.filmSurfaceSize))
@@ -126,10 +177,35 @@ class DynamicSimulator(Simulator):
         ws1.cell(row_pos, 5, self.filmManager.film[0].seed)
         ws1.cell(row_pos, 6, self.bacteriaManager.bacteria[0].seed)
         ws1.cell(row_pos, 7, self.bacteriaNum)
-        ws1.cell(row_pos, 8, time_consume)
+        ws1.cell(row_pos, 8, self.bacteriaMovementSeed)
+        ws1.cell(row_pos, 9, time_consume)
+        ws1.cell(row_pos, 10, self.probabilityType)
+        ws1.cell(row_pos, 11, currIter)
+        ws1.cell(row_pos, 12, freeBactNum)
+        ws1.cell(row_pos, 13, stuckBactNum)
 
+        if self.probabilityType.upper() == "POISSON":
+            ws1.cell(1, 14, self.Lambda)
+        elif self.probabilityType.upper() == "BOLTZMANN":
+            ws1.cell(1, 14, self.temperature)
+            ws1.cell(1, 15, self.energy)
 
         # if this is not the last iterator, update the time and return this
         if not end:
             self.startTime = datetime.now()
             return None
+
+        # save the excel file into folder result
+        name = "Type_{}_trail_{}-{}-{}.xlsx".format(str(self.simulationType), self.trail,
+                                                    datetime.now().strftime("%m_%d"),
+                                                    datetime.now().strftime("%H-%M-%S"))
+        file_path = "Result/" + name
+
+        # call function in ExternalIO to save workbook
+        saveResult(wb, file_path)
+
+    def _simulate(self):
+        """
+        This function do the simulate
+        """
+        raise NotImplementedError

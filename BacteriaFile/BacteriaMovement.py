@@ -2,15 +2,12 @@
 This file contains several function to generate next move of bacteria
 """
 from typing import Tuple, Union
-from FilmFile.Film import FilmSurface3D
-from BacteriaFile.Bacteria import Bacteria3D
 
 import numpy as np
 import math
 from fractions import Fraction
 
 
-# separate the bacteria movement for when the bacteria is 2D and when bacteria is 3D
 # define an abstract class which will be used for the 2D and 3D bacteria class to inherit
 class BacteriaMovementGenerator:
     """
@@ -20,16 +17,19 @@ class BacteriaMovementGenerator:
     z_restriction: int
     seed: int
     shape: str
-    film3D: FilmSurface3D
-    bacteria3D: Bacteria3D
+    filmSize: Tuple[int, int, int]
+    bacteriaSize: Tuple[int, int, int]
 
-    def __init__(self, z_restriction: int, seed: int, shape: str, film3D: FilmSurface3D,
-                 bacteria3D: Bacteria3D):
+    def __init__(self, z_restriction: int, seed: int, bacteriaShape: str, filmSize: Tuple[int, int, int],
+                 bacteriaSize: Tuple[int, int, int]):
+        """
+        The size of film and bacteria pass in is in format [length, width, height]
+        """
         self.z_restriction = z_restriction
         self.seed = seed
-        self.shape = shape
-        self.film3D = film3D
-        self.bacteria3D = bacteria3D
+        self.bacteriaShape = bacteriaShape
+        self.filmSize = filmSize
+        self.bacteriaSize = bacteriaSize
 
     def _poisson(self, Lambda: float) -> bool:
         """
@@ -70,7 +70,7 @@ class BacteriaMovementGenerator:
 
         raise NotImplementedError
 
-    def ratioConstant(self, *args) -> int:
+    def _ratioConstant(self, *args) -> int:
         """
         This function takes in ratios and outputs a common multiplier which adds up the ratio to one
         Used for _nextPosition function
@@ -91,16 +91,16 @@ class BacteriaMovementGenerator:
         # however, need to set restrictions on where the bacteria will be placed since bacteria can't go off the surface
         # for 3D bacteria
 
-        if self.shape.upper() in ["CUBOID", "SPHERE", "CYLINDER", "ROD"]:
+        if self.bacteriaShape.upper() in ["CUBOID", "SPHERE", "CYLINDER", "ROD"]:
             # set upperbound and lowerbound possibilities for the position of x,y,z
-            x_possibility = range(int(0 + self.bacteria3D.length / 2),
-                                  int(self.film3D.length - self.bacteria3D.length / 2))
-            y_possibility = range(int(0 + self.bacteria3D.width / 2),
-                                  int(self.film3D.width - self.bacteria3D.width / 2))
-            z_possibility = range(int(0 + self.bacteria3D.height / 2),
-                                  int(self.z_restriction - self.bacteria3D.height / 2))
+            x_possibility = range(int(0 + self.bacteriaSize[0] / 2),
+                                  int(self.filmSize[0] - self.bacteriaSize[0] / 2))
+            y_possibility = range(int(0 + self.bacteriaSize[1] / 2),
+                                  int(self.filmSize[1] - self.bacteriaSize[1] / 2))
+            z_possibility = range(int(0 + self.bacteriaSize[2] / 2),
+                                  int(self.z_restriction - self.bacteriaSize[2] / 2))
         else:
-            raise RuntimeError("Unknown shape")
+            raise RuntimeError("Unknown bacteria shape")
 
         # choose a random coordinate for the bacteria to start its position in
         x = np.random.choice(x_possibility, 1, replace=False)
@@ -149,9 +149,9 @@ class BacteriaMovementGenerator:
         p_b = 0.25
 
         # set up multipliers for the probability to add up to 1
-        r_t = self.ratioConstant(p_f, p_s, p_b)
-        r_fs = self.ratioConstant(p_f, p_s)
-        r_sb = self.ratioConstant(p_s, p_b)
+        r_t = self._ratioConstant(p_f, p_s, p_b)
+        r_fs = self._ratioConstant(p_f, p_s)
+        r_sb = self._ratioConstant(p_s, p_b)
 
         while True:
             # probability
@@ -164,31 +164,31 @@ class BacteriaMovementGenerator:
 
             # set restrictions (ie. position can't be off the film)
             # x direction
-            if position[0] == 0 + self.bacteria3D.length / 2:
+            if position[0] == 0 + self.bacteriaSize[0] / 2:
                 # probability
                 prob = r_fs * np.array([p_s, p_f])
                 x_movement = int(np.random.choice([0, 1], 1, p=prob, replace=False))
-            elif position[0] == self.film3D.length - self.bacteria3D.length / 2:
+            elif position[0] == self.filmSize[0] - self.bacteriaSize[0] / 2:
                 # probability
                 prob = r_sb * np.array([p_b, p_s])
                 x_movement = int(np.random.choice([-1, 0], 1, p=prob, replace=False))
 
             # y direction
-            if position[1] == 0 + self.bacteria3D.width / 2:
+            if position[1] == 0 + self.bacteriaSize[1] / 2:
                 # probability
                 prob = r_fs * np.array([p_s, p_f])
                 y_movement = int(np.random.choice([0, 1], 1, p=prob, replace=False))
-            elif position[1] == self.film3D.width - self.bacteria3D.width / 2:
+            elif position[1] == self.filmSize[1] - self.bacteriaSize[1] / 2:
                 # probability
                 prob = r_sb * np.array([p_b, p_s])
                 y_movement = int(np.random.choice([-1, 0], 1, p=prob, replace=False))
 
             # z direction
-            if position[2] == 0 + self.bacteria3D.height / 2:
+            if position[2] == 0 + self.bacteriaSize[2] / 2:
                 # probability
                 prob = r_fs * np.array([p_s, p_f])
                 z_movement = int(np.random.choice([0, 1], 1, p=prob, replace=False))
-            elif position[2] == self.z_restriction - self.bacteria3D.height / 2:  # the restriction for how far off
+            elif position[2] == self.z_restriction - self.bacteriaSize[2] / 2:  # the restriction for how far off
                 # the bacteria can be from the surface is arbitrary and can be changed
                 # probability
                 prob = r_sb * np.array([p_b, p_s])

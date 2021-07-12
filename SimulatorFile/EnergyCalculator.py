@@ -2,11 +2,12 @@
 This file contains method to calculate the energy of the surface
 """
 
-COULOMB_CONSTANT = 8.99
 
 from typing import Tuple, List, Union
 from numpy import ndarray
 from ExternalIO import *
+
+COULOMB_CONSTANT = 8.99
 
 
 def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray, currIter: int,
@@ -86,7 +87,7 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
             if interactType.upper() == "DOT":
                 # calculate energy, uses electrostatic energy formula, assuming that r = 1
                 # WARNING: r should be change based on the height difference between film and bacteria in future
-                writeLog(["This is surface and film uses to calcualte energy", film_1D, bacteria_1D])
+                writeLog(["This is surface and film uses to calculate energy", film_1D, bacteria_1D])
                 writeLog("WARNING: r should be change based on the height difference between film and bacteria in "
                          "future")
                 energy = np.dot(film_1D, bacteria_1D)
@@ -126,17 +127,30 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
                 film_use, film_1D, energy, unique, counts))
 
             # check the calculation result and change corresponding value
-            if len(unique) == 1:
-                if unique[0] == -1:
-                    charge = -counts[0]
+            charge = 0
+            for i in range(len(unique)):
+                if unique[i] == -1:
+                    charge -= counts[i]
+                elif unique[i] == 1:
+                    charge += counts[i]
                 else:
-                    charge = counts[0]
-            elif unique[0] == -1:
-                charge = -counts[0] + counts[1]
-            elif unique[0] == 1:
-                charge = counts[0] - counts[1]
-            else:
-                raise RuntimeError("Variable 'charge' in _interact2D not init, caused by the error in unique")
+                    charge += 0
+
+            # below is the way of calculating charge in the old code, however for now we have 0 on the surface while
+            # in the old code only -1 nad 1 on the surface
+            # if len(unique) == 1:
+            #     if unique[0] == -1:
+            #         charge = -counts[0]
+            #     else:
+            #         charge = counts[0]
+            # elif unique[0] == -1:
+            #     charge = -counts[0] + counts[1]
+            # elif unique[0] == 1:
+            #     charge = counts[0] - counts[1]
+            # else:
+            #     showMessage("This is an error, parameter unique is not -1 or 1, it is: {}".format(unique))
+            #     writeLog(__dict__)
+            #     raise RuntimeError("Variable 'charge' in _interact2D not init, caused by the error in unique")
 
             if charge < min_charge:
                 min_charge = charge
@@ -154,7 +168,7 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     result = (min_energy, min_x, min_y, min_energy_charge, min_charge, min_charge_x, min_charge_y)
 
     # for debug, delete later
-    print(all_energy)
+    # print(all_energy)
 
     showMessage("Interact done")
     writeLog(result)
@@ -188,6 +202,7 @@ def _ndarrayToTuple(arrayList: ndarray, dimension: int, isFilm: bool = False, is
 
     return tupleList
 
+
 def _ndarrayToTuple2D(arrayList: ndarray, isFilm: bool, isBacteria: bool) -> \
         List[List[List[Tuple[int, int, int, int]]]]:
     """
@@ -217,6 +232,7 @@ def _ndarrayToTuple2D(arrayList: ndarray, isFilm: bool, isBacteria: bool) -> \
 
     return tupleList
 
+
 def _ndarrayToTuple3D(arrayList: ndarray) -> List[List[List[Tuple[int, int, int, int]]]]:
     """
     This is a helper function to rephrase 3D ndarray into tuple format
@@ -238,8 +254,8 @@ def _ndarrayToTuple3D(arrayList: ndarray) -> List[List[List[Tuple[int, int, int,
     return tupleList
 
 
-def _twoPointEnergy(film:  List[List[List[Tuple[int, int, int, int]]]],
-                    bacteria:  List[List[List[Tuple[int, int, int, int]]]],
+def _twoPointEnergy(film: List[List[List[Tuple[int, int, int, int]]]],
+                    bacteria: List[List[List[Tuple[int, int, int, int]]]],
                     cutoff: int) -> float:
     """
     This function takes in two point list in tuple format and calculate the energy between every tep points based
@@ -292,5 +308,3 @@ def _twoPointEnergy(film:  List[List[List[Tuple[int, int, int, int]]]],
                         total_energy += energy
 
     return total_energy
-
-

@@ -21,30 +21,30 @@ def runSimulation():
     trail = 1
     dimension = 2
     filmSeed = 1
-    filmSurfaceSize = (10, 10)
+    filmSurfaceSize = (105, 105)
     filmSurfaceShape = "rectangle"
     filmNum = 1
     bacteriaNum = 5
     interval_x = 50
     interval_y = 50
     filmSurfaceCharge = 0
-    filmDomainSize = (1, 1)
+    filmDomainSize = (4, 4)
     filmDomainShape = "diamond"
-    filmDomainCon = 0.5
+    filmDomainCon = 0.2
     filmDomainChargeConcentration = 0.5
     bacteriaSeed = 10
-    bacteriaSize = (5, 5)
+    bacteriaSize = (15, 15)
     bacteriaSurfaceShape = "rectangle"
     bacteriaSurfaceCharge = 0
-    bacteriaDomainSize = (1, 1)
+    bacteriaDomainSize = (7, 7)
     bacteriaDomainShape = "diamond"
     bacteriaDomainCon = 0.5
     bacteriaDomainChargeConcentration = 0.5
 
     ### below is new variable
     simulatorType = 1
-    # interactType = "DOT"
-    interactType = "CUTOFF"
+    interactType = "DOT"
+    # interactType = "CUTOFF"
 
 
     # below are for dynamic simulation, we are not using for now
@@ -61,7 +61,7 @@ def runSimulation():
     elif simulatorType == 2:
         simulator = DynamicSimulator
         # taking info for dynamic simulation
-        parameter = {"probabilityType": probabilityType, "timestep": timestep}
+        parameter = {"probabilityType": probabilityType, "timestep": timestep, "dumpStep": 1}
 
         if probabilityType.upper() == "POISSON":
             parameter["Lambda"] = Lambda
