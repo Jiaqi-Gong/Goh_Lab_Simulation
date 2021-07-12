@@ -80,7 +80,7 @@ class DomainGenerator:
 
         # make it either positive or negative
         # This can be later changed to allow user to input if they want a positive or negative surface charge
-        surfaceCharge = np.random.choice([-1,1], 1, replace=False)[0]
+        surfaceCharge = surface.surfaceCharge
 
         # the surfaceCharge and charge of domain should be the opposite
         # This can be later changed to allow users to input if they want a positive or negative domain charge
