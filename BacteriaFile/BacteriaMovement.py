@@ -31,7 +31,20 @@ class BacteriaMovementGenerator:
         self.filmSize = filmSize
         self.bacteriaSize = bacteriaSize
 
+    # try with number 0.1 ... first then poisson
+
+    def _simple(self, probability: float) -> bool:
+        # check does probability set
+        if probability is None:
+            raise RuntimeError("Probability is not given")
+
+        stick = np.random.choice([True, False], 1, p=[probability, 1 - probability])
+
+        return stick
+
+
     def _poisson(self, Lambda: float) -> bool:
+        # Consider change to binomial
         """
         This function uses Poisson distribution to decide stuck or not
         return True for stuck
@@ -60,6 +73,7 @@ class BacteriaMovementGenerator:
         This function uses Boltzmann distribution to decide stuck or not
         return True for stuck
         """
+        # energy
 
         # Look at the boltzmann distribution first and decide how to relate it to the probability of bacteria stuck
         # or not
@@ -110,7 +124,8 @@ class BacteriaMovementGenerator:
         return (x, y, z)
 
     def nextPosition(self, probabilityType: str, position: Tuple[int, int, int], Lambda: float = None,
-                     temperature: float = None, energy: float = None) -> Union[bool, Tuple[int, int, int]]:
+                     temperature: float = None, energy: float = None, probability: float = None) \
+                    -> Union[bool, Tuple[int, int, int]]:
         """
         This function take in probability type, position
         return False if this bacteria is stuck
@@ -118,7 +133,9 @@ class BacteriaMovementGenerator:
         """
 
         # call appropriate probability function to decide stuck or not
-        if probabilityType == "POISSON":
+        if probabilityType == "SIMPLE":
+            result = self._simple(probability)
+        elif probabilityType == "POISSON":
             result = self._poisson(Lambda)
         elif probabilityType == "BOLTZMANN":
             result = self._boltzmann(temperature, energy)

@@ -42,15 +42,17 @@ def runSimulation():
     bacteriaDomainChargeConcentration = 0.5
 
     ### below is new variable
-    simulatorType = 1
+    simulatorType = 2
     interactType = "DOT"
     # interactType = "CUTOFF"
 
 
     # below are for dynamic simulation, we are not using for now
-    probabilityType = "POISSON"
-    timestep = 1000
+    probabilityType = "SIMPLE"
+    timestep = 10
     Lambda = 10
+    simple = 0.1
+    bacteriaMovementSeed = 10
 
     # take info for simulator
     if simulatorType == 1:
@@ -61,9 +63,12 @@ def runSimulation():
     elif simulatorType == 2:
         simulator = DynamicSimulator
         # taking info for dynamic simulation
-        parameter = {"probabilityType": probabilityType, "timestep": timestep, "dumpStep": 1}
+        parameter = {"probabilityType": probabilityType, "timeStep": timestep, "dumpStep": 1,
+                     "bacteriaMovementSeed" : bacteriaMovementSeed}
 
-        if probabilityType.upper() == "POISSON":
+        if probabilityType.upper() == "SIMPLE":
+            parameter["probability"] = simple
+        elif probabilityType.upper() == "POISSON":
             parameter["Lambda"] = Lambda
     else:
         raise RuntimeError("Unknown simulator type")

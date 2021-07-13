@@ -38,7 +38,9 @@ class DynamicSimulator(Simulator):
         simulationType = -1
 
         # based on type, set parameter
-        if parameters["probabilityType"].upper() == "POISSON":
+        if parameters["probabilityType"].upper() == "SIMPLE":
+            self.probability = None
+        elif parameters["probabilityType"].upper() == "POISSON":
             self.Lambda = None
         elif parameters["probabilityType"].upper() == "BOLTZMANN":
             self.temperature = None
@@ -62,11 +64,10 @@ class DynamicSimulator(Simulator):
         Implement in the super class abstract method
         """
 
-        raise NotImplementedError
+        # raise NotImplementedError
 
         # set some variable, will replaced by user input
         z_restriction = 4
-        self.bacteriaMovementSeed = 10
         bacteriaShape = self.bacteriaManager.bacteriaSurfaceShape
 
         # create bacteria movement generator
@@ -137,7 +138,9 @@ class DynamicSimulator(Simulator):
         ws1.cell(1, 12, "Free bacteria number")
         ws1.cell(1, 13, "Stuck bacteria number")
 
-        if self.probabilityType.upper() == "POISSON":
+        if self.probabilityType.upper() == "SIMPLE":
+            ws1.cell(1, 14, "Probability")
+        elif self.probabilityType.upper() == "POISSON":
             ws1.cell(1, 14, "Lambda value")
         elif self.probabilityType.upper() == "BOLTZMANN":
             ws1.cell(1, 14, "Temperature")
@@ -186,7 +189,9 @@ class DynamicSimulator(Simulator):
         ws1.cell(row_pos, 12, freeBactNum)
         ws1.cell(row_pos, 13, stuckBactNum)
 
-        if self.probabilityType.upper() == "POISSON":
+        if self.probabilityType.upper() == "SIMPLE":
+            ws1.cell(1, 14, self.probability)
+        elif self.probabilityType.upper() == "POISSON":
             ws1.cell(1, 14, self.Lambda)
         elif self.probabilityType.upper() == "BOLTZMANN":
             ws1.cell(1, 14, self.temperature)
