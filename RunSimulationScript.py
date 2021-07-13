@@ -19,7 +19,7 @@ def runSimulation():
 
     simulationType = 1
     trail = 1
-    dimension = 2
+    dimension = 3
     filmSeed = 1
     filmSurfaceSize = (10, 10)
     filmSurfaceShape = "rectangle"
