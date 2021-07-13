@@ -3,7 +3,7 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=1024M
 
-#SBATCH --mail-user=jiaqi.gong@mail.utoronto.ca
+#SBATCH --mail-user=rei.katsuta@mail.utoronto.ca
 #SBATCH --mail-type=BEGIN
 #SBATCH --mail-type=END
 #SBATCH --mail-type=FAIL
