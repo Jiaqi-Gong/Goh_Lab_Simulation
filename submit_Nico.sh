@@ -3,7 +3,7 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=1024M
 
-#SBATCH --mail-user=yourEmailAddress
+#SBATCH --mail-user=nicolas.k@rogers.com
 #SBATCH --mail-type=BEGIN
 #SBATCH --mail-type=END
 #SBATCH --mail-type=FAIL

@@ -3,7 +3,7 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=1024M
 
-#SBATCH --mail-user=yourEmailAddress
+#SBATCH --mail-user=jerryjh.gu@mail.utoronto.ca
 #SBATCH --mail-type=BEGIN
 #SBATCH --mail-type=END
 #SBATCH --mail-type=FAIL
