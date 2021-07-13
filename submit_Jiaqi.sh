@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=16
-#SBATCH --mem=1024M
+#SBATCH --mem=2048M
 
 #SBATCH --mail-user=jiaqi.gong@mail.utoronto.ca
 #SBATCH --mail-type=BEGIN
