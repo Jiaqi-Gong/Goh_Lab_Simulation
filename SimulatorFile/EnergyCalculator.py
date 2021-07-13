@@ -170,7 +170,7 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     result = (min_energy, min_x, min_y, min_energy_charge, min_charge, min_charge_x, min_charge_y)
 
     # print the min_film
-    visPlot(min_film, "Film at minimum")
+    visPlot(min_film, "Film at minimum_{}".format(currIter))
 
     # for debug, delete later
     # print(all_energy)
