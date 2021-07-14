@@ -106,5 +106,4 @@ class FilmSurface3D(Film, ABC):
         Implement the super class abstract method
         """
         # creating empty matrix space
-        # TODO:
-        raise NotImplementedError
+        return np.zeros((self.height + 1, self.width, self.length))

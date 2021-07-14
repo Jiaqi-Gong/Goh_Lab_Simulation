@@ -5,7 +5,7 @@ from typing import Tuple
 
 from SurfaceGenerator.Domain import DomainGenerator
 from ExternalIO import showMessage, writeLog
-from FilmFile.Film import FilmSurface2D
+from FilmFile.Film import FilmSurface2D, FilmSurface3D
 
 
 class FilmManager:
@@ -59,16 +59,17 @@ class FilmManager:
         writeLog(self.__dict__)
 
         # depends on the dimension to call appropriate function
-        if self.dimension == 2:
-            for i in range(self.filmNum):
-                seed = self.filmSeed + i
+        for i in range(self.filmNum):
+            seed = self.filmSeed + i
 
-                # generate domain generator
-                filmDomainGenerator = DomainGenerator(seed)
+            # generate domain generator
+            filmDomainGenerator = DomainGenerator(seed)
+            if self.dimension == 2:
                 self._generate2DFilm(filmDomainGenerator)
-
-        elif self.dimension == 3:
-            raise NotImplementedError
+            elif self.dimension == 3:
+                self._generate3DFilm(filmDomainGenerator)
+            else:
+                raise RuntimeError("Unknown dimension in film manager")
 
     def _generate2DFilm(self, domainGenerator: DomainGenerator) -> None:
         """
@@ -89,4 +90,25 @@ class FilmManager:
 
         # write into log
         showMessage("2D film generate done")
+        writeLog(self.film)
+
+    def _generate3DFilm(self, domainGenerator: DomainGenerator) -> None:
+        """
+        Generate 3D film
+        """
+        showMessage("Generate 3D film")
+        # generate 3D Film Surface
+        film = FilmSurface3D(self.trail, self.filmSurfaceShape, self.filmSurfaceSize, self.filmSurfaceCharge,
+                             domainGenerator.seed)
+
+        showMessage("Generate 3D film with domain")
+        film.surfaceWithDomain = domainGenerator.generateDomain(film, self.filmDomainShape, self.filmDomainSize,
+                                                                self.filmDomainConcentration,
+                                                                self.filmDomainChargeConcentration)
+
+        # save the film into manager
+        self.film.append(film)
+
+        # write into log
+        showMessage("3D film generate done")
         writeLog(self.film)
