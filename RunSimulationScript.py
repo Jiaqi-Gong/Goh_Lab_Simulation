@@ -19,7 +19,7 @@ def runSimulation():
 
     simulationType = 1
     trail = 1
-    dimension = 3
+    dimension = 2
     filmSeed = 1
     filmSurfaceSize = (10, 10)
     filmSurfaceShape = "rectangle"
@@ -29,20 +29,20 @@ def runSimulation():
     interval_y = 50
     filmSurfaceCharge = -1
     filmDomainSize = (1, 1)
-    filmDomainShape = "octagon"
-    filmDomainCon = 0.5
-    filmDomainChargeConcentration = 0.5
+    filmDomainShape = "diamond"
+    filmDomainCon = 0.2  # if need to change charge ratio, change this
+    filmDomainChargeConcentration = 0.5 # ignore
     bacteriaSeed = 10
     bacteriaSize = (5, 5)
     bacteriaSurfaceShape = "rectangle"
     bacteriaSurfaceCharge = 1
     bacteriaDomainSize = (1, 1)
-    bacteriaDomainShape = "octagon"
+    bacteriaDomainShape = "diamond"
     bacteriaDomainCon = 0.5
     bacteriaDomainChargeConcentration = 0.5
 
     ### below is new variable
-    simulatorType = 2
+    simulatorType = 1
     interactType = "DOT"
     # interactType = "CUTOFF"
 
