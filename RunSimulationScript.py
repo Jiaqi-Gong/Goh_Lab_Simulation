@@ -19,9 +19,12 @@ def runSimulation():
 
     simulationType = 1
     trail = 1
-    dimension = 3
+    dimension = 2
     filmSeed = 1
-    filmSurfaceSize = (10, 10, 10)
+    if dimension == 2:
+        filmSurfaceSize = (10, 10)
+    elif dimension == 3:
+        filmSurfaceSize = (10, 10, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
     filmSurfaceShape = "rectangle"
     filmNum = 1
     bacteriaNum = 5
@@ -33,7 +36,10 @@ def runSimulation():
     filmDomainCon = 0.2  # if need to change charge ratio, change this
     filmDomainChargeConcentration = 0.5 # ignore
     bacteriaSeed = 10
-    bacteriaSize = (5, 5, 5)
+    if dimension == 2:
+        bacteriaSize = (5, 5)
+    elif dimension == 3:
+        bacteriaSize = (5, 5, 5)  # For bacteria, z value is the height of bacteria, can be any number
     bacteriaSurfaceShape = "cuboid"
     bacteriaSurfaceCharge = 1
     bacteriaDomainSize = (1, 1)
@@ -58,7 +64,7 @@ def runSimulation():
     if simulatorType == 1:
         simulator = EnergySimulator
         # taking info for energy scan simulation
-        parameter = {"interactType": interactType, "simulationType": simulationType, "cutoff": 2}
+        parameter = {"interactType": interactType, "simulationType": simulationType, "cutoff": 6}
 
     elif simulatorType == 2:
         simulator = DynamicSimulator

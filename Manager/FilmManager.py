@@ -1,7 +1,7 @@
 """
 This program is used to save the FilmFile and manage all films
 """
-from typing import Tuple
+from typing import Tuple, Union
 
 from SurfaceGenerator.Domain import DomainGenerator
 from ExternalIO import showMessage, writeLog
@@ -16,7 +16,7 @@ class FilmManager:
     trail: int
     dimension: int
     filmSeed: int
-    filmSurfaceSize: Tuple[int, int]
+    filmSurfaceSize: Union[Tuple[int, int], Tuple[int, int, int]]
     filmSurfaceShape: str
     filmSurfaceCharge: int
     filmDomainSize: Tuple[int, int]
@@ -26,9 +26,9 @@ class FilmManager:
     film: list
 
     def __init__(self, trail: int, dimension: int,
-                 filmSeed: int, filmSurfaceSize: Tuple[int, int], filmSurfaceShape: str, filmSurfaceCharge: int,
-                 filmDomainSize: Tuple[int, int], filmDomainShape: str, filmDomainConcentration: float,
-                 filmDomainChargeConcentration: float, filmNum: int):
+                 filmSeed: int, filmSurfaceSize: Union[Tuple[int, int], Tuple[int, int, int]], filmSurfaceShape: str,
+                 filmSurfaceCharge: int, filmDomainSize: Tuple[int, int], filmDomainShape: str,
+                 filmDomainConcentration: float, filmDomainChargeConcentration: float, filmNum: int):
         """
         Init the film manager, take in the
         """
