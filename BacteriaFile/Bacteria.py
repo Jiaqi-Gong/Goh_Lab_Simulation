@@ -105,7 +105,7 @@ class Bacteria3D(Bacteria, ABC):
         Implement the super class abstract method
         """
         # creating empty matrix space
-        return np.zeros(self.length, self.width, self.height)
+        return np.zeros((self.height, self.width, self.length))
 
     def _generateSphere(self):
         # finds center of array

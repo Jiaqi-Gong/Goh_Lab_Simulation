@@ -166,23 +166,23 @@ class DomainGenerator:
 
             # for 3D surface
             elif surface.dimension == 3:
-                if surface.shape.upper() == "SPHERE":
-                    # define all the possible coordinates where domain can be generated
-                    x_possibility = range(domainLength + 2, surfaceLength - domainLength - 2)
-                    y_possibility = range(domainWidth + 2, surfaceWidth - domainWidth - 2)
-                    z_possibility = range(domainWidth + 2, surfaceHeight - domainWidth - 2)
-                    # create list with all possible coordinates using list comprehension
-                    # when x is constant
-                    possibleCoordinate1 = [(i, j, k) for i in [0, int(surface.shape[2]) - 1] for j in y_possibility for k in
-                                           z_possibility]
-                    # when y is constant
-                    possibleCoordinate2 = [(i, j, k) for i in x_possibility for j in [0, int(surface.shape[1]) - 1] for k in
-                                           z_possibility]
-                    # when z is constant
-                    possibleCoordinate3 = [(i, j, k) for i in x_possibility for j in y_possibility for k in
-                                           [0, int(surface.shape[0]) - 1]]
-                    # add all possible coordinates for each axis to get all possible coordinates
-                    possibleCoordinate = possibleCoordinate1 + possibleCoordinate2 + possibleCoordinate3
+                # if surface.shape.upper() == "SPHERE":
+                # define all the possible coordinates where domain can be generated
+                x_possibility = range(domainLength + 2, surfaceLength - domainLength - 2)
+                y_possibility = range(domainWidth + 2, surfaceWidth - domainWidth - 2)
+                z_possibility = range(domainWidth + 2, surfaceHeight - domainWidth - 2)
+                # create list with all possible coordinates using list comprehension
+                # when x is constant
+                possibleCoordinate1 = [(i, j, k) for i in [0, int(surface.length) - 1] for j in y_possibility for k in
+                                       z_possibility]
+                # when y is constant
+                possibleCoordinate2 = [(i, j, k) for i in x_possibility for j in [0, int(surface.width) - 1] for k in
+                                       z_possibility]
+                # when z is constant
+                possibleCoordinate3 = [(i, j, k) for i in x_possibility for j in y_possibility for k in
+                                       [0, int(surface.height) - 1]]
+                # add all possible coordinates for each axis to get all possible coordinates
+                possibleCoordinate = possibleCoordinate1 + possibleCoordinate2 + possibleCoordinate3
 
 
         # for cross shape domain
