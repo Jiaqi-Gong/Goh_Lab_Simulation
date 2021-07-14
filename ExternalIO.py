@@ -215,9 +215,6 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     ax.scatter3D(neu_x, neu_y, neu_z, s=1, label='neutral', color='green')
     ax.scatter3D(neg_x, neg_y, neg_z, s=1, label='negative', color='blue')
 
-    # ax.scatter3D(pos_x, pos_y, s=1, c='blue', label='pos')
-    # ax.scatter3D(neu_x, neu_y, s=1, c='green', label='neu')
-    # ax.scatter3D(neg_x, neg_y, s=1, c='red', label='neg')
 
     ax.legend(loc="upper right")
     ax.set_xlabel("X")
@@ -238,8 +235,62 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         if not os.path.exists(picFolder):
             os.mkdir(picFolder)
 
-    picPath = "{}/{}".format(picFolder, picName)
-    plt.savefig(picPath)
+    picFolderEach = "{}/{}".format(picFolder, picName)
+
+    # save each side of the picture
+    # first side
+    elevation = 0
+    azimuth = 0
+    ax.view_init(elev=elevation, azim=azimuth)
+    # name the title
+    title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
+    plt.title(title)
+    plt.savefig('{}/{}'.format(picFolderEach, title), dpi=300, bbox_inches='tight')
+
+    # second side
+    elevation = 0
+    azimuth = 90
+    ax.view_init(elev=elevation, azim=azimuth)
+    # name the title
+    title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
+    plt.title(title)
+    plt.savefig('{}/{}'.format(picFolderEach, title), dpi=300, bbox_inches='tight')
+
+    # third side
+    elevation = 0
+    azimuth = -90
+    ax.view_init(elev=elevation, azim=azimuth)
+    # name the title
+    title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
+    plt.title(title)
+    plt.savefig('{}/{}'.format(picFolderEach, title), dpi=300, bbox_inches='tight')
+
+    # fourth side
+    elevation = 0
+    azimuth = 180
+    ax.view_init(elev=elevation, azim=azimuth)
+    # name the title
+    title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
+    plt.title(title)
+    plt.savefig('{}/{}'.format(picFolderEach, title), dpi=300, bbox_inches='tight')
+
+    # fifth side
+    elevation = -90
+    azimuth = 0
+    ax.view_init(elev=elevation, azim=azimuth)
+    # name the title
+    title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
+    plt.title(title)
+    plt.savefig('{}/{}'.format(picFolderEach, title), dpi=300, bbox_inches='tight')
+
+    # sixth side
+    elevation = 90
+    azimuth = 0
+    ax.view_init(elev=elevation, azim=azimuth)
+    # name the title
+    title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
+    plt.title(title)
+    plt.savefig('{}/{}'.format(picFolderEach, title), dpi=300, bbox_inches='tight')
 
     showMessage("Image generate done")
 
