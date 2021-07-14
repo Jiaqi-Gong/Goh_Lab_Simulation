@@ -55,6 +55,7 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     min_charge_y = 0
     min_x = -1
     min_y = -1
+    min_film = []
 
     # change the bacteria surface into 1D
     bacteria_1D = np.reshape(bacteria, (-1))
@@ -163,9 +164,13 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
                 min_x = x
                 min_y = y
                 min_energy_charge = charge
+                min_film = film_use[:]
 
     # save the result
     result = (min_energy, min_x, min_y, min_energy_charge, min_charge, min_charge_x, min_charge_y)
+
+    # print the min_film
+    visPlot(min_film, "Film at minimum_{}".format(currIter))
 
     # for debug, delete later
     # print(all_energy)

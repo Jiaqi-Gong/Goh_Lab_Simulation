@@ -29,15 +29,15 @@ def runSimulation():
     interval_y = 50
     filmSurfaceCharge = -1
     filmDomainSize = (1, 1)
-    filmDomainShape = "octagon"
-    filmDomainCon = 0.5
-    filmDomainChargeConcentration = 0.5
+    filmDomainShape = "diamond"
+    filmDomainCon = 0.2  # if need to change charge ratio, change this
+    filmDomainChargeConcentration = 0.5 # ignore
     bacteriaSeed = 10
     bacteriaSize = (5, 5)
     bacteriaSurfaceShape = "rectangle"
     bacteriaSurfaceCharge = 1
     bacteriaDomainSize = (1, 1)
-    bacteriaDomainShape = "octagon"
+    bacteriaDomainShape = "diamond"
     bacteriaDomainCon = 0.5
     bacteriaDomainChargeConcentration = 0.5
 
@@ -48,9 +48,11 @@ def runSimulation():
 
 
     # below are for dynamic simulation, we are not using for now
-    probabilityType = "POISSON"
-    timestep = 1000
+    probabilityType = "SIMPLE"
+    timestep = 10
     Lambda = 10
+    simple = 0.1
+    bacteriaMovementSeed = 10
 
     # take info for simulator
     if simulatorType == 1:
@@ -61,9 +63,12 @@ def runSimulation():
     elif simulatorType == 2:
         simulator = DynamicSimulator
         # taking info for dynamic simulation
-        parameter = {"probabilityType": probabilityType, "timestep": timestep, "dumpStep": 1}
+        parameter = {"probabilityType": probabilityType, "timeStep": timestep, "dumpStep": 1,
+                     "bacteriaMovementSeed" : bacteriaMovementSeed}
 
-        if probabilityType.upper() == "POISSON":
+        if probabilityType.upper() == "SIMPLE":
+            parameter["probability"] = simple
+        elif probabilityType.upper() == "POISSON":
             parameter["Lambda"] = Lambda
     else:
         raise RuntimeError("Unknown simulator type")

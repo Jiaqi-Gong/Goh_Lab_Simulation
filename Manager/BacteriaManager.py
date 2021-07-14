@@ -61,10 +61,6 @@ class BacteriaManager:
         # generate domain generator
         self.bacteriaDomainGenerator = DomainGenerator(self.bacteriaSeed)
 
-        # if this is dynamic simulator, generate bacteria movement generator
-        if self.simulatorType == 2:
-            self.bacteriaMovementGenerator = BacteriaMovementGenerator()
-
         # init a variable to store all bacteria
         self.bacteria = []
         self.stuckBacteria = []
