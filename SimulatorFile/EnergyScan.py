@@ -244,7 +244,10 @@ class EnergySimulator(Simulator):
         ws1.cell(row_pos, 10, min_energy_charge)
         ws1.cell(row_pos, 11, grad_strip)
         ws1.cell(row_pos, 12, time_consume)
-        ws1.cell(row_pos, 13, self.interactType)
+        if self.interactType.upper() == 'DOT':
+            ws1.cell(row_pos, 13, self.interactType)
+        else:
+            ws1.cell(row_pos, 13, "{}: {}".format(self.interactType, self.cutoff))
 
         # if this is not the last iterator, update the time and return this
         if not end:

@@ -65,6 +65,11 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     all_energy = []
 
     # scan through the surface and make calculation
+    if interactType.upper() in ["CUTOFF", "CUT-OFF"]:
+        showMessage("Start to calculate cutoff energy, this step is slow")
+    else:
+        showMessage("Start to calculate energy in dot type")
+
     for x in range_x:
         for y in range_y:
             # set the x boundary and y boundary
@@ -101,10 +106,9 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
                 startPoint = (x, y)
 
                 # call function to calculate energy
-                showMessage("Start to calculate cutoff energy, this step is slow")
                 energy = _twoPointEnergy(filmDict, bactDict, cutoff, startPoint, (film_shape[1], film_shape[0]))
 
-                all_energy.append(energy)
+                # all_energy.append(energy)
 
             else:
                 raise RuntimeError("Unknown interact type")
@@ -162,7 +166,7 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     visPlot(min_film, "Film at minimum_{}".format(currIter))
 
     # for debug, delete later
-    print(all_energy)
+    # print(all_energy)
 
     showMessage("Interact done")
     writeLog(result)

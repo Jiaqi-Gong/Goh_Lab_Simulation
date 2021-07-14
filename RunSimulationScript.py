@@ -49,8 +49,8 @@ def runSimulation():
 
     ### below is new variable
     simulatorType = 1
-    interactType = "DOT"
-    # interactType = "CUTOFF"
+    # interactType = "DOT"
+    interactType = "CUTOFF"
 
 
     # below are for dynamic simulation, we are not using for now
