@@ -182,4 +182,65 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     """
     This function take in a 3D ndarray and save this array as a image with given name
     """
-    raise NotImplementedError
+    showMessage("Start to generate image")
+
+    # initialize all the positions
+    pos = np.where(array == 1)
+    neu = np.where(array == 0)
+    neg = np.where(array == -1)
+
+    # get the x,y,z coordinates for each point
+    # for positive
+    pos_z = pos[0]
+    pos_y = pos[1]
+    pos_x = pos[2]
+    # for neutral
+    neu_z = neu[0]
+    neu_y = neu[1]
+    neu_x = neu[2]
+    # for negative
+    neg_z = neg[0]
+    neg_y = neg[1]
+    neg_x = neg[2]
+
+    # img_length = len(array[0]) // 100
+    # img_width = len(array) // 100
+
+    # fig = plt.figure(figsize=(img_length, img_width))
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    # create the 3D plot
+    ax.scatter3D(pos_x, pos_y, pos_z, s=1, label='positive', color='red')
+    ax.scatter3D(neu_x, neu_y, neu_z, s=1, label='neutral', color='green')
+    ax.scatter3D(neg_x, neg_y, neg_z, s=1, label='negative', color='blue')
+
+    # ax.scatter3D(pos_x, pos_y, s=1, c='blue', label='pos')
+    # ax.scatter3D(neu_x, neu_y, s=1, c='green', label='neu')
+    # ax.scatter3D(neg_x, neg_y, s=1, c='red', label='neg')
+
+    ax.legend(loc="upper right")
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.set_zlabel("Z")
+
+    now = datetime.now()
+    day = now.strftime("%m_%d")
+    current_time = now.strftime("%H_%M_%S")
+
+    global picFolder
+    if "picFolder" not in globals():
+        # save the image
+        if not os.path.exists("Image"):
+            os.mkdir("Image")
+
+        picFolder = "Image/{}_{}".format(day, current_time)
+        if not os.path.exists(picFolder):
+            os.mkdir(picFolder)
+
+    picPath = "{}/{}".format(picFolder, picName)
+    plt.savefig(picPath)
+
+    showMessage("Image generate done")
+
+    # plt.show()
