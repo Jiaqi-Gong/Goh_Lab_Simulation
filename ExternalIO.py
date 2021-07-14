@@ -10,6 +10,9 @@ import numpy as np
 from numpy import ndarray
 from openpyxl.packaging import workbook
 from matplotlib import pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+
 
 
 def getHelp() -> Dict[str, str]:
@@ -235,62 +238,92 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         if not os.path.exists(picFolder):
             os.mkdir(picFolder)
 
+    global picFolderEach
     picFolderEach = "{}/{}".format(picFolder, picName)
+    if not os.path.exists(picFolderEach):
+        os.mkdir(picFolderEach)
 
-    # save each side of the picture
-    # first side
-    elevation = 0
-    azimuth = 0
-    ax.view_init(elev=elevation, azim=azimuth)
-    # name the title
-    title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
-    plt.title(title)
-    plt.savefig('{}/{}'.format(picFolderEach, title), dpi=300, bbox_inches='tight')
+    # if the surface is a film, we only need to see the top
+    if "film" in picName:
+        elevation = 90
+        azimuth = 0
+        ax.view_init(elev=elevation, azim=azimuth)
+        # name the title
+        title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
+        plt.title(title)
+        plt.savefig('{}/Position_at_elevation={}_azimuth={}'.format(picFolderEach, elevation, azimuth), dpi=300,
+                    bbox_inches='tight')
+    elif "bacteria" in picName:
+        # save each side of the picture
+        elevation = [0,90,-90]
+        azimuth = [0,90,-90,180]
+        # first 4 sides
+        for i in range(len(azimuth)):
+            ax.view_init(elev=elevation[0], azim=azimuth[i])
+            # name the title
+            title = "Position at elevation={}, azimuth={}".format(elevation[0], azimuth[i])
+            plt.title(title)
+            plt.savefig('{}/Position_at_elevation={}_azimuth={}'.format(picFolderEach, elevation[0], azimuth[i]), dpi=300, bbox_inches='tight')
 
-    # second side
-    elevation = 0
-    azimuth = 90
-    ax.view_init(elev=elevation, azim=azimuth)
-    # name the title
-    title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
-    plt.title(title)
-    plt.savefig('{}/{}'.format(picFolderEach, title), dpi=300, bbox_inches='tight')
+        # last 2 sides
+        for i in range(len(elevation)-1):
+            ax.view_init(elev=elevation[i+1], azim=azimuth[0])
+            # name the title
+            title = "Position at elevation={}, azimuth={}".format(elevation[i+1], azimuth[0])
+            plt.title(title)
+            plt.savefig('{}/Position_at_elevation={}_azimuth={}'.format(picFolderEach, elevation[i+1], azimuth[0]), dpi=300, bbox_inches='tight')
 
-    # third side
-    elevation = 0
-    azimuth = -90
-    ax.view_init(elev=elevation, azim=azimuth)
-    # name the title
-    title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
-    plt.title(title)
-    plt.savefig('{}/{}'.format(picFolderEach, title), dpi=300, bbox_inches='tight')
-
-    # fourth side
-    elevation = 0
-    azimuth = 180
-    ax.view_init(elev=elevation, azim=azimuth)
-    # name the title
-    title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
-    plt.title(title)
-    plt.savefig('{}/{}'.format(picFolderEach, title), dpi=300, bbox_inches='tight')
-
-    # fifth side
-    elevation = -90
-    azimuth = 0
-    ax.view_init(elev=elevation, azim=azimuth)
-    # name the title
-    title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
-    plt.title(title)
-    plt.savefig('{}/{}'.format(picFolderEach, title), dpi=300, bbox_inches='tight')
-
-    # sixth side
-    elevation = 90
-    azimuth = 0
-    ax.view_init(elev=elevation, azim=azimuth)
-    # name the title
-    title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
-    plt.title(title)
-    plt.savefig('{}/{}'.format(picFolderEach, title), dpi=300, bbox_inches='tight')
+        # # first side
+        # ax.view_init(elev=elevation, azim=azimuth)
+        # # name the title
+        # title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
+        # plt.title(title)
+        # plt.savefig('{}/Position_at_elevation={}_azimuth={}'.format(picFolderEach, elevation, azimuth), dpi=300, bbox_inches='tight')
+        #
+        # # second side
+        # elevation = 0
+        # azimuth = 90
+        # ax.view_init(elev=elevation, azim=azimuth)
+        # # name the title
+        # title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
+        # plt.title(title)
+        # plt.savefig('{}/Position_at_elevation={}_azimuth={}'.format(picFolderEach, elevation, azimuth), dpi=300, bbox_inches='tight')
+        #
+        # # third side
+        # elevation = 0
+        # azimuth = -90
+        # ax.view_init(elev=elevation, azim=azimuth)
+        # # name the title
+        # title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
+        # plt.title(title)
+        # plt.savefig('{}/Position_at_elevation={}_azimuth={}'.format(picFolderEach, elevation, azimuth), dpi=300, bbox_inches='tight')
+        #
+        # # fourth side
+        # elevation = 0
+        # azimuth = 180
+        # ax.view_init(elev=elevation, azim=azimuth)
+        # # name the title
+        # title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
+        # plt.title(title)
+        # plt.savefig('{}/Position_at_elevation={}_azimuth={}'.format(picFolderEach, elevation, azimuth), dpi=300, bbox_inches='tight')
+        #
+        # # fifth side
+        # elevation = -90
+        # azimuth = 0
+        # ax.view_init(elev=elevation, azim=azimuth)
+        # # name the title
+        # title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
+        # plt.title(title)
+        # plt.savefig('{}/Position_at_elevation={}_azimuth={}'.format(picFolderEach, elevation, azimuth), dpi=300, bbox_inches='tight')
+        #
+        # # sixth side
+        # elevation = 90
+        # azimuth = 0
+        # ax.view_init(elev=elevation, azim=azimuth)
+        # # name the title
+        # title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
+        # plt.title(title)
+        # plt.savefig('{}/Position_at_elevation={}_azimuth={}'.format(picFolderEach, elevation, azimuth), dpi=300, bbox_inches='tight')
 
     showMessage("Image generate done")
 

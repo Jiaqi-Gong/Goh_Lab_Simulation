@@ -20,8 +20,10 @@ def runSimulation():
     simulationType = 1
     trail = 1
     dimension = 3
+    # dimension = 2
     filmSeed = 1
     filmSurfaceSize = (10, 10, 10)
+    # filmSurfaceSize = (10, 10)
     filmSurfaceShape = "rectangle"
     filmNum = 1
     bacteriaNum = 5
@@ -34,7 +36,9 @@ def runSimulation():
     filmDomainChargeConcentration = 0.5 # ignore
     bacteriaSeed = 10
     bacteriaSize = (5, 5, 5)
+    # bacteriaSize = (5, 5)
     bacteriaSurfaceShape = "cuboid"
+    # bacteriaSurfaceShape = "rectangle"
     bacteriaSurfaceCharge = 1
     bacteriaDomainSize = (1, 1)
     bacteriaDomainShape = "diamond"

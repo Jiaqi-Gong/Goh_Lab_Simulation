@@ -142,7 +142,7 @@ class EnergySimulator(Simulator):
         showMessage("Interact done")
 
         # set the output
-        self._output(result, currIter, end)
+        # self._output(result, currIter, end)
 
     def _initOutput(self) -> Tuple[Workbook, Union[WriteOnlyWorksheet, Worksheet]]:
         """
