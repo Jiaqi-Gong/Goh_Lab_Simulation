@@ -36,9 +36,9 @@ class Simulator(ABC):
     output: Tuple[Workbook, Union[WriteOnlyWorksheet, Worksheet]]
 
     def __init__(self, simulationType: int, trail: int, dimension: int, simulatorType: int,
-                 filmSeed: int, filmSurfaceSize: Tuple[int, int], filmSurfaceShape: str, filmSurfaceCharge: int,
-                 filmDomainSize: Tuple[int, int], filmDomainShape: str, filmDomainConcentration: float,
-                 filmDomainChargeConcentration: float,
+                 filmSeed: int, filmSurfaceSize: Union[Tuple[int, int], Tuple[int, int, int]], filmSurfaceShape: str,
+                 filmSurfaceCharge: int, filmDomainSize: Tuple[int, int], filmDomainShape: str,
+                 filmDomainConcentration: float, filmDomainChargeConcentration: float,
                  bacteriaSeed: int, bacteriaSize: Union[Tuple[int, int], Tuple[int, int, int]], bacteriaSurfaceShape: str,
                  bacteriaSurfaceCharge: int,
                  bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float,
