@@ -56,6 +56,9 @@ class Surface:
         self.shape = shape
         self.seed = seed
 
+        # set real domain concentration
+        self.realDomainConc = -1
+
         # set the surface dimension
         self.dimension = dimension
 
