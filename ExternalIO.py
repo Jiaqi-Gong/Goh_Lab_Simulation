@@ -11,7 +11,10 @@ from numpy import ndarray
 from openpyxl.packaging import workbook
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-
+import sys
+from vispy import app, visuals, scene
+import vispy.io as io
+from vispy.gloo.util import _screenshot as screenshot
 
 
 
@@ -187,46 +190,85 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     """
     showMessage("Start to generate image")
 
-    # initialize all the positions
-    pos = np.where(array == 1)
-    neu = np.where(array == 0)
-    neg = np.where(array == -1)
+    now = datetime.now()
+    day = now.strftime("%m_%d")
+    current_time = now.strftime("%H_%M_%S")
 
-    # get the x,y,z coordinates for each point
-    # for positive
-    pos_z = pos[0]
-    pos_y = pos[1]
-    pos_x = pos[2]
+    # build your visuals, that's all
+    Scatter3D = scene.visuals.create_visual_node(visuals.MarkersVisual)
+
+    # The real-things : plot using scene
+    # build canvas
+    canvas = scene.SceneCanvas(title="{}".format(picName),keys='interactive', show=True, bgcolor="white")
+    view = canvas.central_widget.add_view()
+
     # for neutral
+    neu = np.where(array == 0)
     neu_z = neu[0]
     neu_y = neu[1]
     neu_x = neu[2]
+
+    n_neu = len(neu_z)
+    c_neu = len(neu_z)
+    position_neu = np.zeros((n_neu, 3))
+    colors_neu = np.zeros((c_neu, 4))
+    for i in range(n_neu):
+        x = neu_x[i]
+        y = neu_y[i]
+        z = neu_z[i]
+        position_neu[i] = x, y, z
+        colors_neu[i] = (0, 1, 0, 0.8)
+
+    # for positive
+    pos = np.where(array == 1)
+    pos_z = pos[0]
+    pos_y = pos[1]
+    pos_x = pos[2]
+
+    n_pos = len(pos_z)
+    c_pos = len(pos_z)
+    position_pos = np.zeros((n_pos, 3))
+    colors_pos = np.zeros((c_pos, 4))
+
+    for i in range(n_pos):
+        x = pos_x[i]
+        y = pos_y[i]
+        z = pos_z[i]
+        position_pos[i] = x, y, z
+        colors_pos[i] = (0, 0, 1, 0.8)
+
     # for negative
+    neg = np.where(array == -1)
     neg_z = neg[0]
     neg_y = neg[1]
     neg_x = neg[2]
 
-    # img_length = len(array[0]) // 100
-    # img_width = len(array) // 100
+    n_neg = len(neg_z)
+    c_neg = len(neg_z)
 
-    # fig = plt.figure(figsize=(img_length, img_width))
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    position_neg = np.zeros((n_neg, 3))
+    colors_neg = np.zeros((c_neg, 4))
 
-    # create the 3D plot
-    ax.scatter3D(pos_x, pos_y, pos_z, s=1, label='positive', color='red')
-    ax.scatter3D(neu_x, neu_y, neu_z, s=1, label='neutral', color='green')
-    ax.scatter3D(neg_x, neg_y, neg_z, s=1, label='negative', color='blue')
+    for i in range(n_neg):
+        x = neg_x[i]
+        y = neg_y[i]
+        z = neg_z[i]
+        position_neg[i] = x, y, z
+        colors_neg[i] = (1, 0, 0, 0.8)
 
+    # concatenate both color and position
+    position = np.concatenate((position_neu, position_pos, position_neg))
+    colors = np.concatenate((colors_neu, colors_pos, colors_neg))
+    # plot ! note the parent parameter
+    p1 = Scatter3D(parent=view.scene)
+    p1.set_gl_state(blend=True, depth_test=True)
+    p1.set_data(position, face_color=colors, symbol='o', size=20,edge_width=0.5,edge_color=colors)
 
-    ax.legend(loc="upper right")
-    ax.set_xlabel("X")
-    ax.set_ylabel("Y")
-    ax.set_zlabel("Z")
-
-    now = datetime.now()
-    day = now.strftime("%m_%d")
-    current_time = now.strftime("%H_%M_%S")
+    # Add a ViewBox to let the user zoom/rotate
+    view.camera = 'turntable'
+    view.camera.fov = 0
+    view.camera.distance = int(array.shape[1])
+    view.camera.center = (int(array.shape[2]/2), int(array.shape[1]/2), int(array.shape[0]/2))
 
     global picFolder
     if "picFolder" not in globals():
@@ -245,86 +287,35 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
 
     # if the surface is a film, we only need to see the top
     if "film" in picName:
+        # set camera angle
         elevation = 90
-        azimuth = 0
-        ax.view_init(elev=elevation, azim=azimuth)
-        # name the title
-        title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
-        plt.title(title)
-        plt.savefig('{}/Position_at_elevation={}_azimuth={}'.format(picFolderEach, elevation, azimuth), dpi=300,
-                    bbox_inches='tight')
+        azimuth = 90
+        view.camera.elevation = elevation
+        view.camera.azimuth = azimuth
+        image = canvas.render(bgcolor='white')[:, :, 0:3]
+
+        # save file
+        io.write_png('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation, azimuth), image)
     elif "bacteria" in picName:
         # save each side of the picture
         elevation = [0,90,-90]
         azimuth = [0,90,-90,180]
         # first 4 sides
         for i in range(len(azimuth)):
-            ax.view_init(elev=elevation[0], azim=azimuth[i])
-            # name the title
-            title = "Position at elevation={}, azimuth={}".format(elevation[0], azimuth[i])
-            plt.title(title)
-            plt.savefig('{}/Position_at_elevation={}_azimuth={}'.format(picFolderEach, elevation[0], azimuth[i]), dpi=300, bbox_inches='tight')
+            view.camera.elevation = elevation[0]
+            view.camera.azimuth = azimuth[i]
+            image = canvas.render(bgcolor='white')[:, :, 0:3]
+
+            # save file
+            io.write_png('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[0], azimuth[i]), image)
 
         # last 2 sides
         for i in range(len(elevation)-1):
-            ax.view_init(elev=elevation[i+1], azim=azimuth[0])
-            # name the title
-            title = "Position at elevation={}, azimuth={}".format(elevation[i+1], azimuth[0])
-            plt.title(title)
-            plt.savefig('{}/Position_at_elevation={}_azimuth={}'.format(picFolderEach, elevation[i+1], azimuth[0]), dpi=300, bbox_inches='tight')
+            view.camera.elevation = elevation[i+1]
+            view.camera.azimuth = azimuth[0]
+            image = canvas.render(bgcolor='white')[:, :, 0:3]
 
-        # # first side
-        # ax.view_init(elev=elevation, azim=azimuth)
-        # # name the title
-        # title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
-        # plt.title(title)
-        # plt.savefig('{}/Position_at_elevation={}_azimuth={}'.format(picFolderEach, elevation, azimuth), dpi=300, bbox_inches='tight')
-        #
-        # # second side
-        # elevation = 0
-        # azimuth = 90
-        # ax.view_init(elev=elevation, azim=azimuth)
-        # # name the title
-        # title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
-        # plt.title(title)
-        # plt.savefig('{}/Position_at_elevation={}_azimuth={}'.format(picFolderEach, elevation, azimuth), dpi=300, bbox_inches='tight')
-        #
-        # # third side
-        # elevation = 0
-        # azimuth = -90
-        # ax.view_init(elev=elevation, azim=azimuth)
-        # # name the title
-        # title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
-        # plt.title(title)
-        # plt.savefig('{}/Position_at_elevation={}_azimuth={}'.format(picFolderEach, elevation, azimuth), dpi=300, bbox_inches='tight')
-        #
-        # # fourth side
-        # elevation = 0
-        # azimuth = 180
-        # ax.view_init(elev=elevation, azim=azimuth)
-        # # name the title
-        # title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
-        # plt.title(title)
-        # plt.savefig('{}/Position_at_elevation={}_azimuth={}'.format(picFolderEach, elevation, azimuth), dpi=300, bbox_inches='tight')
-        #
-        # # fifth side
-        # elevation = -90
-        # azimuth = 0
-        # ax.view_init(elev=elevation, azim=azimuth)
-        # # name the title
-        # title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
-        # plt.title(title)
-        # plt.savefig('{}/Position_at_elevation={}_azimuth={}'.format(picFolderEach, elevation, azimuth), dpi=300, bbox_inches='tight')
-        #
-        # # sixth side
-        # elevation = 90
-        # azimuth = 0
-        # ax.view_init(elev=elevation, azim=azimuth)
-        # # name the title
-        # title = "Position at elevation={}, azimuth={}".format(elevation, azimuth)
-        # plt.title(title)
-        # plt.savefig('{}/Position_at_elevation={}_azimuth={}'.format(picFolderEach, elevation, azimuth), dpi=300, bbox_inches='tight')
-
+            # save file
+            io.write_png('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[i+1], azimuth[0]),
+                         image)
     showMessage("Image generate done")
-
-    # plt.show()

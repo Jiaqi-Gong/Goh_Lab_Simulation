@@ -198,22 +198,22 @@ class DomainGenerator:
 
             # for 3D surface
             elif surface.dimension == 3:
-                if surface.shape.upper() == "SPHERE":
-                    x_possibility = range(domainLength + 1, surfaceLength - domainLength - 1)
-                    y_possibility = range(domainWidth + 1, surfaceWidth - domainWidth - 1)
-                    z_possibility = range(domainWidth + 1, surfaceHeight - domainWidth - 1)
-                    # create list with all possible coordinates using list comprehension
-                    # when x is constant
-                    possibleCoordinate1 = [(i, j, k) for i in [0, int(surface.shape[2]) - 1] for j in y_possibility for k in
-                                           z_possibility]
-                    # when y is constant
-                    possibleCoordinate2 = [(i, j, k) for i in x_possibility for j in [0, int(surface.shape[1]) - 1] for k in
-                                           z_possibility]
-                    # when z is constant
-                    possibleCoordinate3 = [(i, j, k) for i in x_possibility for j in y_possibility for k in
-                                           [0, int(surface.shape[0]) - 1]]
-                    # add all possible coordinates for each axis to get all possible coordinates
-                    possibleCoordinate = possibleCoordinate1 + possibleCoordinate2 + possibleCoordinate3
+                # if surface.shape.upper() == "SPHERE":
+                x_possibility = range(domainLength + 1, surfaceLength - domainLength - 1)
+                y_possibility = range(domainWidth + 1, surfaceWidth - domainWidth - 1)
+                z_possibility = range(domainWidth + 1, surfaceHeight - domainWidth - 1)
+                # create list with all possible coordinates using list comprehension
+                # when x is constant
+                possibleCoordinate1 = [(i, j, k) for i in [0, int(surface.shape[2]) - 1] for j in y_possibility for k in
+                                       z_possibility]
+                # when y is constant
+                possibleCoordinate2 = [(i, j, k) for i in x_possibility for j in [0, int(surface.shape[1]) - 1] for k in
+                                       z_possibility]
+                # when z is constant
+                possibleCoordinate3 = [(i, j, k) for i in x_possibility for j in y_possibility for k in
+                                       [0, int(surface.shape[0]) - 1]]
+                # add all possible coordinates for each axis to get all possible coordinates
+                possibleCoordinate = possibleCoordinate1 + possibleCoordinate2 + possibleCoordinate3
 
 
         # for octagon shape domain
@@ -243,36 +243,36 @@ class DomainGenerator:
                 # Set restriction on where the starting positions can be
                 # Separate cases for when domainLength/domainWidth are either even or odd
                 # for 3D surface
-                if surface.shape.upper() == "SPHERE":
-                    # if the domainLength is an even number
-                    if domainLength % 2 == 0:
-                        # define all the possible coordinates where domain can be generated
-                        x_possibility = range(int(domainLength + (domainLength / 2) + 1),
-                                              int(surfaceLength - domainLength - (domainLength / 2) - 1))
-                        y_possibility = range(int(domainWidth + (domainWidth / 2) + 1),
-                                              int(surfaceWidth - domainWidth - (domainWidth / 2) - 1))
-                        z_possibility = range(int(domainWidth + (domainWidth / 2) + 1),
-                                              int(surfaceHeight - domainWidth - (domainWidth / 2) - 1))
-                    # if the domainLength is an odd number
-                    elif domainLength % 2 == 1:
-                        x_possibility = range(int(domainLength + ((domainLength + 1) / 2) + 1),
-                                              int(surfaceLength - domainLength - ((domainLength + 1) / 2) - 1))
-                        y_possibility = range(int(domainWidth + ((domainWidth + 1) / 2) + 1),
-                                              int(surfaceWidth - domainWidth - ((domainWidth + 1) / 2) - 1))
-                        z_possibility = range(int(domainWidth + ((domainWidth + 1) / 2) + 1),
-                                              int(surfaceHeight - domainWidth - ((domainWidth + 1) / 2) - 1))
-                    # create list with all possible coordinates using list comprehension
-                    # when x is constant
-                    possibleCoordinate1 = [(i, j, k) for i in [0, surface.shape[2] - 1] for j in y_possibility for k in
-                                           z_possibility]
-                    # when y is constant
-                    possibleCoordinate2 = [(i, j, k) for i in x_possibility for j in [0, int(surface.shape[1]) - 1] for k in
-                                           z_possibility]
-                    # when z is constant
-                    possibleCoordinate3 = [(i, j, k) for i in x_possibility for j in y_possibility for k in
-                                           [0, int(surface.shape[0]) - 1]]
-                    # add all possible coordinates for each axis to get all possible coordinates
-                    possibleCoordinate = possibleCoordinate1 + possibleCoordinate2 + possibleCoordinate3
+                # if surface.shape.upper() == "SPHERE":
+                # if the domainLength is an even number
+                if domainLength % 2 == 0:
+                    # define all the possible coordinates where domain can be generated
+                    x_possibility = range(int(domainLength + (domainLength / 2) + 1),
+                                          int(surfaceLength - domainLength - (domainLength / 2) - 1))
+                    y_possibility = range(int(domainWidth + (domainWidth / 2) + 1),
+                                          int(surfaceWidth - domainWidth - (domainWidth / 2) - 1))
+                    z_possibility = range(int(domainWidth + (domainWidth / 2) + 1),
+                                          int(surfaceHeight - domainWidth - (domainWidth / 2) - 1))
+                # if the domainLength is an odd number
+                elif domainLength % 2 == 1:
+                    x_possibility = range(int(domainLength + ((domainLength + 1) / 2) + 1),
+                                          int(surfaceLength - domainLength - ((domainLength + 1) / 2) - 1))
+                    y_possibility = range(int(domainWidth + ((domainWidth + 1) / 2) + 1),
+                                          int(surfaceWidth - domainWidth - ((domainWidth + 1) / 2) - 1))
+                    z_possibility = range(int(domainWidth + ((domainWidth + 1) / 2) + 1),
+                                          int(surfaceHeight - domainWidth - ((domainWidth + 1) / 2) - 1))
+                # create list with all possible coordinates using list comprehension
+                # when x is constant
+                possibleCoordinate1 = [(i, j, k) for i in [0, surface.shape[2] - 1] for j in y_possibility for k in
+                                       z_possibility]
+                # when y is constant
+                possibleCoordinate2 = [(i, j, k) for i in x_possibility for j in [0, int(surface.shape[1]) - 1] for k in
+                                       z_possibility]
+                # when z is constant
+                possibleCoordinate3 = [(i, j, k) for i in x_possibility for j in y_possibility for k in
+                                       [0, int(surface.shape[0]) - 1]]
+                # add all possible coordinates for each axis to get all possible coordinates
+                possibleCoordinate = possibleCoordinate1 + possibleCoordinate2 + possibleCoordinate3
 
 
         # for single shape domain
@@ -290,41 +290,41 @@ class DomainGenerator:
 
             # for 3D surface
             elif surface.dimension == 3:
-                if surface.shape.upper() == "SPHERE":
-                    # If the surface was a sphere, the points must fall in a circle with the radius of either
-                    # surface.length, surface.width or surface.height
-                    radius = min(surface.length, surface.width, surface.height)
-                    # create an empty list to append the coordinates to
-                    possibleCoordinate = []
-                    # calculate the center of the sphere along x, y, and z axis
-                    # center of the 3D surface
-                    cen = (int(surface.length / 2), int(surface.width / 2), int(surface.height / 2))
+                # if surface.shape.upper() == "SPHERE":
+                # If the surface was a sphere, the points must fall in a circle with the radius of either
+                # surface.length, surface.width or surface.height
+                radius = min(surface.length, surface.width, surface.height)
+                # create an empty list to append the coordinates to
+                possibleCoordinate = []
+                # calculate the center of the sphere along x, y, and z axis
+                # center of the 3D surface
+                cen = (int(surface.length / 2), int(surface.width / 2), int(surface.height / 2))
 
-                    # locate all the points that fall inside the circle
-                    # when keeping x constant
-                    for k in range(int(surface.shape[0])):
-                        for j in range(int(surface.shape[1])):
-                            # calculate the distance from the startPoint to the chosen point
-                            dist1 = ((j - cen[1]) ** 2 + (k - cen[2]) ** 2) ** 0.5
-                            if radius >= dist1:
-                                possibleCoordinate.append((0, j, k))
-                                possibleCoordinate.append((int(surface.shape[2] - 1), j, k))
-                    # when keeping y constant
-                    for k in range(int(surface.shape[0])):
-                        for i in range(int(surface.shape[2])):
-                            # calculate the distance from the startPoint to the chosen point
-                            dist1 = ((i - cen[0]) ** 2 + (k - cen[2]) ** 2) ** 0.5
-                            if radius >= dist1:
-                                possibleCoordinate.append((i, 0, k))
-                                possibleCoordinate.append((i, int(surface.shape[1] - 1), k))
-                    # when keeping z constant
+                # locate all the points that fall inside the circle
+                # when keeping x constant
+                for k in range(int(surface.shape[0])):
                     for j in range(int(surface.shape[1])):
-                        for i in range(int(surface.shape[2])):
-                            # calculate the distance from the startPoint to the chosen point
-                            dist1 = ((i - cen[0]) ** 2 + (j - cen[1]) ** 2) ** 0.5
-                            if radius >= dist1:
-                                possibleCoordinate.append((i, j, 0))
-                                possibleCoordinate.append((i, j, int(surface.shape[0] - 1)))
+                        # calculate the distance from the startPoint to the chosen point
+                        dist1 = ((j - cen[1]) ** 2 + (k - cen[2]) ** 2) ** 0.5
+                        if radius >= dist1:
+                            possibleCoordinate.append((0, j, k))
+                            possibleCoordinate.append((int(surface.shape[2] - 1), j, k))
+                # when keeping y constant
+                for k in range(int(surface.shape[0])):
+                    for i in range(int(surface.shape[2])):
+                        # calculate the distance from the startPoint to the chosen point
+                        dist1 = ((i - cen[0]) ** 2 + (k - cen[2]) ** 2) ** 0.5
+                        if radius >= dist1:
+                            possibleCoordinate.append((i, 0, k))
+                            possibleCoordinate.append((i, int(surface.shape[1] - 1), k))
+                # when keeping z constant
+                for j in range(int(surface.shape[1])):
+                    for i in range(int(surface.shape[2])):
+                        # calculate the distance from the startPoint to the chosen point
+                        dist1 = ((i - cen[0]) ** 2 + (j - cen[1]) ** 2) ** 0.5
+                        if radius >= dist1:
+                            possibleCoordinate.append((i, j, 0))
+                            possibleCoordinate.append((i, j, int(surface.shape[0] - 1)))
 
         else:
             raise RuntimeError("Wrong shape in the function _allPossiblePoint")
