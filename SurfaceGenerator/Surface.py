@@ -45,8 +45,8 @@ class Surface:
 
         # set other information about this surface
         # 1 micrometer = 100 points
-        self.length = size[0] * 100
-        self.width = size[1] * 100
+        self.length = size[0]
+        self.width = size[1]
 
         # Not sure does height need to times 100?
         # if height needs to times 100, need to change the height of film put in

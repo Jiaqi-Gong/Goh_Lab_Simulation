@@ -6,15 +6,12 @@ from datetime import datetime
 from typing import Dict, IO
 import logging
 
+from PIL import Image
 import numpy as np
 from numpy import ndarray
 from openpyxl.packaging import workbook
 from matplotlib import pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import sys
-from vispy import app, visuals, scene
-import vispy.io as io
-from vispy.gloo.util import _screenshot as screenshot
 
 
 
@@ -127,7 +124,6 @@ def visPlot(array: ndarray, picName: str) -> None:
     else:
         raise RuntimeError("Unknown dimension of array pass in")
 
-
 def _visPlot2D(array: ndarray, picName: str) -> None:
     """
     This function take in a 2D ndarray and save this array as a image with given name
@@ -145,15 +141,21 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     neg_x = neg[0]
     neg_y = neg[1]
 
-    img_length = len(array[0]) // 100
-    img_width = len(array) // 100
+    if len(array[0]) > 100:
+        img_length = len(array[0]) // 100
+        img_width = len(array) // 100
+        size = 1
+    else:
+        img_length = len(array[0]) // 10
+        img_width = len(array) // 10
+        size = 100
 
     fig = plt.figure(figsize=(img_length, img_width))
     ax = fig.add_subplot(111)
 
-    ax.scatter(pos_x, pos_y, s=1, c='blue', label='pos')
-    ax.scatter(neu_x, neu_y, s=1, c='green', label='neu')
-    ax.scatter(neg_x, neg_y, s=1, c='red', label='neg')
+    ax.scatter(pos_x, pos_y, s=size, c='blue', label='pos')
+    ax.scatter(neu_x, neu_y, s=size, c='green', label='neu')
+    ax.scatter(neg_x, neg_y, s=size, c='red', label='neg')
 
     ax.legend(loc="upper right")
     ax.set_xlabel("X")

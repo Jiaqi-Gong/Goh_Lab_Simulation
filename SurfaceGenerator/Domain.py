@@ -41,8 +41,8 @@ class DomainGenerator:
         writeLog([self.__dict__, surface.__dict__, shape, size, concentration])
 
         # get size
-        domainLength = size[0] * 100
-        domainWidth = size[1] * 100
+        domainLength = size[0]
+        domainWidth = size[1]
 
         # calculate how many domain should generate
         # calculation for the number of domains which needs to be generated depends on the shape of the domain
