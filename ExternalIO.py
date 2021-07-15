@@ -118,13 +118,16 @@ def visPlot(array: ndarray, picName: str) -> None:
     """
     THis function based on the dimension of passed in ndarray to call appropriate function
     """
-    dimension = len(array.shape)
-    if dimension == 2:
+    # dimension = len(array.shape)
+
+    # if dimension == 2:
+    if array.shape[0] == 1:
         _visPlot2D(array, picName)
-    elif dimension == 3:
-        _visPlot3D(array, picName)
     else:
-        raise RuntimeError("Unknown dimension of array pass in")
+    # elif dimension == 3:
+        _visPlot3D(array, picName)
+    # else:
+    #     raise RuntimeError("Unknown dimension of array pass in")
 
 
 def _visPlot2D(array: ndarray, picName: str) -> None:
@@ -137,17 +140,27 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     neu = np.where(array == 0)
     neg = np.where(array == -1)
 
-    pos_x = pos[0]
     pos_y = pos[1]
-    neu_x = neu[0]
+    pos_x = pos[2]
+
     neu_y = neu[1]
-    neg_x = neg[0]
+    neu_x = neu[2]
+
     neg_y = neg[1]
+    neg_x = neg[2]
 
-    img_length = len(array[0]) // 100
-    img_width = len(array) // 100
+    # pos_x = pos[0]
+    # pos_y = pos[1]
+    # neu_x = neu[0]
+    # neu_y = neu[1]
+    # neg_x = neg[0]
+    # neg_y = neg[1]
 
-    fig = plt.figure(figsize=(img_length, img_width))
+    # img_length = len(array[0]) // 100
+    # img_width = len(array) // 100
+
+    # fig = plt.figure(figsize=(img_length, img_width))
+    fig = plt.figure()
     ax = fig.add_subplot(111)
 
     ax.scatter(pos_x, pos_y, s=1, c='blue', label='pos')
@@ -157,10 +170,10 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     ax.legend(loc="upper right")
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
-    ax.xaxis.set_ticks_position('top')
-    ax.xaxis.set_label_position('top')
+    # ax.xaxis.set_ticks_position('top')
+    # ax.xaxis.set_label_position('top')
 
-    plt.imshow(array, interpolation='nearest')
+    # plt.imshow(array, interpolation='nearest')
 
     now = datetime.now()
     day = now.strftime("%m_%d")
@@ -177,7 +190,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
             os.mkdir(picFolder)
 
     picPath = "{}/{}".format(picFolder, picName)
-    plt.savefig(picPath)
+    plt.savefig(picPath, dpi=300, bbox_inches='tight')
 
     showMessage("Image generate done")
 
