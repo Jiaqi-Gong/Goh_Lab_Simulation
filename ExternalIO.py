@@ -213,6 +213,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     position_neu = np.zeros((n_neu, 3))
     colors_neu = np.zeros((c_neu, 4))
     for i in range(n_neu):
+        # green
         x = neu_x[i]
         y = neu_y[i]
         z = neu_z[i]
@@ -231,6 +232,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     colors_pos = np.zeros((c_pos, 4))
 
     for i in range(n_pos):
+        # blue
         x = pos_x[i]
         y = pos_y[i]
         z = pos_z[i]
@@ -250,6 +252,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     colors_neg = np.zeros((c_neg, 4))
 
     for i in range(n_neg):
+        # red
         x = neg_x[i]
         y = neg_y[i]
         z = neg_z[i]
@@ -263,12 +266,48 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     p1 = Scatter3D(parent=view.scene)
     p1.set_gl_state(blend=True, depth_test=True)
     p1.set_data(position, face_color=colors, symbol='o', size=20,edge_width=0.5,edge_color=colors)
+    #
+    # # plot XYZ axes
+    # Plot3DAxis = scene.visuals.create_visual_node(visuals.LinePlotVisual)
+    # # Plot3DAxis = scene.visuals.create_visual_node(visuals.XYZAxisVisual)
+    # # Plot3DAxis(parent=view.scene)
+    # axes_colors = ['black', 'black', 'black']
+    # axes_labels = ['X', 'Y', 'Z']
+    # axis_symbol = '|'
+    #
+    # # get the x,y,z data
+    # xdata = position[:, 0]
+    # ydata = position[:, 1]
+    # zdata = position[:, 2]
+    #
+    # for i, data in enumerate([xdata, ydata, zdata]):
+    #     ticks_values = data #compute_ticks(data)
+    #     ticks = np.zeros((ticks_values.size, 3))
+    #     ticks[:, i] = ticks_values
+    #     if i == 2:
+    #         axis_symbol = '-'
+    #     Plot3DAxis(ticks, width=30.0, color=axes_colors[i], symbol=axis_symbol,
+    #             parent=view.scene)
+    #     #edge_color='black'
+    #     #face_color=(0.2, 0.2, 1, 0.8)
+    #     axis_label_pos = [0, 0, 0]
+    #     axis_label_pos[i] = (data.max() + data.min()) / 2
+    #     axislabel = scene.Text(axes_labels[i], bold=True, font_size=16, color='black', pos=axis_label_pos,
+    #                            parent=view.scene)
 
     # Add a ViewBox to let the user zoom/rotate
     view.camera = 'turntable'
     view.camera.fov = 0
     view.camera.distance = int(array.shape[1])
     view.camera.center = (int(array.shape[2]/2), int(array.shape[1]/2), int(array.shape[0]/2))
+
+    # # run
+    # elevation = 90
+    # azimuth = 90
+    # view.camera.elevation = elevation
+    # view.camera.azimuth = azimuth
+    # if sys.flags.interactive != 1:
+    #     app.run()
 
     global picFolder
     if "picFolder" not in globals():
