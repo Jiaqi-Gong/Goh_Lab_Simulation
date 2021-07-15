@@ -29,6 +29,7 @@ class Surface:
     surfaceCharge: int
     originalSurface: ndarray
     surfaceWithDomain: Union[None, ndarray]
+    realDomainConc: float
 
     @abc.abstractmethod
     def __init__(self, trail: int, shape: str, size: Tuple[int, int, int], seed: int, surfaceCharge: int, dimension: int) \
