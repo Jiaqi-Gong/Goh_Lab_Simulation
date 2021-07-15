@@ -12,5 +12,4 @@
 #SBATCH --mail-type=REQUEUE
 #SBATCH --mail-type=ALL
 
-
 python3 RunSimulationScript.py

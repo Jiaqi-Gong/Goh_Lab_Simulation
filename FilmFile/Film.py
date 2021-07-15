@@ -73,14 +73,14 @@ class FilmSurface3D(Film, ABC):
     # Declare the type of all variable
     height: int
 
-    def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int) -> None:
+    def __init__(self, trail: int, shape: str, size: Tuple[int, int, int], surfaceCharge: int, seed: int) -> None:
         showMessage("start to generate Film surface 3D")
 
         # set the proper dimension and height
         dimension = 3
 
-        # set the proper height
-        size = (size[0], size[1], 0)
+        # set the size of film
+        size = (size[0], size[1], size[2])
 
         # call parent
         Film.__init__(self, trail, shape, size, surfaceCharge, seed, dimension)
@@ -106,4 +106,4 @@ class FilmSurface3D(Film, ABC):
         Implement the super class abstract method
         """
         # creating empty matrix space
-        return np.zeros((self.height + 1, self.width, self.length))
+        return np.zeros((self.height, self.width, self.length))

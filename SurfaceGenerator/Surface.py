@@ -46,7 +46,12 @@ class Surface:
         # 1 micrometer = 100 points
         self.length = size[0] * 100
         self.width = size[1] * 100
-        self.height = size[2] * 100
+
+        # Not sure does height need to times 100?
+        # if height needs to times 100, need to change the height of film put in
+        # self.height = size[2] * 100
+        self.height = size[2]
+
         self.trail = trail
         self.shape = shape
         self.seed = seed
