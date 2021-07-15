@@ -105,9 +105,19 @@ class Bacteria3D(Bacteria, ABC):
         Implement the super class abstract method
         """
         # creating empty matrix space
-        return np.zeros((self.height, self.width, self.length))
+        surface = np.full((self.height, self.width, self.length),2)
+        # fill outside of surface with zeros
+        surface[:,:,self.length-1] = 0
+        surface[:,:,0] = 0
+        surface[:,self.width-1,:] = 0
+        surface[:,0,:] = 0
+        surface[self.height-1,:,:] = 0
+        surface[0,:,:] = 0
 
-    def _generateSphere(self):
+        return surface
+
+
+    def _generateSphere(self) -> ndarray:
         # finds center of array
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
         radius = min(np.floor(self.length / 2), np.floor(self.width / 2), np.floor(self.height / 2))
@@ -126,7 +136,7 @@ class Bacteria3D(Bacteria, ABC):
         sph[sph >= 2] = 1
         return sph
 
-    def _generateCyl(self):
+    def _generateCyl(self) -> ndarray:
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
         # set semi-length
         r = min(np.floor(self.length / 2), np.floor(self.width / 2), np.floor(self.height / 2))
@@ -147,7 +157,7 @@ class Bacteria3D(Bacteria, ABC):
         else:
             return outertwo - innertwo
 
-    def _generateRod(self):
+    def _generateRod(self) -> ndarray:
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
         # set length, radius based on array size
         r = min(np.floor(self.length / 2), np.floor(self.width / 2), np.floor(self.height / 2))
