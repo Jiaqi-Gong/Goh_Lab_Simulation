@@ -25,7 +25,7 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     if interactType.upper() in ["CUTOFF", "CUT-OFF"]:
         # change ndarray to dictionary
         filmDict = _ndarrayToDict(film)
-        bactDict = _ndarrayToDict(bacteria)
+        bactDict = _ndarrayToDict(bacteria, isBacteria=True)
 
     # change the format of film and bacteria
     film = film[0]
@@ -177,7 +177,7 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     writeLog("Result in interact 2D is: {}".format(result))
 
     # print the min_film
-    visPlot(min_film, "Film at minimum_{}".format(currIter))
+    # visPlot(min_film, "Film at minimum_{}".format(currIter))
 
     # for debug, delete later
     # print(all_energy)
@@ -202,7 +202,7 @@ def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
 
     # change ndarray to dictionary
     filmDict = _ndarrayToDict(film)
-    bactDict = _ndarrayToDict(bacteria)
+    bactDict = _ndarrayToDict(bacteria, isBacteria=True)
 
     # show image of whole film and bacteria
     # visPlot(film, "whole_film_3D_{}".format(currIter))
@@ -346,13 +346,20 @@ def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     return result
 
 
-def _ndarrayToDict(arrayList: ndarray) -> Dict[Tuple[int, int], List[Tuple[int, int]]]:
+def _ndarrayToDict(arrayList: ndarray, isFilm: bool = None, isBacteria: bool = None) -> \
+        Dict[Tuple[int, int], List[Tuple[int, int]]]:
     """
     This function takes in a ndarray and reshape this array into a dictionary
     Key is a tuple represent (x, y), value is a list [(z, charge)], for 2D length of value is 1, for 3D it can be various
     """
     # init the result
     result = {}
+
+    # init the position at z direction
+    z_height = 0
+
+    if isBacteria:
+        z_height += 3
 
     # loop whole dictionary
     for z in range(len(arrayList)):
@@ -365,7 +372,7 @@ def _ndarrayToDict(arrayList: ndarray) -> Dict[Tuple[int, int], List[Tuple[int, 
                 key = (x, y)
 
                 # get value
-                value = (z, charge)
+                value = (z + z_height, charge)
 
                 # add into the result dictionary
                 if key not in result:
