@@ -205,8 +205,8 @@ def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     bactDict = _ndarrayToDict(bacteria)
 
     # show image of whole film and bacteria
-    visPlot(film, "whole_film_3D_{}".format(currIter))
-    visPlot(bacteria, "whole_bacteria_3D_{}".format(currIter))
+    # visPlot(film, "whole_film_3D_{}".format(currIter))
+    # visPlot(bacteria, "whole_bacteria_3D_{}".format(currIter))
 
     # shape of the film
     film_shape = film.shape
@@ -335,7 +335,7 @@ def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     result = (min_energy, min_x, min_y, min_energy_charge, min_charge, min_charge_x, min_charge_y)
 
     # print the min_film
-    visPlot(min_film, "Film at minimum_{}".format(currIter))
+    # visPlot(min_film, "Film at minimum_{}".format(currIter))
 
     # for debug, delete later
     # print(all_energy)
