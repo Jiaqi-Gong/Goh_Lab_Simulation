@@ -64,6 +64,9 @@ class Simulator(ABC):
         # init some variable
         self._setExtraParameter()
         self._checkAllSet()
+
+        # when multi process, one process run filmManager and other one run bacteria manager
+
         self.filmManager = FilmManager(trail, dimension, filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
                                        filmDomainSize, filmDomainShape, filmDomainConcentration,
                                        filmDomainChargeConcentration, filmNum)
