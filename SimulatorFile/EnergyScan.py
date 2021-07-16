@@ -270,7 +270,7 @@ class EnergySimulator(Simulator):
 
         # save no count first
         # save the excel file into folder result
-        name = "Type_{}_trail_{}-{}-{}_no_count.xlsx".format(str(self.simulationType), self.trail, date, time)
+        name = "EnergyScan_Type_{}_trail_{}-{}-{}_no_count.xlsx".format(str(self.simulationType), self.trail, date, time)
         file_path = "Result/" + name
 
         # call function in ExternalIO to save workbook
@@ -291,7 +291,7 @@ class EnergySimulator(Simulator):
                 ws1.cell(2, 18 + int(val_id), int(val) + 1)
 
         # save the excel file into folder result
-        name = "Type_{}_trail_{}-{}-{}_count.xlsx".format(str(self.simulationType), self.trail, date, time)
+        name = "EnergyScan_Type_{}_trail_{}-{}-{}_count.xlsx".format(str(self.simulationType), self.trail, date, time)
         file_path = "Result/" + name
 
         # call function in ExternalIO to save workbook
