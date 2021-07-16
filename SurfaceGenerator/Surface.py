@@ -29,6 +29,7 @@ class Surface:
     surfaceCharge: int
     originalSurface: ndarray
     surfaceWithDomain: Union[None, ndarray]
+    realDomainConc: float
 
     @abc.abstractmethod
     def __init__(self, trail: int, shape: str, size: Tuple[int, int, int], seed: int, surfaceCharge: int, dimension: int) \
@@ -44,8 +45,8 @@ class Surface:
 
         # set other information about this surface
         # 1 micrometer = 100 points
-        self.length = size[0] * 100
-        self.width = size[1] * 100
+        self.length = size[0]
+        self.width = size[1]
 
         # Not sure does height need to times 100?
         # if height needs to times 100, need to change the height of film put in
@@ -55,6 +56,9 @@ class Surface:
         self.trail = trail
         self.shape = shape
         self.seed = seed
+
+        # set real domain concentration
+        self.realDomainConc = -1
 
         # set the surface dimension
         self.dimension = dimension

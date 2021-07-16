@@ -22,35 +22,35 @@ def runSimulation():
     dimension = 2
     filmSeed = 1
     if dimension == 2:
-        filmSurfaceSize = (10, 10)
+        filmSurfaceSize = (10500, 10500)
     elif dimension == 3:
-        filmSurfaceSize = (10, 10, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
+        filmSurfaceSize = (100, 100, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
     filmSurfaceShape = "rectangle"
     filmNum = 1
     bacteriaNum = 5
-    interval_x = 50
-    interval_y = 50
+    interval_x = 10
+    interval_y = 10
     filmSurfaceCharge = -1
-    filmDomainSize = (1, 1)
+    filmDomainSize = (9, 9)
     filmDomainShape = "diamond"
     filmDomainCon = 0.2  # if need to change charge ratio, change this
     filmDomainChargeConcentration = 0.5 # ignore
     bacteriaSeed = 10
     if dimension == 2:
-        bacteriaSize = (5, 5)
+        bacteriaSize = (100, 100)
     elif dimension == 3:
-        bacteriaSize = (5, 5, 5)  # For bacteria, z value is the height of bacteria, can be any number
-    bacteriaSurfaceShape = "cuboid"
+        bacteriaSize = (50, 50, 5)  # For bacteria, z value is the height of bacteria, can be any number
+    bacteriaSurfaceShape = "rectangle"
     bacteriaSurfaceCharge = 1
-    bacteriaDomainSize = (1, 1)
+    bacteriaDomainSize = (9, 9)
     bacteriaDomainShape = "diamond"
     bacteriaDomainCon = 0.5
     bacteriaDomainChargeConcentration = 0.5
 
     ### below is new variable
     simulatorType = 1
-    # interactType = "DOT"
-    interactType = "CUTOFF"
+    interactType = "DOT"
+    # interactType = "CUTOFF"
 
 
     # below are for dynamic simulation, we are not using for now

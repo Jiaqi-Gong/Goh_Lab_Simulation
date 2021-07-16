@@ -26,7 +26,7 @@ class DomainGenerator:
         self.seed = seed
 
     def generateDomain(self, surface: Surface, shape: str, size: Tuple[int, int], concentration: float,
-                       charge_concentration: float) -> ndarray:
+                       charge_concentration: float) -> [ndarray, float]:
         """
         This function takes in a surface, shape and size of domain want to generate on the surface
         :param surface: the surface want to generate the domain
@@ -41,8 +41,8 @@ class DomainGenerator:
         writeLog([self.__dict__, surface.__dict__, shape, size, concentration])
 
         # get size
-        domainLength = size[0] * 100
-        domainWidth = size[1] * 100
+        domainLength = size[0]
+        domainWidth = size[1]
 
         # calculate how many domain should generate
         # calculation for the number of domains which needs to be generated depends on the shape of the domain
@@ -55,18 +55,19 @@ class DomainGenerator:
             generateShape = self._generateDiamond
             checkEmpty = self._diamondEmpty
             # Number of domains
-            domainNum = int((surface.length * surface.width * concentration) / (domainWidth * domainLength))
+            domainNum = int((surface.length * surface.width * concentration) / int(4*((1+domainWidth)/2)*domainWidth + 1))
+            # showMessage("concentration = {}".format(concentration))
         elif shape.upper() == "CROSS":
             generateShape = self._generateCross
             checkEmpty = self._crossEmpty
             # Number of domains
-            domainNum = int((surface.length * surface.width * concentration) / (2 * domainWidth + 2 * domainLength))
+            domainNum = int((surface.length * surface.width * concentration) / int(domainWidth*2+domainLength*2+1))
         elif shape.upper() == "OCTAGON":
             generateShape = self._generateOctagon
             checkEmpty = self._octagonEmpty
             # Number of domains
-            domainNum = int((surface.length * surface.width * concentration) / (
-                    2 * (1 + math.sqrt(2)) * domainWidth * domainLength))
+            domainNum = int((surface.length * surface.width * concentration) / int((domainWidth+1 + domainWidth*2)**2 -
+                                                                                   4*((1+domainWidth)/2)*domainWidth))
         elif shape.upper() == "SINGLE":
             generateShape = self._generateSingle
             checkEmpty = self._singleEmpty
@@ -117,6 +118,7 @@ class DomainGenerator:
         # end the while loop
         timeout = time.time() + 10  # 10 seconds from now
 
+
         # start to generate the domain on surface
         while generated < domainNum:
             # if the while loop has been running for too long, break the while loop
@@ -141,7 +143,11 @@ class DomainGenerator:
             timeout = time.time() + 10  # 10 seconds from now
 
             showMessage("Generated domain number {}".format(generated))
-        return newSurface
+
+        actual_concentration = len(np.where(newSurface == charge)[0]) / (surface.length * surface.width)
+        # showMessage("actual concentration is {}".format(actual_concentration))
+        # showMessage("intended concentration is {}".format(concentration))
+        return newSurface, actual_concentration
 
     def _allPossiblePoint(self, surface: Surface, surfaceLength: int, surfaceWidth: int, surfaceHeight: int,
                           domainLength: int, domainWidth: int, shape: str) -> List[Tuple[int, int, int]]:
@@ -198,22 +204,22 @@ class DomainGenerator:
 
             # for 3D surface
             elif surface.dimension == 3:
-                if surface.shape.upper() == "SPHERE":
-                    x_possibility = range(domainLength + 1, surfaceLength - domainLength - 1)
-                    y_possibility = range(domainWidth + 1, surfaceWidth - domainWidth - 1)
-                    z_possibility = range(domainWidth + 1, surfaceHeight - domainWidth - 1)
-                    # create list with all possible coordinates using list comprehension
-                    # when x is constant
-                    possibleCoordinate1 = [(i, j, k) for i in [0, int(surface.shape[2]) - 1] for j in y_possibility for k in
-                                           z_possibility]
-                    # when y is constant
-                    possibleCoordinate2 = [(i, j, k) for i in x_possibility for j in [0, int(surface.shape[1]) - 1] for k in
-                                           z_possibility]
-                    # when z is constant
-                    possibleCoordinate3 = [(i, j, k) for i in x_possibility for j in y_possibility for k in
-                                           [0, int(surface.shape[0]) - 1]]
-                    # add all possible coordinates for each axis to get all possible coordinates
-                    possibleCoordinate = possibleCoordinate1 + possibleCoordinate2 + possibleCoordinate3
+                # if surface.shape.upper() == "SPHERE":
+                x_possibility = range(domainLength + 1, surfaceLength - domainLength - 1)
+                y_possibility = range(domainWidth + 1, surfaceWidth - domainWidth - 1)
+                z_possibility = range(domainWidth + 1, surfaceHeight - domainWidth - 1)
+                # create list with all possible coordinates using list comprehension
+                # when x is constant
+                possibleCoordinate1 = [(i, j, k) for i in [0, int(surface.length) - 1] for j in y_possibility for k in
+                                       z_possibility]
+                # when y is constant
+                possibleCoordinate2 = [(i, j, k) for i in x_possibility for j in [0, int(surface.width) - 1] for k in
+                                       z_possibility]
+                # when z is constant
+                possibleCoordinate3 = [(i, j, k) for i in x_possibility for j in y_possibility for k in
+                                       [0, int(surface.height) - 1]]
+                # add all possible coordinates for each axis to get all possible coordinates
+                possibleCoordinate = possibleCoordinate1 + possibleCoordinate2 + possibleCoordinate3
 
 
         # for octagon shape domain
@@ -243,36 +249,38 @@ class DomainGenerator:
                 # Set restriction on where the starting positions can be
                 # Separate cases for when domainLength/domainWidth are either even or odd
                 # for 3D surface
-                if surface.shape.upper() == "SPHERE":
-                    # if the domainLength is an even number
-                    if domainLength % 2 == 0:
-                        # define all the possible coordinates where domain can be generated
-                        x_possibility = range(int(domainLength + (domainLength / 2) + 1),
-                                              int(surfaceLength - domainLength - (domainLength / 2) - 1))
-                        y_possibility = range(int(domainWidth + (domainWidth / 2) + 1),
-                                              int(surfaceWidth - domainWidth - (domainWidth / 2) - 1))
-                        z_possibility = range(int(domainWidth + (domainWidth / 2) + 1),
-                                              int(surfaceHeight - domainWidth - (domainWidth / 2) - 1))
-                    # if the domainLength is an odd number
-                    elif domainLength % 2 == 1:
-                        x_possibility = range(int(domainLength + ((domainLength + 1) / 2) + 1),
-                                              int(surfaceLength - domainLength - ((domainLength + 1) / 2) - 1))
-                        y_possibility = range(int(domainWidth + ((domainWidth + 1) / 2) + 1),
-                                              int(surfaceWidth - domainWidth - ((domainWidth + 1) / 2) - 1))
-                        z_possibility = range(int(domainWidth + ((domainWidth + 1) / 2) + 1),
-                                              int(surfaceHeight - domainWidth - ((domainWidth + 1) / 2) - 1))
-                    # create list with all possible coordinates using list comprehension
-                    # when x is constant
-                    possibleCoordinate1 = [(i, j, k) for i in [0, surface.shape[2] - 1] for j in y_possibility for k in
-                                           z_possibility]
-                    # when y is constant
-                    possibleCoordinate2 = [(i, j, k) for i in x_possibility for j in [0, int(surface.shape[1]) - 1] for k in
-                                           z_possibility]
-                    # when z is constant
-                    possibleCoordinate3 = [(i, j, k) for i in x_possibility for j in y_possibility for k in
-                                           [0, int(surface.shape[0]) - 1]]
-                    # add all possible coordinates for each axis to get all possible coordinates
-                    possibleCoordinate = possibleCoordinate1 + possibleCoordinate2 + possibleCoordinate3
+                # if surface.shape.upper() == "SPHERE":
+                # if the domainLength is an even number
+                if domainLength % 2 == 0:
+                    # define all the possible coordinates where domain can be generated
+                    x_possibility = range(int(domainLength + (domainLength / 2) + 1),
+                                          int(surfaceLength - domainLength - (domainLength / 2) - 1))
+                    y_possibility = range(int(domainWidth + (domainWidth / 2) + 1),
+                                          int(surfaceWidth - domainWidth - (domainWidth / 2) - 1))
+                    z_possibility = range(int(domainWidth + (domainWidth / 2) + 1),
+                                          int(surfaceHeight - domainWidth - (domainWidth / 2) - 1))
+                # if the domainLength is an odd number
+                elif domainLength % 2 == 1:
+                    x_possibility = range(int(domainLength + ((domainLength + 1) / 2) + 1),
+                                          int(surfaceLength - domainLength - ((domainLength + 1) / 2) - 1))
+                    y_possibility = range(int(domainWidth + ((domainWidth + 1) / 2) + 1),
+                                          int(surfaceWidth - domainWidth - ((domainWidth + 1) / 2) - 1))
+                    z_possibility = range(int(domainWidth + ((domainWidth + 1) / 2) + 1),
+                                          int(surfaceHeight - domainWidth - ((domainWidth + 1) / 2) - 1))
+                # create list with all possible coordinates using list comprehension
+                # when x is constant
+                possibleCoordinate1 = [(i, j, k) for i in [0, int(surface.length) - 1] for j in y_possibility for k
+                                       in
+                                       z_possibility]
+                # when y is constant
+                possibleCoordinate2 = [(i, j, k) for i in x_possibility for j in [0, int(surface.width) - 1] for k
+                                       in
+                                       z_possibility]
+                # when z is constant
+                possibleCoordinate3 = [(i, j, k) for i in x_possibility for j in y_possibility for k in
+                                       [0, int(surface.height) - 1]]
+                # add all possible coordinates for each axis to get all possible coordinates
+                possibleCoordinate = possibleCoordinate1 + possibleCoordinate2 + possibleCoordinate3
 
 
         # for single shape domain
@@ -290,7 +298,28 @@ class DomainGenerator:
 
             # for 3D surface
             elif surface.dimension == 3:
-                if surface.shape.upper() == "SPHERE":
+                if surface.shape.upper() == "RECTANGLE" or surface.shape.upper() == "CUBOID":
+                    # If the surface was a rectangle/cuboid, the points can fall inside the surface length, width, height
+                    x_possibility = range(surface.length - 1)
+                    y_possibility = range(surface.width - 1)
+                    z_possibility = range(surface.height - 1)
+                    # create list with all possible coordinates using list comprehension
+                    # when x is constant
+                    possibleCoordinate1 = [(i, j, k) for i in [0, int(surface.length) - 1] for j in y_possibility for k
+                                           in
+                                           z_possibility]
+                    # when y is constant
+                    possibleCoordinate2 = [(i, j, k) for i in x_possibility for j in [0, int(surface.width) - 1] for k
+                                           in
+                                           z_possibility]
+                    # when z is constant
+                    possibleCoordinate3 = [(i, j, k) for i in x_possibility for j in y_possibility for k in
+                                           [0, int(surface.height) - 1]]
+                    # add all possible coordinates for each axis to get all possible coordinates
+                    possibleCoordinate = possibleCoordinate1 + possibleCoordinate2 + possibleCoordinate3
+
+
+                elif surface.shape.upper() == "SPHERE":
                     # If the surface was a sphere, the points must fall in a circle with the radius of either
                     # surface.length, surface.width or surface.height
                     radius = min(surface.length, surface.width, surface.height)
@@ -555,21 +584,25 @@ class DomainGenerator:
                     point = self.nearestPoint(surface, [int(startPoint[2] - i), startPoint[1], int(startPoint[0] + j)])
                     # generate charge on the domain
                     surface[point[0], point[1], point[2]] = charge
+                    # count_charge += 1
 
                     # top left
                     point = self.nearestPoint(surface, [int(startPoint[2] - i), startPoint[1], int(startPoint[0] - j)])
                     # generate charge on the domain
                     surface[point[0], point[1], point[2]] = charge
+                    # count_charge += 1
 
                     # bottom right
                     point = self.nearestPoint(surface, [int(startPoint[2] + i), startPoint[1], int(startPoint[0] + j)])
                     # generate charge on the domain
                     surface[point[0], point[1], point[2]] = charge
+                    # count_charge += 1
 
                     # bottom left
                     point = self.nearestPoint(surface, [int(startPoint[2] + i), startPoint[1], int(startPoint[0] - j)])
                     # generate charge on the domain
                     surface[point[0], point[1], point[2]] = charge
+                    # count_charge += 1
 
 
                 eg -= 1
@@ -583,21 +616,26 @@ class DomainGenerator:
                     point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1] - i), int(startPoint[0] + j)])
                     # generate charge on the domain
                     surface[point[0], point[1], point[2]] = charge
+                    # count_charge += 1
 
                     # top left
                     point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1] - i), int(startPoint[0] - j)])
                     # generate charge on the domain
                     surface[point[0], point[1], point[2]] = charge
+                    # count_charge += 1
 
                     # bottom right
                     point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1] + i), int(startPoint[0] + j)])
                     # generate charge on the domain
                     surface[point[0], point[1], point[2]] = charge
+                    # count_charge += 1
 
                     # bottom left
                     point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1] + i), int(startPoint[0] - j)])
                     # generate charge on the domain
                     surface[point[0], point[1], point[2]] = charge
+                    # count_charge += 1
+
                 eg -= 1
 
         # in y-z plane
@@ -609,23 +647,27 @@ class DomainGenerator:
                     point = self.nearestPoint(surface, [int(startPoint[2] - i), int(startPoint[1] + j), startPoint[0]])
                     # generate charge on the domain
                     surface[point[0], point[1], point[2]] = charge
+                    # count_charge += 1
 
                     # top left
                     point = self.nearestPoint(surface, [int(startPoint[2] - i), int(startPoint[1] - j), startPoint[0]])
                     # generate charge on the domain
                     surface[point[0], point[1], point[2]] = charge
+                    # count_charge += 1
 
                     # bottom right
                     point = self.nearestPoint(surface, [int(startPoint[2] + i), int(startPoint[1] + j), startPoint[0]])
                     # generate charge on the domain
                     surface[point[0], point[1], point[2]] = charge
+                    # count_charge += 1
 
                     # bottom left
                     point = self.nearestPoint(surface, [int(startPoint[2] + i), int(startPoint[1] - j), startPoint[0]])
                     # generate charge on the domain
                     surface[point[0], point[1], point[2]] = charge
-                eg -= 1
+                    # count_charge += 1
 
+                eg -= 1
         return surface
 
     def _crossEmpty(self, surface: Surface, domainWidth: int, domainLength: int, startPoint: Tuple[int, int, int],
