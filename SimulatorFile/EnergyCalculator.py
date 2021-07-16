@@ -32,7 +32,7 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     bacteria = bacteria[0]
 
     # show image of whole film and bacteria
-    visPlot(film, "whole_film_2D_{}".format(currIter))
+    # visPlot(film, "whole_film_2D_{}".format(currIter))
     visPlot(bacteria, "whole_bacteria_2D_{}".format(currIter))
 
     # shape of the film
@@ -63,6 +63,18 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
 
     # for debug, delete later
     all_energy = []
+
+    # for future multiprocess, init a dict to save value
+    # divide x to three parts and divide y to three parts
+    # totally 9 subprocess to speed up the calculation
+    # key is minimum energy,
+    # value is a tuple store the result like (min_energy, min_x, min_y, min_energy_charge, min_charge, min_charge_x, min_charge_y)
+    # all process save the result in the dict
+    # then loop dict.keys() to find the minimum energy and corresponding result
+    # extract below function out as a separate function to do multi process
+
+    # init a result dictionary
+    result_dict = {}
 
     # scan through the surface and make calculation
     if interactType.upper() in ["CUTOFF", "CUT-OFF"]:
@@ -521,3 +533,11 @@ def _twoPointEnergy(film: Dict[Tuple[int, int], List[Tuple[int, int]]],
                     total_energy += energy
 
     return total_energy
+
+def _calculateEnergy(x_start: int, x_end: int, y_start: int, y_end: int, film: ndarray, bacteria: ndarray,
+                     result_dict: Dict, interactType: str, cutoff: int = None) -> None:
+    """
+    This is a helper function for calculate energy in the multi process
+    Save the result in a given dictionary
+    """
+    raise NotImplementedError
