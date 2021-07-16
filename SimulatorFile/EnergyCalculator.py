@@ -129,8 +129,8 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
             unique, counts = np.unique(film_use, return_counts=True)
 
             # record all variables
-            writeLog("film_use is: {}, film_1D is: {}, energy is: {}, unique is: {}, counts is: {}".format(
-                film_use, film_1D, energy, unique, counts))
+            # writeLog("film_use is: {}, film_1D is: {}, energy is: {}, unique is: {}, counts is: {}".format(
+            #     film_use, film_1D, energy, unique, counts))
 
             # check the calculation result and change corresponding value
             charge = 0

@@ -158,21 +158,23 @@ class EnergySimulator(Simulator):
         ws1 = wb.create_sheet("Results", 0)
 
         # naming the columns in the worksheet
-        ws1.cell(1, 1, "Film shape and size")
-        ws1.cell(1, 2, "Film domain shape and size")
-        ws1.cell(1, 3, "Bacteria shape and size")
-        ws1.cell(1, 4, "Bacteria domain shape and size")
-        ws1.cell(1, 5, "Film Seed # ")
-        ws1.cell(1, 6, "Film real domain concentration")
-        ws1.cell(1, 7, "Bacteria Seed # ")
-        ws1.cell(1, 8, "Bacteria real domain concentration")
-        ws1.cell(1, 9, "Min Energy")
-        ws1.cell(1, 10, "Min X")
-        ws1.cell(1, 11, "Min Y")
-        ws1.cell(1, 12, "Surface Charge at Min Energy")
-        ws1.cell(1, 13, "Min Energy Gradient Strip")
-        ws1.cell(1, 14, "Time used (s)")
-        ws1.cell(1, 15, "Interact type")
+        ws1.cell(1, 1, "Trail")
+        ws1.cell(1, 2, "Dimension")
+        ws1.cell(1, 3, "Film shape and size")
+        ws1.cell(1, 4, "Film domain shape and size")
+        ws1.cell(1, 5, "Bacteria shape and size")
+        ws1.cell(1, 6, "Bacteria domain shape and size")
+        ws1.cell(1, 7, "Film Seed # ")
+        ws1.cell(1, 8, "Film real domain concentration")
+        ws1.cell(1, 9, "Bacteria Seed # ")
+        ws1.cell(1, 10, "Bacteria real domain concentration")
+        ws1.cell(1, 11, "Min Energy")
+        ws1.cell(1, 12, "Min X")
+        ws1.cell(1, 13, "Min Y")
+        ws1.cell(1, 14, "Surface Charge at Min Energy")
+        ws1.cell(1, 15, "Min Energy Gradient Strip")
+        ws1.cell(1, 16, "Time used (s)")
+        ws1.cell(1, 17, "Interact type")
 
         # if simulation type is 2, do the count
         if self.simulationType == 2:
@@ -180,7 +182,7 @@ class EnergySimulator(Simulator):
             count = 0
             # number is how many strip
             number = 20
-            for i in range(16, 16 + number):
+            for i in range(18, 18 + number):
                 ws1.cell(1, i, count)
                 ws1.cell(2, i, 0)
                 count += 1
@@ -225,40 +227,54 @@ class EnergySimulator(Simulator):
         row_pos = 2 + currIter
 
         # write the result
-        ws1.cell(row_pos, 1, str(self.filmManager.filmSurfaceShape) + " : " + str(self.filmManager.filmSurfaceSize))
-        ws1.cell(row_pos, 2, str(self.filmManager.filmDomainShape) + " : " + str(self.filmManager.filmDomainSize))
-        ws1.cell(row_pos, 3,
+        ws1.cell(row_pos, 1, str(self.trail))
+        ws1.cell(row_pos, 2, self.dimension)
+        ws1.cell(row_pos, 3, str(self.filmManager.filmSurfaceShape) + " : " + str(self.filmManager.filmSurfaceSize))
+        ws1.cell(row_pos, 4, str(self.filmManager.filmDomainShape) + " : " + str(self.filmManager.filmDomainSize))
+        ws1.cell(row_pos, 5,
                  str(self.bacteriaManager.bacteriaSurfaceShape) + " : " + str(self.bacteriaManager.bacteriaSize))
-        ws1.cell(row_pos, 4,
+        ws1.cell(row_pos, 6,
                  str(self.bacteriaManager.bacteriaDomainShape) + " : " + str(self.bacteriaManager.bacteriaDomainSize))
 
         if self.simulationType == 3:
-            ws1.cell(row_pos, 5, self.filmManager.film[currIter].seed)
-            ws1.cell(row_pos, 6, self.filmManager.film[currIter].realDomainConc)
-            ws1.cell(row_pos, 7, self.bacteriaManager.bacteria[0].seed)
-            ws1.cell(row_pos, 8, self.bacteriaManager.bacteria[0].realDomainConc)
+            ws1.cell(row_pos, 7, self.filmManager.film[currIter].seed)
+            ws1.cell(row_pos, 8, self.filmManager.film[currIter].realDomainConc)
+            ws1.cell(row_pos, 9, self.bacteriaManager.bacteria[0].seed)
+            ws1.cell(row_pos, 10, self.bacteriaManager.bacteria[0].realDomainConc)
 
         else:
-            ws1.cell(row_pos, 5, self.filmManager.film[0].seed)
-            ws1.cell(row_pos, 6, self.filmManager.film[0].realDomainConc)
-            ws1.cell(row_pos, 7, self.bacteriaManager.bacteria[currIter].seed)
-            ws1.cell(row_pos, 8, self.bacteriaManager.bacteria[currIter].realDomainConc)
+            ws1.cell(row_pos, 7, self.filmManager.film[0].seed)
+            ws1.cell(row_pos, 8, self.filmManager.film[0].realDomainConc)
+            ws1.cell(row_pos, 9, self.bacteriaManager.bacteria[currIter].seed)
+            ws1.cell(row_pos, 10, self.bacteriaManager.bacteria[currIter].realDomainConc)
 
-        ws1.cell(row_pos, 9, min_energy)
-        ws1.cell(row_pos, 10, min_x)
-        ws1.cell(row_pos, 11, min_x)
-        ws1.cell(row_pos, 12, min_energy_charge)
-        ws1.cell(row_pos, 13, grad_strip)
-        ws1.cell(row_pos, 14, time_consume)
+        ws1.cell(row_pos, 11, min_energy)
+        ws1.cell(row_pos, 12, min_x)
+        ws1.cell(row_pos, 13, min_x)
+        ws1.cell(row_pos, 14, min_energy_charge)
+        ws1.cell(row_pos, 15, grad_strip)
+        ws1.cell(row_pos, 16, time_consume)
         if self.interactType.upper() == 'DOT':
-            ws1.cell(row_pos, 15, self.interactType)
+            ws1.cell(row_pos, 17, self.interactType)
         else:
-            ws1.cell(row_pos, 15, "{}: {}".format(self.interactType, self.cutoff))
+            ws1.cell(row_pos, 17, "{}: {}".format(self.interactType, self.cutoff))
 
         # if this is not the last iterator, update the time and return this
         if not end:
             self.startTime = datetime.now()
             return None
+
+        # generate time and record it
+        date = datetime.now().strftime("%m_%d")
+        time = datetime.now().strftime("%H-%M-%S")
+
+        # save no count first
+        # save the excel file into folder result
+        name = "Type_{}_trail_{}-{}-{}_no_count.xlsx".format(str(self.simulationType), self.trail, date, time)
+        file_path = "Result/" + name
+
+        # call function in ExternalIO to save workbook
+        saveResult(wb, file_path)
 
         # special count for simulation type 2
         # count number of min_energy locations at each gradient strip
@@ -266,18 +282,16 @@ class EnergySimulator(Simulator):
             showMessage("WARNING: Potential bug here")
             for row_num in range(self.bacteriaManager.bacteriaNum):
                 row = 2 + row_num
-                val_id = ws1.cell(row, 13).value
+                val_id = ws1.cell(row, 15).value
 
                 # check the value read from column 11
                 if val_id < 0:
                     continue
-                val = ws1.cell(2, 16 + int(val_id)).value
-                ws1.cell(2, 14 + int(val_id), int(val) + 1)
+                val = ws1.cell(2, 18 + int(val_id)).value
+                ws1.cell(2, 18 + int(val_id), int(val) + 1)
 
         # save the excel file into folder result
-        name = "Type_{}_trail_{}-{}-{}.xlsx".format(str(self.simulationType), self.trail,
-                                                    datetime.now().strftime("%m_%d"),
-                                                    datetime.now().strftime("%H-%M-%S"))
+        name = "Type_{}_trail_{}-{}-{}_count.xlsx".format(str(self.simulationType), self.trail, date, time)
         file_path = "Result/" + name
 
         # call function in ExternalIO to save workbook

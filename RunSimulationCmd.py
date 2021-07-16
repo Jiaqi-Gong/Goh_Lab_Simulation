@@ -850,7 +850,8 @@ if __name__ == '__main__':
     infoDict, execDict = getRestriction()
 
     # get log file
-    openLog()
+    log_name = openLog()
+    showMessage(log_name)
 
     # call the user input function
     getArgument()
