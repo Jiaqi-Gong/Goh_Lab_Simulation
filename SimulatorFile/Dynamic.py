@@ -67,7 +67,7 @@ class DynamicSimulator(Simulator):
         # raise NotImplementedError
 
         # set some variable, will replaced by user input
-        z_restriction = 4
+        z_restriction = 8
         bacteriaShape = self.bacteriaManager.bacteriaSurfaceShape
 
         # create bacteria movement generator
@@ -88,9 +88,13 @@ class DynamicSimulator(Simulator):
         for bacteria in self.bacteriaManager.bacteria:
             bacteria.position = bactMoveGenerator.initPosition()
 
+        # record the first time
+        result = [len(self.bacteriaManager.freeBacteria), len(self.bacteriaManager.stuckBacteria)]
+        self._output(result, 0, False)
+
         # do the simulation
         end = False
-        for currIter in range(self.timeStep):
+        for currIter in range(1, self.timeStep):
             # check the end of timeStep
             if currIter == self.timeStep - 1:
                 end = True
@@ -124,27 +128,28 @@ class DynamicSimulator(Simulator):
         ws1 = wb.create_sheet("Results", 0)
 
         # naming the columns in the worksheet
-        ws1.cell(1, 1, "Film shape and size")
-        ws1.cell(1, 2, "Film domain shape and size")
-        ws1.cell(1, 3, "Bacteria shape and size")
-        ws1.cell(1, 4, "Bacteria domain shape and size")
-        ws1.cell(1, 5, "Film Seed # ")
-        ws1.cell(1, 6, "Start Bacteria Seed # ")
-        ws1.cell(1, 7, "Total bacteria number")
-        ws1.cell(1, 8, "Bacteria Movement generator seed")
-        ws1.cell(1, 9, "Time used (s)")
-        ws1.cell(1, 10, "Probability type")
-        ws1.cell(1, 11, "Time step")
-        ws1.cell(1, 12, "Free bacteria number")
-        ws1.cell(1, 13, "Stuck bacteria number")
+        ws1.cell(1, 1, "Trail")
+        ws1.cell(1, 2, "Film shape and size")
+        ws1.cell(1, 3, "Film domain shape and size")
+        ws1.cell(1, 4, "Film Seed # ")
+        ws1.cell(1, 5, "Bacteria Movement generator seed")
+        ws1.cell(1, 6, "Bacteria shape and size")
+        ws1.cell(1, 7, "Bacteria domain shape and size")
+        ws1.cell(1, 8, "Start Bacteria Seed # ")
+        ws1.cell(1, 9, "Total bacteria number")
+        ws1.cell(1, 10, "Time used (s)")
+        ws1.cell(1, 11, "Probability type")
+        ws1.cell(1, 12, "Time step")
+        ws1.cell(1, 13, "Free bacteria number")
+        ws1.cell(1, 14, "Stuck bacteria number")
 
         if self.probabilityType.upper() == "SIMPLE":
-            ws1.cell(1, 14, "Probability")
+            ws1.cell(1, 15, "Probability")
         elif self.probabilityType.upper() == "POISSON":
-            ws1.cell(1, 14, "Lambda value")
+            ws1.cell(1, 15, "Lambda value")
         elif self.probabilityType.upper() == "BOLTZMANN":
-            ws1.cell(1, 14, "Temperature")
-            ws1.cell(1, 15, "Energy")
+            ws1.cell(1, 15, "Temperature")
+            ws1.cell(1, 16, "Energy")
 
         return (wb, ws1)
 
@@ -173,29 +178,30 @@ class DynamicSimulator(Simulator):
         freeBactNum, stuckBactNum = result
 
         # write the result
-        ws1.cell(row_pos, 1, str(self.filmManager.filmSurfaceShape) + " : " + str(self.filmManager.filmSurfaceSize))
-        ws1.cell(row_pos, 2, str(self.filmManager.filmDomainShape) + " : " + str(self.filmManager.filmDomainSize))
-        ws1.cell(row_pos, 3,
+        ws1.cell(row_pos, 1, self.trail)
+        ws1.cell(row_pos, 2, str(self.filmManager.filmSurfaceShape) + " : " + str(self.filmManager.filmSurfaceSize))
+        ws1.cell(row_pos, 3, str(self.filmManager.filmDomainShape) + " : " + str(self.filmManager.filmDomainSize))
+        ws1.cell(row_pos, 4, self.filmManager.film[0].seed)
+        ws1.cell(row_pos, 5, self.bacteriaMovementSeed)
+        ws1.cell(row_pos, 6,
                  str(self.bacteriaManager.bacteriaSurfaceShape) + " : " + str(self.bacteriaManager.bacteriaSize))
-        ws1.cell(row_pos, 4,
+        ws1.cell(row_pos, 7,
                  str(self.bacteriaManager.bacteriaDomainShape) + " : " + str(self.bacteriaManager.bacteriaDomainSize))
-        ws1.cell(row_pos, 5, self.filmManager.film[0].seed)
-        ws1.cell(row_pos, 6, self.bacteriaManager.bacteria[0].seed)
-        ws1.cell(row_pos, 7, self.bacteriaNum)
-        ws1.cell(row_pos, 8, self.bacteriaMovementSeed)
-        ws1.cell(row_pos, 9, time_consume)
-        ws1.cell(row_pos, 10, self.probabilityType)
-        ws1.cell(row_pos, 11, currIter)
-        ws1.cell(row_pos, 12, freeBactNum)
-        ws1.cell(row_pos, 13, stuckBactNum)
+        ws1.cell(row_pos, 8, self.bacteriaManager.bacteriaSeed)
+        ws1.cell(row_pos, 9, self.bacteriaNum)
+        ws1.cell(row_pos, 10, time_consume)
+        ws1.cell(row_pos, 11, self.probabilityType)
+        ws1.cell(row_pos, 12, currIter)
+        ws1.cell(row_pos, 13, freeBactNum)
+        ws1.cell(row_pos, 14, stuckBactNum)
 
         if self.probabilityType.upper() == "SIMPLE":
-            ws1.cell(1, 14, self.probability)
+            ws1.cell(row_pos, 15, self.probability)
         elif self.probabilityType.upper() == "POISSON":
-            ws1.cell(1, 14, self.Lambda)
+            ws1.cell(row_pos, 15, self.Lambda)
         elif self.probabilityType.upper() == "BOLTZMANN":
-            ws1.cell(1, 14, self.temperature)
-            ws1.cell(1, 15, self.energy)
+            ws1.cell(row_pos, 15, self.temperature)
+            ws1.cell(row_pos, 16, self.energy)
 
         # if this is not the last iterator, update the time and return this
         if not end:
@@ -203,7 +209,7 @@ class DynamicSimulator(Simulator):
             return None
 
         # save the excel file into folder result
-        name = "Type_{}_trail_{}-{}-{}.xlsx".format(str(self.simulationType), self.trail,
+        name = "Dynamic_trail_{}-{}-{}.xlsx".format(self.trail,
                                                     datetime.now().strftime("%m_%d"),
                                                     datetime.now().strftime("%H-%M-%S"))
         file_path = "Result/" + name
@@ -234,9 +240,12 @@ class DynamicSimulator(Simulator):
 
         # loop all free bacteria
         for bact in self.bacteriaManager.freeBacteria:
-            # get next position
-            bactNextPos = bactMoveGenerator.nextPosition(self.probabilityType, bact.position, self.Lambda,
-                                                         self.temperature, self.energy)
+            # get next position based on probability type
+            if self.probabilityType.upper() == "SIMPLE":
+                bactNextPos = bactMoveGenerator.nextPosition(self.probabilityType, bact.position,
+                                                             probability=self.probability)
+            else:
+                raise RuntimeError("This is _interact in Dynamic simulator, the input probability type is not implement")
 
             # based on next position, move the bacteria
             if not bactNextPos:

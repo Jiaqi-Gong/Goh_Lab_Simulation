@@ -10,7 +10,8 @@ from ExternalIO import openLog, showMessage
 
 def runSimulation():
     # get log file
-    openLog()
+    log_name = openLog()
+    showMessage(log_name)
 
     showMessage("WARNING: validity of parameter uses is not check, use runSimulationCmd to check the validity of "
                 "parameter uses")
@@ -34,7 +35,7 @@ def runSimulation():
     filmDomainSize = (14, 14)
     filmDomainShape = "diamond"
     filmDomainCon = 0.2  # if need to change charge ratio, change this
-    filmDomainChargeConcentration = 0.5 # ignore
+    filmDomainChargeConcentration = 0.5  # ignore
     bacteriaSeed = 10
     if dimension == 2:
         bacteriaSize = (100, 100)
@@ -51,7 +52,6 @@ def runSimulation():
     simulatorType = 1
     interactType = "DOT"
     # interactType = "CUTOFF"
-
 
     # below are for dynamic simulation, we are not using for now
     probabilityType = "SIMPLE"

@@ -129,8 +129,8 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
             unique, counts = np.unique(film_use, return_counts=True)
 
             # record all variables
-            writeLog("film_use is: {}, film_1D is: {}, energy is: {}, unique is: {}, counts is: {}".format(
-                film_use, film_1D, energy, unique, counts))
+            # writeLog("film_use is: {}, film_1D is: {}, energy is: {}, unique is: {}, counts is: {}".format(
+            #     film_use, film_1D, energy, unique, counts))
 
             # check the calculation result and change corresponding value
             charge = 0
@@ -174,6 +174,8 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     # save the result
     result = (min_energy, min_x, min_y, min_energy_charge, min_charge, min_charge_x, min_charge_y)
 
+    writeLog("Result in interact 2D is: {}".format(result))
+
     # print the min_film
     visPlot(min_film, "Film at minimum_{}".format(currIter))
 
@@ -203,8 +205,8 @@ def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     bactDict = _ndarrayToDict(bacteria)
 
     # show image of whole film and bacteria
-    visPlot(film, "whole_film_3D_{}".format(currIter))
-    visPlot(bacteria, "whole_bacteria_3D_{}".format(currIter))
+    # visPlot(film, "whole_film_3D_{}".format(currIter))
+    # visPlot(bacteria, "whole_bacteria_3D_{}".format(currIter))
 
     # shape of the film
     film_shape = film.shape
@@ -333,7 +335,7 @@ def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     result = (min_energy, min_x, min_y, min_energy_charge, min_charge, min_charge_x, min_charge_y)
 
     # print the min_film
-    visPlot(min_film, "Film at minimum_{}".format(currIter))
+    # visPlot(min_film, "Film at minimum_{}".format(currIter))
 
     # for debug, delete later
     # print(all_energy)
