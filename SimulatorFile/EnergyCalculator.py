@@ -33,7 +33,7 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
 
     # show image of whole film and bacteria
     # visPlot(film, "whole_film_2D_{}".format(currIter))
-    visPlot(bacteria, "whole_bacteria_2D_{}".format(currIter))
+    # visPlot(bacteria, "whole_bacteria_2D_{}".format(currIter))
 
     # shape of the film
     film_shape = film.shape
