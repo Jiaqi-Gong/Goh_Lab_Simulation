@@ -142,7 +142,7 @@ class EnergySimulator(Simulator):
         showMessage("Interact done")
 
         # set the output
-        # self._output(result, currIter, end)
+        self._output(result, currIter, end)
 
     def _initOutput(self) -> Tuple[Workbook, Union[WriteOnlyWorksheet, Worksheet]]:
         """
@@ -163,14 +163,16 @@ class EnergySimulator(Simulator):
         ws1.cell(1, 3, "Bacteria shape and size")
         ws1.cell(1, 4, "Bacteria domain shape and size")
         ws1.cell(1, 5, "Film Seed # ")
-        ws1.cell(1, 6, "Bacteria Seed # ")
-        ws1.cell(1, 7, "Min Energy")
-        ws1.cell(1, 8, "Min X")
-        ws1.cell(1, 9, "Min Y")
-        ws1.cell(1, 10, "Surface Charge at Min Energy")
-        ws1.cell(1, 11, "Min Energy Gradient Strip")
-        ws1.cell(1, 12, "Time used (s)")
-        ws1.cell(1, 13, "Interact type")
+        ws1.cell(1, 6, "Film real domain concentration")
+        ws1.cell(1, 7, "Bacteria Seed # ")
+        ws1.cell(1, 8, "Bacteria real domain concentration")
+        ws1.cell(1, 9, "Min Energy")
+        ws1.cell(1, 10, "Min X")
+        ws1.cell(1, 11, "Min Y")
+        ws1.cell(1, 12, "Surface Charge at Min Energy")
+        ws1.cell(1, 13, "Min Energy Gradient Strip")
+        ws1.cell(1, 14, "Time used (s)")
+        ws1.cell(1, 15, "Interact type")
 
         # if simulation type is 2, do the count
         if self.simulationType == 2:
@@ -178,7 +180,7 @@ class EnergySimulator(Simulator):
             count = 0
             # number is how many strip
             number = 20
-            for i in range(14, 14 + number):
+            for i in range(16, 16 + number):
                 ws1.cell(1, i, count)
                 ws1.cell(2, i, 0)
                 count += 1
@@ -232,22 +234,26 @@ class EnergySimulator(Simulator):
 
         if self.simulationType == 3:
             ws1.cell(row_pos, 5, self.filmManager.film[currIter].seed)
-            ws1.cell(row_pos, 6, self.bacteriaManager.bacteria[0].seed)
+            ws1.cell(row_pos, 6, self.filmManager.film[currIter].realDomainConc)
+            ws1.cell(row_pos, 7, self.bacteriaManager.bacteria[0].seed)
+            ws1.cell(row_pos, 8, self.bacteriaManager.bacteria[0].realDomainConc)
 
         else:
             ws1.cell(row_pos, 5, self.filmManager.film[0].seed)
-            ws1.cell(row_pos, 6, self.bacteriaManager.bacteria[currIter].seed)
+            ws1.cell(row_pos, 6, self.filmManager.film[0].realDomainConc)
+            ws1.cell(row_pos, 7, self.bacteriaManager.bacteria[currIter].seed)
+            ws1.cell(row_pos, 8, self.bacteriaManager.bacteria[currIter].realDomainConc)
 
-        ws1.cell(row_pos, 7, min_energy)
-        ws1.cell(row_pos, 8, min_x)
-        ws1.cell(row_pos, 9, min_x)
-        ws1.cell(row_pos, 10, min_energy_charge)
-        ws1.cell(row_pos, 11, grad_strip)
-        ws1.cell(row_pos, 12, time_consume)
+        ws1.cell(row_pos, 9, min_energy)
+        ws1.cell(row_pos, 10, min_x)
+        ws1.cell(row_pos, 11, min_x)
+        ws1.cell(row_pos, 12, min_energy_charge)
+        ws1.cell(row_pos, 13, grad_strip)
+        ws1.cell(row_pos, 14, time_consume)
         if self.interactType.upper() == 'DOT':
-            ws1.cell(row_pos, 13, self.interactType)
+            ws1.cell(row_pos, 15, self.interactType)
         else:
-            ws1.cell(row_pos, 13, "{}: {}".format(self.interactType, self.cutoff))
+            ws1.cell(row_pos, 15, "{}: {}".format(self.interactType, self.cutoff))
 
         # if this is not the last iterator, update the time and return this
         if not end:
@@ -260,12 +266,12 @@ class EnergySimulator(Simulator):
             showMessage("WARNING: Potential bug here")
             for row_num in range(self.bacteriaManager.bacteriaNum):
                 row = 2 + row_num
-                val_id = ws1.cell(row, 11).value
+                val_id = ws1.cell(row, 13).value
 
                 # check the value read from column 11
                 if val_id < 0:
                     continue
-                val = ws1.cell(2, 14 + int(val_id)).value
+                val = ws1.cell(2, 16 + int(val_id)).value
                 ws1.cell(2, 14 + int(val_id), int(val) + 1)
 
         # save the excel file into folder result

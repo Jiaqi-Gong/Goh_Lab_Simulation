@@ -118,18 +118,14 @@ def visPlot(array: ndarray, picName: str) -> None:
     """
     THis function based on the dimension of passed in ndarray to call appropriate function
     """
-    # dimension = len(array.shape)
-    showMessage(array.shape)
-
-    # if dimension == 2:
-    if array.shape[0] == 1 or len(array.shape) == 2:
+    # based on the dimension call different function to generate image
+    dimension = len(array.shape)
+    if dimension == 2:
         _visPlot2D(array, picName)
-    else:
-    # elif dimension == 3:
+    elif dimension == 3:
         _visPlot3D(array, picName)
-    # else:
-    #     raise RuntimeError("Unknown dimension of array pass in")
-
+    else:
+        raise RuntimeError("Unknown dimension of array pass in")
 
 def _visPlot2D(array: ndarray, picName: str) -> None:
     """
@@ -141,34 +137,28 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     neu = np.where(array == 0)
     neg = np.where(array == -1)
 
+    pos_x = pos[0]
     pos_y = pos[1]
-    pos_x = pos[2]
-
+    neu_x = neu[0]
     neu_y = neu[1]
-    neu_x = neu[2]
-
+    neg_x = neg[0]
     neg_y = neg[1]
-    neg_x = neg[2]
 
-    # pos_x = pos[0]
-    # pos_y = pos[1]
-    # neu_x = neu[0]
-    # neu_y = neu[1]
-    # neg_x = neg[0]
-    # neg_y = neg[1]
-
-    # img_length = len(array[0]) // 100
-    # img_width = len(array) // 100
-    img_length = array.shape[2] // 100
-    img_width = array.shape[1] // 100
+    if len(array[0]) > 100:
+        img_length = len(array[0]) // 100
+        img_width = len(array) // 100
+        size = 1
+    else:
+        img_length = len(array[0]) // 10
+        img_width = len(array) // 10
+        size = 100
 
     fig = plt.figure(figsize=(img_length, img_width))
-    # fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    ax.scatter(pos_x, pos_y, s=1, c='blue', label='pos')
-    ax.scatter(neu_x, neu_y, s=1, c='green', label='neu')
-    ax.scatter(neg_x, neg_y, s=1, c='red', label='neg')
+    ax.scatter(pos_x, pos_y, s=size, c='blue', label='pos')
+    ax.scatter(neu_x, neu_y, s=size, c='green', label='neu')
+    ax.scatter(neg_x, neg_y, s=size, c='red', label='neg')
 
     ax.legend(loc="upper right")
     ax.set_xlabel("X")
@@ -176,7 +166,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     ax.xaxis.set_ticks_position('top')
     ax.xaxis.set_label_position('top')
 
-    # plt.imshow(array, interpolation='nearest')
+    plt.imshow(array, interpolation='nearest')
 
     now = datetime.now()
     day = now.strftime("%m_%d")
@@ -194,7 +184,6 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
 
     picPath = "{}/{}".format(picFolder, picName)
     plt.savefig(picPath)
-    # plt.savefig(picPath, dpi=300, bbox_inches='tight')
 
     showMessage("Image generate done")
 

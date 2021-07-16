@@ -100,10 +100,11 @@ class BacteriaManager:
                               domainGenerator.seed)
 
         showMessage("Generate 2D bacteria with domain")
-        bacteria.surfaceWithDomain = domainGenerator.generateDomain(bacteria, self.bacteriaDomainShape,
-                                                                    self.bacteriaDomainSize,
-                                                                    self.bacteriaDomainConcentration,
-                                                                    self.bacteriaDomainChargeConcentration)
+        bacteria.surfaceWithDomain, bacteria.realDomainConc = domainGenerator.generateDomain(bacteria,
+                                                                                             self.bacteriaDomainShape,
+                                                                                             self.bacteriaDomainSize,
+                                                                                             self.bacteriaDomainConcentration,
+                                                                                             self.bacteriaDomainChargeConcentration)
 
         # save the bacteria into manager
         self.bacteria.append(bacteria)
@@ -131,7 +132,7 @@ class BacteriaManager:
                               domainGenerator.seed, position)
 
         showMessage("Generate 3D bacteria with domain")
-        bacteria.surfaceWithDomain = domainGenerator.generateDomain(bacteria, self.bacteriaDomainShape,
+        bacteria.surfaceWithDomain, bacteria.realDomainConc = domainGenerator.generateDomain(bacteria, self.bacteriaDomainShape,
                                                                     self.bacteriaDomainSize,
                                                                     self.bacteriaDomainConcentration,
                                                                     self.bacteriaDomainChargeConcentration)

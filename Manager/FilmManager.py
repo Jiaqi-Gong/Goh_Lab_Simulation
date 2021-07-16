@@ -81,9 +81,10 @@ class FilmManager:
                              domainGenerator.seed)
 
         showMessage("Generate 2D film with domain")
-        film.surfaceWithDomain = domainGenerator.generateDomain(film, self.filmDomainShape, self.filmDomainSize,
-                                                                self.filmDomainConcentration,
-                                                                self.filmDomainChargeConcentration)
+        film.surfaceWithDomain, film.realDomainConc = domainGenerator.generateDomain(film, self.filmDomainShape,
+                                                                                     self.filmDomainSize,
+                                                                                     self.filmDomainConcentration,
+                                                                                     self.filmDomainChargeConcentration)
 
         # save the film into manager
         self.film.append(film)
@@ -102,9 +103,10 @@ class FilmManager:
                              domainGenerator.seed)
 
         showMessage("Generate 3D film with domain")
-        film.surfaceWithDomain = domainGenerator.generateDomain(film, self.filmDomainShape, self.filmDomainSize,
-                                                                self.filmDomainConcentration,
-                                                                self.filmDomainChargeConcentration)
+        film.surfaceWithDomain, film.realDomainConc = domainGenerator.generateDomain(film, self.filmDomainShape,
+                                                                                     self.filmDomainSize,
+                                                                                     self.filmDomainConcentration,
+                                                                                     self.filmDomainChargeConcentration)
 
         # save the film into manager
         self.film.append(film)
