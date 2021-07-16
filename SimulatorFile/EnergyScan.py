@@ -181,7 +181,7 @@ class EnergySimulator(Simulator):
             # create numbering for histogram plot
             count = 0
             # number is how many strip
-            number = 20
+            number = 30
             for i in range(18, 18 + number):
                 ws1.cell(1, i, count)
                 ws1.cell(2, i, 0)
@@ -283,11 +283,13 @@ class EnergySimulator(Simulator):
             for row_num in range(self.bacteriaManager.bacteriaNum):
                 row = 2 + row_num
                 val_id = ws1.cell(row, 15).value
-
-                # check the value read from column 11
-                if val_id < 0:
-                    continue
                 val = ws1.cell(2, 18 + int(val_id)).value
+
+                # deal with if val value is none
+                if val is None:
+                    val = 0
+                    ws1.cell(1, 18 + int(val_id), 0)
+
                 ws1.cell(2, 18 + int(val_id), int(val) + 1)
 
             # save the excel file into folder result
