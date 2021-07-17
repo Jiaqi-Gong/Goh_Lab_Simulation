@@ -116,7 +116,7 @@ class DomainGenerator:
         # initialize how long we want the code to run
         # if its running for too long, that means we most likely reached the maximum amount of domains on the surface and
         # end the while loop
-        timeout = time.time() + 10  # 10 seconds from now
+        timeout = time.time() + 60  # 60 seconds from now
 
 
         # start to generate the domain on surface
@@ -140,7 +140,7 @@ class DomainGenerator:
             # initialize how long we want the code to run
             # if its running for too long, that means we most likely reached the maximum amount of domains on the surface and
             # end the while loop
-            timeout = time.time() + 10  # 10 seconds from now
+            timeout = time.time() + 60  # 60 seconds from now
 
             # showMessage("Generated domain number {}".format(generated))
 

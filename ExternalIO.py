@@ -120,7 +120,7 @@ def visPlot(array: ndarray, picName: str) -> None:
     THis function based on the dimension of passed in ndarray to call appropriate function
     """
     # based on the dimension call different function to generate image
-    dimension = len(array.shape)
+    dimension = len(array)
     if dimension == 2:
         _visPlot2D(array, picName)
     elif dimension == 3:
@@ -189,7 +189,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
             os.mkdir(picFolder)
 
     picPath = "{}/{}".format(picFolder, picName)
-    plt.savefig(picPath)
+    plt.savefig(picPath, dpi=300, bbox_inches='tight')
 
     showMessage("Image generate done")
 
