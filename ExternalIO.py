@@ -167,6 +167,15 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # ax.scatter(neu_x, neu_y, s=size, c='green', label='neu')
     # ax.scatter(neg_x, neg_y, s=size, c='red', label='neg')
 
+    # position_x = np.concatenate((pos_x, neu_x, neg_x))
+    # position_y = np.concatenate((pos_y, neu_y, neg_y))
+    #
+    # colors_pos = np.repeat(np.array([[0,0,1,0.8]]),len(pos_x),axis=0)
+    # colors_neu = np.repeat(np.array([[0,1,0,0.8]]),len(neu_x),axis=0)
+    # colors_neg = np.repeat(np.array([[1,0,0,0.8]]),len(neg_x),axis=0)
+    # colors = np.concatenate((colors_neu, colors_pos, colors_neg))
+    # ax.scatter(position_x, position_y, marker="o", label=['neutral', 'positive', 'negative'],
+    #              color=colors)
 
     ax.scatter(pos_x, pos_y, c='blue', label='pos')
     ax.scatter(neu_x, neu_y, c='green', label='neu')
@@ -208,8 +217,6 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
 
     showMessage("Image generate done")
 
-    plt.show()
-
 
 def _visPlot3D(array: ndarray, picName: str) -> None:
     """
@@ -231,30 +238,30 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     pos_y = pos[1]
     pos_x = pos[2]
     # color of positive
-    colors_pos = np.repeat(np.array[[0,0,1,0.8]],len(pos_z),axis=0)
-    # ax.scatter3D(pos_x, pos_y, pos_z, marker="o", label='positive', color='red', depthshade=False)
+    # colors_pos = np.repeat(np.array([[0,0,1,0.8]]),len(pos_z),axis=0)
+    ax.scatter3D(pos_x, pos_y, pos_z, marker="o", label='positive', color='blue', depthshade=False)
 
     # position of neutral
     neu = np.where(array == 0)
     neu_z = neu[0]
     neu_y = neu[1]
     neu_x = neu[2]
-    colors_neu = np.repeat(np.array[[0,1,0,0.8]],len(neu_z),axis=0)
-    # ax.scatter3D(neu_x, neu_y, neu_z, marker="o", label='neutral', color='green', depthshade=False)
+    # colors_neu = np.repeat(np.array([[0,1,0,0.8]]),len(neu_z),axis=0)
+    ax.scatter3D(neu_x, neu_y, neu_z, marker="o", label='neutral', color='green', depthshade=False)
 
     # position of negative
     neg = np.where(array == -1)
     neg_z = neg[0]
     neg_y = neg[1]
     neg_x = neg[2]
-    colors_neg = np.repeat(np.array[[1,0,0,0.8]],len(neg_z),axis=0)
-    # ax.scatter3D(neg_x, neg_y, neg_z, marker="o", label='negative', color='blue', depthshade=False)
+    # colors_neg = np.repeat(np.array([[1,0,0,0.8]]),len(neg_z),axis=0)
+    ax.scatter3D(neg_x, neg_y, neg_z, marker="o", label='negative', color='red', depthshade=False)
 
-    position_x = np.concatenate((pos_x, neu_x, neg_x))
-    position_y = np.concatenate((pos_y, neu_y, neg_y))
-    position_z = np.concatenate((pos_z, neu_z, neg_z))
-    colors = np.concatenate((colors_neu, colors_pos, colors_neg))
-    ax.scatter3D(position_x, position_y, position_z, marker="o", label='negative', color=colors, depthshade=False)
+    # position_x = np.concatenate((pos_x, neu_x, neg_x))
+    # position_y = np.concatenate((pos_y, neu_y, neg_y))
+    # position_z = np.concatenate((pos_z, neu_z, neg_z))
+    # colors = np.concatenate((colors_pos, colors_neu, colors_neg))
+    # ax.scatter3D(position_x, position_y, position_z, marker="o", label=['neutral','positive','negative'], color=colors, depthshade=False)
 
     ax.legend(loc="upper right")
     ax.set_xlabel("X")

@@ -33,7 +33,7 @@ def runSimulation():
     interval_y = 10
     filmSurfaceCharge = -1
     filmDomainSize = (14, 14)
-    filmDomainShape = "single"
+    filmDomainShape = "diamond"
     filmDomainCon = 0.2  # if need to change charge ratio, change this
     filmDomainChargeConcentration = 0.5  # ignore
     bacteriaSeed = 10
