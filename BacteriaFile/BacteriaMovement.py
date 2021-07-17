@@ -38,7 +38,7 @@ class BacteriaMovementGenerator:
         if probability is None:
             raise RuntimeError("Probability is not given")
 
-        stick = np.random.choice([True, False], 1, p=[probability, 1 - probability])
+        stick = np.random.choice([1, 0], 1, p=[probability, 1 - probability])
 
         return stick
 
@@ -64,7 +64,7 @@ class BacteriaMovementGenerator:
         probability = ((Lambda ** X) * (math.exp(-Lambda))) / (math.factorial(X))
 
         # return either true or false based on the probability of sticking
-        stick = np.random.choice([True, False], 1, p=[probability, 1 - probability])
+        stick = np.random.choice([1, 0], 1, p=[probability, 1 - probability])
 
         return stick
 
@@ -144,7 +144,7 @@ class BacteriaMovementGenerator:
 
         # check stuck or not
         # if stuck, return false
-        if result is True:
+        if result:
             return False
         else:
             return self._nextPositionHelper(position)
@@ -184,31 +184,37 @@ class BacteriaMovementGenerator:
             if position[0] == 0 + self.bacteriaSize[0] / 2:
                 # probability
                 prob = r_fs * np.array([p_s, p_f])
+                prob /= prob.sum()
                 x_movement = int(np.random.choice([0, 1], 1, p=prob, replace=False))
             elif position[0] == self.filmSize[0] - self.bacteriaSize[0] / 2:
                 # probability
                 prob = r_sb * np.array([p_b, p_s])
+                prob /= prob.sum()
                 x_movement = int(np.random.choice([-1, 0], 1, p=prob, replace=False))
 
             # y direction
             if position[1] == 0 + self.bacteriaSize[1] / 2:
                 # probability
                 prob = r_fs * np.array([p_s, p_f])
+                prob /= prob.sum()
                 y_movement = int(np.random.choice([0, 1], 1, p=prob, replace=False))
             elif position[1] == self.filmSize[1] - self.bacteriaSize[1] / 2:
                 # probability
                 prob = r_sb * np.array([p_b, p_s])
+                prob /= prob.sum()
                 y_movement = int(np.random.choice([-1, 0], 1, p=prob, replace=False))
 
             # z direction
             if position[2] == 0 + self.bacteriaSize[2] / 2:
                 # probability
                 prob = r_fs * np.array([p_s, p_f])
+                prob /= prob.sum()
                 z_movement = int(np.random.choice([0, 1], 1, p=prob, replace=False))
             elif position[2] == self.z_restriction - self.bacteriaSize[2] / 2:  # the restriction for how far off
                 # the bacteria can be from the surface is arbitrary and can be changed
                 # probability
                 prob = r_sb * np.array([p_b, p_s])
+                prob /= prob.sum()
                 z_movement = int(np.random.choice([-1, 0], 1, p=prob, replace=False))
 
             # if all three movement is 0, rerun the movements

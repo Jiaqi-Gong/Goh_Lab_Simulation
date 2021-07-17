@@ -142,7 +142,7 @@ class DomainGenerator:
             # end the while loop
             timeout = time.time() + 10  # 10 seconds from now
 
-            showMessage("Generated domain number {}".format(generated))
+            # showMessage("Generated domain number {}".format(generated))
 
         actual_concentration = len(np.where(newSurface == charge)[0]) / (surface.length * surface.width)
         # showMessage("actual concentration is {}".format(actual_concentration))
@@ -378,7 +378,7 @@ class DomainGenerator:
         possiblePoint.pop(index)
 
 
-        writeLog("Point picked is: {}".format(coordinate))
+        # writeLog("Point picked is: {}".format(coordinate))
 
         # return the result as tuple
         return coordinate, possiblePoint

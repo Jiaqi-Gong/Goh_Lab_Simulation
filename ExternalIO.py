@@ -56,7 +56,7 @@ def getRestriction() -> [Dict[str, str], Dict[str, str]]:
     return info_dict, exec_dict
 
 
-def openLog() -> None:
+def openLog() -> str:
     """
     This function open a log file
     """
@@ -67,8 +67,12 @@ def openLog() -> None:
     if not os.path.exists("Log"):
         os.mkdir("Log")
 
+    log_path = "Log/log_{}_{}.txt".format(day, current_time)
+
     global log
-    log = open("Log/log_{}_{}.txt".format(day, current_time), "w")
+    log = open(log_path, "w")
+
+    return log_path
 
 
 def closeLog() -> None:
@@ -120,7 +124,8 @@ def visPlot(array: ndarray, picName: str) -> None:
     if dimension == 2:
         _visPlot2D(array, picName)
     elif dimension == 3:
-        _visPlot3D(array, picName)
+        pass
+        # _visPlot3D(array, picName)
     else:
         raise RuntimeError("Unknown dimension of array pass in")
 
@@ -141,13 +146,17 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     neg_x = neg[0]
     neg_y = neg[1]
 
-    if len(array[0]) > 100:
+    if len(array[0]) > 1000:
         img_length = len(array[0]) // 100
         img_width = len(array) // 100
         size = 1
-    else:
+    elif len(array[0]) > 100:
         img_length = len(array[0]) // 10
         img_width = len(array) // 10
+        size = 10
+    else:
+        img_length = len(array[0])
+        img_width = len(array)
         size = 100
 
     fig = plt.figure(figsize=(img_length, img_width))

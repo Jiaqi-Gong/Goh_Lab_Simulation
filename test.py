@@ -2,6 +2,7 @@ import random
 from datetime import datetime
 
 import numpy as np  # numpy is required to make matrices
+from PIL import Image
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 import time
@@ -280,13 +281,13 @@ def test_simulation():
     sim.runSimulate()
 
 def testVisible():
+
+    array = np.ones((10, 10))
+
     from matplotlib import pyplot as plt
-    data = np.zeros((100, 100))
-    data[2][2] = 1
-    data[1][1] = -1
-    pos = np.where(data == 1)
-    neu = np.where(data == 0)
-    neg = np.where(data == -1)
+    pos = np.where(array == 1)
+    neu = np.where(array == 0)
+    neg = np.where(array == -1)
 
     pos_x = pos[0]
     pos_y = pos[1]
@@ -295,21 +296,39 @@ def testVisible():
     neg_x = neg[0]
     neg_y = neg[1]
 
-    fig = plt.figure(figsize=(10, 10))
-    ax = fig.add_subplot(111)
+    if len(array[0]) > 1000:
+        img_length = len(array[0]) // 1000
+        img_width = len(array) // 1000
+    elif len(array[0]) > 100:
+        img_length = len(array[0]) // 100
+        img_width = len(array) // 100
+    else:
+        img_length = len(array[0])
+        img_width = len(array)
 
-    ax.scatter(pos_x, pos_y, c='blue', label='pos')
-    ax.scatter(neu_x, neu_y, c='green', label='neu')
-    ax.scatter(neg_x, neg_y, c='red', label='neg')
+    # set the size of point, 7.62 is 1 inch
+    size = 7.62 * 7.62 * img_length
+
+    fig, ax = plt.subplots(figsize=(img_length, img_width))
+    # ax = fig.add_subplot(111)
+
+    if len(pos_x) != 0:
+        ax.scatter(pos_x, pos_y, s=size, c='blue', label='pos', marker=',')
+    if len(neu_x) != 0:
+        ax.scatter(neu_x, neu_y, s=size, c='green', label='neu', marker=',')
+    if len(neg_x) != 0:
+        ax.scatter(neg_x, neg_y, s=size, c='red', label='neg', marker=',')
+
     ax.legend(loc="upper right")
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
     ax.xaxis.set_ticks_position('top')
     ax.xaxis.set_label_position('top')
 
-    plt.imshow(data, interpolation='nearest')
-    plt.show()
+    plt.imshow(array, interpolation='nearest')
+
     plt.savefig("test.png")
+    plt.show()
 
 def testPic():
     from ExternalIO import visPlot
@@ -367,8 +386,8 @@ if __name__ == '__main__':
 
     # print(testchange())
 
-    # testVisible()
+    testVisible()
 
     # testPic()
 
-    print(testCutoff())
+    # print(testCutoff())

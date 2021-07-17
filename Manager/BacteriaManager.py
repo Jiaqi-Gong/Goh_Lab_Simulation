@@ -58,6 +58,7 @@ class BacteriaManager:
         else:
             self.bacteriaSize = bacteriaSize
 
+
         # generate domain generator
         self.bacteriaDomainGenerator = DomainGenerator(self.bacteriaSeed)
 
@@ -120,16 +121,16 @@ class BacteriaManager:
         showMessage("Generate 3D bacteria")
 
         # depends on the simulator type, generate position for bacteria
-        if self.simulatorType == 1:
-            position = None
-        elif self.simulatorType == 2:
-            position = self.bacteriaMovementGenerator.initPosition()
-        else:
-            raise RuntimeError("Unknown simulator type")
+        # if self.simulatorType == 1:
+        #     position = None
+        # elif self.simulatorType == 2:
+        #     position = self.bacteriaMovementGenerator.initPosition()
+        # else:
+        #     raise RuntimeError("Unknown simulator type")
 
         # generate 3D bacteria Surface
         bacteria = Bacteria3D(self.trail, self.bacteriaSurfaceShape, self.bacteriaSize, self.bacteriaSurfaceCharge,
-                              domainGenerator.seed, position)
+                              domainGenerator.seed)
 
         showMessage("Generate 3D bacteria with domain")
         bacteria.surfaceWithDomain, bacteria.realDomainConc = domainGenerator.generateDomain(bacteria, self.bacteriaDomainShape,
