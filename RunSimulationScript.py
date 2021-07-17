@@ -11,40 +11,40 @@ from ExternalIO import openLog, showMessage
 def runSimulation():
     # get log file
     log_name = openLog()
-    showMessage("Log is saved in: {}".format(log_name))
+    showMessage(log_name)
 
     showMessage("WARNING: validity of parameter uses is not check, use runSimulationCmd to check the validity of "
                 "parameter uses")
 
     time.sleep(3)
 
-    simulationType = 2
-    trail = 31
+    simulationType = 1
+    trail = 11
     dimension = 3
     filmSeed = 1
     if dimension == 2:
-        filmSurfaceSize = (10500, 10500)
+        filmSurfaceSize = (105, 105)
     elif dimension == 3:
-        filmSurfaceSize = (1000, 1000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
+        filmSurfaceSize = (100, 100, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
     filmSurfaceShape = "rectangle"
     filmNum = 1
     bacteriaNum = 5
     interval_x = 10
     interval_y = 10
     filmSurfaceCharge = -1
-    filmDomainSize = (4, 4)
-    filmDomainShape = "diamond"
+    filmDomainSize = (14, 14)
+    filmDomainShape = "single"
     filmDomainCon = 0.2  # if need to change charge ratio, change this
     filmDomainChargeConcentration = 0.5  # ignore
     bacteriaSeed = 10
     if dimension == 2:
-        bacteriaSize = (10, 10)
+        bacteriaSize = (50, 50)
     elif dimension == 3:
-        bacteriaSize = (10, 10, 5)  # For bacteria, z value is the height of bacteria, can be any number
+        bacteriaSize = (50, 50, 5)  # For bacteria, z value is the height of bacteria, can be any number
     bacteriaSurfaceShape = "cuboid"
     bacteriaSurfaceCharge = 1
     bacteriaDomainSize = (2, 2)
-    bacteriaDomainShape = "diamond"
+    bacteriaDomainShape = "cross"
     bacteriaDomainCon = 0.5
     bacteriaDomainChargeConcentration = 0.5
 
@@ -55,9 +55,9 @@ def runSimulation():
 
     # below are for dynamic simulation, we are not using for now
     probabilityType = "SIMPLE"
-    timestep = 100
+    timestep = 10
     Lambda = 10
-    simple = 0.5
+    simple = 0.1
     bacteriaMovementSeed = 10
 
     # take info for simulator

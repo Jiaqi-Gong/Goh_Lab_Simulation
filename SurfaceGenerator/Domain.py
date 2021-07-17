@@ -76,19 +76,32 @@ class DomainGenerator:
         else:
             raise RuntimeError("Unknown shape")
 
-        showMessage("Domain number is: {}".format(domainNum))
+        showMessage("Total Domain is: {}".format(domainNum))
         newSurface = surface.originalSurface[:]
 
-        # make it either positive or negative
-        # This can be later changed to allow user to input if they want a positive or negative surface charge
+        # initalize the charge of the surface
         surfaceCharge = surface.surfaceCharge
 
-        # the surfaceCharge and charge of domain should be the opposite
-        # This can be later changed to allow users to input if they want a positive or negative domain charge
-        if surfaceCharge == 1:
-            charge = -1
-        else:
-            charge = 1
+        # initialize all the possible charges
+        possible_charge = [0,1,-1]
+
+        # depending on what the surface charge the user inputs, the domain charge will be the other 2 possible charges
+        # therefore, remove the surfaceCharge from possible_charge
+        possible_charge.remove(surfaceCharge)
+
+        # now, initalize how many of each charged domains we need to generate
+        # for now, half will be neutral, half will be +ve/-ve charged
+        domainNumChar1 = int(domainNum * charge_concentration) # this will have the first charge from the possible_charge list
+        domainNumChar2 = domainNum - domainNumChar1 # this will have the second charge from the possible_charge list
+
+        # initialize the total number of domain generated for each charge
+        # the first and second correspond to domainNumChar1 and domainNumChar2 respectively
+        totalDomainChar = [0,0]
+
+        # show how many of each charged domain will be generated
+        showMessage("Total of {} domains will be generated with charge {}".format(domainNumChar1, possible_charge[0]))
+        showMessage("Total of {} domains will be generated with charge {}".format(domainNumChar2, possible_charge[1]))
+
 
         # make the new surface either all positive or all negative
         newSurface[newSurface == 0] = surfaceCharge
@@ -97,7 +110,7 @@ class DomainGenerator:
         showMessage("generate new surface done")
         writeLog(newSurface)
         writeLog("Charge of the surface is {}".format(surfaceCharge))
-        writeLog("Charge of domain is {}".format(charge))
+        writeLog("Charge of domain is {} and {}".format(possible_charge[0], possible_charge[1]))
 
         # set the seed for random
         np.random.seed(self.seed)
@@ -127,12 +140,25 @@ class DomainGenerator:
             # initialize a random point on the surface with restrictions and the updated possiblePoint
             [start, possiblePoint] = self._randomPoint(possiblePoint)
 
+            # we will first generate all the domainNumChar1
+            if domainNumChar1 > totalDomainChar[0]:
+                charge = possible_charge[0]
+            # once that has fully generated, we will move onto domainNumChar2
+            elif domainNumChar2 > totalDomainChar[1]:
+                charge = possible_charge[1]
+
             # check the position of this shape is empty, if not empty, then continue
-            if not checkEmpty(newSurface, domainWidth, domainLength, start, charge):
+            if not checkEmpty(newSurface, domainWidth, domainLength, start, possible_charge):
                 continue
 
             # generate this shape's domain
             newSurface = generateShape(newSurface, domainWidth, domainLength, start, charge)
+
+            # update the generated number in totalDomainChar
+            if charge == possible_charge[0]:
+                totalDomainChar[0] += 1
+            elif charge == possible_charge[1]:
+                totalDomainChar[1] += 1
 
             # update generated number
             generated += 1
@@ -144,7 +170,7 @@ class DomainGenerator:
 
             # showMessage("Generated domain number {}".format(generated))
 
-        actual_concentration = len(np.where(newSurface == charge)[0]) / (surface.length * surface.width)
+        actual_concentration = (len(np.where(newSurface == possible_charge[0])[0])+len(np.where(newSurface == possible_charge[1])[0])) / (surface.length * surface.width)
         showMessage("actual concentration is {}".format(actual_concentration))
         showMessage("intended concentration is {}".format(concentration))
         return newSurface, actual_concentration
@@ -462,10 +488,12 @@ class DomainGenerator:
         return point
 
     def _diamondEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int, int],
-                      charge: int) -> bool:
+                      possible_charge: List[int]) -> bool:
         """
         This function check the position we want to generate diamond is empty
         :return True if all empty, False for no
+        charge -> the charge of the domain
+        possible_charge -> all possible charges the domain can have (a tuple with 2 integers either 0,1,-1)
         """
 
         ln = domainWidth
@@ -480,25 +508,25 @@ class DomainGenerator:
                     # top right
                     point = self.nearestPoint(surface, [int(startPoint[2] - i), startPoint[1], int(startPoint[0] + j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
 
                     # top left
                     point = self.nearestPoint(surface, [int(startPoint[2] - i), startPoint[1], int(startPoint[0] - j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
 
                     # bottom right
                     point = self.nearestPoint(surface, [int(startPoint[2] + i), startPoint[1], int(startPoint[0] + j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
 
                     # bottom left
                     point = self.nearestPoint(surface, [int(startPoint[2] + i), startPoint[1], int(startPoint[0] - j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
 
                 eg -= 1
@@ -511,25 +539,25 @@ class DomainGenerator:
                     # top right
                     point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1] - i), int(startPoint[0] + j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
 
                     # top left
                     point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1] - i), int(startPoint[0] - j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
 
                     # bottom right
                     point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1] + i), int(startPoint[0] + j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
 
                     # bottom left
                     point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1] + i), int(startPoint[0] - j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
                 eg -= 1
 
@@ -541,25 +569,25 @@ class DomainGenerator:
                     # top right
                     point = self.nearestPoint(surface, [int(startPoint[2] - i), int(startPoint[1] + j), startPoint[0]])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
 
                     # top left
                     point = self.nearestPoint(surface, [int(startPoint[2] - i), int(startPoint[1] - j), startPoint[0]])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
 
                     # bottom right
                     point = self.nearestPoint(surface, [int(startPoint[2] + i), int(startPoint[1] + j), startPoint[0]])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
 
                     # bottom left
                     point = self.nearestPoint(surface, [int(startPoint[2] + i), int(startPoint[1] - j), startPoint[0]])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
                 eg -= 1
 
@@ -671,7 +699,7 @@ class DomainGenerator:
         return surface
 
     def _crossEmpty(self, surface: Surface, domainWidth: int, domainLength: int, startPoint: Tuple[int, int, int],
-                    charge: int) -> bool:
+                    possible_charge: List[int]) -> bool:
         """
         This function check the position we want to generate cross is empty
         :return True if all empty, False for no
@@ -683,13 +711,13 @@ class DomainGenerator:
             for i in range(domainWidth + 1):
                 # bottom line
                 point = self.nearestPoint(surface, [int(startPoint[2] + i), int(startPoint[1]), startPoint[0]])
-                if surface[point[0], point[1], point[2]] == charge:
+                if surface[point[0], point[1], point[2]] in possible_charge:
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
                     return False
 
                 # top line
                 point = self.nearestPoint(surface, [int(startPoint[2] - i), int(startPoint[1]), startPoint[0]])
-                if surface[point[0], point[1], point[2]] == charge:
+                if surface[point[0], point[1], point[2]] in possible_charge:
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
                     return False
 
@@ -697,14 +725,14 @@ class DomainGenerator:
             for j in range(domainLength + 1):
                 # right line
                 point = self.nearestPoint(surface, [int(startPoint[2]), int(startPoint[1] + j), startPoint[0]])
-                if surface[point[0], point[1], point[2]] == charge:
+                if surface[point[0], point[1], point[2]] in possible_charge:
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
                     return False
 
                 # left line
                 point = self.nearestPoint(surface, [int(startPoint[2]), int(startPoint[1] - j), startPoint[0]])
                 if surface[point[0], point[1], point[2]] == 0:
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
                         return False
 
@@ -714,14 +742,13 @@ class DomainGenerator:
             for i in range(domainWidth + 1):
                 # bottom line
                 point = self.nearestPoint(surface, [int(startPoint[2] + i), startPoint[1], int(startPoint[0])])
-                if surface[point[0], point[1], point[2]] == 0:
-                    if surface[point[0], point[1], point[2]] == charge:
-                        # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        return False
+                if surface[point[0], point[1], point[2]] in possible_charge:
+                    # if the point is on a domain charge, location is not empty and need to choose new starting point
+                    return False
 
                 # top line
                 point = self.nearestPoint(surface, [int(startPoint[2] - i), startPoint[1], int(startPoint[0])])
-                if surface[point[0], point[1], point[2]] == charge:
+                if surface[point[0], point[1], point[2]] in possible_charge:
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
                     return False
 
@@ -729,13 +756,13 @@ class DomainGenerator:
             for j in range(domainLength + 1):
                 # right line
                 point = self.nearestPoint(surface, [int(startPoint[2]), startPoint[1], int(startPoint[0] + j)])
-                if surface[point[0], point[1], point[2]] == charge:
+                if surface[point[0], point[1], point[2]] in possible_charge:
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
                     return False
 
                 # left line
                 point = self.nearestPoint(surface, [int(startPoint[2]), startPoint[1], int(startPoint[0] - j)])
-                if surface[point[0], point[1], point[2]] == charge:
+                if surface[point[0], point[1], point[2]] in possible_charge:
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
                     return False
 
@@ -745,13 +772,13 @@ class DomainGenerator:
             for i in range(domainWidth + 1):
                 # bottom line
                 point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1] + i), int(startPoint[0])])
-                if surface[point[0], point[1], point[2]] == charge:
+                if surface[point[0], point[1], point[2]] in possible_charge:
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
                     return False
 
                 # top line
                 point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1] - i), int(startPoint[0])])
-                if surface[point[0], point[1], point[2]] == charge:
+                if surface[point[0], point[1], point[2]] in possible_charge:
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
                     return False
 
@@ -759,13 +786,13 @@ class DomainGenerator:
             for j in range(domainLength + 1):
                 # right line
                 point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1]), int(startPoint[0] + j)])
-                if surface[point[0], point[1], point[2]] == charge:
+                if surface[point[0], point[1], point[2]] in possible_charge:
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
                     return False
 
                 # left line
                 point = self.nearestPoint(surface, [startPoint[2], int(startPoint[1]), int(startPoint[0] - j)])
-                if surface[point[0], point[1], point[2]] == charge:
+                if surface[point[0], point[1], point[2]] in possible_charge:
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
                     return False
         return True
@@ -854,7 +881,7 @@ class DomainGenerator:
         return surface
 
     def _octagonEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int, int],
-                      charge: int) -> bool:
+                      possible_charge: List[int]) -> bool:
         """
         This function check the position want to generate cross is empty
         """
@@ -887,22 +914,22 @@ class DomainGenerator:
                         # 1st point
                         point = self.nearestPoint(surface, [int(cen[2] + (0.5 + i)), int(cen[1] - (0.5 + j)), cen[0]])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
                         # 2nd point
                         point = self.nearestPoint(surface, [int(cen[2] + (0.5 + i)), int(cen[1] + (0.5 + j)), cen[0]])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
                         # 3rd point
                         point = self.nearestPoint(surface, [int(cen[2] - (0.5 + i)), int(cen[1] + (0.5 + j)), cen[0]])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
                         # 4th point
                         point = self.nearestPoint(surface, [int(cen[2] - (0.5 + i)), int(cen[1] - (0.5 + j)), cen[0]])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
 
             # If the length is even
@@ -914,22 +941,22 @@ class DomainGenerator:
                         # 1st points
                         point = self.nearestPoint(surface, [int(cen[2] + i), int(cen[1] + j), cen[0]])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
                         # 2nd points
                         point = self.nearestPoint(surface, [int(cen[2] + i), int(cen[1] - j), cen[0]])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
                         # 3rd points
                         point = self.nearestPoint(surface, [int(cen[2] - i), int(cen[1] + j), cen[0]])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
                         # 4th points
                         point = self.nearestPoint(surface, [int(cen[2] - i), int(cen[1] - j), cen[0]])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
 
             # Index edges of the square
@@ -950,22 +977,22 @@ class DomainGenerator:
                     # top right
                     point = self.nearestPoint(surface, [int(ed_tr[0] - i), int(ed_tr[1] + j), ed_tr[2]])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
                     # top left
                     point = self.nearestPoint(surface, [int(ed_tl[0] - i), int(ed_tl[1] - j), ed_tl[2]])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
                     # bottom right
                     point = self.nearestPoint(surface, [int(ed_br[0] + i), int(ed_br[1] + j), ed_br[2]])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
                     # bottom left
                     point = self.nearestPoint(surface, [int(ed_bl[0] + i), int(ed_bl[1] - j), ed_bl[2]])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
 
                 eg -= 1
@@ -976,22 +1003,22 @@ class DomainGenerator:
                     # top square
                     point = self.nearestPoint(surface, [int(ed_tl[0] - i), int(ed_tl[1] + j), ed_tl[2]])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
                     # left square
                     point = self.nearestPoint(surface, [int(ed_tl[0] + i), int(ed_tl[1] - j), ed_tl[2]])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
                     # right square
                     point = self.nearestPoint(surface, [int(ed_br[0] - i), int(ed_br[1] + j), ed_br[2]])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
                     # bottom square
                     point = self.nearestPoint(surface, [int(ed_br[0] + i), int(ed_br[1] - j), ed_br[2]])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
 
         # in x-z plane (keep y constant)
@@ -1006,22 +1033,22 @@ class DomainGenerator:
                         # 1st point
                         point = self.nearestPoint(surface, [int(cen[2] + (0.5 + i)), cen[1], int(cen[0] - (0.5 + j))])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
                         # 2nd point
                         point = self.nearestPoint(surface, [int(cen[2] + (0.5 + i)), cen[1], int(cen[0] + (0.5 + j))])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
                         # 3rd point
                         point = self.nearestPoint(surface, [int(cen[2] - (0.5 + i)), cen[1], int(cen[0] + (0.5 + j))])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
                         # 4th point
                         point = self.nearestPoint(surface, [int(cen[2] - (0.5 + i)), cen[1], int(cen[0] - (0.5 + j))])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
 
             # If the length is even
@@ -1033,22 +1060,22 @@ class DomainGenerator:
                         # 1st point
                         point = self.nearestPoint(surface, [int(cen[2] + i), cen[1], int(cen[0] + j)])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
                         # 2nd point
                         point = self.nearestPoint(surface, [int(cen[2] + i), cen[1], int(cen[0] - j)])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
                         # 3rd point
                         point = self.nearestPoint(surface, [int(cen[2] - i), cen[1], int(cen[0] + j)])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
                         # 4th point
                         point = self.nearestPoint(surface, [int(cen[2] - i), cen[1], int(cen[0] - j)])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
 
             # Index edges of the square
@@ -1068,22 +1095,22 @@ class DomainGenerator:
                     # top right
                     point = self.nearestPoint(surface, [int(ed_tr[0] - i), ed_tr[1], int(ed_tr[2] + j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
                     # top left
                     point = self.nearestPoint(surface, [int(ed_tl[0] - i), ed_tl[1], int(ed_tl[2] - j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
                     # bottom right
                     point = self.nearestPoint(surface, [int(ed_br[0] + i), ed_br[1], int(ed_br[2] + j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
                     # bottom left
                     point = self.nearestPoint(surface, [int(ed_bl[0] + i), ed_bl[1], int(ed_bl[2] - j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
 
                 eg -= 1
@@ -1094,22 +1121,22 @@ class DomainGenerator:
                     # top square
                     point = self.nearestPoint(surface, [int(ed_tl[0] - i), ed_tl[1], int(ed_tl[2] + j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
                     # left square
                     point = self.nearestPoint(surface, [int(ed_tl[0] + i), ed_tl[1], int(ed_tl[2] - j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
                     # right square
                     point = self.nearestPoint(surface, [int(ed_br[0] - i), ed_br[1], int(ed_br[2] + j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
                     # bottom square
                     point = self.nearestPoint(surface, [int(ed_br[0] + i), ed_br[1], int(ed_br[2] - j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
 
         # in x-y plane (keep z constant)
@@ -1124,22 +1151,22 @@ class DomainGenerator:
                         # 1st point
                         point = self.nearestPoint(surface, [cen[2], int(cen[1] + (0.5 + i)), int(cen[0] - (0.5 + j))])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
                         # 2nd point
                         point = self.nearestPoint(surface, [cen[2], int(cen[1] + (0.5 + i)), int(cen[0] + (0.5 + j))])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
                         # 3rd point
                         point = self.nearestPoint(surface, [cen[2], int(cen[1] - (0.5 + i)), int(cen[0] + (0.5 + j))])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
                         # 4th point
                         point = self.nearestPoint(surface, [cen[2], int(cen[1] - (0.5 + i)), int(cen[0] - (0.5 + j))])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
 
             # If the length is even
@@ -1151,22 +1178,22 @@ class DomainGenerator:
                         # 1st point
                         point = self.nearestPoint(surface, [cen[2], int(cen[1] + i), int(cen[0] + j)])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
                         # 2nd point
                         point = self.nearestPoint(surface, [cen[2], int(cen[1] + i), int(cen[0] - j)])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
                         # 3rd point
                         point = self.nearestPoint(surface, [cen[2], int(cen[1] - i), int(cen[0] + j)])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
                         # 4th point
                         point = self.nearestPoint(surface, [cen[2], int(cen[1] - i), int(cen[0] - j)])
                         # if the point is on a domain charge, location is not empty and need to choose new starting point
-                        if surface[point[0], point[1], point[2]] == charge:
+                        if surface[point[0], point[1], point[2]] in possible_charge:
                             return False
 
             # Index edges of the square
@@ -1186,22 +1213,22 @@ class DomainGenerator:
                     # top right
                     point = self.nearestPoint(surface, [ed_tr[0], int(ed_tr[1] - i), int(ed_tr[2] + j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
                     # top left
                     point = self.nearestPoint(surface, [ed_tl[0], int(ed_tl[1] - i), int(ed_tl[2] - j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
                     # bottom right
                     point = self.nearestPoint(surface, [ed_br[0], int(ed_br[1] + i), int(ed_br[2] + j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
                     # bottom left
                     point = self.nearestPoint(surface, [ed_bl[0], int(ed_bl[1] + i), int(ed_bl[2] - j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
 
                 eg -= 1
@@ -1212,22 +1239,22 @@ class DomainGenerator:
                     # top square
                     point = self.nearestPoint(surface, [ed_tl[0], int(ed_tl[1] - i), int(ed_tl[2] + j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
                     # left square
                     point = self.nearestPoint(surface, [ed_tl[0], int(ed_tl[1] + i), int(ed_tl[2] - j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
                     # right square
                     point = self.nearestPoint(surface, [ed_br[0], int(ed_br[1] - i), int(ed_br[2] + j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
                     # bottom square
                     point = self.nearestPoint(surface, [ed_br[0], int(ed_br[1] + i), int(ed_br[2] - j)])
                     # if the point is on a domain charge, location is not empty and need to choose new starting point
-                    if surface[point[0], point[1], point[2]] == charge:
+                    if surface[point[0], point[1], point[2]] in possible_charge:
                         return False
 
         return True
@@ -1601,14 +1628,14 @@ class DomainGenerator:
         return surface
 
     def _singleEmpty(self, surface: ndarray, domainWidth: int, domainLength: int, startPoint: Tuple[int, int, int],
-                     charge: int) -> bool:
+                     possible_charge: List[int]) -> bool:
         """
         This function check the position want to generate single is empty
         """
         # locate the closest valid point
         point = self.nearestPoint(surface, [startPoint[2], startPoint[1], startPoint[0]])
         # if the point is on a domain charge, location is not empty and need to choose new starting point
-        if surface[point[0], point[1], point[2]] == charge:
+        if surface[point[0], point[1], point[2]] in possible_charge:
             return False
 
         return True
