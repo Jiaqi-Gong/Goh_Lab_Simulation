@@ -18,12 +18,12 @@ def runSimulation():
 
     time.sleep(3)
 
-    simulationType = 1
+    simulationType = 2
     trail = 11
     dimension = 2
     filmSeed = 1
     if dimension == 2:
-        filmSurfaceSize = (105, 105)
+        filmSurfaceSize = (10500, 10500)
     elif dimension == 3:
         filmSurfaceSize = (100, 100, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
     filmSurfaceShape = "rectangle"

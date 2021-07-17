@@ -145,8 +145,8 @@ class DomainGenerator:
             # showMessage("Generated domain number {}".format(generated))
 
         actual_concentration = len(np.where(newSurface == charge)[0]) / (surface.length * surface.width)
-        # showMessage("actual concentration is {}".format(actual_concentration))
-        # showMessage("intended concentration is {}".format(concentration))
+        showMessage("actual concentration is {}".format(actual_concentration))
+        showMessage("intended concentration is {}".format(concentration))
         return newSurface, actual_concentration
 
     def _allPossiblePoint(self, surface: Surface, surfaceLength: int, surfaceWidth: int, surfaceHeight: int,
