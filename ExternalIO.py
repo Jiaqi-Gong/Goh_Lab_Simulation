@@ -11,13 +11,7 @@ from numpy import ndarray
 from openpyxl.packaging import workbook
 from matplotlib import pyplot as plt
 import matplotlib as mpl
-mpl.use('TkAgg')
-from mpl_toolkits.mplot3d import Axes3D
-import sys
-from vispy import app, visuals, scene
-import vispy.io as io
-from vispy.gloo.util import _screenshot as screenshot
-
+# mpl.use('TkAgg')
 
 
 def getHelp() -> Dict[str, str]:
