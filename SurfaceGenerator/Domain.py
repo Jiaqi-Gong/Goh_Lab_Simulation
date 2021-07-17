@@ -103,13 +103,6 @@ class DomainGenerator:
         showMessage("Total of {} domains will be generated with charge {}".format(domainNumChar2, possible_charge[1]))
 
 
-        # the surfaceCharge and charge of domain should be the opposite, with
-        # This can be later changed to allow users to input if they want a positive or negative domain charge
-        # if surfaceCharge == 1:
-        #     charge = -1
-        # else:
-        #     charge = 1
-
         # make the new surface either all positive or all negative
         newSurface[newSurface == 0] = surfaceCharge
 

@@ -295,6 +295,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         elev = 90
         azim = 0
         ax.view_init(elev=elev, azim=azim)
+        ax.dist = 6
         plt.title("X-Y plane")
 
         # save file
@@ -330,7 +331,6 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
 
             # save file
             plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[i + 1], azimuth[0]))
-    #
     # # build your visuals, that's all
     # Scatter3D = scene.visuals.create_visual_node(visuals.MarkersVisual)
     #
