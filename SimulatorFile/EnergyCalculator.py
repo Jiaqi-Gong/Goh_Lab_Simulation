@@ -3,6 +3,8 @@ This file contains method to calculate the energy of the surface
 """
 
 from typing import Tuple, List, Union
+
+import numpy as np
 from numpy import ndarray
 from ExternalIO import *
 
@@ -25,15 +27,15 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     if interactType.upper() in ["CUTOFF", "CUT-OFF"]:
         # change ndarray to dictionary
         filmDict = _ndarrayToDict(film)
-        bactDict = _ndarrayToDict(bacteria)
+        bactDict = _ndarrayToDict(bacteria, isBacteria=True)
 
     # change the format of film and bacteria
     film = film[0]
     bacteria = bacteria[0]
 
     # show image of whole film and bacteria
-    visPlot(film, "whole_film_2D_{}".format(currIter))
-    visPlot(bacteria, "whole_bacteria_2D_{}".format(currIter))
+    visPlot(film, "whole_film_2D_{}".format(currIter), 2)
+    visPlot(bacteria, "whole_bacteria_2D_{}".format(currIter), 2)
 
     # shape of the film
     film_shape = film.shape
@@ -169,7 +171,7 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
                 min_x = x
                 min_y = y
                 min_energy_charge = charge
-                min_film = film_use[:]
+                min_film = film_use
 
     # save the result
     result = (min_energy, min_x, min_y, min_energy_charge, min_charge, min_charge_x, min_charge_y)
@@ -177,7 +179,7 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     writeLog("Result in interact 2D is: {}".format(result))
 
     # print the min_film
-    visPlot(min_film, "Film at minimum_{}".format(currIter))
+    visPlot(min_film, "Film at minimum_{}".format(currIter), 2)
 
     # for debug, delete later
     # print(all_energy)
@@ -202,11 +204,11 @@ def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
 
     # change ndarray to dictionary
     filmDict = _ndarrayToDict(film)
-    bactDict = _ndarrayToDict(bacteria)
+    bactDict = _ndarrayToDict(bacteria, isBacteria=True)
 
     # show image of whole film and bacteria
-    visPlot(film, "whole_film_3D_{}".format(currIter))
-    visPlot(bacteria, "whole_bacteria_3D_{}".format(currIter))
+    visPlot(film, "whole_film_3D_{}".format(currIter), 3)
+    visPlot(bacteria, "whole_bacteria_3D_{}".format(currIter), 3)
 
     # shape of the film
     film_shape = film.shape
@@ -255,6 +257,7 @@ def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
             # do the energy calculation based on the interact type
             # dot interact
             if interactType.upper() == "DOT":
+                writeLog("Only consider the lower surface of bacteria for now, may change in the future")
                 # calculate energy, uses electrostatic energy formula
                 for i in range(x, x_boundary):
                     for j in range(y, y_boundary):
@@ -263,7 +266,6 @@ def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
                         bact_pos = (i - x, j - y)
 
                         # get the distance between two charge, only consider the lower surface of bacteria
-                        writeLog("Only consider the lower surface of bacteria for now, may change in the future")
                         distance = bactDict[bact_pos][0][0] - filmDict[film_pos][0][0]
 
                         # get charge on film and bacteria
@@ -329,13 +331,13 @@ def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
                 min_x = x
                 min_y = y
                 min_energy_charge = charge
-                min_film = film_use[:]
+                min_film = film_use
 
     # save the result
     result = (min_energy, min_x, min_y, min_energy_charge, min_charge, min_charge_x, min_charge_y)
 
     # print the min_film
-    # visPlot(min_film, "Film at minimum_{}".format(currIter))
+    visPlot(np.array(min_film), "Film at minimum_{}".format(currIter), 2)
 
     # for debug, delete later
     # print(all_energy)
@@ -346,13 +348,20 @@ def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     return result
 
 
-def _ndarrayToDict(arrayList: ndarray) -> Dict[Tuple[int, int], List[Tuple[int, int]]]:
+def _ndarrayToDict(arrayList: ndarray, isFilm: bool = None, isBacteria: bool = None) -> \
+        Dict[Tuple[int, int], List[Tuple[int, int]]]:
     """
     This function takes in a ndarray and reshape this array into a dictionary
     Key is a tuple represent (x, y), value is a list [(z, charge)], for 2D length of value is 1, for 3D it can be various
     """
     # init the result
     result = {}
+
+    # init the position at z direction
+    z_height = 0
+
+    if isBacteria:
+        z_height += 3
 
     # loop whole dictionary
     for z in range(len(arrayList)):
@@ -365,7 +374,7 @@ def _ndarrayToDict(arrayList: ndarray) -> Dict[Tuple[int, int], List[Tuple[int, 
                 key = (x, y)
 
                 # get value
-                value = (z, charge)
+                value = (z + z_height, charge)
 
                 # add into the result dictionary
                 if key not in result:

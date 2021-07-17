@@ -11,13 +11,7 @@ from numpy import ndarray
 from openpyxl.packaging import workbook
 from matplotlib import pyplot as plt
 import matplotlib as mpl
-mpl.use('TkAgg')
-from mpl_toolkits.mplot3d import Axes3D
-import sys
-from vispy import app, visuals, scene
-import vispy.io as io
-from vispy.gloo.util import _screenshot as screenshot
-
+# mpl.use('TkAgg')
 
 
 def getHelp() -> Dict[str, str]:
@@ -116,12 +110,12 @@ def saveResult(wb: workbook, path: str) -> None:
     showMessage("Output done, saved at {}".format(path))
 
 
-def visPlot(array: ndarray, picName: str) -> None:
+def visPlot(array: ndarray, picName: str, dimension: int) -> None:
     """
     THis function based on the dimension of passed in ndarray to call appropriate function
     """
+    writeLog(["This is visplot", array, picName, dimension])
     # based on the dimension call different function to generate image
-    dimension = len(array.shape)
     if dimension == 2:
         _visPlot2D(array, picName)
     elif dimension == 3:
@@ -213,7 +207,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
             os.mkdir(picFolder)
 
     picPath = "{}/{}".format(picFolder, picName)
-    plt.savefig(picPath)
+    plt.savefig(picPath, dpi=300, bbox_inches='tight')
 
     showMessage("Image generate done")
 
