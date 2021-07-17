@@ -110,12 +110,12 @@ def saveResult(wb: workbook, path: str) -> None:
     showMessage("Output done, saved at {}".format(path))
 
 
-def visPlot(array: ndarray, picName: str) -> None:
+def visPlot(array: ndarray, picName: str, dimension: int) -> None:
     """
     THis function based on the dimension of passed in ndarray to call appropriate function
     """
+    writeLog(["This is visplot", array, picName, dimension])
     # based on the dimension call different function to generate image
-    dimension = len(array.shape)
     if dimension == 2:
         _visPlot2D(array, picName)
     elif dimension == 3:
