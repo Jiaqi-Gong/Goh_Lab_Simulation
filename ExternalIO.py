@@ -135,6 +135,15 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     """
     showMessage("Start to generate image")
 
+    now = datetime.now()
+    day = now.strftime("%m_%d")
+    current_time = now.strftime("%H_%M_%S")
+
+
+    # initialize the pandas dataframe
+    column_names = ['X', 'Y', 'Legend']
+    df = pd.DataFrame(columns=column_names)
+
     pos = np.where(array == 1)
     neu = np.where(array == 0)
     neg = np.where(array == -1)
@@ -160,47 +169,54 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     #     size = 100
 
     # fig = plt.figure(figsize=(img_length, img_width))
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111)
 
     # ax.scatter(pos_x, pos_y, s=size, c='blue', label='pos')
     # ax.scatter(neu_x, neu_y, s=size, c='green', label='neu')
     # ax.scatter(neg_x, neg_y, s=size, c='red', label='neg')
 
-    # position_x = np.concatenate((pos_x, neu_x, neg_x))
-    # position_y = np.concatenate((pos_y, neu_y, neg_y))
-    #
-    # colors_pos = np.repeat(np.array([[0,0,1,0.8]]),len(pos_x),axis=0)
-    # colors_neu = np.repeat(np.array([[0,1,0,0.8]]),len(neu_x),axis=0)
-    # colors_neg = np.repeat(np.array([[1,0,0,0.8]]),len(neg_x),axis=0)
-    # colors = np.concatenate((colors_neu, colors_pos, colors_neg))
+    position_x = np.concatenate((pos_x, neu_x, neg_x))
+    position_y = np.concatenate((pos_y, neu_y, neg_y))
+
+    colors_pos = np.repeat(np.array(['Positive']),len(pos_x),axis=0)
+    colors_neu = np.repeat(np.array(['Neutral']),len(neu_x),axis=0)
+    colors_neg = np.repeat(np.array(['Negative']),len(neg_x),axis=0)
+    colors = np.concatenate((colors_neu, colors_pos, colors_neg))
+
+    # add list to pandas dataframe
+    df['X'] = position_x.tolist()
+    df['Y'] = position_y.tolist()
+    df['Legend'] = colors.tolist()
+
+    # show it on plotly
+    fig = go.Figure(data=px.scatter(df, x='X', y='Y', color='Legend', color_discrete_map={'Positive': 'blue',
+                                                                                                    'Neutral': 'green',
+                                                                                                    'Negative': 'red'}))
+
     # ax.scatter(position_x, position_y, marker="o", label=['neutral', 'positive', 'negative'],
     #              color=colors)
-
-    ax.scatter(pos_x, pos_y, c='blue', label='pos')
-    ax.scatter(neu_x, neu_y, c='green', label='neu')
-    ax.scatter(neg_x, neg_y, c='red', label='neg')
-
-    ax.legend(loc="upper right")
-    ax.set_xlabel("X")
-    ax.set_ylabel("Y")
-    ax.xaxis.set_ticks_position('top')
-    ax.xaxis.set_label_position('top')
-
-    # set x limit and y limit
-    max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i]) != 0]
-    max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i]) != 0]
-    max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i]) != 0]
-    maximum = max(max1 + max2 + max3)
-
-    plt.xlim(0,maximum)
-    plt.ylim(0,maximum)
-
-    plt.imshow(array, interpolation='nearest')
-
-    now = datetime.now()
-    day = now.strftime("%m_%d")
-    current_time = now.strftime("%H_%M_%S")
+    #
+    # ax.scatter(pos_x, pos_y, c='blue', label='pos')
+    # ax.scatter(neu_x, neu_y, c='green', label='neu')
+    # ax.scatter(neg_x, neg_y, c='red', label='neg')
+    #
+    # ax.legend(loc="upper right")
+    # ax.set_xlabel("X")
+    # ax.set_ylabel("Y")
+    # ax.xaxis.set_ticks_position('top')
+    # ax.xaxis.set_label_position('top')
+    #
+    # # set x limit and y limit
+    # max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i]) != 0]
+    # max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i]) != 0]
+    # max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i]) != 0]
+    # maximum = max(max1 + max2 + max3)
+    #
+    # plt.xlim(0,maximum)
+    # plt.ylim(0,maximum)
+    #
+    # plt.imshow(array, interpolation='nearest')
 
     global picFolder
     if "picFolder" not in globals():
@@ -213,7 +229,21 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
             os.mkdir(picFolder)
 
     picPath = "{}/{}".format(picFolder, picName)
-    plt.savefig(picPath, dpi=300, bbox_inches='tight')
+    if 'film' in picName:
+        # set title
+        name = "Surface of Film"
+
+    elif 'bacteria' in picName:
+        # set title
+        name = 'Surface of Bacteria'
+
+    # set camera angle
+    camera = dict(eye=dict(x=0, y=0))
+    fig.update_layout(scene_camera=camera, title=name)
+
+    # save file
+    fig.write_html('{}/{}.html'.format(picFolder, picName))
+    # plt.savefig(picPath, dpi=300, bbox_inches='tight')
 
     showMessage("Image generate done")
 
