@@ -155,6 +155,24 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     neg_x = neg[0]
     neg_y = neg[1]
 
+    position_x = np.concatenate((pos_x, neu_x, neg_x))
+    position_y = np.concatenate((pos_y, neu_y, neg_y))
+
+    colors_pos = np.repeat(np.array(['Positive']), len(pos_x), axis=0)
+    colors_neu = np.repeat(np.array(['Neutral']), len(neu_x), axis=0)
+    colors_neg = np.repeat(np.array(['Negative']), len(neg_x), axis=0)
+    colors = np.concatenate((colors_pos, colors_neu, colors_neg))
+
+    # add list to pandas dataframe
+    df['X'] = position_x.tolist()
+    df['Y'] = position_y.tolist()
+    df['Legend'] = colors.tolist()
+
+    # show it on plotly
+    fig = go.Figure(data=px.scatter(df, x='X', y='Y', color='Legend', color_discrete_map={'Positive': 'blue',
+                                                                                          'Neutral': 'green',
+                                                                                          'Negative': 'red'}))
+
     # if len(array[0]) > 1000:
     #     img_length = len(array[0]) // 100
     #     img_width = len(array) // 100
@@ -176,26 +194,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # ax.scatter(neu_x, neu_y, s=size, c='green', label='neu')
     # ax.scatter(neg_x, neg_y, s=size, c='red', label='neg')
 
-    position_x = np.concatenate((pos_x, neu_x, neg_x))
-    position_y = np.concatenate((pos_y, neu_y, neg_y))
 
-    colors_pos = np.repeat(np.array(['Positive']),len(pos_x),axis=0)
-    colors_neu = np.repeat(np.array(['Neutral']),len(neu_x),axis=0)
-    colors_neg = np.repeat(np.array(['Negative']),len(neg_x),axis=0)
-    colors = np.concatenate((colors_neu, colors_pos, colors_neg))
-
-    # add list to pandas dataframe
-    df['X'] = position_x.tolist()
-    df['Y'] = position_y.tolist()
-    df['Legend'] = colors.tolist()
-
-    # show it on plotly
-    fig = go.Figure(data=px.scatter(df, x='X', y='Y', color='Legend', color_discrete_map={'Positive': 'blue',
-                                                                                                    'Neutral': 'green',
-                                                                                                    'Negative': 'red'}))
-
-    # ax.scatter(position_x, position_y, marker="o", label=['neutral', 'positive', 'negative'],
-    #              color=colors)
     #
     # ax.scatter(pos_x, pos_y, c='blue', label='pos')
     # ax.scatter(neu_x, neu_y, c='green', label='neu')
@@ -238,8 +237,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
         name = 'Surface of Bacteria'
 
     # set camera angle
-    camera = dict(eye=dict(x=0, y=0))
-    fig.update_layout(scene_camera=camera, title=name)
+    fig.update_layout(title=name)
 
     # save file
     fig.write_html('{}/{}.html'.format(picFolder, picName))

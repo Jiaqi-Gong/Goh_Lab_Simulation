@@ -41,7 +41,7 @@ def runSimulation():
         bacteriaSize = (50, 50)
     elif dimension == 3:
         bacteriaSize = (50, 50, 50)  # For bacteria, z value is the height of bacteria, can be any number
-    bacteriaSurfaceShape = "rectangle"
+    bacteriaSurfaceShape = "cuboid"
     bacteriaSurfaceCharge = 1
     bacteriaDomainSize = (5, 5)
     bacteriaDomainShape = "octagon"

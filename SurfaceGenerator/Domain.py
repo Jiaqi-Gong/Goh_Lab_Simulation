@@ -6,7 +6,7 @@ from numpy import ndarray
 import numpy as np
 from SurfaceGenerator.Surface import Surface
 from typing import Tuple, List, Union
-from ExternalIO import showMessage, writeLog
+from ExternalIO import showMessage, writeLog, visPlot
 import math
 import time
 
@@ -77,10 +77,12 @@ class DomainGenerator:
             raise RuntimeError("Unknown shape")
 
         showMessage("Total Domain is: {}".format(domainNum))
-        newSurface = surface.originalSurface[:]
-        # np.set_printoptions(threshold=np.inf)
+        newSurface = surface.originalSurface
 
-        showMessage(newSurface.shape)
+
+        # np.set_printoptions(threshold=np.inf)
+        # showMessage(newSurface)
+        # raise NotImplementedError
 
         # initalize the charge of the surface
         surfaceCharge = surface.surfaceCharge
@@ -176,6 +178,8 @@ class DomainGenerator:
         actual_concentration = (len(np.where(newSurface == possible_charge[0])[0])+len(np.where(newSurface == possible_charge[1])[0])) / (surface.length * surface.width)
         showMessage("actual concentration is {}".format(actual_concentration))
         showMessage("intended concentration is {}".format(concentration))
+        # visPlot(newSurface[0], "film", 2)
+        # raise RuntimeError("End")
         return newSurface, actual_concentration
 
     def _allPossiblePoint(self, surface: Surface, surfaceLength: int, surfaceWidth: int, surfaceHeight: int,
