@@ -33,15 +33,15 @@ def runSimulation():
     interval_y = 10
     filmSurfaceCharge = -1
     filmDomainSize = (14, 14)
-    filmDomainShape = "single"
+    filmDomainShape = "cross"
     filmDomainCon = 0.2  # if need to change charge ratio, change this
     filmDomainChargeConcentration = 0.5  # ignore
     bacteriaSeed = 10
     if dimension == 2:
         bacteriaSize = (50, 50)
     elif dimension == 3:
-        bacteriaSize = (50, 50, 5)  # For bacteria, z value is the height of bacteria, can be any number
-    bacteriaSurfaceShape = "cuboid"
+        bacteriaSize = (50, 50, 50)  # For bacteria, z value is the height of bacteria, can be any number
+    bacteriaSurfaceShape = "sphere"
     bacteriaSurfaceCharge = 1
     bacteriaDomainSize = (5, 5)
     bacteriaDomainShape = "diamond"
