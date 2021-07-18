@@ -4,6 +4,8 @@ This program is used for generate bacteria
 import abc
 from abc import ABC
 from typing import Tuple, Union
+from ExternalIO import showMessage, writeLog
+
 
 import numpy as np
 from numpy import ndarray
@@ -122,7 +124,7 @@ class Bacteria3D(Bacteria, ABC):
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
         radius = min(np.floor(self.length / 2), np.floor(self.width / 2), np.floor(self.height / 2))
         # indexes the array
-        index_z, index_y, index_x = np.indices((self.height+1, self.width, self.length))
+        index_z, index_y, index_x = np.indices((self.height+1, self.width+1, self.length+1))
         dist = ((index_x - center[0]) ** 2 + (index_y - center[1]) ** 2 + (index_z - center[2]) ** 2) ** 0.5
         # defines solid spheres of different radii
         reg1 = 1 * (dist <= radius)
@@ -134,6 +136,10 @@ class Bacteria3D(Bacteria, ABC):
         # sets surface = 1, rest = 0
         sph[sph <= 1] = 0
         sph[sph >= 2] = 1
+        # change the values so 1 would be 0 and 0 would be 2
+        sph[sph == 0] = 2
+        sph[sph == 1] = 0
+        showMessage(sph.shape)
         return sph
 
     def _generateCyl(self) -> ndarray:

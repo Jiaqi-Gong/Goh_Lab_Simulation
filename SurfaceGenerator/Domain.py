@@ -78,6 +78,9 @@ class DomainGenerator:
 
         showMessage("Total Domain is: {}".format(domainNum))
         newSurface = surface.originalSurface[:]
+        np.set_printoptions(threshold=np.inf)
+
+        showMessage(newSurface.shape)
 
         # initalize the charge of the surface
         surfaceCharge = surface.surfaceCharge
