@@ -101,7 +101,7 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
 
             # change the corresponding film surface into 1D
             film_use = film[x: x_boundary, y: y_boundary]
-            film_1D = np.reshape(film_use, (-1))
+            film_1D = np.reshape(film_use, (-1,))
 
             # do the energy calculation based on the interact type
             # dot interact
@@ -173,13 +173,6 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
                 min_energy_charge = charge
                 min_film = film_use
 
-    #         showMessage("min charge of x is {}".format(min_charge_x))
-    #         showMessage("min charge of y is {}".format(min_charge_y))
-    #         showMessage("min charge is {}".format(min_charge))
-    #         showMessage("min energy is {}".format(min_energy))
-    # showMessage("min charge of x (after iteration) is {}".format(min_charge_x))
-    # showMessage("min charge of y (after iteration) is {}".format(min_charge_y))
-    # showMessage(range_x)
     # save the result
     result = (min_energy, min_x, min_y, min_energy_charge, min_charge, min_charge_x, min_charge_y)
 
@@ -300,6 +293,7 @@ def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
             # record all variables
             writeLog("film_use is: {}, energy is: {}, unique is: {}, counts is: {}".format(
                 film_use, energy, unique, counts))
+
             # check the calculation result and change corresponding value
             charge = 0
             for i in range(len(unique)):
@@ -352,7 +346,7 @@ def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     min_film = np.array([min_film])
 
     # print the min_film
-    visPlot(min_film, "film at minimum_{}".format(currIter), 3)
+    visPlot(np.array(min_film), "Film at minimum_{}".format(currIter), 2)
 
     # for debug, delete later
     # print(all_energy)
