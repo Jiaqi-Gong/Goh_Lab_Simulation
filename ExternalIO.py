@@ -55,7 +55,7 @@ def getRestriction() -> [Dict[str, str], Dict[str, str]]:
     return info_dict, exec_dict
 
 
-def openLog() -> None:
+def openLog() -> str:
     """
     This function open a log file
     """
@@ -66,8 +66,12 @@ def openLog() -> None:
     if not os.path.exists("Log"):
         os.mkdir("Log")
 
+    log_name = "Log/log_{}_{}.txt".format(day, current_time)
+
     global log
-    log = open("Log/log_{}_{}.txt".format(day, current_time), "w")
+    log = open(log_name, "w")
+
+    return log_name
 
 
 def closeLog() -> None:
