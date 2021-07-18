@@ -223,6 +223,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     current_time = now.strftime("%H_%M_%S")
 
     # graph the 3D visualization
+    # if the array is small, we don't
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
@@ -295,6 +296,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         elev = 90
         azim = 0
         ax.view_init(elev=elev, azim=azim)
+        ax.dist = 7
         plt.title("X-Y plane")
 
         # save file
@@ -309,6 +311,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
             elev = elevation[0]
             azim = azimuth[i]
             ax.view_init(elev=elev, azim=azim)
+            ax.dist = 7
 
             # name the title
             if azim == 90 or azim == -90:
@@ -324,13 +327,13 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
             elev = elevation[i + 1]
             azim = azimuth[0]
             ax.view_init(elev=elev, azim=azim)
+            ax.dist = 7
 
             # name the title
             plt.title('X-Y plane')
 
             # save file
             plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[i + 1], azimuth[0]))
-    #
     # # build your visuals, that's all
     # Scatter3D = scene.visuals.create_visual_node(visuals.MarkersVisual)
     #
