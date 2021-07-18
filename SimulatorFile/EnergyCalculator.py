@@ -339,14 +339,17 @@ def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     # reshape the min_film from 1d to 3d
     # first reshape it into 2d array
     min_film = np.array(min_film)
-    # np.set_printoptions(threshold=np.inf)
 
     min_film = np.reshape(min_film,(bact_shape[1],bact_shape[2]),order='F')
     # now convert it into 3d, but because film only has a height of 1, we will just add an extra square bracket around min_film
     min_film = np.array([min_film])
+    #
+    # showMessage(min_film)
+    # np.set_printoptions(threshold=np.inf)
+
 
     # print the min_film
-    visPlot(np.array(min_film), "Film at minimum_{}".format(currIter), 2)
+    visPlot(min_film, "film_at_minimum_{}".format(currIter), 3)
 
     # for debug, delete later
     # print(all_energy)

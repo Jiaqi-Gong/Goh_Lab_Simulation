@@ -124,7 +124,7 @@ class Bacteria3D(Bacteria, ABC):
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
         radius = min(np.floor(self.length / 2), np.floor(self.width / 2), np.floor(self.height / 2))
         # indexes the array
-        index_z, index_y, index_x = np.indices((self.height+1, self.width+1, self.length+1))
+        index_z, index_y, index_x = np.indices((self.height, self.width, self.length))
         dist = ((index_x - center[0]) ** 2 + (index_y - center[1]) ** 2 + (index_z - center[2]) ** 2) ** 0.5
         # defines solid spheres of different radii
         reg1 = 1 * (dist <= radius)

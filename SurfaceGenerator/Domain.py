@@ -407,7 +407,7 @@ class DomainGenerator:
         possiblePoint.pop(index)
 
 
-        # writeLog("Point picked is: {}".format(coordinate))
+        writeLog("Point picked is: {}".format(coordinate))
 
         # return the result as tuple
         return coordinate, possiblePoint

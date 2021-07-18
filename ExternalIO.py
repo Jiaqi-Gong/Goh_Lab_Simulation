@@ -300,7 +300,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         plt.title("X-Y plane")
 
         # save file
-        plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elev, azim),dpi=500)
+        plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elev, azim))
     elif "bacteria" in picName:
         # save each side of the picture
         elevation = [0, 90, -90]
