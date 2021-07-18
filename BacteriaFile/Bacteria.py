@@ -142,9 +142,9 @@ class Bacteria3D(Bacteria, ABC):
 
     def _generateCyl(self) -> ndarray:
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
-        # set semi-length
-        r = min(np.floor(self.length / 2), np.floor(self.width / 2), np.floor(self.height / 2))
-        l = max(self.length, self.width, self.height)
+        # set radius, length, semi-length based on array size
+        r = min(np.floor(self.length / 2), np.floor(self.width / 2), np.floor(self.height / 2)) - 1
+        l = min(self.length, self.width, self.height)
         sl = int(l * 0.5)
         index_x, index_y, index_z = np.indices((self.length, self.width, self.height))
         # calculates distance from center to any point on the x-axis
@@ -153,13 +153,22 @@ class Bacteria3D(Bacteria, ABC):
         # for odd length, a symmetric cylinder is generated. for even length, cylinder is longer on the right
         # define outer and inner cylinders
         outerone = np.ones(shape=(self.length, self.width, self.height)) * (circle <= r) * (abs(d) <= sl)
-        innerone = np.ones(shape=(self.length, self.width, self.height)) * (circle <= r-1) * (abs(d) <= sl-1)
-        outertwo = np.ones(shape=(self.length, self.width, self.height)) * (circle <= r) * (abs(d) <= sl) * (d != -sl)
-        innertwo = np.ones(shape=(self.length, self.width, self.height)) * (circle <= r-1) * (abs(d) <= sl-1) * (d != 1-sl)
+        innerone = np.ones(shape=(self.length, self.width, self.height)) * (circle <= r - 1) * (abs(d) <= sl - 1)
+        outertwo = np.ones(shape=(self.length, self.width, self.height)) * (circle <= r) * (abs(d) <= sl - 1) * (
+                    d != 1 - sl)
+        innertwo = np.ones(shape=(self.length, self.width, self.height)) * (circle <= r - 1) * (abs(d) <= sl - 2) * (
+                    d != 2 - sl)
+        odd = outerone - innerone
+        even = outertwo - innertwo
+        # sets surface = 0, empty space = 2
+        odd[odd == 0] = 2
+        odd[odd == 1] = 0
+        even[even == 0] = 2
+        even[even == 1] = 0
         if l % 2 == 1:
-            return outerone - innerone
+            return odd
         else:
-            return outertwo - innertwo
+            return even
 
     def _generateRod(self) -> ndarray:
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
