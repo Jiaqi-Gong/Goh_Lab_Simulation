@@ -239,8 +239,12 @@ class DynamicSimulator(Simulator):
         # how to implement it wait until next meeting
 
         # for debugging, record true number and false number
+        global true_num
         true_num = 0
+
+        global false_num
         false_num = 0
+
         nextPos = []
 
         # loop all free bacteria
@@ -254,15 +258,13 @@ class DynamicSimulator(Simulator):
 
             nextPos.append(bactNextPos)
             # based on next position, move the bacteria
-            if not bactNextPos:
+            if bactNextPos is False:
                 # bacteria is stuck, move from free list to stuck list
                 self.bacteriaManager.freeBacteria.remove(bact)
                 self.bacteriaManager.stuckBacteria.append(bact)
-                false_num += 1
             else:
                 # bacteria is not stuck, update the position
                 bact.position = bactNextPos
-                true_num += 1
 
         writeLog("This is the result for nextPos: {}, true number is: {}, false number is: {}".format(nextPos, true_num, false_num))
 

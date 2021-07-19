@@ -31,6 +31,9 @@ class BacteriaMovementGenerator:
         self.filmSize = filmSize
         self.bacteriaSize = bacteriaSize
 
+        # set seed for random
+        np.random.seed(self.seed)
+
     # try with number 0.1 ... first then poisson
 
     def _simple(self, probability: float) -> bool:
@@ -153,9 +156,6 @@ class BacteriaMovementGenerator:
         This function return new position for 3D bacteria (next position is based on random movement of bacteria)
         position points at the center of the bacteria
         """
-        # set seed for random
-        np.random.seed(self.seed)
-
         # since we want the movement of the bacteria to be biased to move forward
         # probability to move forward
         p_f = 0.5

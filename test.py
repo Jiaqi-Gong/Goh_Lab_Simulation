@@ -365,17 +365,25 @@ def testCutoff():
 def test_random():
     true_num = 0
     false_num = 0
-    probability = 0.01
+    probability = 0.2
 
     for i in range(1000):
-        stick = np.random.choice([1, 0], 1, p=[probability, 1 - probability])
-
-        if stick == 1:
-            true_num += 1
-        else:
+        result = _simple(probability)
+        if result == 1:
             false_num += 1
+        else:
+            true_num += 1
 
     return "True is {}, False is {}".format(true_num, false_num)
+
+def _simple(probability: float) -> bool:
+    # check does probability set
+    if probability is None:
+        raise RuntimeError("Probability is not given")
+
+    stick = np.random.choice([1, 0], 1, p=[probability, 1 - probability])
+
+    return stick
 
 
 
