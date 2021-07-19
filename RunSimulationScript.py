@@ -20,7 +20,7 @@ def runSimulation():
 
     simulationType = 1
     trail = 11
-    dimension = 3
+    dimension = 2
     filmSeed = 1
     if dimension == 2:
         filmSurfaceSize = (100, 100)
@@ -41,12 +41,14 @@ def runSimulation():
         bacteriaSize = (33, 33)
     elif dimension == 3:
         bacteriaSize = (33, 33, 33)  # For bacteria, z value is the height of bacteria, can be any number
-    bacteriaSurfaceShape = "rod"
+    bacteriaSurfaceShape = "rectangle"
     bacteriaSurfaceCharge = 1
     bacteriaDomainSize = (2, 2)
-    bacteriaDomainShape = "single"
+    bacteriaDomainShape = "diamond"
     bacteriaDomainCon = 0.2
     bacteriaDomainChargeConcentration = 0.5
+
+    neutralDomain = False
 
     ### below is new variable
     simulatorType = 1
@@ -85,7 +87,7 @@ def runSimulation():
                     filmDomainSize, filmDomainShape, filmDomainCon, filmDomainChargeConcentration,
                     bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
                     bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, bacteriaDomainChargeConcentration,
-                    filmNum, bacteriaNum, interval_x, interval_y, parameter)
+                    filmNum, bacteriaNum, interval_x, interval_y, parameter, neutralDomain)
 
 
     sim.runSimulate()

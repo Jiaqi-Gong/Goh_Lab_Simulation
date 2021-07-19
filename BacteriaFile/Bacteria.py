@@ -4,6 +4,8 @@ This program is used for generate bacteria
 import abc
 from abc import ABC
 from typing import Tuple, Union
+from ExternalIO import showMessage, writeLog
+
 
 import numpy as np
 from numpy import ndarray

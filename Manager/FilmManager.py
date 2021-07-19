@@ -24,11 +24,12 @@ class FilmManager:
     filmDomainConcentration: float
     filmNum: int
     film: list
+    neutralDomain: bool
 
     def __init__(self, trail: int, dimension: int,
                  filmSeed: int, filmSurfaceSize: Union[Tuple[int, int], Tuple[int, int, int]], filmSurfaceShape: str,
                  filmSurfaceCharge: int, filmDomainSize: Tuple[int, int], filmDomainShape: str,
-                 filmDomainConcentration: float, filmDomainChargeConcentration: float, filmNum: int):
+                 filmDomainConcentration: float, filmDomainChargeConcentration: float, filmNum: int, neutralDomain: bool):
         """
         Init the film manager, take in the
         """
@@ -46,6 +47,7 @@ class FilmManager:
         self.filmDomainShape = filmDomainShape
         self.filmDomainConcentration = filmDomainConcentration
         self.filmDomainChargeConcentration = filmDomainChargeConcentration
+        self.neutralDomain = neutralDomain
 
         # init a variable to store all film
         self.film = []
@@ -63,7 +65,7 @@ class FilmManager:
             seed = self.filmSeed + i
 
             # generate domain generator
-            filmDomainGenerator = DomainGenerator(seed, False)
+            filmDomainGenerator = DomainGenerator(seed)
             if self.dimension == 2:
                 self._generate2DFilm(filmDomainGenerator)
             elif self.dimension == 3:

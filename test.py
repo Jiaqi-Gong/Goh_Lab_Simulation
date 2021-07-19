@@ -362,6 +362,24 @@ def testCutoff():
 
     return result
 
+def test_random():
+    true_num = 0
+    false_num = 0
+    probability = 0.01
+
+    for i in range(1000):
+        stick = np.random.choice([1, 0], 1, p=[probability, 1 - probability])
+
+        if stick == 1:
+            true_num += 1
+        else:
+            false_num += 1
+
+    return "True is {}, False is {}".format(true_num, false_num)
+
+
+
+
 if __name__ == '__main__':
     # test_diamond()
     # test_random_choice()
@@ -386,8 +404,10 @@ if __name__ == '__main__':
 
     # print(testchange())
 
-    testVisible()
+    # testVisible()
 
     # testPic()
 
     # print(testCutoff())
+
+    print(test_random())

@@ -42,7 +42,6 @@ class BacteriaMovementGenerator:
 
         return stick
 
-
     def _poisson(self, Lambda: float) -> bool:
         # Consider change to binomial
         """
@@ -125,7 +124,7 @@ class BacteriaMovementGenerator:
 
     def nextPosition(self, probabilityType: str, position: Tuple[int, int, int], Lambda: float = None,
                      temperature: float = None, energy: float = None, probability: float = None) \
-                    -> Union[bool, Tuple[int, int, int]]:
+            -> Union[bool, Tuple[int, int, int]]:
         """
         This function take in probability type, position
         return False if this bacteria is stuck
@@ -143,8 +142,8 @@ class BacteriaMovementGenerator:
             raise RuntimeError("Unknown probability type")
 
         # check stuck or not
-        # if stuck, return false
-        if result:
+        # if stuck, result == 1, return false
+        if result == 1:
             return False
         else:
             return self._nextPositionHelper(position)

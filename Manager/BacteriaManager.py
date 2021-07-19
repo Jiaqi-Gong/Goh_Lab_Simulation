@@ -29,12 +29,13 @@ class BacteriaManager:
     bacteriaDomainGenerator: DomainGenerator
     bacteriaMovementGenerator: BacteriaMovementGenerator
     bacteria: list
+    neutralDomain: bool
 
     def __init__(self, trail: int, dimension: int, simulatorType: int,
                  bacteriaSeed: int, bacteriaSize: Tuple[int, int, int], bacteriaSurfaceShape: str,
                  bacteriaSurfaceCharge: int,
                  bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float,
-                 bacteriaDomainChargeConcentration: float, bacteriaNum: int):
+                 bacteriaDomainChargeConcentration: float, bacteriaNum: int, neutralDomain: bool):
         """
         Init the film manager, take in the
         """
@@ -60,7 +61,7 @@ class BacteriaManager:
 
 
         # generate domain generator
-        self.bacteriaDomainGenerator = DomainGenerator(self.bacteriaSeed, True)
+        self.bacteriaDomainGenerator = DomainGenerator(self.bacteriaSeed, self.neutralDomain)
 
         # init a variable to store all bacteria
         self.bacteria = []
@@ -80,7 +81,7 @@ class BacteriaManager:
             seed = self.bacteriaSeed + i
 
             # generate domain generator
-            bacteriaDomainGenerator = DomainGenerator(seed, True)
+            bacteriaDomainGenerator = DomainGenerator(seed, self.neutralDomain)
 
             if self.dimension == 2:
                 self._generate2DBacteria(bacteriaDomainGenerator)
