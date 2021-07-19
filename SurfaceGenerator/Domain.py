@@ -18,7 +18,7 @@ class DomainGenerator:
     # Declare the type of all variable
     seed: int
 
-    def __init__(self, seed: int):
+    def __init__(self, seed: int, neutral: bool):
         """
         Init this domain generate
         :param seed: seed for random, if using same seed can repeat the simulation

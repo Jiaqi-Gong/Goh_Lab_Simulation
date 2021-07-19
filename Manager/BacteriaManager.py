@@ -4,7 +4,6 @@ This program is used to save and manage all bacteria
 from typing import Tuple, Union
 
 from BacteriaFile.Bacteria import Bacteria2D, Bacteria3D
-from BacteriaFile.BacteriaMovement import BacteriaMovementGenerator
 from SurfaceGenerator.Domain import DomainGenerator
 from ExternalIO import showMessage, writeLog
 
@@ -27,7 +26,6 @@ class BacteriaManager:
     bacteriaDomainConcentration: float
     bacteriaNum: int
     bacteriaDomainGenerator: DomainGenerator
-    bacteriaMovementGenerator: BacteriaMovementGenerator
     bacteria: list
 
     def __init__(self, trail: int, dimension: int, simulatorType: int,
