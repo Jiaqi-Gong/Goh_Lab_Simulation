@@ -9,10 +9,10 @@ DomainShape: Shape of domain
 Size: Size of surface want to generate, in the format ###x### for 2D, ###x###x### for 3D, in the unit um, 1micrometer (um) = 100 points
 Charge: Total charge of the surface, -1 for negative, 0 for neutral, 1 for positive
 Concentration: Concentration of domain on the surface or the positive charge in the domain on the surface
+DomainChargeConcentration: Concentration of the charged domains (a float number between 0 and 1), where 0 would mean all domains are neutral (0) and 1 would mean all domains are charged (1 or -1)
 Number: Number of film/bacteria want to test, for simulation type 2 and 3 use
 Interval: Interval is how many times scan on x/y direction
 Timestep: Time step is how many step want to simulate, in one timestep, all bacteria loop once and calculate and update once
 ProbabilityType: Probability uses for bacteria when decide will bacteria stuck on the film or not, can be Poisson or Boltzmann for now
 InteractType: Way of calculating energy, can be dot calculate or cut-off calculate
 Cutoff: A value, if the distance between point on the bacteria and point on the film exceed this value, then the interact between these two point will not be calculated
-DomainChargeConcentration:
