@@ -122,9 +122,9 @@ class Bacteria3D(Bacteria, ABC):
     def _generateSphere(self) -> ndarray:
         # finds center of array
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
-        radius = min(np.floor(self.length / 2), np.floor(self.width / 2), np.floor(self.height / 2)) - 1
+        radius = min(np.floor(self.length / 2), np.floor(self.width / 2), np.floor(self.height / 2))
         # indexes the array
-        index_z, index_y, index_x = np.indices((self.height+1, self.width, self.length))
+        index_z, index_y, index_x = np.indices((self.height, self.width, self.length))
         dist = ((index_x - center[0]) ** 2 + (index_y - center[1]) ** 2 + (index_z - center[2]) ** 2) ** 0.5
         # defines solid spheres of different radii
         reg1 = 1 * (dist <= radius)
@@ -142,7 +142,7 @@ class Bacteria3D(Bacteria, ABC):
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
         # set radius, length, semi-length based on array size
         r = min(np.floor(self.length / 2), np.floor(self.width / 2), np.floor(self.height / 2)) - 1
-        l = min(self.length, self.width, self.height) - 2
+        l = min(self.length, self.width, self.height) + 1
         sl = int(l * 0.5)
         index_x, index_y, index_z = np.indices((self.length, self.width, self.height))
         # calculates distance from center to any point on the x-axis
@@ -173,7 +173,7 @@ class Bacteria3D(Bacteria, ABC):
         # set length, radius based on array size
         # length is fixed as 3x the radius, so array must be at least 5x3x3
         r = rod_dim / 5
-        l = int(3 * r)
+        l = int(3 * r) + 2
         sl = int(l * 0.5)
         index_x, index_y, index_z = np.indices((self.length, self.width, self.height))
         if rod_dim % 2 == 1:
@@ -189,7 +189,8 @@ class Bacteria3D(Bacteria, ABC):
         odd_outer = (np.ones(shape=(self.length, self.width, self.height)) * (abs(d) <= sl) * (circle <= r) + np.ones(
             shape=(self.length, self.width, self.height)) * (distl <= r) + np.ones(
             shape=(self.length, self.width, self.height)) * (distr <= r))
-        odd_inner = (np.ones(shape=(self.length, self.width, self.height)) * (abs(d) <= sl) * (circle <= r - 1) + np.ones(
+        odd_inner = (np.ones(shape=(self.length, self.width, self.height)) * (abs(d) <= sl) * (
+                    circle <= r - 1) + np.ones(
             shape=(self.length, self.width, self.height)) * (distl <= r - 1) + np.ones(
             shape=(self.length, self.width, self.height)) * (distr <= r - 1))
         even_outer = (np.ones(shape=(self.length, self.width, self.height)) * (circle <= r) * (abs(d) <= sl) * (

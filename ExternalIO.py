@@ -12,6 +12,12 @@ from openpyxl.packaging import workbook
 from matplotlib import pyplot as plt
 import matplotlib as mpl
 # mpl.use('TkAgg')
+import sys
+from vispy import app, visuals, scene
+import vispy.io as io
+import plotly.express as px
+import plotly.graph_objects as go
+import pandas as pd
 
 
 def getHelp() -> Dict[str, str]:
@@ -133,6 +139,15 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     """
     showMessage("Start to generate image")
 
+    now = datetime.now()
+    day = now.strftime("%m_%d")
+    current_time = now.strftime("%H_%M_%S")
+
+
+    # initialize the pandas dataframe
+    column_names = ['X', 'Y', 'Legend']
+    df = pd.DataFrame(columns=column_names)
+
     pos = np.where(array == 1)
     neu = np.where(array == 0)
     neg = np.where(array == -1)
@@ -143,6 +158,24 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     neu_y = neu[1]
     neg_x = neg[0]
     neg_y = neg[1]
+
+    position_x = np.concatenate((pos_x, neu_x, neg_x))
+    position_y = np.concatenate((pos_y, neu_y, neg_y))
+
+    colors_pos = np.repeat(np.array(['Positive']), len(pos_x), axis=0)
+    colors_neu = np.repeat(np.array(['Neutral']), len(neu_x), axis=0)
+    colors_neg = np.repeat(np.array(['Negative']), len(neg_x), axis=0)
+    colors = np.concatenate((colors_pos, colors_neu, colors_neg))
+
+    # add list to pandas dataframe
+    df['X'] = position_x.tolist()
+    df['Y'] = position_y.tolist()
+    df['Legend'] = colors.tolist()
+
+    # show it on plotly
+    fig = go.Figure(data=px.scatter(df, x='X', y='Y', color='Legend', color_discrete_map={'Positive': 'blue',
+                                                                                          'Neutral': 'green',
+                                                                                          'Negative': 'red'}))
 
     # if len(array[0]) > 1000:
     #     img_length = len(array[0]) // 100
@@ -158,47 +191,35 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     #     size = 100
 
     # fig = plt.figure(figsize=(img_length, img_width))
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111)
 
     # ax.scatter(pos_x, pos_y, s=size, c='blue', label='pos')
     # ax.scatter(neu_x, neu_y, s=size, c='green', label='neu')
     # ax.scatter(neg_x, neg_y, s=size, c='red', label='neg')
 
-    # position_x = np.concatenate((pos_x, neu_x, neg_x))
-    # position_y = np.concatenate((pos_y, neu_y, neg_y))
+
     #
-    # colors_pos = np.repeat(np.array([[0,0,1,0.8]]),len(pos_x),axis=0)
-    # colors_neu = np.repeat(np.array([[0,1,0,0.8]]),len(neu_x),axis=0)
-    # colors_neg = np.repeat(np.array([[1,0,0,0.8]]),len(neg_x),axis=0)
-    # colors = np.concatenate((colors_neu, colors_pos, colors_neg))
-    # ax.scatter(position_x, position_y, marker="o", label=['neutral', 'positive', 'negative'],
-    #              color=colors)
-
-    ax.scatter(pos_x, pos_y, c='blue', label='pos')
-    ax.scatter(neu_x, neu_y, c='green', label='neu')
-    ax.scatter(neg_x, neg_y, c='red', label='neg')
-
-    ax.legend(loc="upper right")
-    ax.set_xlabel("X")
-    ax.set_ylabel("Y")
-    ax.xaxis.set_ticks_position('top')
-    ax.xaxis.set_label_position('top')
-
-    # set x limit and y limit
-    max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i]) != 0]
-    max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i]) != 0]
-    max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i]) != 0]
-    maximum = max(max1 + max2 + max3)
-
-    plt.xlim(0,maximum)
-    plt.ylim(0,maximum)
-
-    plt.imshow(array, interpolation='nearest')
-
-    now = datetime.now()
-    day = now.strftime("%m_%d")
-    current_time = now.strftime("%H_%M_%S")
+    # ax.scatter(pos_x, pos_y, c='blue', label='pos')
+    # ax.scatter(neu_x, neu_y, c='green', label='neu')
+    # ax.scatter(neg_x, neg_y, c='red', label='neg')
+    #
+    # ax.legend(loc="upper right")
+    # ax.set_xlabel("X")
+    # ax.set_ylabel("Y")
+    # ax.xaxis.set_ticks_position('top')
+    # ax.xaxis.set_label_position('top')
+    #
+    # # set x limit and y limit
+    # max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i]) != 0]
+    # max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i]) != 0]
+    # max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i]) != 0]
+    # maximum = max(max1 + max2 + max3)
+    #
+    # plt.xlim(0,maximum)
+    # plt.ylim(0,maximum)
+    #
+    # plt.imshow(array, interpolation='nearest')
 
     global picFolder
     if "picFolder" not in globals():
@@ -211,7 +232,20 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
             os.mkdir(picFolder)
 
     picPath = "{}/{}".format(picFolder, picName)
-    plt.savefig(picPath, dpi=300, bbox_inches='tight')
+    if 'film' in picName:
+        # set title
+        name = "Surface of Film"
+
+    elif 'bacteria' in picName:
+        # set title
+        name = 'Surface of Bacteria'
+
+    # set camera angle
+    fig.update_layout(title=name)
+
+    # save file
+    fig.write_html('{}/{}.html'.format(picFolder, picName))
+    # plt.savefig(picPath, dpi=300, bbox_inches='tight')
 
     showMessage("Image generate done")
 
@@ -226,10 +260,9 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     day = now.strftime("%m_%d")
     current_time = now.strftime("%H_%M_%S")
 
-    # graph the 3D visualization
-    # if the array is small, we don't
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+    # initialize the pandas dataframe
+    column_names = ['X','Y','Z','Legend']
+    df = pd.DataFrame(columns=column_names)
 
     # position of positive
     pos = np.where(array == 1)
@@ -237,46 +270,39 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     pos_y = pos[1]
     pos_x = pos[2]
     # color of positive
+    colors_pos = np.repeat(np.array(['Positive']),len(pos_z),axis=0)
     # colors_pos = np.repeat(np.array([[0,0,1,0.8]]),len(pos_z),axis=0)
-    ax.scatter3D(pos_x, pos_y, pos_z, marker="o", label='positive', color='blue', depthshade=False)
 
     # position of neutral
     neu = np.where(array == 0)
     neu_z = neu[0]
     neu_y = neu[1]
     neu_x = neu[2]
+    colors_neu = np.repeat(np.array(['Neutral']),len(neu_z),axis=0)
     # colors_neu = np.repeat(np.array([[0,1,0,0.8]]),len(neu_z),axis=0)
-    ax.scatter3D(neu_x, neu_y, neu_z, marker="o", label='neutral', color='green', depthshade=False)
 
     # position of negative
     neg = np.where(array == -1)
     neg_z = neg[0]
     neg_y = neg[1]
     neg_x = neg[2]
-    # colors_neg = np.repeat(np.array([[1,0,0,0.8]]),len(neg_z),axis=0)
-    ax.scatter3D(neg_x, neg_y, neg_z, marker="o", label='negative', color='red', depthshade=False)
+    colors_neg = np.repeat(np.array(['Negative']),len(neg_z),axis=0)
 
-    # position_x = np.concatenate((pos_x, neu_x, neg_x))
-    # position_y = np.concatenate((pos_y, neu_y, neg_y))
-    # position_z = np.concatenate((pos_z, neu_z, neg_z))
-    # colors = np.concatenate((colors_pos, colors_neu, colors_neg))
-    # ax.scatter3D(position_x, position_y, position_z, marker="o", label=['neutral','positive','negative'], color=colors, depthshade=False)
+    position_x = np.concatenate((pos_x, neu_x, neg_x))
+    position_y = np.concatenate((pos_y, neu_y, neg_y))
+    position_z = np.concatenate((pos_z, neu_z, neg_z))
+    colors = np.concatenate((colors_pos, colors_neu, colors_neg))
 
-    ax.legend(loc="upper right")
-    ax.set_xlabel("X")
-    ax.set_ylabel("Y")
-    ax.set_zlabel("Z")
+    # add list to pandas dataframe
+    df['X'] = position_x.tolist()
+    df['Y'] = position_y.tolist()
+    df['Z'] = position_z.tolist()
+    df['Legend'] = colors.tolist()
 
-    # set axis limit
-
-    # get the largest number in all x,y,z scales
-    max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i])!=0]
-    max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i])!=0]
-    max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i])!=0]
-    maximum = max(max1+max2+max3)
-    ax.set_xlim3d(0, maximum)
-    ax.set_ylim3d(0, maximum)
-    ax.set_zlim3d(0, maximum)
+    # show it on plotly
+    fig = go.Figure(data=px.scatter_3d(df, x='X', y='Y', z='Z', color='Legend', color_discrete_map={'Positive': 'blue',
+                                                                                                    'Neutral': 'green',
+                                                                                                    'Negative': 'red'}))
 
     # create a folder to store all the images]
     global picFolder
@@ -289,55 +315,186 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         if not os.path.exists(picFolder):
             os.mkdir(picFolder)
 
-    global picFolderEach
-    picFolderEach = "{}/{}".format(picFolder, picName)
-    if not os.path.exists(picFolderEach):
-        os.mkdir(picFolderEach)
-
     # if the surface is a film, we only need to see the top
     if "film" in picName:
         # set camera angle
-        elev = 90
-        azim = 0
-        ax.view_init(elev=elev, azim=azim)
-        ax.dist = 7
-        plt.title("X-Y plane")
+        name = "Surface of Film"
+        camera = dict(eye=dict(x=0, y=0, z=1.5))
+        fig.update_layout(scene_camera=camera, title=name)
 
         # save file
-        plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elev, azim))
+        fig.write_html('{}/{}.html'.format(picFolder, picName))
+        # fig.write_image('{}/{}.png'.format(picFolder, picName), width=1000, height=1000)
+
     elif "bacteria" in picName:
-        # save each side of the picture
-        elevation = [0, 90, -90]
-        azimuth = [0, 90, -90, 180]
-        # if the sides are really small, we don't need to output the sides
-        # first 4 sides
-        for i in range(len(azimuth)):
-            elev = elevation[0]
-            azim = azimuth[i]
-            ax.view_init(elev=elev, azim=azim)
-            ax.dist = 7
+        # set camera angle
+        name = "Surface of Bacteria"
+        camera = dict(eye=dict(x=0, y=0, z=1.5))
+        fig.update_layout(scene_camera=camera, title=name)
 
-            # name the title
-            if azim == 90 or azim == -90:
-                plt.title('X-Z plane')
-            elif azim == 0 or azim == 180:
-                plt.title('Y-Z plane')
+        # save file
+        fig.write_html('{}/{}.html'.format(picFolder, picName))
 
-            # save file
-            plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[0], azimuth[i]))
+        # global picFolderEach
+        # picFolderEach = "{}/{}".format(picFolder, picName)
+        # if not os.path.exists(picFolderEach):
+        #     os.mkdir(picFolderEach)
 
-        # last 2 sides
-        for i in range(len(elevation) - 1):
-            elev = elevation[i + 1]
-            azim = azimuth[0]
-            ax.view_init(elev=elev, azim=azim)
-            ax.dist = 7
+        # name = ['X-Y plane','X-Z plane','Y-Z plane']
+        # x = [0,0,2.5]
+        # y = [0,2.5,0]
+        # z = [2.5,0,0]
+        # for i in range(3):
+        #     # set camera angle
+        #     camera = dict(eye=dict(x=x[i], y=y[i], z=z[i]))
+        #     fig.update_layout(scene_camera=camera, title=name[i])
+        #     # save file
+        #     fig.write_image('{}/Position_at_{}.png'.format(picFolderEach, name[i]))
 
-            # name the title
-            plt.title('X-Y plane')
 
-            # save file
-            plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[i + 1], azimuth[0]))
+        # # save each side of the picture
+        # elevation = [0, 90, -90]
+        # azimuth = [0, 90, -90, 180]
+        # # if the sides are really small, we don't need to output the sides
+        # # first 4 sides
+        # for i in range(len(azimuth)):
+        #
+        #
+        #     # name the title
+        #     if azim == 90 or azim == -90:
+        #         plt.title('X-Z plane')
+        #     elif azim == 0 or azim == 180:
+        #         plt.title('Y-Z plane')
+        #
+        #     # save file
+        #     plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[0], azimuth[i]))
+        #
+        # # last 2 sides
+        # for i in range(len(elevation) - 1):
+        #     elev = elevation[i + 1]
+        #     azim = azimuth[0]
+        #     ax.view_init(elev=elev, azim=azim)
+        #     ax.dist = 6
+        #
+        #     # name the title
+        #     plt.title('X-Y plane')
+        #
+        #     # save file
+        #     plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[i + 1], azimuth[0]))
+
+    # # graph the 3D visualization
+    # # if the array is small, we don't
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111, projection='3d')
+    #
+    # # position of positive
+    # pos = np.where(array == 1)
+    # pos_z = pos[0]
+    # pos_y = pos[1]
+    # pos_x = pos[2]
+    # # color of positive
+    # # colors_pos = np.repeat(np.array([[0,0,1,0.8]]),len(pos_z),axis=0)
+    # ax.scatter3D(pos_x, pos_y, pos_z, marker="o", label='positive', color='blue', depthshade=False)
+    #
+    # # position of neutral
+    # neu = np.where(array == 0)
+    # neu_z = neu[0]
+    # neu_y = neu[1]
+    # neu_x = neu[2]
+    # # colors_neu = np.repeat(np.array([[0,1,0,0.8]]),len(neu_z),axis=0)
+    # ax.scatter3D(neu_x, neu_y, neu_z, marker="o", label='neutral', color='green', depthshade=False)
+    #
+    # # position of negative
+    # neg = np.where(array == -1)
+    # neg_z = neg[0]
+    # neg_y = neg[1]
+    # neg_x = neg[2]
+    # # colors_neg = np.repeat(np.array([[1,0,0,0.8]]),len(neg_z),axis=0)
+    # ax.scatter3D(neg_x, neg_y, neg_z, marker="o", label='negative', color='red', depthshade=False)
+    #
+    # # position_x = np.concatenate((pos_x, neu_x, neg_x))
+    # # position_y = np.concatenate((pos_y, neu_y, neg_y))
+    # # position_z = np.concatenate((pos_z, neu_z, neg_z))
+    # # colors = np.concatenate((colors_pos, colors_neu, colors_neg))
+    # # ax.scatter3D(position_x, position_y, position_z, marker="o", label=['neutral','positive','negative'], color=colors, depthshade=False)
+    #
+    # ax.legend(loc="upper right")
+    # ax.set_xlabel("X")
+    # ax.set_ylabel("Y")
+    # ax.set_zlabel("Z")
+    #
+    # # set axis limit
+    #
+    # # get the largest number in all x,y,z scales
+    # max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i])!=0]
+    # max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i])!=0]
+    # max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i])!=0]
+    # maximum = max(max1+max2+max3)
+    # ax.set_xlim3d(0, maximum)
+    # ax.set_ylim3d(0, maximum)
+    # ax.set_zlim3d(0, maximum)
+    #
+    # # create a folder to store all the images]
+    # global picFolder
+    # if "picFolder" not in globals():
+    #     # save the image
+    #     if not os.path.exists("Image"):
+    #         os.mkdir("Image")
+    #
+    #     picFolder = "Image/{}_{}".format(day, current_time)
+    #     if not os.path.exists(picFolder):
+    #         os.mkdir(picFolder)
+    #
+    # global picFolderEach
+    # picFolderEach = "{}/{}".format(picFolder, picName)
+    # if not os.path.exists(picFolderEach):
+    #     os.mkdir(picFolderEach)
+    #
+    # # if the surface is a film, we only need to see the top
+    # if "film" in picName:
+    #     # set camera angle
+    #     elev = 90
+    #     azim = 0
+    #     ax.view_init(elev=elev, azim=azim)
+    #     ax.dist = 7
+    #     plt.title("X-Y plane")
+    #
+    #     # save file
+    #     plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elev, azim))
+    # elif "bacteria" in picName:
+    #     # save each side of the picture
+    #     elevation = [0, 90, -90]
+    #     azimuth = [0, 90, -90, 180]
+    #     # if the sides are really small, we don't need to output the sides
+    #     # first 4 sides
+    #     for i in range(len(azimuth)):
+    #         elev = elevation[0]
+    #         azim = azimuth[i]
+    #         ax.view_init(elev=elev, azim=azim)
+    #         ax.dist = 6
+    #
+    #         # name the title
+    #         if azim == 90 or azim == -90:
+    #             plt.title('X-Z plane')
+    #         elif azim == 0 or azim == 180:
+    #             plt.title('Y-Z plane')
+    #
+    #         # save file
+    #         plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[0], azimuth[i]))
+    #
+    #     # last 2 sides
+    #     for i in range(len(elevation) - 1):
+    #         elev = elevation[i + 1]
+    #         azim = azimuth[0]
+    #         ax.view_init(elev=elev, azim=azim)
+    #         ax.dist = 6
+    #
+    #         # name the title
+    #         plt.title('X-Y plane')
+    #
+    #         # save file
+    #         plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[i + 1], azimuth[0]))
+    # plt.show()
     # # build your visuals, that's all
     # Scatter3D = scene.visuals.create_visual_node(visuals.MarkersVisual)
     #
@@ -416,7 +573,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     # view.camera.fov = 0
     # view.camera.distance = int(array.shape[1])
     # view.camera.center = (int(array.shape[2]/2), int(array.shape[1]/2), int(array.shape[0]/2))
-
+    #
     # # run
     # elevation = 90
     # azimuth = 90
@@ -439,7 +596,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     # picFolderEach = "{}/{}".format(picFolder, picName)
     # if not os.path.exists(picFolderEach):
     #     os.mkdir(picFolderEach)
-
+    #
     # # if the surface is a film, we only need to see the top
     # if "film" in picName:
     #     # set camera angle
