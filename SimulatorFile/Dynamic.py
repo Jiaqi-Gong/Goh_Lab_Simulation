@@ -23,7 +23,8 @@ class DynamicSimulator(Simulator):
                  bacteriaSurfaceCharge: int,
                  bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float,
                  bacteriaDomainChargeConcentration: float,
-                 filmNum: int, bacteriaNum: int, intervalX: int, intervalY: int, neutralDomain, parameters: Dict) -> None:
+                 filmNum: int, bacteriaNum: int, intervalX: int, intervalY: int, filmNeutralDomain: bool,
+                 bacteriaNeutralDomain: bool, parameters: Dict) -> None:
         """
         Init the simulation class based on the input info
         Description of input info are shown in the HelpFile.txt
@@ -54,7 +55,7 @@ class DynamicSimulator(Simulator):
                            bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
                            bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainConcentration,
                            bacteriaDomainChargeConcentration,
-                           filmNum, bacteriaNum, intervalX, intervalY, neutralDomain, parameters)
+                           filmNum, bacteriaNum, intervalX, intervalY, filmNeutralDomain, bacteriaNeutralDomain, parameters)
 
 
 

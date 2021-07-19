@@ -48,7 +48,8 @@ def runSimulation():
     bacteriaDomainCon = 0.2
     bacteriaDomainChargeConcentration = 0.5
 
-    neutralDomain = False
+    filmNeutralDomain = False
+    bacteriaNeutralDomain = False
 
     ### below is new variable
     simulatorType = 1
@@ -72,7 +73,7 @@ def runSimulation():
         simulator = DynamicSimulator
         # taking info for dynamic simulation
         parameter = {"probabilityType": probabilityType, "timeStep": timestep, "dumpStep": 1,
-                     "bacteriaMovementSeed" : bacteriaMovementSeed}
+                     "bacteriaMovementSeed": bacteriaMovementSeed}
 
         if probabilityType.upper() == "SIMPLE":
             parameter["probability"] = simple
@@ -87,7 +88,7 @@ def runSimulation():
                     filmDomainSize, filmDomainShape, filmDomainCon, filmDomainChargeConcentration,
                     bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
                     bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, bacteriaDomainChargeConcentration,
-                    filmNum, bacteriaNum, interval_x, interval_y, parameter, neutralDomain)
+                    filmNum, bacteriaNum, interval_x, interval_y, filmNeutralDomain, bacteriaNeutralDomain, parameter)
 
 
     sim.runSimulate()
