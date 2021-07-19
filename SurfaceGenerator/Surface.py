@@ -29,7 +29,7 @@ class Surface:
     surfaceCharge: int
     originalSurface: ndarray
     surfaceWithDomain: Union[None, ndarray]
-    realDomainConc: float
+    realDomainConc: Tuple[float, float]
 
     @abc.abstractmethod
     def __init__(self, trail: int, shape: str, size: Tuple[int, int, int], seed: int, surfaceCharge: int, dimension: int) \
@@ -58,7 +58,7 @@ class Surface:
         self.seed = seed
 
         # set real domain concentration
-        self.realDomainConc = -1
+        self.realDomainConc = (-1, -1)
 
         # set the surface dimension
         self.dimension = dimension

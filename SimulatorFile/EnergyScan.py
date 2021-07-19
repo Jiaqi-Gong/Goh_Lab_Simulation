@@ -29,8 +29,8 @@ class EnergySimulator(Simulator):
                  bacteriaSurfaceCharge: int,
                  bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float,
                  bacteriaDomainChargeConcentration: float,
-                 filmNum: int, bacteriaNum: int, intervalX: int, intervalY: int, parameters: Dict, neutralDomain: bool) \
-            -> None:
+                 filmNum: int, bacteriaNum: int, intervalX: int, intervalY: int, filmNeutralDomain: bool,
+                 bacteriaNeutralDomain: bool, parameters: Dict) -> None:
         """
         Init the simulation class based on the input info
         Description of input info are shown in the HelpFile.txt
@@ -58,7 +58,7 @@ class EnergySimulator(Simulator):
                            bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
                            bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainConcentration,
                            bacteriaDomainChargeConcentration,
-                           filmNum, bacteriaNum, intervalX, intervalY, neutralDomain, parameters)
+                           filmNum, bacteriaNum, intervalX, intervalY, filmNeutralDomain, bacteriaNeutralDomain, parameters)
 
     def runSimulate(self) -> None:
         """
@@ -166,9 +166,9 @@ class EnergySimulator(Simulator):
         ws1.cell(1, 5, "Bacteria shape and size")
         ws1.cell(1, 6, "Bacteria domain shape and size")
         ws1.cell(1, 7, "Film Seed # ")
-        ws1.cell(1, 8, "Film real domain concentration")
+        ws1.cell(1, 8, "Film real domain concentration (charge, neutral)")
         ws1.cell(1, 9, "Bacteria Seed # ")
-        ws1.cell(1, 10, "Bacteria real domain concentration")
+        ws1.cell(1, 10, "Bacteria real domain concentration (charge, neutral)")
         ws1.cell(1, 11, "Min Energy")
         ws1.cell(1, 12, "Min X")
         ws1.cell(1, 13, "Min Y")

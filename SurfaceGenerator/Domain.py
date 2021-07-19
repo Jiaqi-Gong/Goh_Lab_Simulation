@@ -30,7 +30,7 @@ class DomainGenerator:
         self.neutral = neutral
 
     def generateDomain(self, surface: Surface, shape: str, size: Tuple[int, int], concentration: float,
-                       charge_concentration: float) -> [ndarray, float]:
+                       charge_concentration: float) -> [ndarray, float, float]:
         """
         This function takes in a surface, shape and size of domain want to generate on the surface
         :param surface: the surface want to generate the domain
@@ -196,7 +196,7 @@ class DomainGenerator:
         showMessage("intended concentration is {}".format(concentration))
         showMessage("generated total of {} with charge {}".format(totalDomainChar[0], possible_charge[0]))
         showMessage("generated total of {} with charge {}".format(totalDomainChar[1], possible_charge[1]))
-        return newSurface, concentration_charge, concentration_neutral
+        return newSurface, (concentration_charge, concentration_neutral)
 
     def _allPossiblePoint(self, newSurface: ndarray, surface: Surface, surfaceLength: int, surfaceWidth: int, surfaceHeight: int,
                           domainLength: int, domainWidth: int, shape: str) -> List[Tuple[int, int, int]]:

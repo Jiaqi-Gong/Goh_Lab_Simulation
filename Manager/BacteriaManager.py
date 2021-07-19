@@ -58,10 +58,6 @@ class BacteriaManager:
         else:
             self.bacteriaSize = bacteriaSize
 
-
-        # generate domain generator
-        self.bacteriaDomainGenerator = DomainGenerator(self.bacteriaSeed, self.neutralDomain)
-
         # init a variable to store all bacteria
         self.bacteria = []
         self.stuckBacteria = []
