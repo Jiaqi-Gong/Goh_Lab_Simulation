@@ -90,7 +90,7 @@ class Bacteria3D(Bacteria, ABC):
         print("Start to generating surface with shape: ", self.shape)
 
         # generate corresponding shape
-        if self.shape.upper() == "CUBOID":
+        if self.shape.upper() == "CUBOID" or self.shape.upper() == "RECTANGLE":
             return self._generateRec()
         elif self.shape.upper() == "SPHERE":
             return self._generateSphere()

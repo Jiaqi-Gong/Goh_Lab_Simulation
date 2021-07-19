@@ -65,7 +65,7 @@ class FilmManager:
             seed = self.filmSeed + i
 
             # generate domain generator
-            filmDomainGenerator = DomainGenerator(seed)
+            filmDomainGenerator = DomainGenerator(seed, self.neutralDomain)
             if self.dimension == 2:
                 self._generate2DFilm(filmDomainGenerator)
             elif self.dimension == 3:

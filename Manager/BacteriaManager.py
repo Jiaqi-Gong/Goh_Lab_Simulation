@@ -52,6 +52,7 @@ class BacteriaManager:
         self.bacteriaDomainShape = bacteriaDomainShape
         self.bacteriaDomainConcentration = bacteriaDomainConcentration
         self.bacteriaDomainChargeConcentration = bacteriaDomainChargeConcentration
+        self.neutralDomain = neutralDomain
 
         # depends on the dimension, set bacteria size
         if dimension == 2:

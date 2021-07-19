@@ -673,16 +673,9 @@ class DomainGenerator:
 
                     # initalize center of semicircles
                     radius = int(np.floor(rod_dim/5))
-
-                    # length = int(3 * radius) + 2
-
                     center_bottom = (center[0], center[1], int(min(np.where(newSurface != 2)[0]) + radius))
 
                     center_top = (center[0], center[1], int(max(np.where(newSurface != 2)[0]) - radius))
-
-                    showMessage(center_bottom)
-                    showMessage(center_top)
-                    showMessage(radius)
 
 
                     # create list with all possible coordinates using list comprehension
