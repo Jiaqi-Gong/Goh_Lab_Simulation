@@ -170,8 +170,8 @@ class Bacteria3D(Bacteria, ABC):
         center_even = int(np.floor(self.length / 2) - 1), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
         # set length, radius based on array size
         # length is fixed as 3x the radius, so array must be at least 5x3x3
-        r = np.floor(rod_dim / 5)
-        l = 3 * r
+        r = rod_dim / 5
+        l = int(3 * r)
         sl = int(l * 0.5)
         index_x, index_y, index_z = np.indices((self.length, self.width, self.height))
         if rod_dim % 2 == 1:
