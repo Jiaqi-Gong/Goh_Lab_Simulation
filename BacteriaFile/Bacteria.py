@@ -168,22 +168,24 @@ class Bacteria3D(Bacteria, ABC):
 
     def _generateRod(self) -> ndarray:
         rod_dim = min(self.length, self.width, self.height)
-        center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
+        center_odd = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
+        center_even = int(np.floor(self.length / 2) - 1), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
         # set length, radius based on array size
-        r = min(np.floor(self.length / 2), np.floor(self.width / 2), np.floor(self.height / 2)) - 1
-        l = rod_dim - 2 * r - 2
+        # length is fixed as 3x the radius, so array must be at least 5x3x3
+        r = rod_dim / 5
+        l = int(3 * r)
         sl = int(l * 0.5)
-        # indexes the array
         index_x, index_y, index_z = np.indices((self.length, self.width, self.height))
+        if rod_dim % 2 == 1:
+            center = center_odd
+        else:
+            center = center_even
         d = index_x - center[0]
-        # defines left and right bounds of central cylinder
         rbound = center[0] + sl, center[1], center[2]
         lbound = rbound[0] - l + 1, center[1], center[2]
-        # measures distances from left and right bounds of central cylinder
         distl = ((index_x - lbound[0]) ** 2 + (index_y - lbound[1]) ** 2 + (index_z - lbound[2]) ** 2) ** 0.5
         distr = ((index_x - rbound[0]) ** 2 + (index_y - rbound[1]) ** 2 + (index_z - rbound[2]) ** 2) ** 0.5
         circle = ((index_y - center[1]) ** 2 + (index_z - center[2]) ** 2) ** 0.5
-        # sets up two concentric rods (different for odd/even since even is asymmetric)
         odd_outer = (np.ones(shape=(self.length, self.width, self.height)) * (abs(d) <= sl) * (circle <= r) + np.ones(
             shape=(self.length, self.width, self.height)) * (distl <= r) + np.ones(
             shape=(self.length, self.width, self.height)) * (distr <= r))
@@ -196,13 +198,14 @@ class Bacteria3D(Bacteria, ABC):
         even_inner = (np.ones(shape=(self.length, self.width, self.height)) * (circle <= r - 1) * (abs(d) <= sl - 1) * (
                 d != 1 - sl) + np.ones(shape=(self.length, self.width, self.height)) * (distl <= r - 1) + np.ones(
             shape=(self.length, self.width, self.height)) * (distr <= r - 1))
+        odd_outer[odd_outer >= 1] = 1
+        odd_inner[odd_inner >= 1] = 1
+        even_outer[even_outer >= 1] = 1
+        even_inner[even_inner >= 1] = 1
         odd = odd_outer - odd_inner
         even = even_outer - even_inner
-        # sets correct values for surface (0) and empty space (2)
-        odd[odd >= 1] = 1
         odd[odd == 0] = 2
         odd[odd == 1] = 0
-        even[even >= 1] = 1
         even[even == 0] = 2
         even[even == 1] = 0
 
