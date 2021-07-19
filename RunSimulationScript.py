@@ -48,6 +48,8 @@ def runSimulation():
     bacteriaDomainCon = 0.5
     bacteriaDomainChargeConcentration = 0.5
 
+    neutralDomain = False
+
     ### below is new variable
     simulatorType = 2
     interactType = "DOT"
@@ -85,7 +87,7 @@ def runSimulation():
                     filmDomainSize, filmDomainShape, filmDomainCon, filmDomainChargeConcentration,
                     bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
                     bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, bacteriaDomainChargeConcentration,
-                    filmNum, bacteriaNum, interval_x, interval_y, parameter)
+                    filmNum, bacteriaNum, interval_x, interval_y, parameter, neutralDomain)
 
 
     sim.runSimulate()
