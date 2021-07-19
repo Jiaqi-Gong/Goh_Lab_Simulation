@@ -20,7 +20,7 @@ def runSimulation():
 
     # simulator info
     simulationType = 1
-    trail = 51
+    trail = 41
     dimension = 3
     simulatorType = 2
     interactType = "DOT"
@@ -62,7 +62,7 @@ def runSimulation():
     probabilityType = "SIMPLE"
     timestep = 1000
     Lambda = 10
-    simple = 0.2
+    simple = 0.1
     bacteriaMovementSeed = 10
 
     # take info for simulator
