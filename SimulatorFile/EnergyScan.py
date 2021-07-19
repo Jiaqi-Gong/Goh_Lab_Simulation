@@ -239,15 +239,15 @@ class EnergySimulator(Simulator):
 
         if self.simulationType == 3:
             ws1.cell(row_pos, 7, self.filmManager.film[currIter].seed)
-            ws1.cell(row_pos, 8, sum(self.filmManager.film[currIter].realDomainConc))
+            ws1.cell(row_pos, 8, str(self.filmManager.film[currIter].realDomainConc))
             ws1.cell(row_pos, 9, self.bacteriaManager.bacteria[0].seed)
-            ws1.cell(row_pos, 10, sum(self.bacteriaManager.bacteria[0].realDomainConc))
+            ws1.cell(row_pos, 10, str(self.bacteriaManager.bacteria[0].realDomainConc))
 
         else:
             ws1.cell(row_pos, 7, self.filmManager.film[0].seed)
-            ws1.cell(row_pos, 8, sum(self.filmManager.film[0].realDomainConc))
+            ws1.cell(row_pos, 8, str(self.filmManager.film[0].realDomainConc))
             ws1.cell(row_pos, 9, self.bacteriaManager.bacteria[currIter].seed)
-            ws1.cell(row_pos, 10, sum(self.bacteriaManager.bacteria[currIter].realDomainConc))
+            ws1.cell(row_pos, 10, str(self.bacteriaManager.bacteria[currIter].realDomainConc))
 
         ws1.cell(row_pos, 11, min_energy)
         ws1.cell(row_pos, 12, min_x)
