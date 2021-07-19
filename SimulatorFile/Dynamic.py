@@ -159,7 +159,6 @@ class DynamicSimulator(Simulator):
         Implement in the super class abstract method
         """
         writeLog("This is _output in dynamic simulator")
-        showMessage("Start to write result into out put")
         writeLog("self is: {}, result is: {}, currIter is: {}, end is: {}".format(
             self.__dict__, result, currIter, end))
 
