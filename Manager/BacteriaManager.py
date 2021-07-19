@@ -60,7 +60,7 @@ class BacteriaManager:
 
 
         # generate domain generator
-        self.bacteriaDomainGenerator = DomainGenerator(self.bacteriaSeed)
+        self.bacteriaDomainGenerator = DomainGenerator(self.bacteriaSeed, True)
 
         # init a variable to store all bacteria
         self.bacteria = []
@@ -80,7 +80,7 @@ class BacteriaManager:
             seed = self.bacteriaSeed + i
 
             # generate domain generator
-            bacteriaDomainGenerator = DomainGenerator(seed)
+            bacteriaDomainGenerator = DomainGenerator(seed, True)
 
             if self.dimension == 2:
                 self._generate2DBacteria(bacteriaDomainGenerator)

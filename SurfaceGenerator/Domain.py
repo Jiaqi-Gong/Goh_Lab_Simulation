@@ -107,6 +107,7 @@ class DomainGenerator:
             domainNumChar1 = domainNum
             domainNumChar2 = 0
 
+
         # initialize the total number of domain generated for each charge
         # the first and second correspond to domainNumChar1 and domainNumChar2 respectively
         totalDomainChar = [0,0]
@@ -686,36 +687,15 @@ class DomainGenerator:
 
                     # create list with all possible coordinates using list comprehension
                     # when x is constant
-                    possibleCoordinate1 = []
-                    for i in [0, int(surface.length) - 1]:
-                        for j in y_possibility:
-                            for k in z_possibility:
-                                if (k > center_top[2] and (j - center_top[1]) ** 2 + (
-                                        k - center_top[2]) ** 2 < radius ** 2) or (
-                                        k < center_bottom[2] and (j - center_bottom[1]) ** 2 + (
-                                        k - center_bottom[2]) ** 2 < radius ** 2) or k < center_top[2] or k > \
-                                        center_bottom[2]:
-                                    possibleCoordinate1.append((i, j, k))
-
-                    # possibleCoordinate1 = [(i, j, k) for i in [0, int(surface.length) - 1] for j in y_possibility for k
-                    #                        in z_possibility if ((k>center_top[2] and (j - center_top[1]) ** 2 + (k - center_top[2]) ** 2 < radius ** 2)
-                    #                        or (k<center_bottom[2] and (j - center_bottom[1]) ** 2 + (k - center_bottom[2]) ** 2 < radius ** 2) or
-                    #                        k<center_top[2] or k>center_bottom[2])]
+                    possibleCoordinate1 = [(i, j, k) for i in [0, int(surface.length) - 1] for j in y_possibility for k
+                                           in z_possibility if ((k>center_top[2] and (j - center_top[1]) ** 2 + (k - center_top[2]) ** 2 < radius ** 2)
+                                           or (k<center_bottom[2] and (j - center_bottom[1]) ** 2 + (k - center_bottom[2]) ** 2 < radius ** 2) or
+                                            (k<=center_top[2] and k>=center_bottom[2]))]
                     # when y is constant
-                    possibleCoordinate2 = []
-                    for i in x_possibility:
-                        for j in [0, int(surface.width) - 1]:
-                            for k in z_possibility:
-                                if (k > center_top[2] and (i - center_top[0]) ** 2 + (
-                                        k - center_top[2]) ** 2 < radius ** 2) or (
-                                        k < center_bottom[2] and (i - center_bottom[0]) ** 2 + (
-                                        k - center_bottom[2]) ** 2 < radius ** 2) or k < center_top[2] or k > \
-                                        center_bottom[2]:
-                                    possibleCoordinate2.append((i, j, k))
-                    # possibleCoordinate2 = [(i, j, k) for i in x_possibility for j in [0, int(surface.width) - 1] for k
-                    #                        in z_possibility if ((k>center_top[2] and (i - center_top[0]) ** 2 + (k - center_top[2]) ** 2 < radius ** 2)
-                    #                        or (k<center_bottom[2] and (i - center_bottom[0]) ** 2 + (k - center_bottom[2]) ** 2 < radius ** 2) or
-                    #                        k<center_top[2] or k>center_bottom[2])]
+                    possibleCoordinate2 = [(i, j, k) for i in x_possibility for j in [0, int(surface.width) - 1] for k
+                                           in z_possibility if ((k>center_top[2] and (i - center_top[0]) ** 2 + (k - center_top[2]) ** 2 < radius ** 2)
+                                           or (k<center_bottom[2] and (i - center_bottom[0]) ** 2 + (k - center_bottom[2]) ** 2 < radius ** 2) or
+                                            (k<=center_top[2] and k>=center_bottom[2]))]
                     # when z is constant
                     possibleCoordinate3 = [(i, j, k) for i in x_possibility for j in y_possibility for k in
                                            [0, int(surface.height) - 1] if
