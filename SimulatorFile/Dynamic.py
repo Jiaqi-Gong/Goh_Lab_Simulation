@@ -238,15 +238,6 @@ class DynamicSimulator(Simulator):
         # if probability type is Boltzmann, need to update self.temperature and self.energy
         # how to implement it wait until next meeting
 
-        # for debugging, record true number and false number
-        global true_num
-        true_num = 0
-
-        global false_num
-        false_num = 0
-
-        nextPos = []
-
         # loop all free bacteria
         for bact in self.bacteriaManager.freeBacteria:
             # get next position based on probability type
@@ -256,7 +247,6 @@ class DynamicSimulator(Simulator):
             else:
                 raise RuntimeError("This is _interact in Dynamic simulator, the input probability type is not implement")
 
-            nextPos.append(bactNextPos)
             # based on next position, move the bacteria
             if bactNextPos is False:
                 # bacteria is stuck, move from free list to stuck list
@@ -265,6 +255,4 @@ class DynamicSimulator(Simulator):
             else:
                 # bacteria is not stuck, update the position
                 bact.position = bactNextPos
-
-        writeLog("This is the result for nextPos: {}, true number is: {}, false number is: {}".format(nextPos, true_num, false_num))
 
