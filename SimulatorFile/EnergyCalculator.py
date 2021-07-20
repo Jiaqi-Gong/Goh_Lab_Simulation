@@ -340,19 +340,13 @@ def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     # first reshape it into 2d array
     min_film = np.array(min_film)
 
-    min_film = np.reshape(min_film,(bact_shape[1],bact_shape[2]),order='F')
-    # now convert it into 3d, but because film only has a height of 1, we will just add an extra square bracket around min_film
+    min_film = np.reshape(min_film, (bact_shape[1], bact_shape[2]), order='F')
+    # now convert it into 3d, but because film only has a height of 1, we will just add an extra square bracket
+    # around min_film
     min_film = np.array([min_film])
-    #
-    # showMessage(min_film)
-    # np.set_printoptions(threshold=np.inf)
-
 
     # print the min_film
     visPlot(min_film, "film_at_minimum_{}".format(currIter), 3)
-
-    # for debug, delete later
-    # print(all_energy)
 
     showMessage("Interact done")
     writeLog(result)
@@ -382,6 +376,10 @@ def _ndarrayToDict(arrayList: ndarray, isFilm: bool = None, isBacteria: bool = N
                 # get charge
                 charge = arrayList[z][y][x]
 
+                # if charge is 2 means empty, do not save
+                if charge == 2:
+                    continue
+
                 # get key
                 key = (x, y)
 
@@ -401,77 +399,6 @@ def _ndarrayToDict(arrayList: ndarray, isFilm: bool = None, isBacteria: bool = N
     return result
 
 
-# def _ndarrayToTuple(arrayList: ndarray, dimension: int, isFilm: bool = False, isBacteria: bool = False) -> \
-#         List[List[List[Tuple[int, int, int, int]]]]:
-#     """
-#     This function takes in a ndarray and reshape this array into a nested list
-#     Each tuple in list represent (x_coordinate, y_coordinate, z_coordinate, charge)
-#     """
-#     writeLog("This is ndarrayToTuple")
-#     writeLog(arrayList)
-#
-#     # based on dimension, call appropriate function
-#     if dimension == 2:
-#         tupleList = _ndarrayToTuple2D(arrayList, isFilm, isBacteria)
-#     elif dimension == 3:
-#         tupleList = _ndarrayToTuple3D(arrayList)
-#     else:
-#         raise RuntimeError("Unknown dimension")
-#
-#     return tupleList
-#
-#
-# def _ndarrayToTuple2D(arrayList: ndarray, isFilm: bool, isBacteria: bool) -> \
-#         List[List[List[Tuple[int, int, int, int]]]]:
-#     """
-#     This is a helper function to rephrase 2D ndarray into tuple format
-#     """
-#     # init the list
-#     tupleList = []
-#
-#     # based on it's film or bacteria, set appropriate height value
-#     if isFilm:
-#         height = 0
-#     elif isBacteria:
-#         height = 3
-#     else:
-#         raise RuntimeError("Unknown ndarray pass in")
-#
-#     # rephrase ndarray to tuple
-#     for z in range(len(arrayList)):
-#         temp1 = []
-#         for y in range(len(arrayList[z])):
-#             temp2 = []
-#             for x in range(len(arrayList[z][y])):
-#                 position = (x, y, height, arrayList[z][y][x])
-#                 temp2.append(position)
-#             temp1.append(temp2)
-#         tupleList.append(temp1)
-#
-#     return tupleList
-#
-#
-# def _ndarrayToTuple3D(arrayList: ndarray) -> List[List[List[Tuple[int, int, int, int]]]]:
-#     """
-#     This is a helper function to rephrase 3D ndarray into tuple format
-#     """
-#     # init the list
-#     tupleList = []
-#
-#     # rephrase ndarray to tuple
-#     for z in range(len(arrayList)):
-#         temp1 = []
-#         for y in range(len(arrayList[z])):
-#             temp2 = []
-#             for x in range(len(arrayList[z][y])):
-#                 position = (x, y, z, arrayList[z][y][x])
-#                 temp2.append(position)
-#             temp1.append(temp2)
-#         tupleList.append(temp1)
-#
-#     return tupleList
-
-
 def _twoPointEnergy(film: Dict[Tuple[int, int], List[Tuple[int, int]]],
                     bacteria: Dict[Tuple[int, int], List[Tuple[int, int]]],
                     cutoff: int, startPointOnFilm: Tuple[int, int], limit: Tuple[int, int]) -> float:
@@ -485,49 +412,6 @@ def _twoPointEnergy(film: Dict[Tuple[int, int], List[Tuple[int, int]]],
     # init variable uses
     total_energy = 0
 
-    # loop the point on the bacteria
-    # for z in range(len(bacteria)):
-    #     for y in range(len(bacteria[z])):
-    #         for x in range(len(bacteria[z][y])):
-    #             point1 = list(bacteria[z][y][x])
-    #
-    #             # generate the point on the surface should interact with this point on the bacteria based on the
-    #             # position of current bacteria point and cutoff value
-    #             # range on x direction
-    #             film_x_start = max(0, point1[2] - cutoff)
-    #             film_x_end = min(len(film[z][y]), point1[2] + cutoff)
-    #
-    #             # range on z direction
-    #             film_y_start = max(0, point1[1] - cutoff)
-    #             film_y_end = min(len(film[z]), point1[1] + cutoff)
-    #
-    #             # get film needed
-    #             film_list = []
-    #
-    #             for film_z in range(len(film)):
-    #                 for film_y in range(film_y_start, film_y_end):
-    #                     for film_x in range(film_x_start, film_x_end):
-    #                         point2 = list(film[film_z][film_y][film_x])
-    #
-    #                         film_list.append(point2)
-    #
-    #             # calculate distance between current bacteria point and film_list points
-    #             for point2 in film_list:
-    #                 distance = ((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2 +
-    #                             (point1[2] - point2[2]) ** 2) ** 0.5
-    #
-    #                 # if distance bigger than cutoff, ignore it
-    #                 if distance > cutoff:
-    #                     # print("distance is {}, cutoff is {}".format(distance, cutoff))
-    #                     total_energy += 0
-    #                 else:
-    #                     charge1 = point1[3]
-    #                     charge2 = point2[3]
-    #                     energy = COULOMB_CONSTANT * charge1 * charge2 / distance
-    #
-    #                     total_energy += energy
-
-    # set the range on x and y direction
     x_start = max(0, startPointOnFilm[0] - cutoff)
     x_end = min(limit[0] - 1, startPointOnFilm[0] + cutoff)
     y_start = max(0, startPointOnFilm[1] - cutoff)
@@ -556,6 +440,7 @@ def _twoPointEnergy(film: Dict[Tuple[int, int], List[Tuple[int, int]]],
                     total_energy += energy
 
     return total_energy
+
 
 def _calculateEnergy(x_start: int, x_end: int, y_start: int, y_end: int, film: ndarray, bacteria: ndarray,
                      result_dict: Dict, interactType: str, cutoff: int = None) -> None:

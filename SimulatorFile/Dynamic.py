@@ -29,6 +29,10 @@ class DynamicSimulator(Simulator):
         Init the simulation class based on the input info
         Description of input info are shown in the HelpFile.txt
         """
+        # check film and bacteria type
+        if dimension != 3:
+            raise RuntimeError("The film and bacteria dimension should be 3D for dynamic simulation")
+
         # set some variable
         self.probabilityType = None
         self.timeStep = None
@@ -55,9 +59,8 @@ class DynamicSimulator(Simulator):
                            bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
                            bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainConcentration,
                            bacteriaDomainChargeConcentration,
-                           filmNum, bacteriaNum, intervalX, intervalY, filmNeutralDomain, bacteriaNeutralDomain, parameters)
-
-
+                           filmNum, bacteriaNum, intervalX, intervalY, filmNeutralDomain, bacteriaNeutralDomain,
+                           parameters)
 
     def runSimulate(self) -> None:
         """
@@ -76,10 +79,7 @@ class DynamicSimulator(Simulator):
         film = self.filmManager.film[0]
         bacteria = self.bacteriaManager.bacteria[0]
 
-        # check film and bacteria type
-        if film.dimension != 3 or bacteria.dimension != 3:
-            raise RuntimeError("The film and bacteria dimension should be 3D for dynamic simulation")
-
+        # get the parameter need for movement generator
         filmSize = (film.length, film.width, film.height)
         bacteriaSize = (bacteria.length, bacteria.width, bacteria.height)
         bactMoveGenerator = BacteriaMovementGenerator(z_restriction, self.bacteriaMovementSeed, bacteriaShape,
@@ -113,7 +113,6 @@ class DynamicSimulator(Simulator):
             self._output(result, currIter, end)
 
         showMessage("Simulation done")
-
 
     def _initOutput(self) -> Tuple[Workbook, Union[WriteOnlyWorksheet, Worksheet]]:
         """
@@ -229,14 +228,14 @@ class DynamicSimulator(Simulator):
         """
         # raise NotImplementedError
 
-        writeLog("Start simulation in dynamic simulator")
+        showMessage("Start simulation in dynamic simulator")
 
         # if no free bacteria, do nothing
         if len(self.bacteriaManager.freeBacteria) == 0:
             return None
 
         # if probability type is Boltzmann, need to update self.temperature and self.energy
-        # how to implement it wait until next meeting
+        # will be implement in the future
 
         # loop all free bacteria
         for bact in self.bacteriaManager.freeBacteria:
@@ -245,7 +244,8 @@ class DynamicSimulator(Simulator):
                 bactNextPos = bactMoveGenerator.nextPosition(self.probabilityType, bact.position,
                                                              probability=self.probability)
             else:
-                raise RuntimeError("This is _interact in Dynamic simulator, the input probability type is not implement")
+                raise RuntimeError(
+                    "This is _interact in Dynamic simulator, the input probability type is not implement")
 
             # based on next position, move the bacteria
             if bactNextPos is False:
@@ -255,4 +255,3 @@ class DynamicSimulator(Simulator):
             else:
                 # bacteria is not stuck, update the position
                 bact.position = bactNextPos
-
