@@ -29,7 +29,7 @@ def runSimulation():
     # film info
     filmSeed = 1
     if dimension == 2:
-        filmSurfaceSize = (2000, 2000)
+        filmSurfaceSize = (5000, 5000)
     elif dimension == 3:
         filmSurfaceSize = (1000, 1000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
     filmSurfaceShape = "rectangle"
@@ -52,7 +52,7 @@ def runSimulation():
         bacteriaSize = (50, 50, 5)  # For bacteria, z value is the height of bacteria, can be any number
     bacteriaSurfaceShape = "rectangle"
     bacteriaSurfaceCharge = 1
-    bacteriaDomainSize = (2, 2)
+    bacteriaDomainSize = (3, 3)
     bacteriaDomainShape = "diamond"
     bacteriaDomainCon = 0.1
     bacteriaDomainChargeConcentration = 0.5  # ignore
