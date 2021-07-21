@@ -90,13 +90,15 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
             x_boundary = bact_shape[0] + x
             y_boundary = bact_shape[1] + y
 
-            writeLog("x_boundary is: {}, y_boundary is: {}, film_shape is:{}, bacteria shape is: {} ".format(
-                x_boundary, y_boundary, film_shape, bact_shape))
+            # writeLog("x_boundary is: {}, y_boundary is: {}, film_shape is:{}, bacteria shape is: {} ".format(
+            #     x_boundary, y_boundary, film_shape, bact_shape))
 
             # check if bacteria surface is exceed range of film surface
             if x_boundary > film_shape[1] or y_boundary > film_shape[0]:
                 # if exceed the surface, go to next iteration
-                writeLog("outside the range, continue")
+                # writeLog("outside the range, continue")
+                # writeLog("x_boundary is: {}, y_boundary is: {}, film_shape is:{}, bacteria shape is: {} ".format(
+                #     x_boundary, y_boundary, film_shape, bact_shape))
                 continue
 
             # change the corresponding film surface into 1D
@@ -108,7 +110,7 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
             if interactType.upper() == "DOT":
                 # calculate energy, uses electrostatic energy formula, assuming that r = 1
                 # WARNING: r should be change based on the height difference between film and bacteria in future
-                writeLog(["This is surface and film uses to calculate energy", film_1D, bacteria_1D])
+                # writeLog(["This is surface and film uses to calculate energy", film_1D, bacteria_1D])
 
                 energy = np.dot(film_1D, bacteria_1D)
 
