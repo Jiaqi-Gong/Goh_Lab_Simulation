@@ -2,7 +2,7 @@
 This program is surface interaction simulator, 
 reformed and improved based on https://github.com/stanlo229/surface-simulation-goh-lab with permission.
 
-## Installation of Python and Requirement Package
+## Installation of Python and Required Package
 
 1. Install python
     * Open https://www.python.org/ to download the python and install.
@@ -27,7 +27,7 @@ reformed and improved based on https://github.com/stanlo229/surface-simulation-g
 2. The special restriction of some variables are listed in the file SpecialRequirement.txt under folder TextFile.  
    The message listed in the file will appear on the screen if you type wrong parameter. The format of SpecialRequirement is :
    VariableName: Restriction : Checking condition  
-   User don't need to understand the checking condition at the end.
+   User don't need to understand the checking condition at the end and should NOT change it.
 
 3. The parameter change from the old version is listed in the file OldNewTransfer.txt.  
    If need to reproduce the result from the old version, please look at this file.
@@ -55,22 +55,10 @@ Coming soon
       ```bash
       python3.exe RunSimulationCmd.py
       ```
-   * Follow the promotion in the terminal to type in the corresponding value to start the simulation
-   
-2. Run by GUI (Coming soon)
-   * In the terminal with correct directory of program code, type in 
-     * (For macOS)
-     ```bash
-      python3 RunSimulationGUI.py
-      ```
-      * (For Windows)
-      ```bash
-      python3.exe RunSimulationGUI.py
-      ```
-     
-   * Select the simulation you want in the windows and enter the corresponding simulation condition you want to start the simulation
-   
-3. Run by script (Coming soon)
+   * Follow the promotion in the terminal to type in the corresponding value to start the simulation. 
+    
+    
+2. Run by script (Coming soon)
 
 ### Result
 Result of the simulation will be saved in the folder Result

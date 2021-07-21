@@ -5,8 +5,9 @@ Checking all user input is valid at here
 import re
 from typing import Union, Tuple
 
+from SimulatorFile.Dynamic import DynamicSimulator
+from SimulatorFile.EnergyScan import EnergySimulator
 from ExternalIO import getHelp, getRestriction, openLog, showMessage, closeLog, writeLog
-from MainSimulation import Simulation
 
 
 def getArgument() -> None:
@@ -15,8 +16,137 @@ def getArgument() -> None:
     Check all user input valid at here
     :return: None
     """
-    #### taking general info ####
+    # taking general info
 
+    simulatorType, trail, interval_x, interval_y = getGeneralArgument()
+
+    # taking film info
+
+    filmDomainChargeConcentration, filmDomainCon, filmDomainShape, filmDomainSize, filmSeed, filmSurfaceCharge, \
+    filmSurfaceShape, filmSurfaceSize = getFilmArgument()
+
+    # taking bacteria info
+
+    bacteriaDomainChargeConcentration, bacteriaDomainCon, bacteriaDomainShape, bacteriaDomainSize, bacteriaSeed, \
+    bacteriaSize, bacteriaSurfaceCharge, bacteriaSurfaceShape = getBacteriaArgument(filmSurfaceSize)
+
+    # take info for simulator
+    if simulatorType == 1:
+        simulator = EnergySimulator
+        # taking info for energy scan simulation
+        bacteriaNum, dimension, filmNum, interactType, simulationType = getEnergyScanArgument()
+        parameter = {"interactType": interactType, "simulationType": simulationType}
+
+    elif simulatorType == 2:
+        simulator = DynamicSimulator
+        # set some fixed parameter
+        dimension = 3
+        filmNum = 1
+        # taking info for dynamic simulation
+        probabilityType, timestep, bacteriaNum = getDynamicArgument()
+        parameter = {"probabilityType": probabilityType, "timestep": timestep}
+    else:
+        raise RuntimeError("Unknown simulator type")
+
+    # generate simulation program
+    showMessage("Start to generate the simulation simulator ......")
+
+    # generate simulator
+    sim = simulator(trail, dimension,
+                    filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
+                    filmDomainSize, filmDomainShape, filmDomainCon, filmDomainChargeConcentration,
+                    bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
+                    bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, bacteriaDomainChargeConcentration,
+                    filmNum, bacteriaNum, interval_x, interval_y, parameter)
+
+    showMessage("Simulator generate done")
+
+    # run the simulation
+    showMessage("Start to run simulate ......")
+
+    sim.runSimulate()
+
+    # finish whole simulation
+    showMessage("Whole simulation done")
+
+
+def getDynamicArgument() -> [str, int, int]:
+    # if this is dynamic simulator, need timestep
+    while True:
+
+        timestep = input("Please enter time step want: \n")
+
+        # set the name
+        helpName = "TIMESTEP"
+
+        # if enter help
+        if timestep.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # check the validity of input and do reaction
+        result = eval(execDict[helpName])
+
+        # check is it a number
+        if not checkNum(timestep):
+            errorInput(helpName)
+        elif result:
+            timestep = int(timestep)
+            break
+        else:
+            errorInput(helpName)
+
+    # if this is dynamic simulator, need probability type
+    while True:
+        probabilityType = input("Please enter probability type want to use: \n")
+
+        # set the name
+        helpName = "PROBABILITYTYPE"
+
+        # if enter help
+        if probabilityType.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # check the validity of input and do reaction
+        result = eval(execDict[helpName])
+
+        # check result
+        if result:
+            probabilityType = probabilityType.upper()
+            break
+        else:
+            errorInput(helpName)
+
+    # get bacteria number
+    while True:
+
+        bacteriaNum = input("Please enter the number of bacteria you want to test or help for more information: ")
+        number = bacteriaNum
+
+        # set the name
+        helpName = "NUMBER"
+
+        # if type help
+        if bacteriaNum.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # check the validity of input and do reaction
+        result = eval(execDict[helpName])
+
+        if not checkNum(bacteriaNum):
+            errorInput(helpName)
+        elif result:
+            bacteriaNum = int(bacteriaNum)
+            break
+        else:
+            errorInput(helpName)
+
+    return probabilityType, timestep, bacteriaNum
+
+
+def getEnergyScanArgument() -> [int, int, int, str, int]:
     # take simulation type
     while True:
         simulationType = input("Please enter simulation type: \n")
@@ -38,43 +168,58 @@ def getArgument() -> None:
         else:
             errorInput(helpName)
 
-    # take trail number
+    # take interact type
     while True:
-        trail = input("Please enter trail number: \n")
+
+        # Take user input
+        interactType = input("Please enter the interact type you want to simulate (help for more information): \n")
 
         # set the name
-        helpName = "TRAIL"
-
-        # if enter help
-        if trail.upper() == "HELP":
-            helpMessage(helpName)
-            continue
+        helpName = "INTERACTTYPE"
 
         # check the validity of input and do reaction
         result = eval(execDict[helpName])
 
-        # check is it a number
-        if not checkNum(trail):
+        if result:
+            break
+        elif interactType.upper() == "HELP":
+            helpMessage(helpName)
+        else:
+            errorInput(helpName)
+
+    # take cutoff if needed
+    while True:
+        if not interactType.upper() in ["CUTOFF", "CUT-OFF"]:
+            cutoff = float("INF")
+            break
+
+        # Take user input
+        cutoff = input("Please enter the cutoff value you want to simulate (help for more information): \n")
+
+        # set the name
+        helpName = "CUTOFF"
+
+        # check the validity of input and do reaction
+        result = eval(execDict[helpName])
+
+        if cutoff.upper() == "HELP":
+            helpMessage(helpName)
+        elif checkNum(cutoff):
             errorInput(helpName)
         elif result:
-            trail = int(trail)
             break
         else:
             errorInput(helpName)
 
     # take dimension
     while True:
+
         # Take user input
         dimension = input("Please enter the dimension you want to simulate (2 for 2D, 3 for 3D, "
                           "help for more information): \n")
 
         # set the name
         helpName = "DIMENSION"
-
-        # if enter help
-        if dimension.upper() == "HELP":
-            helpMessage(helpName)
-            continue
 
         # check the validity of input and do reaction
         result = eval(execDict[helpName])
@@ -87,8 +232,271 @@ def getArgument() -> None:
         else:
             errorInput(helpName)
 
-    #### taking film info ####
+    # if simulation type is not 1, take in extra info
+    while True:
 
+        # check the simulation type
+        if simulationType == 1:
+            filmNum = "1"
+            bacteriaNum = "1"
+            break
+
+        elif simulationType == 2:
+            filmNum = "1"
+            bacteriaNum = input("Please enter the number of bacteria you want to test or help for more information: ")
+            number = bacteriaNum
+
+        elif simulationType == 3:
+            filmNum = input("Please enter the number of bacteria you want to test or help for more information: ")
+            bacteriaNum = "1"
+            number = filmNum
+        else:
+            raise RuntimeError("Wrong simulation type, causes get bacteria/film number error")
+
+        # set the name
+        helpName = "NUMBER"
+
+        # if type help
+        if bacteriaNum.upper() == "HELP" or filmNum.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # check the validity of input and do reaction
+        result = eval(execDict[helpName])
+
+        if not checkNum(bacteriaNum) or not checkNum(filmNum):
+            errorInput(helpName)
+        elif result:
+            filmNum = int(filmNum)
+            bacteriaNum = int(bacteriaNum)
+            break
+        else:
+            errorInput(helpName)
+    return bacteriaNum, dimension, filmNum, interactType, simulationType
+
+
+def getBacteriaArgument(filmSurfaceSize: Tuple[int, int]):
+    # take seed of bacteria
+    while True:
+        bacteriaSeed = input("Please enter bacteria seed number: \n")
+
+        # set the name
+        helpName = "SEED"
+        seed = bacteriaSeed
+
+        # if type help
+        if bacteriaSeed.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # check the validity of input and do reaction
+        result = eval(execDict[helpName])
+
+        if not checkNum(seed):
+            errorInput(helpName)
+        elif result:
+            bacteriaSeed = int(bacteriaSeed)
+            break
+        else:
+            errorInput(helpName)
+
+    # take shape of the bacteria
+    while True:
+        # Take user input
+        bacteriaSurfaceShape = input("Please enter the shape of the bacteria you want to simulate ("
+                                     "help for more information): \n")
+
+        # set the name
+        helpName = "SURFACESHAPE"
+
+        # if type help
+        if bacteriaSurfaceShape.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # set the variable for check
+        shape = bacteriaSurfaceShape
+
+        # check the validity of input and do reaction
+        result = eval(execDict[helpName])
+
+        if result:
+            break
+        else:
+            errorInput(helpName)
+
+    # take the area size of bacteria
+    while True:
+        # Take user input
+        bacteriaSize = input("Please enter the bacteria surface area you want to simulate  "
+                             "(in format: ###x### (length x width) for 2D, ###x###x### (length x width x height) for "
+                             "3D or help for more information): \n")
+
+        # set the name
+        helpName = "SIZE"
+
+        # check the validity of input
+        if bacteriaSize.upper() == "HELP":
+            helpMessage(helpName)
+        else:
+            # check the format of the input mach 2D format or 3D format
+            formatValid = bool(re.match("\d+[x]\d+", bacteriaSize)) or bool(re.match("\d+[x]\d+[x]\d+", bacteriaSize))
+
+            if formatValid:
+                # check this input size if valid
+                valid = checkSize(bacteriaSurfaceShape, bacteriaSize)
+
+                # if not valid
+                if not valid:
+                    errorInput(bacteriaSurfaceShape)
+                    continue
+
+                # if valid check bacteria size is smaller than surface size
+                elif (valid[0] * valid[1]) >= (filmSurfaceSize[0] * filmSurfaceSize[1]):
+                    print("BacteriaFile size should smaller than surface size.")
+
+                # if valid, record and break
+                else:
+                    bacteriaSize = valid
+                    break
+            else:
+                errorInput(helpName)
+
+    # take charge of the bacteria
+    while True:
+        # Take user input
+        bacteriaSurfaceCharge = input("Please enter the charge of the bacteria you want to simulate ("
+                                      "help for more information): \n")
+        # set the name
+        helpName = "CHARGE"
+
+        # if type help
+        if bacteriaSurfaceCharge.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # set the variable for check
+        charge = bacteriaSurfaceCharge
+
+        # check the validity of input and do reaction
+        result = eval(execDict[helpName])
+
+        if result:
+            bacteriaSurfaceCharge = int(bacteriaSurfaceCharge)
+            break
+        else:
+            errorInput(helpName)
+
+    # take the domain concentration of bacteria
+    while True:
+        # Take user input
+        bacteriaDomainCon = input("Please enter the domain concentration of the bacteria you want to simulate ("
+                                  "help for more information): \n")
+        # set the name
+        helpName = "CONCENTRATION"
+
+        # if type help
+        if bacteriaDomainCon.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # set the variable for check
+        concentration = bacteriaDomainCon
+
+        # check the validity of input and do reaction
+        result = eval(execDict[helpName])
+
+        if result:
+            bacteriaDomainCon = float(bacteriaDomainCon)
+            break
+        else:
+            errorInput(helpName)
+
+    # take the domain shape of bacteria
+    while True:
+        # Take user input
+        bacteriaDomainShape = input("Please enter the shape of the domain on the bacteria you want to simulate ("
+                                    "help for more information): \n")
+
+        # set the name
+        helpName = "DOMAINSHAPE"
+
+        # if type help
+        if bacteriaDomainShape.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # set the variable for check
+        shape = bacteriaDomainShape
+
+        # check the validity of input and do reaction
+        result = eval(execDict[helpName])
+
+        if result:
+            break
+        else:
+            errorInput(helpName)
+
+    # take the domain size of bacteria
+    while True:
+        # Take user input
+        bacteriaDomainSize = input("Please enter the domain area on the bacteria you want to simulate  "
+                                   "(in format: ###x### (length x width) or help for more information): \n")
+
+        # set the name
+        helpName = "SIZE"
+
+        # check the validity of input
+        if bacteriaDomainSize.upper() == "HELP":
+            helpMessage(helpName)
+        else:
+            # check the format of the input
+            if bool(re.match("\d+[x]\d+", bacteriaDomainSize)):
+                # check this input size if valid
+                valid = checkSize(bacteriaDomainShape, bacteriaDomainSize)
+
+                # if not valid
+                if not valid:
+                    errorInput(bacteriaDomainShape)
+                    continue
+
+                # if valid, record and break
+                else:
+                    bacteriaDomainSize = valid
+                    break
+            else:
+                errorInput(helpName)
+
+    # take bacteria surface domain charge concentration
+    while True:
+        # Take user input
+        bacteriaDomainChargeConcentration = input(
+            "Please enter the domain charge concentration of the bacteria surface you want to "
+            "simulate (help for more information): \n")
+
+        # set the name
+        helpName = "CONCENTRATION"
+
+        if bacteriaDomainChargeConcentration.upper() == "HELP":
+            helpMessage(helpName)
+            continue
+
+        # set the variable for check
+        concentration = bacteriaDomainChargeConcentration
+
+        # check the validity of input and do reaction
+        result = eval(execDict[helpName])
+
+        if result:
+            bacteriaDomainChargeConcentration = float(bacteriaDomainChargeConcentration)
+            break
+        else:
+            errorInput(helpName)
+
+    return bacteriaDomainChargeConcentration, bacteriaDomainCon, bacteriaDomainShape, bacteriaDomainSize, bacteriaSeed, bacteriaSize, bacteriaSurfaceCharge, bacteriaSurfaceShape
+
+
+def getFilmArgument():
     # take film seed number
     while True:
         filmSeed = input("Please enter film seed number: \n")
@@ -271,196 +679,80 @@ def getArgument() -> None:
             else:
                 errorInput(helpName)
 
-    #### taking bacteria info ####
-
-    # take seed of bacteria
-    while True:
-        bacteriaSeed = input("Please enter bacteria seed number: \n")
-
-        # set the name
-        helpName = "SEED"
-        seed = bacteriaSeed
-
-        # if type help
-        if bacteriaSeed.upper() == "HELP":
-            helpMessage(helpName)
-            continue
-
-        # check the validity of input and do reaction
-        result = eval(execDict[helpName])
-
-        if not checkNum(seed):
-            errorInput(helpName)
-        elif result:
-            bacteriaSeed = int(bacteriaSeed)
-            break
-        else:
-            errorInput(helpName)
-
-    # take shape of the bacteria
+    # take film surface domain charge concentration
     while True:
         # Take user input
-        bacteriaSurfaceShape = input("Please enter the shape of the bacteria you want to simulate ("
-                                     "help for more information): \n")
+        filmDomainChargeConcentration = input("Please enter the domain charge concentration of the film surface "
+                                              "you want to simulate (help for more information): \n")
 
-        # set the name
-        helpName = "SURFACESHAPE"
-
-        # if type help
-        if bacteriaSurfaceShape.upper() == "HELP":
-            helpMessage(helpName)
-            continue
-
-        # set the variable for check
-        shape = bacteriaSurfaceShape
-
-        # check the validity of input and do reaction
-        result = eval(execDict[helpName])
-
-        if result:
-            break
-        else:
-            errorInput(helpName)
-
-    # take the area size of bacteria
-    while True:
-        # Take user input
-        bacteriaSize = input("Please enter the bacteria surface area you want to simulate  "
-                             "(in format: ###x### (length x width) or "
-                             "help for more information): \n")
-
-        # set the name
-        helpName = "SIZE"
-
-        # check the validity of input
-        if bacteriaSize.upper() == "HELP":
-            helpMessage(helpName)
-        else:
-            # check the format of the input
-            if bool(re.match("\d+[x]\d+", bacteriaSize)):
-                # check this input size if valid
-                valid = checkSize(bacteriaSurfaceShape, bacteriaSize)
-
-                # if not valid
-                if not valid:
-                    errorInput(bacteriaSurfaceShape)
-                    continue
-
-                # if valid check bacteria size is smaller than surface size
-                elif (valid[0] * valid[1]) >= (filmSurfaceSize[0] * filmSurfaceSize[1]):
-                    print("Bacteria size should smaller than surface size.")
-
-                # if valid, record and break
-                else:
-                    bacteriaSize = valid
-                    break
-            else:
-                errorInput(helpName)
-
-    # take charge of the bacteria
-    while True:
-        # Take user input
-        bacteriaSurfaceCharge = input("Please enter the charge of the bacteria you want to simulate ("
-                                      "help for more information): \n")
-        # set the name
-        helpName = "CHARGE"
-
-        # if type help
-        if bacteriaSurfaceCharge.upper() == "HELP":
-            helpMessage(helpName)
-            continue
-
-        # set the variable for check
-        charge = bacteriaSurfaceCharge
-
-        # check the validity of input and do reaction
-        result = eval(execDict[helpName])
-
-        if result:
-            bacteriaSurfaceCharge = int(bacteriaSurfaceCharge)
-            break
-        else:
-            errorInput(helpName)
-
-    # take the domain concentration of bacteria
-    while True:
-        # Take user input
-        bacteriaDomainCon = input("Please enter the domain concentration of the bacteria you want to simulate ("
-                                  "help for more information): \n")
         # set the name
         helpName = "CONCENTRATION"
 
-        # if type help
-        if bacteriaDomainCon.upper() == "HELP":
+        if filmDomainChargeConcentration.upper() == "HELP":
             helpMessage(helpName)
             continue
 
         # set the variable for check
-        concentration = bacteriaDomainCon
+        concentration = filmDomainChargeConcentration
 
         # check the validity of input and do reaction
         result = eval(execDict[helpName])
 
         if result:
-            bacteriaDomainCon = float(bacteriaDomainCon)
+            filmDomainChargeConcentration = float(filmDomainChargeConcentration)
             break
         else:
             errorInput(helpName)
 
-    # take the domain shape of bacteria
+    return filmDomainChargeConcentration, filmDomainCon, filmDomainShape, filmDomainSize, filmSeed, \
+           filmSurfaceCharge, filmSurfaceShape, filmSurfaceSize
+
+
+def getGeneralArgument():
+    # take simulator type
     while True:
-        # Take user input
-        bacteriaDomainShape = input("Please enter the shape of the domain on the bacteria you want to simulate ("
-                                    "help for more information): \n")
+        simulatorType = input("Please enter simulator type: \n")
 
         # set the name
-        helpName = "DOMAINSHAPE"
+        helpName = "SIMULATOR"
 
-        # if type help
-        if bacteriaDomainShape.upper() == "HELP":
+        # if enter help
+        if simulatorType.upper() == "HELP":
             helpMessage(helpName)
             continue
-
-        # set the variable for check
-        shape = bacteriaDomainShape
 
         # check the validity of input and do reaction
         result = eval(execDict[helpName])
 
         if result:
+            simulatorType = int(simulatorType)
             break
         else:
             errorInput(helpName)
 
-    # take the domain size of bacteria
+    # take trail number
     while True:
-        # Take user input
-        bacteriaDomainSize = input("Please enter the domain area on the bacteria you want to simulate  "
-                                   "(in format: ###x### (length x width) or help for more information): \n")
+        trail = input("Please enter trail number: \n")
 
         # set the name
-        helpName = "SIZE"
+        helpName = "TRAIL"
 
-        # check the validity of input
-        if bacteriaDomainSize.upper() == "HELP":
+        # if enter help
+        if trail.upper() == "HELP":
             helpMessage(helpName)
+            continue
+
+        # check the validity of input and do reaction
+        result = eval(execDict[helpName])
+
+        # check is it a number
+        if not checkNum(trail):
+            errorInput(helpName)
+        elif result:
+            trail = int(trail)
+            break
         else:
-            # check the format of the input
-            if bool(re.match("\d+[x]\d+", bacteriaDomainSize)):
-                # check this input size if valid
-                valid = checkSize(bacteriaDomainShape, bacteriaDomainSize)
-
-                # if not valid
-                if not valid:
-                    errorInput(bacteriaDomainShape)
-                    continue
-
-                # if valid, record and break
-                else:
-                    bacteriaDomainSize = valid
-                    break
-            else:
-                errorInput(helpName)
+            errorInput(helpName)
 
     # get the interval
     while True:
@@ -493,69 +785,7 @@ def getArgument() -> None:
         else:
             errorInput(helpName)
 
-    # if simulation type is not 1, take in extra info
-    while True:
-
-        # check the simulation type
-        if simulationType == 1:
-            filmNum = "1"
-            bacteriaNum = "1"
-            break
-
-        elif simulationType == 2:
-            filmNum = "1"
-            bacteriaNum = input("Please enter the number of bacteria you want to test or help for more information: ")
-            number = bacteriaNum
-
-        elif simulationType == 3:
-            filmNum = input("Please enter the number of bacteria you want to test or help for more information: ")
-            bacteriaNum = "1"
-            number = filmNum
-
-        # set the name
-        helpName = "NUMBER"
-
-        # if type help
-        if bacteriaNum.upper() == "HELP" or filmNum.upper() == "HELP":
-            helpMessage(helpName)
-            continue
-
-        # check the validity of input and do reaction
-        result = eval(execDict[helpName])
-
-        if not checkNum(bacteriaNum) or not checkNum(filmNum):
-            errorInput(helpName)
-        elif result:
-            filmNum = int(filmNum)
-            bacteriaNum = int(bacteriaNum)
-            break
-        else:
-            errorInput(helpName)
-
-    # generate simulation program
-    showMessage("Start to generate the simulation simulator ......")
-    writeLog([simulationType, trail, dimension,
-              filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
-              filmDomainSize, filmDomainShape, filmDomainCon,
-              bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
-              bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, filmNum, bacteriaNum,
-              interval_x, interval_y])
-
-    sim = Simulation(simulationType, trail, dimension,
-                     filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
-                     filmDomainSize, filmDomainShape, filmDomainCon,
-                     bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
-                     bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, filmNum, bacteriaNum,
-                     interval_x, interval_y)
-
-    showMessage("Simulator generate done")
-
-    # run the simulation
-    showMessage("Start to run simulate ......")
-    sim.runSimulate()
-
-    # finish whole simulation
-    showMessage("Whole simulation done")
+    return simulatorType, trail, interval_x, interval_y
 
 
 def errorInput(helpName: str) -> None:
@@ -566,7 +796,7 @@ def errorInput(helpName: str) -> None:
     print(infoDict[helpName].replace("\\n", "\n"))
 
 
-def checkSize(shape: str, size: str) -> Union[bool, Tuple[int, int]]:
+def checkSize(shape: str, size: str) -> Union[bool, Tuple[int, int], Tuple[int, int, int]]:
     """
     This function checks the size input is satisfied the restriction of the shape
     return False if not satisfy, else return a Tuple with (length, width)
@@ -577,6 +807,12 @@ def checkSize(shape: str, size: str) -> Union[bool, Tuple[int, int]]:
     length = int(size[0])
     width = int(size[1])
 
+    # get height, if exist
+    if len(size) == 3:
+        height = int(size[2])
+    else:
+        height = 0
+
     # set the checker
     result = eval(execDict[shape.upper()])
 
@@ -584,7 +820,7 @@ def checkSize(shape: str, size: str) -> Union[bool, Tuple[int, int]]:
     if not result:
         return False
     else:
-        return (length, width)
+        return (length, width, height)
 
 
 def helpMessage(helpName: str) -> None:
@@ -600,7 +836,7 @@ def checkNum(input: str) -> bool:
     This function take in a string and test does it can be convert to number
     """
     try:
-        int(input)
+        float(input)
         return True
     except ValueError:
         return False
@@ -614,7 +850,8 @@ if __name__ == '__main__':
     infoDict, execDict = getRestriction()
 
     # get log file
-    openLog()
+    log_name = openLog()
+    showMessage(log_name)
 
     # call the user input function
     getArgument()

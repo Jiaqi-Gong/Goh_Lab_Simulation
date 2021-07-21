@@ -1,4 +1,5 @@
 Head: Record the special requirement for some user input parameter : Here is string for checking code will be exec
+Simulator: Only can be 1 or 2 for now \n1 for energy scan simulation, 2 for dynamic simulation: simulatorType=="1" or simulatorType == "2"
 Type: Only can be 1 or 2 or 3 for now \n1 for one surface react with one bacteria once \n2 for One surface, multiple different bacteria, every bacteria scan the surface once \n3 for Multiple different surface, one bacteria, bacteria scan every surface once \nDifferent bacteria/surface means the domain generation seed is different, not the size different : simulationType in ["1", "2", "3"]
 Trail: Trail number must be a positive int number : trail > "0"
 Dimension: Dimension only can be 2 or 3 : dimension=="2" or dimension=="3"
@@ -15,3 +16,7 @@ Charge: Only can be -1, 0, 1 : charge in ["-1", "0", "1"]
 Concentration: A positive float between 0 to 1 : concentration <= "1" and concentration >= "0"
 Number: Number of film/bacteria should be a positive int : number > "0"
 Interval: Number should between 1 to 100 for now: int(interval[0]) >= 1 and int(interval[0]) <= 100 and int(interval[1]) >= 0 and int(interval[1]) <= 100
+Timestep: Time step is how many step want to simulate, in one timestep, all bacteria loop once and calculate and update once: int(timestep) > 0
+ProbabilityType: What probability uses for bacteria stuck on the film, can be Poisson or Boltzmann for now: probabilityType.upper() in ["POISSON", "BOLTZMANN"]
+InteractType: Can be dot or cut-off: interactType.upper() in ["DOT", "CUTOFF", "CUT-OFF"]
+Cutoff: A positive number: float(cutoff) > 0
