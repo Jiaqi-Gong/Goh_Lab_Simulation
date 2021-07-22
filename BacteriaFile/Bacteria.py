@@ -1,5 +1,7 @@
 """
-This program is used for generate bacteria
+This program is used to:
+- Generate 2D and 3D bacteria
+- Generate the bacteria's surface
 """
 import abc
 from abc import ABC
@@ -15,7 +17,7 @@ from SurfaceGenerator.Surface import Surface
 
 class Bacteria(Surface, ABC):
     """
-    This class represent a 2D bacteria
+    This initializes and defines the Bacteria class
     """
 
     @abc.abstractmethod
@@ -25,72 +27,69 @@ class Bacteria(Surface, ABC):
 
 class Bacteria2D(Bacteria, ABC):
     """
-    This class represent a 2D bacteria
+    This class represents a 2D bacteria
     """
-    # Declare the type of all variable
+    # Declares the type of all variables
 
     def __init__(self, trail: int, shape: str, size: Tuple[int, int], surfaceCharge: int, seed: int):
-        # set the proper height
+        # Sets the proper height
         size = (size[0], size[1], 3)
 
-        # set the proper dimension
+        # Sets the proper dimension
         dimension = 2
 
-        # call parent to generate bacteria
+        # Calls parent to generate the bacteria
         Bacteria.__init__(self, trail, shape, size, seed, surfaceCharge, dimension)
 
     def _generateSurface(self) -> ndarray:
         """
         Generate the corresponding surface, override in subclass
         """
-        print("Start to generating surface with shape: ", self.shape)
+        writeLog("Generating surface with shape: ".format(self.shape))
 
-        # generate corresponding shape
+        # Generates corresponding shape
         if self.shape.upper() == "RECTANGLE" or self.shape.upper() == "CUBOID":
             return self._generateRec()
         else:
-            raise RuntimeError("Bacteria 2D doesn't have this shape")
+            raise RuntimeError("2D Bacteria can not have this shape.")
 
     def _generateRec(self) -> ndarray:
         """
-        This function generate the matrix space based on the size of the surface
-        Implement the super class abstract method
+        Generates the matrix space based on the size of the surface
         """
-        # creating empty matrix space
+        # Creates empty matrix space
         return np.zeros((1, self.width, self.length))
 
 
 class Bacteria3D(Bacteria, ABC):
-    # PAY ATTENTION: set dimension, set proper height, carefully generate the shape
+    # IMPORTANT: Set dimension, set proper height, carefully generate the shape
     """
-        This class represent a 3D bacteria
-        """
-    # Declare the type of all variable
+    This class represents a 3D bacteria
+    """
+    # Declares the type of all variable
     position: Union[None, Tuple[int, int, int]]
 
     def __init__(self, trail: int, shape: str, size: Tuple[int, int, int], surfaceCharge: int, seed: int,
                  position: Union[None, Tuple[int, int, int]] = None) -> None:
-        # set the proper height of the bacteria's size
-        # set the height of bacteria here or generate a height in the BacteriaManager
+        # Sets the height of bacteria here, or generates a height in the BacteriaManager
 
-        # set the proper dimension
+        # Sets the proper dimension
         dimension = 3
 
-        # set position
-        # can be none if use this bacteria for energy scan simulation
+        # Sets position; Position can be null for the EnergyScan.py simulation.
         self.position = position
 
-        # call parent to generate bacteria
+        # Calls parent to generate bacteria
         Bacteria.__init__(self, trail, shape, size, seed, surfaceCharge, dimension)
 
     def _generateSurface(self) -> ndarray:
         """
         Generate the corresponding surface, override in subclass
         """
-        print("Start to generating surface with shape: ", self.shape)
+        writeLog("Generating surface with shape: ".format(self.shape))
 
-        # generate corresponding shape
-        if self.shape.upper() == "CUBOID" or self.shape.upper() == "RECTANGLE":
+        # Generates corresponding shape
+        if self.shape.upper() == "CUBOID":
             return self._generateRec()
         elif self.shape.upper() == "SPHERE":
             return self._generateSphere()
@@ -99,16 +98,15 @@ class Bacteria3D(Bacteria, ABC):
         elif self.shape.upper() == "ROD":
             return self._generateRod()
         else:
-            raise RuntimeError("Bacteria 2D doesn't have this shape")
+            raise RuntimeError("3D Bacteria can not have this shape.")
 
     def _generateRec(self) -> ndarray:
         """
-        This function generate cubic shape of the matrix space based on the size of the surface
-        Implement the super class abstract method
+        Generates a cubic matrix space, based on the size of the surface
         """
-        # creating empty matrix space
+        # Creates empty matrix space
         surface = np.full((self.height, self.width, self.length),2)
-        # fill outside of surface with zeros
+        # Fills outside of surface with zeros
         surface[:,:,self.length-1] = 0
         surface[:,:,0] = 0
         surface[:,self.width-1,:] = 0
@@ -120,18 +118,21 @@ class Bacteria3D(Bacteria, ABC):
 
 
     def _generateSphere(self) -> ndarray:
-        # finds center of array
+        """
+        Generates a hollow spherical matrix space, based on the size of the surface
+        """
+        # Finds center of array
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
         radius = min(np.floor(self.length / 2), np.floor(self.width / 2), np.floor(self.height / 2))
-        # indexes the array
+        # Indexes the array
         index_z, index_y, index_x = np.indices((self.height, self.width, self.length))
         dist = ((index_x - center[0]) ** 2 + (index_y - center[1]) ** 2 + (index_z - center[2]) ** 2) ** 0.5
-        # defines solid spheres of different radii
+        # Defines solid spheres of different radii
         reg1 = 1 * (dist <= radius)
         reg2 = 1 * (dist <= radius - 1)
-        # hollow sphere is generated by subtracting reg2 from reg 1
+        # A hollow sphere is generated by subtracting reg2 from reg1
         sph = 2 * reg1 - reg2
-        # sets surface = 0, empty space = 2
+        # Sets surface = 0, empty space = 2
         sph[sph <= 1] = 0
         sph[sph >= 2] = 1
         sph[sph == 0] = 2
@@ -139,17 +140,21 @@ class Bacteria3D(Bacteria, ABC):
         return sph
 
     def _generateCyl(self) -> ndarray:
+        """
+        Generates a cylindrical matrix space, based on the size of the surface
+        """
         center = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
-        # set radius, length, semi-length based on array size
+        # Sets radius, length, semi-length based on array size
         r = min(np.floor(self.length / 2), np.floor(self.width / 2), np.floor(self.height / 2)) - 1
         l = min(self.length, self.width, self.height) + 1
         sl = int(l * 0.5)
         index_x, index_y, index_z = np.indices((self.length, self.width, self.height))
-        # calculates distance from center to any point on the x-axis
+        # Calculates distance from center to any point on the x-axis
         d = np.floor(index_x - center[0])
         circle = ((index_y - center[1]) ** 2 + (index_z - center[2]) ** 2) ** 0.5
-        # for odd length, a symmetric cylinder is generated. for even length, cylinder is longer on the right
-        # define outer and inner cylinders
+        # For odd length, a symmetric cylinder is generated.
+        # For even length, the cylinder is longer on the right.
+        # Defines outer and inner cylinders
         outerone = np.ones(shape=(self.length, self.width, self.height)) * (circle <= r) * (abs(d) <= sl)
         innerone = np.ones(shape=(self.length, self.width, self.height)) * (circle <= r-1) * (abs(d) <= sl-1)
         outertwo = np.ones(shape=(self.length, self.width, self.height)) * (circle <= r) * (abs(d) <= sl-1) * (d != 1-sl)
@@ -167,11 +172,14 @@ class Bacteria3D(Bacteria, ABC):
             return even
 
     def _generateRod(self) -> ndarray:
+        """
+        Generates a rod-shaped matrix space, based on the size of the surface
+        """
         rod_dim = min(self.length, self.width, self.height)
         center_odd = int(np.floor(self.length / 2)), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
         center_even = int(np.floor(self.length / 2) - 1), int(np.floor(self.width / 2)), int(np.floor(self.height / 2))
-        # set length, radius based on array size
-        # length is fixed as 3x the radius, so array must be at least 5x3x3
+        # Sets length & radius based on array size
+        # Length is fixed as 3x the radius, so the array must be at least 5x3x3
         r = rod_dim / 5
         l = int(3 * r) + 2
         sl = int(l * 0.5)
@@ -215,5 +223,9 @@ class Bacteria3D(Bacteria, ABC):
         else:
             return even
 
-    # to generate more shape, add new function below, start with def _generateXXX, replace XXX with the new shape you
-    # want to generate, update your new shape in _generateSurface in Surface.py or inform Jiaqi to do update
+"""
+To include additional shape generations:
+    1. Create a new function below, following the naming convention above.
+        ex., _generateX, where X is the new shape.
+    2. Add your shape option to _generateSurface above, under either 2DBacteria or 3DBacteria.
+"""

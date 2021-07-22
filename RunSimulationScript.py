@@ -18,23 +18,30 @@ def runSimulation():
 
     time.sleep(3)
 
-    simulationType = 1
-    trail = 11
+    # simulator info
+    simulationType = 2
+    trail = 51
     dimension = 2
+    simulatorType = 1
+    interactType = "DOT"
+    # interactType = "CUTOFF"
+
+    # film info
     filmSeed = 1
     if dimension == 2:
-        filmSurfaceSize = (200, 200)
+        filmSurfaceSize = (5000, 5000)
     elif dimension == 3:
         filmSurfaceSize = (1000, 1000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
     filmSurfaceShape = "rectangle"
     filmNum = 1
-    bacteriaNum = 1000
+    bacteriaNum = 5
     interval_x = 10
     interval_y = 10
     filmSurfaceCharge = -1
     filmDomainSize = (5, 5)
-    filmDomainShape = "single"
-    filmDomainCon = 0.1  # if need to change charge ratio, change this
+    filmDomainShape = "diamond"
+    filmNeutralDomain = False
+    filmDomainCon = 0.5  # if need to change charge ratio, change this
     filmDomainChargeConcentration = 0.5  # ignore
 
     # bacteria info
@@ -43,26 +50,19 @@ def runSimulation():
         bacteriaSize = (50, 50)
     elif dimension == 3:
         bacteriaSize = (50, 50, 5)  # For bacteria, z value is the height of bacteria, can be any number
-    bacteriaSurfaceShape = "cuboid"
+    bacteriaSurfaceShape = "rectangle"
     bacteriaSurfaceCharge = 1
     bacteriaDomainSize = (5, 5)
     bacteriaDomainShape = "diamond"
-    bacteriaDomainCon = 0.5
-    bacteriaDomainChargeConcentration = 0.5
-
-    filmNeutralDomain = False
+    bacteriaDomainCon = 0.1
+    bacteriaDomainChargeConcentration = 0.5  # ignore
     bacteriaNeutralDomain = False
 
-    ### below is new variable
-    simulatorType = 1
-    interactType = "DOT"
-    # interactType = "CUTOFF"
-
-    # below are for dynamic simulation, we are not using for now
+    # below are for dynamic simulation
     probabilityType = "SIMPLE"
     timestep = 1000
     Lambda = 10
-    simple = 0.1
+    simple = 0.001
     bacteriaMovementSeed = 10
 
     # take info for simulator
@@ -92,8 +92,8 @@ def runSimulation():
                     bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, bacteriaDomainChargeConcentration,
                     filmNum, bacteriaNum, interval_x, interval_y, filmNeutralDomain, bacteriaNeutralDomain, parameter)
 
-
     sim.runSimulate()
+
 
 if __name__ == '__main__':
     runSimulation()
