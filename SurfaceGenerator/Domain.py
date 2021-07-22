@@ -205,24 +205,32 @@ class DomainGenerator:
 
         # for the multiprocessing domain generator, because there is 4 CPU (on my computer), divide the domainNum by 4
         # we can change the domainNum for each multiprocessor depending on the number of CPU later
+        # separate the domain into 4 equal numbers for now
+        # later on, we can separte them depending on the number of CPU on computer, leave it at 4 for now
         domainNumEach = int(domainNum / 4)
 
+        # if we want neutral charges on the surface, we can define domainNumChar2, otherwise, it will be zero
         if self.neutral:
             domainNumChar1 = math.ceil(domainNumEach * charge_concentration)  # this will have the first charge from the possible_charge list
             domainNumChar2 = domainNumEach - domainNumChar1  # this will have the second charge from the possible_charge list
         elif not self.neutral:
             domainNumChar1 = domainNumEach
             domainNumChar2 = 0
-        # define restriction
+
+        # now for the multiprocessing, separate the surface by the number of CPUs in the computer
+        # currently, I divided the surface into 4 parts, but we can make that a function of number of CPUs later
         # for 2D, separate the surface into 4 quadrants, therefore, separate the possiblePoint into 4
-        possiblePointNested = [[tup for tup in possiblePoint if tup[0] < int(surface.length/2) - restriction
-                                and tup[1] > int(surface.width/2) + restriction],
-                         [tup for tup in possiblePoint if tup[0] > int(surface.length/2) + restriction
-                          and tup[1] > int(surface.width/2) + restriction],
-                         [tup for tup in possiblePoint if tup[0] < int(surface.length/2) - restriction
-                          and tup[1] < int(surface.width/2) - restriction],
-                         [tup for tup in possiblePoint if tup[0] > int(surface.length/2) + restriction
-                          and tup[1] < int(surface.width/2) - restriction]]
+        if surface.dimension == 2:
+            possiblePointNested = [[tup for tup in possiblePoint if tup[0] < int(surface.length/2) - restriction
+                                    and tup[1] > int(surface.width/2) + restriction],
+                             [tup for tup in possiblePoint if tup[0] > int(surface.length/2) + restriction
+                              and tup[1] > int(surface.width/2) + restriction],
+                             [tup for tup in possiblePoint if tup[0] < int(surface.length/2) - restriction
+                              and tup[1] < int(surface.width/2) - restriction],
+                             [tup for tup in possiblePoint if tup[0] > int(surface.length/2) + restriction
+                              and tup[1] < int(surface.width/2) - restriction]]
+
+        # for 3D, separate the surface into 4 surfaces
 
 
         # use partial to set all the constant variables
@@ -236,7 +244,7 @@ class DomainGenerator:
             newSurfaceMP = pool.map(_generateDomainMultiprocessingConstant, possiblePointNested)
             lst.append(newSurfaceMP)
 
-        # need to think of a better way to combine the arrays
+        # need to think of a better way to combine the arrays, but this method works for now
         # to combine the arrays, we will replace the specified section of the array with the developed domains
         newSurface[0,int(surface.width/2):, :int(surface.length/2+1)] = newSurfaceMP[0][0, int(surface.width/2):, :int(surface.length/2+1)]
         newSurface[0,int(surface.width/2):, int(surface.length/2):] = newSurfaceMP[1][0, int(surface.width/2):, int(surface.length/2):]
