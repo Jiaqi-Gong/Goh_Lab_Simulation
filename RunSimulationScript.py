@@ -29,9 +29,11 @@ def runSimulation():
     # film info
     filmSeed = 1
     if dimension == 2:
-        filmSurfaceSize = (1000, 1000)
+        filmSurfaceSize = (10000, 10000)
     elif dimension == 3:
         filmSurfaceSize = (1000, 1000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
+    else:
+        raise RuntimeError("Unknown dimension: {}".format(dimension))
     filmSurfaceShape = "rectangle"
     filmNum = 1
     bacteriaNum = 5
@@ -50,9 +52,11 @@ def runSimulation():
         bacteriaSize = (100, 100)
     elif dimension == 3:
         bacteriaSize = (50, 50, 5)  # For bacteria, z value is the height of bacteria, can be any number
+    else:
+        raise RuntimeError("Unknown dimension: {}".format(dimension))
     bacteriaSurfaceShape = "rectangle"
     bacteriaSurfaceCharge = -1
-    bacteriaDomainSize = (11, 11)
+    bacteriaDomainSize = (14, 14)
     bacteriaDomainShape = "diamond"
     bacteriaDomainCon = 0.2
     bacteriaDomainChargeConcentration = 0.5  # ignore
@@ -82,7 +86,7 @@ def runSimulation():
         elif probabilityType.upper() == "POISSON":
             parameter["Lambda"] = Lambda
     else:
-        raise RuntimeError("Unknown simulator type")
+        raise RuntimeError("Unknown simulator type: {}".format(simulatorType))
 
     # generate simulator
     sim = simulator(trail, dimension,

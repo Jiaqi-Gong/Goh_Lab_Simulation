@@ -39,9 +39,10 @@ class Simulator(ABC):
                  filmSeed: int, filmSurfaceSize: Union[Tuple[int, int], Tuple[int, int, int]], filmSurfaceShape: str,
                  filmSurfaceCharge: int, filmDomainSize: Tuple[int, int], filmDomainShape: str,
                  filmDomainConcentration: float, filmDomainChargeConcentration: float,
-                 bacteriaSeed: int, bacteriaSize: Union[Tuple[int, int], Tuple[int, int, int]], bacteriaSurfaceShape: str,
+                 bacteriaSeed: int, bacteriaSize: Union[Tuple[int, int], Tuple[int, int, int]],
+                 bacteriaSurfaceShape: str,
                  bacteriaSurfaceCharge: int, bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str,
-                 bacteriaDomainConcentration: float,  bacteriaDomainChargeConcentration: float,
+                 bacteriaDomainConcentration: float, bacteriaDomainChargeConcentration: float,
                  filmNum: int, bacteriaNum: int, intervalX: int, intervalY: int, filmNeutralDomain: bool,
                  bacteriaNeutralDomain: bool, parameters: Dict) -> None:
         """
@@ -63,11 +64,11 @@ class Simulator(ABC):
         self.filmNeutralDomain = filmNeutralDomain
         self.bacteriaNeutralDomain = bacteriaNeutralDomain
 
-        # init some variable
+        # check and set all parameters
         self._setExtraParameter()
         self._checkAllSet()
 
-        # when multi process, one process run filmManager and other one run bacteria manager
+        # generate managers
 
         self.filmManager = FilmManager(trail, dimension, filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
                                        filmDomainSize, filmDomainShape, filmDomainConcentration,
@@ -76,7 +77,10 @@ class Simulator(ABC):
         self.bacteriaManager = BacteriaManager(trail, dimension, simulatorType, bacteriaSeed, bacteriaSize,
                                                bacteriaSurfaceShape, bacteriaSurfaceCharge, bacteriaDomainSize,
                                                bacteriaDomainShape, bacteriaDomainConcentration,
-                                               bacteriaDomainChargeConcentration, bacteriaNum, self.bacteriaNeutralDomain)
+                                               bacteriaDomainChargeConcentration, bacteriaNum,
+                                               self.bacteriaNeutralDomain)
+
+        # init some variable
         self.startTime = datetime.now()
         self.output = self._initOutput()
 
