@@ -9,7 +9,7 @@ from typing import Tuple, List, Union
 from ExternalIO import showMessage, writeLog, visPlot
 import math
 import time
-from multiprocessing import Pool
+from multiprocessing import Pool, cpu_count
 from functools import partial
 import os
 
@@ -127,87 +127,22 @@ class DomainGenerator:
         if len(possiblePoint) == 0:
             raise RuntimeError("Either Domain is too large or Surface is too small")
 
-        # # now, initalize how many of each charged domains we need to generate
-        # # for now, half will be neutral, half will be +ve/-ve charged
-        # if self.neutral:
-        #     domainNumChar1 = math.ceil(domainNum * charge_concentration)  # this will have the first charge from the possible_charge list
-        #     domainNumChar2 = domainNum - domainNumChar1  # this will have the second charge from the possible_charge list
-        # elif not self.neutral:
-        #     domainNumChar1 = domainNum
-        #     domainNumChar2 = 0
-        #
-        # # initialize the total number of domain generated for each charge
-        # # the first and second correspond to domainNumChar1 and domainNumChar2 respectively
-        # totalDomainChar = [0, 0]
-        #
-        # # show how many of each charged domain will be generated
-        # showMessage("Total of {} domains will be generated with charge {}".format(domainNumChar1, possible_charge[0]))
-        # showMessage("Total of {} domains will be generated with charge {}".format(domainNumChar2, possible_charge[1]))
-        #
-        # # initialize number of domain generated on the surface
-        # generated = 0
-        #
-        # # check generate domain number is not too small
-        # if generated >= domainNum:
-        #     raise RuntimeError("Domain concentration is too low")
-        #
-        # # initialize how long we want the code to run
-        # # if its running for too long, that means we most likely reached the maximum amount of domains on the surface and end the while loop
-        # timeout = time.time() + 60  # 60 seconds from now
-        #
-        # # start to generate the domain on surface
-        # # to generate the domains on the surface, we will be using multiprocessing to take advantage of all 4 CPUS
-        # while generated < domainNum:
-        #     # if the while loop has been running for too long, break the while loop
-        #     if time.time() > timeout or len(possiblePoint) == 0:
-        #         break
-        #     # initialize a random point on the surface with restrictions and the updated possiblePoint
-        #     [start, possiblePoint] = self._randomPoint(possiblePoint)
-        #
-        #     # check the position of this shape is empty, if not empty, then continue
-        #     if not checkEmpty(newSurface, domainWidth, domainLength, start, possible_charge):
-        #         continue
-        #
-        #     # we will first generate all the domainNumChar1
-        #     if domainNumChar1 > totalDomainChar[0]:
-        #         charge = possible_charge[0]
-        #     # once that has fully generated, we will move onto domainNumChar2
-        #     elif domainNumChar2 > totalDomainChar[1]:
-        #         charge = possible_charge[1]
-        #
-        #     # generate this shape's domain
-        #     newSurface = generateShape(newSurface, domainWidth, domainLength, start, charge)
-        #
-        #     # update the generated number in totalDomainChar
-        #     if charge == possible_charge[0]:
-        #         totalDomainChar[0] += 1
-        #     elif charge == possible_charge[1]:
-        #         totalDomainChar[1] += 1
-        #
-        #     # update generated number
-        #     generated += 1
-        #
-        #     # initialize how long we want the code to run
-        #     # if its running for too long, that means we most likely reached the maximum amount of domains on the surface and
-        #     # end the while loop
-        #     timeout = time.time() + 60  # 60 seconds from now
-        #
-        # concentration_charge = (len(np.where(newSurface == possible_charge[0])[0])) / (surface.length * surface.width)
-        # concentration_neutral = (len(np.where(newSurface == possible_charge[1])[0])) / (surface.length * surface.width)
-        # actual_concentration = concentration_neutral + concentration_charge
-        #
-        # showMessage("actual concentration is {} with charge being {}, neutral being {}".format(actual_concentration,
-        #                                                                                        concentration_charge,
-        #                                                                                        concentration_neutral))
-        # showMessage("intended concentration is {}".format(concentration))
-        # showMessage("generated total of {} with charge {}".format(totalDomainChar[0], possible_charge[0]))
-        # showMessage("generated total of {} with charge {}".format(totalDomainChar[1], possible_charge[1]))
-
         # for the multiprocessing domain generator, because there is 4 CPU (on my computer), divide the domainNum by 4
         # we can change the domainNum for each multiprocessor depending on the number of CPU later
-        # separate the domain into 4 equal numbers for now
-        # later on, we can separte them depending on the number of CPU on computer, leave it at 4 for now
-        domainNumEach = int(domainNum / 4)
+
+        # set how many domains we should make for each CPU
+        # find the number of CPUs on the computer
+        # we just need 12 cpus
+        # therefore if the cpu_number is greater than 12, we will just return 12
+
+        # if cpu_count() <= 12:
+        #     cpu_number = cpu_count()
+        # else:
+        #     cpu_number = 12
+
+        cpu_number = 4
+
+        domainNumEach = int(domainNum / cpu_number)
 
         # if we want neutral charges on the surface, we can define domainNumChar2, otherwise, it will be zero
         if self.neutral:
@@ -250,6 +185,25 @@ class DomainGenerator:
         newSurface[0,int(surface.width/2):, int(surface.length/2):] = newSurfaceMP[1][0, int(surface.width/2):, int(surface.length/2):]
         newSurface[0,:int(surface.width/2+1), :int(surface.length/2+1)] = newSurfaceMP[2][0, :int(surface.width/2+1), :int(surface.length/2+1)]
         newSurface[0,:int(surface.width/2+1), int(surface.length/2):] = newSurfaceMP[3][0, :int(surface.width/2+1), int(surface.length/2):]
+
+        # if the total number of domains is not divisible by 4, we need to keep on generating more domains
+        if domainNum % 4 != 0:
+            domainRemaining = domainNum%cpu_number
+            if self.neutral:
+                domainNumChar1 = math.ceil(
+                    domainRemaining * charge_concentration)  # this will have the first charge from the possible_charge list
+                domainNumChar2 = domainRemaining - domainNumChar1  # this will have the second charge from the possible_charge list
+            elif not self.neutral:
+                domainNumChar1 = domainRemaining
+                domainNumChar2 = 0
+            _generateDomainMultiprocessingConstant = partial(self._generateDomainMultiprocessing, newSurface=newSurface,
+                                                             domainWidth=domainWidth, domainLength=domainLength,
+                                                             possible_charge=possible_charge,
+                                                             domainNumEach=int(domainNum%4),
+                                                             generateShape=generateShape, checkEmpty=checkEmpty,
+                                                             domainNumChar1=domainNumChar1,
+                                                             domainNumChar2=domainNumChar2)
+            newSurface = _generateDomainMultiprocessingConstant(possiblePoint)
 
 
 
