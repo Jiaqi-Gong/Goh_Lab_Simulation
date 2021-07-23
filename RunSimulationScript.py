@@ -23,7 +23,7 @@ def runSimulation():
     dimension = 2
     filmSeed = 1
     if dimension == 2:
-        filmSurfaceSize = (200, 200)
+        filmSurfaceSize = (2000, 2000)
     elif dimension == 3:
         filmSurfaceSize = (1000, 1000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
     filmSurfaceShape = "rectangle"
