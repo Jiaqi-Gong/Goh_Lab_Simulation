@@ -19,8 +19,8 @@ def runSimulation():
     time.sleep(3)
 
     # simulator info
-    simulationType = 1
-    trail = 51
+    simulationType = 2
+    trail = 52
     dimension = 2
     simulatorType = 1
     interactType = "DOT"
@@ -29,32 +29,36 @@ def runSimulation():
     # film info
     filmSeed = 1
     if dimension == 2:
-        filmSurfaceSize = (500, 500)
+        filmSurfaceSize = (10000, 10000)
     elif dimension == 3:
         filmSurfaceSize = (1000, 1000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
+    else:
+        raise RuntimeError("Unknown dimension: {}".format(dimension))
     filmSurfaceShape = "rectangle"
     filmNum = 1
     bacteriaNum = 5
     interval_x = 10
     interval_y = 10
-    filmSurfaceCharge = -1
-    filmDomainSize = (1, 1)
+    filmSurfaceCharge = +1
+    filmDomainSize = (5, 5)
     filmDomainShape = "diamond"
     filmNeutralDomain = False
-    filmDomainCon = 0.5  # if need to change charge ratio, change this
+    filmDomainCon = 0.2  # if need to change charge ratio, change this
     filmDomainChargeConcentration = 0.5  # ignore
 
     # bacteria info
     bacteriaSeed = 10
     if dimension == 2:
-        bacteriaSize = (33, 33)
+        bacteriaSize = (100, 100)
     elif dimension == 3:
         bacteriaSize = (50, 50, 5)  # For bacteria, z value is the height of bacteria, can be any number
+    else:
+        raise RuntimeError("Unknown dimension: {}".format(dimension))
     bacteriaSurfaceShape = "rectangle"
-    bacteriaSurfaceCharge = 1
-    bacteriaDomainSize = (5, 5)
+    bacteriaSurfaceCharge = -1
+    bacteriaDomainSize = (14, 14)
     bacteriaDomainShape = "diamond"
-    bacteriaDomainCon = 0.1
+    bacteriaDomainCon = 0.2
     bacteriaDomainChargeConcentration = 0.5  # ignore
     bacteriaNeutralDomain = False
 
@@ -82,7 +86,7 @@ def runSimulation():
         elif probabilityType.upper() == "POISSON":
             parameter["Lambda"] = Lambda
     else:
-        raise RuntimeError("Unknown simulator type")
+        raise RuntimeError("Unknown simulator type: {}".format(simulatorType))
 
     # generate simulator
     sim = simulator(trail, dimension,
