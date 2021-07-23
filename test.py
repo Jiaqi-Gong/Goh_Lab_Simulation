@@ -1,5 +1,6 @@
 import random
 from datetime import datetime
+from functools import partial
 
 import numpy as np  # numpy is required to make matrices
 from PIL import Image
@@ -10,6 +11,8 @@ import time
 from SimulatorFile.Dynamic import DynamicSimulator
 from SimulatorFile.EnergyScan import EnergySimulator
 from ExternalIO import getHelp, getRestriction, openLog
+import multiprocessing as mp
+import os
 
 
 def test_diamond():
@@ -385,7 +388,50 @@ def _simple(probability: float) -> bool:
 
     return stick
 
+def test_mp1():
 
+    ncpus = int(os.environ.get('SLURM_CPUS_PER_TASK', default=1))
+    pool = mp.Pool(processes=ncpus)
+    data = [(11, 1), (22, 3), (41, 5, 6)]
+    result = {}
+
+    _cube = partial(cube, result=result)
+
+    cubes = pool.map(_cube, data)
+    print(cubes)
+    cubes.sort()
+    print(cubes)
+
+def cube(x):
+    return (x[0], x[0] ** 3)
+
+def test_mp2():
+    # init parameter for multiprocess
+    ncpus = 10
+    pool = mp.Pool(processes=ncpus)
+
+    range_x = [i for i in range(50)]
+    range_y = [i for i in range(50)]
+
+    # prepare data for multiprocess, data is divided range into various parts, not exceed sqrt of ncpus can use
+    part = int(np.floor(np.sqrt(ncpus)))
+    data = []
+
+    # double loop to prepare range x and range y
+    range_x_list = [range_x[i:i + part] for i in range(0, len(range_x), part)]
+    range_y_list = [range_y[i:i + part] for i in range(0, len(range_y), part)]
+
+    # put combination into data
+    for x in range_x_list:
+        for y in range_y_list:
+            data.append((x, y))
+
+    result = pool.map(cube, data)
+
+    # get the minimum result
+    result.sort()
+    result = result.pop(0)
+    result, min_film = result[0], result[1]
 
 
 if __name__ == '__main__':
@@ -418,4 +464,6 @@ if __name__ == '__main__':
 
     # print(testCutoff())
 
-    print(test_random())
+    # print(test_random())
+
+    test_mp2()

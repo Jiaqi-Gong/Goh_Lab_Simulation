@@ -48,10 +48,10 @@ class Bacteria2D(Bacteria, ABC):
         writeLog("Generating surface with shape: ".format(self.shape))
 
         # Generates corresponding shape
-        if self.shape.upper() == "RECTANGLE" or self.shape.upper() == "CUBOID":
+        if self.shape.upper() == "RECTANGLE":
             return self._generateRec()
         else:
-            raise RuntimeError("2D Bacteria can not have this shape.")
+            raise RuntimeError("2D Bacteria can not have this shape: {}.".format(self.shape))
 
     def _generateRec(self) -> ndarray:
         """
@@ -98,7 +98,7 @@ class Bacteria3D(Bacteria, ABC):
         elif self.shape.upper() == "ROD":
             return self._generateRod()
         else:
-            raise RuntimeError("3D Bacteria can not have this shape.")
+            raise RuntimeError("3D Bacteria can not have this shape: {}.".format(self.shape))
 
     def _generateRec(self) -> ndarray:
         """
