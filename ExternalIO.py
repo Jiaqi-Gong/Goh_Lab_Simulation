@@ -244,7 +244,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     fig.update_layout(title=name)
 
     # save file
-    fig.write_html('{}/{}.html'.format(picFolder, picName))
+    fig.write_html('{}/{}.html'.format(picFolder, picName), full_html=False)
     # plt.savefig(picPath, dpi=300, bbox_inches='tight')
 
     showMessage("Image generate done")
@@ -323,7 +323,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         fig.update_layout(scene_camera=camera, title=name)
 
         # save file
-        fig.write_html('{}/{}.html'.format(picFolder, picName))
+        fig.write_html('{}/{}.html'.format(picFolder, picName),full_html=False)
         # fig.write_image('{}/{}.png'.format(picFolder, picName), width=1000, height=1000)
 
     elif "bacteria" in picName:
@@ -333,7 +333,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         fig.update_layout(scene_camera=camera, title=name)
 
         # save file
-        fig.write_html('{}/{}.html'.format(picFolder, picName))
+        fig.write_html('{}/{}.html'.format(picFolder, picName),full_html=False)
 
         # global picFolderEach
         # picFolderEach = "{}/{}".format(picFolder, picName)
