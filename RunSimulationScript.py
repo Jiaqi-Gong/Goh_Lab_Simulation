@@ -19,7 +19,7 @@ def runSimulation():
     time.sleep(3)
 
     # simulator info
-    simulationType = 2
+    simulationType = 1
     trail = 52
     dimension = 2
     simulatorType = 1
@@ -29,7 +29,7 @@ def runSimulation():
     # film info
     filmSeed = 1
     if dimension == 2:
-        filmSurfaceSize = (10000, 10000)
+        filmSurfaceSize = (56, 56)
     elif dimension == 3:
         filmSurfaceSize = (1000, 1000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
     else:
@@ -61,6 +61,9 @@ def runSimulation():
     bacteriaDomainCon = 0.2
     bacteriaDomainChargeConcentration = 0.5  # ignore
     bacteriaNeutralDomain = False
+
+    if bacteriaSize[0] > filmSurfaceSize[0] or bacteriaSize[1] > filmSurfaceSize[1]:
+        raise RuntimeError("Bacteria size too big or film size too small")
 
     # below are for dynamic simulation
     probabilityType = "SIMPLE"
