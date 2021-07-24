@@ -66,6 +66,8 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     part = len(range_x) // int(np.floor(np.sqrt(ncpus)))
     data = []
 
+    showMessage("ncpu number is: {}, part is: {}".format(ncpus, part))
+
     # double loop to prepare range x and range y
     range_x_list = [range_x[i:i + part] for i in range(0, len(range_x), part)]
     range_y_list = [range_y[i:i + part] for i in range(0, len(range_y), part)]
