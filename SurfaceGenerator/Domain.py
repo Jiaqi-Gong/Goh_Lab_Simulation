@@ -93,7 +93,7 @@ class DomainGenerator:
         newSurface = surface.originalSurface
 
 
-        # np.set_printoptions(threshold=np.inf)
+        np.set_printoptions(threshold=np.inf)
         # showMessage(newSurface)
         # raise NotImplementedError
 
@@ -153,9 +153,15 @@ class DomainGenerator:
             domainNumChar2 = 0
 
         # now for the multiprocessing, separate the surface by the number of CPUs in the computer
-        # currently, I divided the surface into 4 parts, but we can make that a function of number of CPUs later
-        # for 2D, separate the surface into 4 quadrants, therefore, separate the possiblePoint into 4
+        # for 2D
         if surface.dimension == 2:
+            # we will find 2 numbers that are closest to each other that multiply to the number of CPUs
+            # first, find the square root of that number
+            squareRoot = math.root(cpu_number)
+
+            # then, split the number into lower and upper half
+            upper = math.ceil(squareRoot)
+            lower = int(squareRoot)
             possiblePointNested = [[tup for tup in possiblePoint if tup[0] < int(surface.length/2) - restriction
                                     and tup[1] > int(surface.width/2) + restriction],
                              [tup for tup in possiblePoint if tup[0] > int(surface.length/2) + restriction
@@ -174,24 +180,33 @@ class DomainGenerator:
                                                          possible_charge=possible_charge, domainNumEach=domainNumEach,
                                                          generateShape=generateShape, checkEmpty=checkEmpty,
                                                          domainNumChar1=domainNumChar1, domainNumChar2=domainNumChar2)
-        lst = []
+        newSurfaceMPList = []
+        generatedList = []
         with Pool(4) as pool:
-            newSurfaceMP = pool.map(_generateDomainMultiprocessingConstant, possiblePointNested)
-            lst.append(newSurfaceMP)
+            newSurfaceMP_generated = pool.map(_generateDomainMultiprocessingConstant, possiblePointNested)
+            # extract the new surface and the number of generated domains for that surface
+            for i in range(cpu_number):
+                newSurfaceMP = newSurfaceMP_generated[i][0]
+                generated = newSurfaceMP_generated[i][1]
+
+                # append both to a list
+                newSurfaceMPList.append(newSurfaceMP)
+                generatedList.append(generated)
 
         # need to think of a better way to combine the arrays, but this method works for now
         # to combine the arrays, we will replace the specified section of the array with the developed domains
-        newSurface[0,int(surface.width/2):, :int(surface.length/2+1)] = newSurfaceMP[0][0, int(surface.width/2):, :int(surface.length/2+1)]
-        newSurface[0,int(surface.width/2):, int(surface.length/2):] = newSurfaceMP[1][0, int(surface.width/2):, int(surface.length/2):]
-        newSurface[0,:int(surface.width/2+1), :int(surface.length/2+1)] = newSurfaceMP[2][0, :int(surface.width/2+1), :int(surface.length/2+1)]
-        newSurface[0,:int(surface.width/2+1), int(surface.length/2):] = newSurfaceMP[3][0, :int(surface.width/2+1), int(surface.length/2):]
+        newSurface[0,int(surface.width/2):, :int(surface.length/2+1)] = newSurfaceMPList[0][0, int(surface.width/2):, :int(surface.length/2+1)]
+        newSurface[0,int(surface.width/2):, int(surface.length/2):] = newSurfaceMPList[1][0, int(surface.width/2):, int(surface.length/2):]
+        newSurface[0,:int(surface.width/2+1), :int(surface.length/2+1)] = newSurfaceMPList[2][0, :int(surface.width/2+1), :int(surface.length/2+1)]
+        newSurface[0,:int(surface.width/2+1), int(surface.length/2):] = newSurfaceMPList[3][0, :int(surface.width/2+1), int(surface.length/2):]
 
-        # if the total number of domains is not divisible by 4, we need to keep on generating more domains
-        if domainNum % 4 != 0:
-            domainRemaining = domainNum%cpu_number
+        # current number of domains that have been generated
+        # showMessage(generatedList)
+        currentdomainNum = sum(generatedList)
+        if domainNum > currentdomainNum:
+            domainRemaining = domainNum - currentdomainNum
             if self.neutral:
-                domainNumChar1 = math.ceil(
-                    domainRemaining * charge_concentration)  # this will have the first charge from the possible_charge list
+                domainNumChar1 = math.ceil(domainRemaining * charge_concentration)  # this will have the first charge from the possible_charge list
                 domainNumChar2 = domainRemaining - domainNumChar1  # this will have the second charge from the possible_charge list
             elif not self.neutral:
                 domainNumChar1 = domainRemaining
@@ -199,13 +214,24 @@ class DomainGenerator:
             _generateDomainMultiprocessingConstant = partial(self._generateDomainMultiprocessing, newSurface=newSurface,
                                                              domainWidth=domainWidth, domainLength=domainLength,
                                                              possible_charge=possible_charge,
-                                                             domainNumEach=int(domainNum%4),
+                                                             domainNumEach=domainRemaining,
                                                              generateShape=generateShape, checkEmpty=checkEmpty,
                                                              domainNumChar1=domainNumChar1,
                                                              domainNumChar2=domainNumChar2)
-            newSurface = _generateDomainMultiprocessingConstant(possiblePoint)
+            [newSurface, generated] = _generateDomainMultiprocessingConstant(possiblePoint)
+            generatedList.append(generated)
 
+        # if the total domain number is less than current domain number, we generated too much and there is an error
+        # in the code
+        elif domainNum < currentdomainNum:
+            raise RuntimeError("Generated too many domains during multiprocessing")
 
+        # determine the number of actual number of domains that generated onto the surface
+        actualDomainNum = sum(generatedList)
+
+        # if the intended domain number is not equal to the actual domain number, there is something wrong in the code
+        if domainNum != actualDomainNum:
+            raise RuntimeError("Actual domain number does not equal the intended number of domains")
 
         # now, we will determine where
         concentration_charge = (len(np.where(newSurface == possible_charge[0])[0])) / (surface.length * surface.width)
@@ -218,11 +244,11 @@ class DomainGenerator:
 
     def _generateDomainMultiprocessing(self, possiblePoint: List[int], newSurface: ndarray, domainWidth: int,
                                        domainLength: int,possible_charge: List[int], domainNumEach: int,
-                                       generateShape, checkEmpty, domainNumChar1: int, domainNumChar2: int) -> ndarray:
+                                       generateShape, checkEmpty, domainNumChar1: int, domainNumChar2: int) -> [ndarray, int]:
         """
         This function actually generates the domains
         It was implemented as a test for multiprocessing
-        Can be scrapped/deleted if unsuccessful
+        Return the number of generated domains as well as the film
         """
         # initialize totalDomainChar
         totalDomainChar = [0,0]
@@ -272,7 +298,9 @@ class DomainGenerator:
             # end the while loop
             timeout = time.time() + 60  # 60 seconds from now
 
-        return newSurface
+        # combine the new surface and total number of domains generated into a list
+        surface_generated = [newSurface, generated]
+        return surface_generated
 
     def _allPossiblePoint(self, newSurface: ndarray, surface: Surface, surfaceLength: int, surfaceWidth: int, surfaceHeight: int,
                           domainLength: int, domainWidth: int, shape: str) -> List[Tuple[int, int, int]]:
