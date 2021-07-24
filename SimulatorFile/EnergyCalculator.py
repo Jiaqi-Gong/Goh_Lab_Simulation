@@ -1,12 +1,15 @@
 """
 This file contains method to calculate the energy of the surface
 """
-
+from copy import deepcopy
+from functools import partial
 from typing import Tuple, List, Union
+import time
 
 import numpy as np
 from numpy import ndarray
 from ExternalIO import *
+import multiprocessing as mp
 
 COULOMB_CONSTANT = 8.99
 
@@ -23,11 +26,7 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     writeLog("intervalX is: {}, intervalY is: {}, film is: {}, bacteria is: {}".format(
         intervalX, intervalY, film, bacteria))
 
-    # if it's cutoff, change format
-    if interactType.upper() in ["CUTOFF", "CUT-OFF"]:
-        # change ndarray to dictionary
-        filmDict = _ndarrayToDict(film)
-        bactDict = _ndarrayToDict(bacteria, isBacteria=True)
+    startTime = time.time()
 
     # change the format of film and bacteria
     film = film[0]
@@ -49,7 +48,73 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
 
     writeLog("shape is : {}, range_x is: {}, range_y is: {}".format(film_shape, range_x, range_y))
 
+    # scan through the surface and make calculation
+    if interactType.upper() in ["CUTOFF", "CUT-OFF"]:
+        showMessage("Start to calculate cutoff energy, this step is slow")
+    else:
+        showMessage("Start to calculate energy in dot type")
+
+    # using partial to set all the constant variables
+    _calculateEnergy2DConstant = partial(_calculateEnergy2D, cutoff=cutoff, interactType=interactType)
+
+    # init parameter for multiprocess
+    # minus 2 in case of other possible process is running
+    ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)) - 2, 1)
+    pool = mp.Pool(processes=ncpus)
+
+    # prepare data for multiprocess, data is divided range into various parts, not exceed sqrt of ncpus can use
+    part = len(range_x) // int(np.floor(np.sqrt(ncpus)))
+    data = []
+
+    # double loop to prepare range x and range y
+    range_x_list = [range_x[i:i + part] for i in range(0, len(range_x), part)]
+    range_y_list = [range_y[i:i + part] for i in range(0, len(range_y), part)]
+
+    # put combination into data
+    for x in range_x_list:
+        for y in range_y_list:
+            data.append((x, y, deepcopy(film), deepcopy(bacteria)))
+
+    # run interact
+    result = pool.map(_calculateEnergy2DConstant, data)
+
+    # get the minimum result
+    result.sort()
+    result = result.pop(0)
+    result, min_film = result[0], result[1]
+
+    writeLog("Result in interact 2D is: {}".format(result))
+
+    # print the min_film
+    visPlot(min_film, "film_at_minimum_{}".format(currIter), 2)
+
+    showMessage("Interact done")
+    writeLog(result)
+
+    # record time uses
+    endTime = time.time()
+    totalTime = endTime - startTime
+    showMessage(f"Total time it took for calculating energy is {totalTime} seconds")
+
+    return result
+
+
+def _calculateEnergy2D(data: Tuple[ndarray, ndarray, ndarray, ndarray], cutoff, interactType):
+    """
+    This is the multiprocess helper function for calculating energy for 2D
+    """
     # init some variable
+    range_x = data[0]
+    range_y = data[1]
+    film = data[2]
+    bacteria = data[3]
+
+    # shape of the film
+    film_shape = film.shape
+
+    # shape of bacteria
+    bact_shape = bacteria.shape
+
     # randomly, just not negative
     min_energy = float("INF")
     min_charge = float("INF")
@@ -63,27 +128,16 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     # change the bacteria surface into 1D
     bacteria_1D = np.reshape(bacteria, (-1))
 
-    # for debug, delete later
-    all_energy = []
-
-    # for future multiprocess, init a dict to save value
-    # divide x to three parts and divide y to three parts
-    # totally 9 subprocess to speed up the calculation
-    # key is minimum energy,
-    # value is a tuple store the result like (min_energy, min_x, min_y, min_energy_charge, min_charge, min_charge_x, min_charge_y)
-    # all process save the result in the dict
-    # then loop dict.keys() to find the minimum energy and corresponding result
-    # extract below function out as a separate function to do multi process
-
-    # init a result dictionary
-    result_dict = {}
-
-    # scan through the surface and make calculation
+    # if it's cutoff, change format
     if interactType.upper() in ["CUTOFF", "CUT-OFF"]:
-        showMessage("Start to calculate cutoff energy, this step is slow")
+        # change ndarray to dictionary
+        filmDict = _ndarrayToDict(film)
+        bactDict = _ndarrayToDict(bacteria, isBacteria=True)
     else:
-        showMessage("Start to calculate energy in dot type")
+        filmDict = None
+        bactDict = None
 
+    # loop all point in the range
     for x in range_x:
         for y in range_y:
             # set the x boundary and y boundary
@@ -124,10 +178,8 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
                 # call function to calculate energy
                 energy = _twoPointEnergy(filmDict, bactDict, cutoff, startPoint, (film_shape[1], film_shape[0]))
 
-                # all_energy.append(energy)
-
             else:
-                raise RuntimeError("Unknown interact type")
+                raise RuntimeError("Unknown interact type: {}".format(interactType))
 
             # count and unique
             unique, counts = np.unique(film_use, return_counts=True)
@@ -174,22 +226,11 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
                 min_y = y
                 min_energy_charge = charge
                 min_film = film_use
-
     # save the result
     result = (min_energy, min_x, min_y, min_energy_charge, min_charge, min_charge_x, min_charge_y)
 
-    writeLog("Result in interact 2D is: {}".format(result))
-
-    # print the min_film
-    visPlot(min_film, "film_at_minimum_{}".format(currIter), 2)
-
-    # for debug, delete later
-    # print(all_energy)
-
-    showMessage("Interact done")
-    writeLog(result)
-
-    return result
+    # return result
+    return (result, min_film)
 
 
 def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray, currIter: int,
@@ -442,14 +483,5 @@ def _twoPointEnergy(film: Dict[Tuple[int, int], List[Tuple[int, int]]],
                     total_energy += energy
 
     return total_energy
-
-
-def _calculateEnergy(x_start: int, x_end: int, y_start: int, y_end: int, film: ndarray, bacteria: ndarray,
-                     result_dict: Dict, interactType: str, cutoff: int = None) -> None:
-    """
-    This is a helper function for calculate energy in the multi process
-    Save the result in a given dictionary
-    """
-    raise NotImplementedError
 
 
