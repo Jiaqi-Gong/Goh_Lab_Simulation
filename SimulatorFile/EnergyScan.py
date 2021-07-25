@@ -120,8 +120,8 @@ class EnergySimulator(Simulator):
         """
         writeLog("This is _simulate in Simulation")
         showMessage("Start to run simulation")
-        writeLog("self is: {}, currIter is: {}, film is: {}, bacteria is: {}, end is: {}".format(
-            self.__dict__, currIter, film, bacteria, end))
+        # writeLog("self is: {}, currIter is: {}, film is: {}, bacteria is: {}, end is: {}".format(
+        #     self.__dict__, currIter, film, bacteria, end))
 
         # check does cutoff value set
         if self.interactType.upper() in ["CUTOFF", "CUT-OFF"]:
@@ -206,9 +206,8 @@ class EnergySimulator(Simulator):
         Copy from old code with minor change
         """
         writeLog("This is _output in Simulation")
-        showMessage("Start to write result into out put")
-        writeLog("self is: {}, result is: {}, currIter is: {}, end is: {}".format(
-            self.__dict__, result, currIter, end))
+        showMessage("Start to write result into out put with iter: {}".format(currIter))
+        writeLog("result is: {}, currIter is: {}, end is: {}".format(result, currIter, end))
 
         # calculate the time use
         time_consume = (datetime.now() - self.startTime)

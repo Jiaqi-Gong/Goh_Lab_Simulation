@@ -854,8 +854,13 @@ if __name__ == '__main__':
     log_name = openLog(write_at_end)
     showMessage(log_name)
 
-    # call the user input function
-    getArgument()
+    try:
+        # call the user input function
+        getArgument()
 
-    # close
-    closeLog()
+        # close
+        closeLog()
+
+    except Exception:
+        closeLog()
+

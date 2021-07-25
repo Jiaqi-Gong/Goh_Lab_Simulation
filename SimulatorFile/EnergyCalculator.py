@@ -23,8 +23,8 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     """
     writeLog("This is interact2D in Simulation")
     showMessage("Start to interact ......")
-    writeLog("intervalX is: {}, intervalY is: {}, film is: {}, bacteria is: {}".format(
-        intervalX, intervalY, film, bacteria))
+    # writeLog("intervalX is: {}, intervalY is: {}, film is: {}, bacteria is: {}".format(
+    #     intervalX, intervalY, film, bacteria))
 
     startTime = time.time()
 
@@ -33,7 +33,8 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     bacteria = bacteria[0]
 
     # show image of whole film and bacteria
-    visPlot(film, "whole_film_2D_{}".format(currIter), 2)
+    if currIter == 0:
+        visPlot(film, "whole_film_2D_{}".format(currIter), 2)
     visPlot(bacteria, "whole_bacteria_2D_{}".format(currIter), 2)
 
     # shape of the film
@@ -250,8 +251,8 @@ def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     """
     writeLog("This is interact3D in Simulation")
     showMessage("Start to interact ......")
-    writeLog("intervalX is: {}, intervalY is: {}, film is: {}, bacteria is: {}".format(
-        intervalX, intervalY, film, bacteria))
+    # writeLog("intervalX is: {}, intervalY is: {}, film is: {}, bacteria is: {}".format(
+    #     intervalX, intervalY, film, bacteria))
 
     # change ndarray to dictionary
     filmDict = _ndarrayToDict(film)

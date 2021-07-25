@@ -96,10 +96,11 @@ def runSimulation():
                     bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
                     bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, bacteriaDomainChargeConcentration,
                     filmNum, bacteriaNum, interval_x, interval_y, filmNeutralDomain, bacteriaNeutralDomain, parameter)
-
-    sim.runSimulate()
-    closeLog()
-
+    try:
+        sim.runSimulate()
+        closeLog()
+    except Exception:
+        closeLog()
 
 
 if __name__ == '__main__':
