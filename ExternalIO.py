@@ -18,6 +18,7 @@ import vispy.io as io
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
+import time
 
 
 def getHelp() -> Dict[str, str]:
@@ -139,6 +140,8 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     """
     showMessage("Start to generate image")
 
+    startTime = time.time()
+
     now = datetime.now()
     day = now.strftime("%m_%d")
     current_time = now.strftime("%H_%M_%S")
@@ -247,6 +250,10 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     fig.write_html('{}/{}.html'.format(picFolder, picName), full_html=False)
     # plt.savefig(picPath, dpi=300, bbox_inches='tight')
 
+    endTime = time.time()
+    totalTime = endTime - startTime
+
+    showMessage(f"Total time it took to generate 2D image is {totalTime} seconds")
     showMessage("Image generate done")
 
 
@@ -255,6 +262,8 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     This function take in a 3D ndarray and save this array as a image with given name
     """
     showMessage("Start to generate image")
+
+    startTime = time.time()
 
     now = datetime.now()
     day = now.strftime("%m_%d")
@@ -630,4 +639,9 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     #         # save file
     #         io.write_png('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[i+1], azimuth[0]),
     #                      image)
+
+    endTime = time.time()
+    totalTime = endTime - startTime
+
+    showMessage(f"Total time it took to generate image is {totalTime} seconds")
     showMessage("Image generate done")
