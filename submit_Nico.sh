@@ -2,7 +2,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=28
 #SBATCH --time=3:00:00
-#SBATCH --mem=128G
+#SBATCH --mem=187G
 
 #SBATCH --mail-user=nicolas.k@rogers.com
 #SBATCH --mail-type=BEGIN
