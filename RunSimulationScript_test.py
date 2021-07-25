@@ -5,7 +5,7 @@ import time
 
 from SimulatorFile.Dynamic import DynamicSimulator
 from SimulatorFile.EnergyScan import EnergySimulator
-from ExternalIO import openLog, showMessage, closeLog
+from ExternalIO import *
 
 
 def runSimulation():

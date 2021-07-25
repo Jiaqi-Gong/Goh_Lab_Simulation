@@ -7,7 +7,7 @@ from typing import Union, Tuple
 
 from SimulatorFile.Dynamic import DynamicSimulator
 from SimulatorFile.EnergyScan import EnergySimulator
-from ExternalIO import getHelp, getRestriction, openLog, showMessage, closeLog, writeLog
+from ExternalIO import *
 
 
 def getArgument() -> None:
@@ -849,8 +849,9 @@ if __name__ == '__main__':
     # get special info dict, exec dict
     infoDict, execDict = getRestriction()
 
-    # get log file
-    log_name = openLog()
+    # open log
+    write_at_end = True
+    log_name = openLog(write_at_end)
     showMessage(log_name)
 
     # call the user input function
