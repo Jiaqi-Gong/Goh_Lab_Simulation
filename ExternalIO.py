@@ -91,7 +91,8 @@ def closeLog() -> None:
     """
     This function close the log file
     """
-    print("Start to close log")
+    showMessage("Start to close log")
+    startTime = time.time()
     if "write_last" in globals():
         now = datetime.now()
         current_time = now.strftime("%H:%M:%S")
@@ -107,6 +108,11 @@ def closeLog() -> None:
 
         info = "Time: {}, {}\n".format(current_time, "Write log at last done")
         log.write(info)
+
+        endTime = time.time()
+        totalTime = endTime - startTime
+
+        showMessage(f"Total time it took to write log is {totalTime} seconds")
 
     log.close()
 
