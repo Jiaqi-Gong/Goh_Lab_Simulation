@@ -19,8 +19,8 @@ def runSimulation():
     time.sleep(3)
 
     # simulator info
-    simulationType = 1
-    trail = 52
+    simulationType = 2
+    trail = 101
     dimension = 2
     simulatorType = 1
     interactType = "DOT"
@@ -29,18 +29,18 @@ def runSimulation():
     # film info
     filmSeed = 1
     if dimension == 2:
-        filmSurfaceSize = (560, 560)
+        filmSurfaceSize = (10000, 10000)
     elif dimension == 3:
         filmSurfaceSize = (1000, 1000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
     else:
         raise RuntimeError("Unknown dimension: {}".format(dimension))
     filmSurfaceShape = "rectangle"
     filmNum = 1
-    bacteriaNum = 5
+    bacteriaNum = 7
     interval_x = 10
     interval_y = 10
     filmSurfaceCharge = +1
-    filmDomainSize = (5, 5)
+    filmDomainSize = (6, 6)
     filmDomainShape = "diamond"
     filmNeutralDomain = False
     filmDomainCon = 0.2  # if need to change charge ratio, change this
@@ -56,14 +56,11 @@ def runSimulation():
         raise RuntimeError("Unknown dimension: {}".format(dimension))
     bacteriaSurfaceShape = "rectangle"
     bacteriaSurfaceCharge = -1
-    bacteriaDomainSize = (14, 14)
+    bacteriaDomainSize = (10, 10)
     bacteriaDomainShape = "diamond"
-    bacteriaDomainCon = 0.2
+    bacteriaDomainCon = 0.1
     bacteriaDomainChargeConcentration = 0.5  # ignore
     bacteriaNeutralDomain = False
-
-    if bacteriaSize[0] > filmSurfaceSize[0] or bacteriaSize[1] > filmSurfaceSize[1]:
-        raise RuntimeError("Bacteria size too big or film size too small")
 
     # below are for dynamic simulation
     probabilityType = "SIMPLE"
