@@ -157,7 +157,7 @@ class DomainGenerator:
         if surface.dimension == 2:
             # we will find 2 numbers that are closest to each other that multiply to the number of CPUs
             # first, find the square root of that number
-            squareRoot = math.root(cpu_number)
+            squareRoot = math.sqrt(cpu_number)
 
             # then, split the number into lower and upper half
             upper = math.ceil(squareRoot)
