@@ -52,11 +52,18 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     # scan through the surface and make calculation
     if interactType.upper() in ["CUTOFF", "CUT-OFF"]:
         showMessage("Start to calculate cutoff energy, this step is slow")
+
+        # change ndarray to dictionary
+        filmDict = _ndarrayToDict(film, x_range=(range_x[0], range_x[-1]), y_range=(range_y[0], range_y[-1]))
+        bactDict = _ndarrayToDict(bacteria, isBacteria=True)
     else:
         showMessage("Start to calculate energy in dot type")
+        filmDict = None
+        bactDict = None
 
     # using partial to set all the constant variables
-    _calculateEnergy2DConstant = partial(_calculateEnergy2D, cutoff=cutoff, interactType=interactType)
+    _calculateEnergy2DConstant = partial(_calculateEnergy2D, cutoff=cutoff, interactType=interactType,
+                                         bactDict=bactDict, filmDict=filmDict, film=film, bacteria=bacteria)
 
     # init parameter for multiprocess
     # minus 2 in case of other possible process is running
@@ -86,7 +93,10 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     # put combination into data
     for x in range_x_list:
         for y in range_y_list:
-            data.append((x, y, deepcopy(film), deepcopy(bacteria)))
+            if interactType.upper() == "DOT":
+                data.append((x, y, deepcopy(film), deepcopy(bacteria)))
+            else:
+                data.append((x, y, None, None))
 
     # run interact
     result = pool.map(_calculateEnergy2DConstant, data)
@@ -112,15 +122,14 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     return result
 
 
-def _calculateEnergy2D(data: Tuple[ndarray, ndarray, ndarray, ndarray], cutoff, interactType):
+def _calculateEnergy2D(data: Tuple[ndarray, ndarray], interactType: str, film: ndarray, bacteria: ndarray,
+                       filmDict: Union[None, Dict], bactDict: Union[None, Dict], cutoff: int = None,):
     """
     This is the multiprocess helper function for calculating energy for 2D
     """
     # init some variable
     range_x = data[0]
     range_y = data[1]
-    film = data[2]
-    bacteria = data[3]
 
     # shape of the film
     film_shape = film.shape
@@ -140,15 +149,6 @@ def _calculateEnergy2D(data: Tuple[ndarray, ndarray, ndarray, ndarray], cutoff, 
 
     # change the bacteria surface into 1D
     bacteria_1D = np.reshape(bacteria, (-1))
-
-    # if it's cutoff, change format
-    if interactType.upper() in ["CUTOFF", "CUT-OFF"]:
-        # change ndarray to dictionary
-        filmDict = _ndarrayToDict(film, x_range=(range_x[0], range_x[-1]), y_range=(range_y[0], range_y[-1]))
-        bactDict = _ndarrayToDict(bacteria, isBacteria=True)
-    else:
-        filmDict = None
-        bactDict = None
 
     # loop all point in the range
     for x in range_x:

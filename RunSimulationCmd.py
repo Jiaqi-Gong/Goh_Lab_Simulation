@@ -881,5 +881,6 @@ if __name__ == '__main__':
         writeLog(info)
 
         closeLog()
+        exit(1)
 
 

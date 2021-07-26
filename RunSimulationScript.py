@@ -110,6 +110,7 @@ def runSimulation():
         info += str('traceback.format_exc():\n%s' % traceback.format_exc())
         writeLog(info)
         closeLog()
+        exit(1)
 
 
 if __name__ == '__main__':

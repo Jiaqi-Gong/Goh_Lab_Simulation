@@ -42,7 +42,7 @@ def runSimulation():
     interval_x = 10
     interval_y = 10
     filmSurfaceCharge = +1
-    filmDomainSize = (110, 110)
+    filmDomainSize = (6, 6)
     filmDomainShape = "diamond"
     filmNeutralDomain = False
     filmDomainCon = 0.2  # if need to change charge ratio, change this
@@ -113,6 +113,7 @@ def runSimulation():
         info += str('traceback.format_exc():\n%s' % traceback.format_exc())
         writeLog(info)
         closeLog()
+        exit(1)
 
 
 if __name__ == '__main__':
