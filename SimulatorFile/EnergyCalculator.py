@@ -65,7 +65,7 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     # depends on the interact type, using different methods to set paters
     # this step is caused by numpy is a parallel package, when doing DOT, using np.dot so need to give some cpu for it
     if interactType.upper() == "DOT":
-        part = len(range_x) // int(max(ncpus//4, 1))
+        part = len(range_x) // int(max(ncpus // 4, 1))
     else:
         part = len(range_x) // int(ncpus)
     pool = mp.Pool(processes=ncpus)
@@ -140,7 +140,7 @@ def _calculateEnergy2D(data: Tuple[ndarray, ndarray, ndarray, ndarray], cutoff, 
     # if it's cutoff, change format
     if interactType.upper() in ["CUTOFF", "CUT-OFF"]:
         # change ndarray to dictionary
-        filmDict = _ndarrayToDict(film)
+        filmDict = _ndarrayToDict(film, x_range=(range_x[0], range_x[-1]), y_range=(range_y[0], range_y[-1]))
         bactDict = _ndarrayToDict(bacteria, isBacteria=True)
     else:
         filmDict = None
@@ -406,7 +406,8 @@ def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     return result
 
 
-def _ndarrayToDict(arrayList: ndarray, isFilm: bool = None, isBacteria: bool = None) -> \
+def _ndarrayToDict(arrayList: ndarray, isFilm: bool = None, isBacteria: bool = None, x_range: Tuple[int, int] = None,
+                   y_range: Tuple[int, int] = None) -> \
         Dict[Tuple[int, int], List[Tuple[int, int]]]:
     """
     This function takes in a ndarray and reshape this array into a dictionary
@@ -417,6 +418,21 @@ def _ndarrayToDict(arrayList: ndarray, isFilm: bool = None, isBacteria: bool = N
 
     # init the position at z direction
     z_height = 0
+
+    # get x, y range
+    if x_range is not None:
+        x_start = x_range[0]
+        x_end = x_range[1]
+    else:
+        x_start = float('-INF')
+        x_end = float('INF')
+
+    if y_range is not None:
+        y_start = x_range[0]
+        y_end = x_range[1]
+    else:
+        y_start = float('-INF')
+        y_end = float('INF')
 
     if isBacteria:
         z_height += 3
@@ -430,6 +446,10 @@ def _ndarrayToDict(arrayList: ndarray, isFilm: bool = None, isBacteria: bool = N
 
                 # if charge is 2 means empty, do not save
                 if charge == 2:
+                    continue
+
+                # if not in range, then continue
+                if x < x_start or x > x_end or y < y_start or y > y_end:
                     continue
 
                 # get key
@@ -492,5 +512,3 @@ def _twoPointEnergy(film: Dict[Tuple[int, int], List[Tuple[int, int]]],
                     total_energy += energy
 
     return total_energy
-
-
