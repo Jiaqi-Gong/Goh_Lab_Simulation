@@ -92,7 +92,6 @@ def runSimulation():
 
     # generate simulator
     try:
-        c = 1 / 0
         sim = simulator(trail, dimension,
                         filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
                         filmDomainSize, filmDomainShape, filmDomainCon, filmDomainChargeConcentration,
