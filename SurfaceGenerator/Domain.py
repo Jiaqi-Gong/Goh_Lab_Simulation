@@ -135,10 +135,10 @@ class DomainGenerator:
         # therefore if the cpu_number is greater than 12, we will just return 12
         # minus 2 in case of other possible process is running
         ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)) - 2, 1)
-        if ncpus <= 12:
+        if ncpus <= 16:
             cpu_number = ncpus
         else:
-            cpu_number = 12
+            cpu_number = 16
 
         showMessage(f"number of CPUs is {ncpus} but we will use {cpu_number}")
 
