@@ -65,15 +65,19 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     # depends on the interact type, using different methods to set paters
     # this step is caused by numpy is a parallel package, when doing DOT, using np.dot so need to give some cpu for it
     if interactType.upper() == "DOT":
-        part = len(range_x) // int(max(ncpus // 4, 1))
+        part = len(range_x) // int(np.floor(np.sqrt(ncpus)))
+        processNum = part
     else:
         part = len(range_x) // int(ncpus)
-    pool = mp.Pool(processes=ncpus)
+        processNum = ncpus
+
+    showMessage("Process number is: {}".format(processNum))
+    showMessage("ncpu number is: {}, part is: {}".format(ncpus, part))
+
+    pool = mp.Pool(processes=processNum)
 
     # prepare data for multiprocess, data is divided range into various parts, not exceed sqrt of ncpus can use
     data = []
-
-    showMessage("ncpu number is: {}, part is: {}".format(ncpus, part))
 
     # double loop to prepare range x and range y
     range_x_list = [range_x[i:i + part] for i in range(0, len(range_x), part)]
