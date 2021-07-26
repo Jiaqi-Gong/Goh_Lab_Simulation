@@ -2,6 +2,7 @@
 This program is used to run the simulation, but do not check the validity of parameter
 """
 import time
+import traceback
 
 from SimulatorFile.Dynamic import DynamicSimulator
 from SimulatorFile.EnergyScan import EnergySimulator
@@ -90,16 +91,25 @@ def runSimulation():
         raise RuntimeError("Unknown simulator type: {}".format(simulatorType))
 
     # generate simulator
-    sim = simulator(trail, dimension,
+    try:
+        c = 1 / 0
+        sim = simulator(trail, dimension,
                     filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
                     filmDomainSize, filmDomainShape, filmDomainCon, filmDomainChargeConcentration,
                     bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
                     bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, bacteriaDomainChargeConcentration,
                     filmNum, bacteriaNum, interval_x, interval_y, filmNeutralDomain, bacteriaNeutralDomain, parameter)
-    try:
+
         sim.runSimulate()
         closeLog()
-    except Exception:
+    except Exception as e:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        info = ""
+        info += str('e.message: {}\t'.format(exc_value))
+        info += str("Note, object e and exc of Class %s is %s the same." % (type(exc_value), ('not', '')[exc_value is e]))
+        info += str('traceback.print_exc(): {}'.format( traceback.print_exc()))
+        info += str('traceback.format_exc():\n%s' % traceback.format_exc())
+        writeLog(info)
         closeLog()
 
 

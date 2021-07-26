@@ -60,12 +60,12 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
 
     # init parameter for multiprocess
     # minus 2 in case of other possible process is running
-    ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)) - 2, 1)
+    ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)), 1)
 
     # depends on the interact type, using different methods to set paters
     # this step is caused by numpy is a parallel package, when doing DOT, using np.dot so need to give some cpu for it
     if interactType.upper() == "DOT":
-        part = len(range_x) // int(ncpus//4)
+        part = len(range_x) // int(max(ncpus//4, 1))
     else:
         part = len(range_x) // int(ncpus)
     pool = mp.Pool(processes=ncpus)

@@ -3,6 +3,7 @@ This is a text interface for running the simulation
 Checking all user input is valid at here
 """
 import re
+import traceback
 from typing import Union, Tuple
 
 from SimulatorFile.Dynamic import DynamicSimulator
@@ -861,6 +862,24 @@ if __name__ == '__main__':
         # close
         closeLog()
 
-    except Exception:
+    except Exception as e:
+
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+
+        info = ""
+
+        info += str('e.message: {}\t'.format(exc_value))
+
+        info += str(
+
+            "Note, object e and exc of Class %s is %s the same." % (type(exc_value), ('not', '')[exc_value is e]))
+
+        info += str('traceback.print_exc(): {}'.format(traceback.print_exc()))
+
+        info += str('traceback.format_exc():\n%s' % traceback.format_exc())
+
+        writeLog(info)
+
         closeLog()
+
 

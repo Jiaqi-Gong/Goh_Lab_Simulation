@@ -2,6 +2,7 @@
 This program is used to run the simulation, but do not check the validity of parameter
 """
 import time
+import traceback
 
 from SimulatorFile.Dynamic import DynamicSimulator
 from SimulatorFile.EnergyScan import EnergySimulator
@@ -30,7 +31,7 @@ def runSimulation():
     # film info
     filmSeed = 1
     if dimension == 2:
-        filmSurfaceSize = (5000, 5000)
+        filmSurfaceSize = (1000, 1000)
     elif dimension == 3:
         filmSurfaceSize = (1000, 1000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
     else:
@@ -41,7 +42,7 @@ def runSimulation():
     interval_x = 10
     interval_y = 10
     filmSurfaceCharge = +1
-    filmDomainSize = (1100, 1100)
+    filmDomainSize = (110, 110)
     filmDomainShape = "diamond"
     filmNeutralDomain = False
     filmDomainCon = 0.2  # if need to change charge ratio, change this
@@ -90,17 +91,28 @@ def runSimulation():
         raise RuntimeError("Unknown simulator type: {}".format(simulatorType))
 
     # generate simulator
-    sim = simulator(trail, dimension,
-                    filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
-                    filmDomainSize, filmDomainShape, filmDomainCon, filmDomainChargeConcentration,
-                    bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
-                    bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, bacteriaDomainChargeConcentration,
-                    filmNum, bacteriaNum, interval_x, interval_y, filmNeutralDomain, bacteriaNeutralDomain, parameter)
-
     try:
+        c = 1 / 0
+        sim = simulator(trail, dimension,
+                        filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
+                        filmDomainSize, filmDomainShape, filmDomainCon, filmDomainChargeConcentration,
+                        bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
+                        bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon,
+                        bacteriaDomainChargeConcentration,
+                        filmNum, bacteriaNum, interval_x, interval_y, filmNeutralDomain, bacteriaNeutralDomain,
+                        parameter)
+
         sim.runSimulate()
         closeLog()
-    except Exception:
+    except Exception as e:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        info = ""
+        info += str('e.message: {}\t'.format(exc_value))
+        info += str(
+            "Note, object e and exc of Class %s is %s the same." % (type(exc_value), ('not', '')[exc_value is e]))
+        info += str('traceback.print_exc(): {}'.format(traceback.print_exc()))
+        info += str('traceback.format_exc():\n%s' % traceback.format_exc())
+        writeLog(info)
         closeLog()
 
 
