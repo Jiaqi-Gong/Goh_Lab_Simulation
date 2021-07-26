@@ -21,7 +21,7 @@ def runSimulation():
 
     # simulator info
     simulationType = 2
-    trail = 101
+    trail = 103
     dimension = 2
     simulatorType = 1
     interactType = "DOT"
@@ -59,7 +59,7 @@ def runSimulation():
     bacteriaSurfaceCharge = -1
     bacteriaDomainSize = (10, 10)
     bacteriaDomainShape = "diamond"
-    bacteriaDomainCon = 0.1
+    bacteriaDomainCon = 0.15
     bacteriaDomainChargeConcentration = 0.5  # ignore
     bacteriaNeutralDomain = False
 
