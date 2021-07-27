@@ -13,6 +13,7 @@ from multiprocessing import Pool, cpu_count
 from functools import partial
 import os
 
+WAIT_TIME = 10
 
 class DomainGenerator:
     """
@@ -112,7 +113,7 @@ class DomainGenerator:
 
         # record info into log
         showMessage("generate new surface done")
-        writeLog(newSurface)
+        # writeLog(newSurface)
         writeLog("Charge of the surface is {}".format(surfaceCharge))
         writeLog("Charge of domain is {} and {}".format(possible_charge[0], possible_charge[1]))
 
@@ -298,7 +299,7 @@ class DomainGenerator:
         # initialize how long we want the code to run
         # if its running for too long, that means we most likely reached the maximum amount of domains on the surface and
         # end the while loop
-        timeout = time.time() + 60  # 60 seconds from now
+        timeout = time.time() + WAIT_TIME  # 60 seconds from now
 
         # initialize generated
         generated = 0
@@ -338,7 +339,7 @@ class DomainGenerator:
             # initialize how long we want the code to run
             # if its running for too long, that means we most likely reached the maximum amount of domains on the surface and
             # end the while loop
-            timeout = time.time() + 60  # 60 seconds from now
+            timeout = time.time() + WAIT_TIME  # 60 seconds from now
 
         # combine the new surface and total number of domains generated into a list
         surface_generated = [newSurface, generated]

@@ -67,7 +67,7 @@ class BacteriaManager:
 
         # show message
         showMessage("Bacteria manager init done")
-        writeLog(self.__dict__)
+        # writeLog(self.__dict__)
 
     def generateBacteria(self) -> None:
         """
