@@ -20,8 +20,6 @@ import plotly.graph_objects as go
 import pandas as pd
 import time
 
-log_cache = []
-
 
 def getHelp() -> Dict[str, str]:
     """
@@ -64,7 +62,7 @@ def getRestriction() -> [Dict[str, str], Dict[str, str]]:
     return info_dict, exec_dict
 
 
-def openLog(write_at_last: bool) -> str:
+def openLog() -> str:
     """
     This function open a log file
     """
@@ -80,10 +78,6 @@ def openLog(write_at_last: bool) -> str:
     global log
     log = open(log_name, "w")
 
-    if write_at_last:
-        global write_last
-        write_last = True
-
     return log_name
 
 
@@ -91,29 +85,6 @@ def closeLog() -> None:
     """
     This function close the log file
     """
-    showMessage("Start to close log")
-    startTime = time.time()
-    if "write_last" in globals():
-        now = datetime.now()
-        current_time = now.strftime("%H:%M:%S")
-
-        info = "Time: {}, {}\n".format(current_time, "Write log at last, start to write it")
-        log.write(info)
-
-        for i in log_cache:
-            log.write(i)
-
-        now = datetime.now()
-        current_time = now.strftime("%H:%M:%S")
-
-        info = "Time: {}, {}\n".format(current_time, "Write log at last done")
-        log.write(info)
-
-        endTime = time.time()
-        totalTime = endTime - startTime
-
-        showMessage(f"Total time it took to write log is {totalTime} seconds")
-
     log.close()
 
 
@@ -135,13 +106,7 @@ def writeLog(message) -> None:
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
 
-    info = "Time: {}, {}\n".format(current_time, message)
-
-    # depends on the requirement, write log now or later
-    if "write_last" not in globals():
-        log.write(info)
-    else:
-        log_cache.append(info)
+    log.write("Time: {}, {}\n".format(current_time, message))
 
 
 def saveResult(wb: workbook, path: str) -> None:
@@ -282,13 +247,14 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     fig.update_layout(title=name)
 
     # save file
-    fig.write_html('{}/{}.html'.format(picFolder, picName), full_html=False)
+    # fig.write_html('{}/{}.html'.format(picFolder, picName), full_html=False)
+    fig.write_image('{}/{}.png'.format(picFolder, picName))
     # plt.savefig(picPath, dpi=300, bbox_inches='tight')
 
     endTime = time.time()
     totalTime = endTime - startTime
 
-    showMessage(f"Total time it took to generate 2D image {picName} is {totalTime} seconds")
+    showMessage(f"Total time it took to generate 2D image is {totalTime} seconds")
     showMessage("Image generate done")
 
 
@@ -367,17 +333,34 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         fig.update_layout(scene_camera=camera, title=name)
 
         # save file
-        fig.write_html('{}/{}.html'.format(picFolder, picName),full_html=False)
-        # fig.write_image('{}/{}.png'.format(picFolder, picName), width=1000, height=1000)
+        # fig.write_html('{}/{}.html'.format(picFolder, picName),full_html=False)
+        fig.write_image('{}/{}.png'.format(picFolder, picName))
 
     elif "bacteria" in picName:
-        # set camera angle
-        name = "Surface of Bacteria"
-        camera = dict(eye=dict(x=0, y=0, z=1.5))
-        fig.update_layout(scene_camera=camera, title=name)
+        # create folder for bacteria
+        global picFolderEach
+        picFolderEach = "{}/{}".format(picFolder, picName)
+        if not os.path.exists(picFolderEach):
+            os.mkdir(picFolderEach)
+
+        # set camera angle for each side of bacteria
+        name = ['X-Y plane','X-Z plane','Y-Z plane']
+        x = [0,0,2.5]
+        y = [0,2.5,0]
+        z = [2.5,0,0]
+        for i in range(3):
+            # set camera angle
+            camera = dict(eye=dict(x=x[i], y=y[i], z=z[i]))
+            fig.update_layout(scene_camera=camera, title=name[i])
+            # save file
+            fig.write_image('{}/Position_at_{}.png'.format(picFolderEach, name[i]))
+
+        # name = "Surface of Bacteria"
+        # camera = dict(eye=dict(x=0, y=0, z=1.5))
+        # fig.update_layout(scene_camera=camera, title=name)
 
         # save file
-        fig.write_html('{}/{}.html'.format(picFolder, picName),full_html=False)
+        # fig.write_image('{}/{}.png'.format(picFolderEach, picName),full_html=False)
 
         # global picFolderEach
         # picFolderEach = "{}/{}".format(picFolder, picName)
@@ -678,5 +661,5 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     endTime = time.time()
     totalTime = endTime - startTime
 
-    showMessage(f"Total time it took to generate image {picName} is {totalTime} seconds")
+    showMessage(f"Total time it took to generate image is {totalTime} seconds")
     showMessage("Image generate done")

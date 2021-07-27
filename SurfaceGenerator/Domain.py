@@ -133,15 +133,15 @@ class DomainGenerator:
 
         # set how many domains we should make for each CPU
         # find the number of CPUs on the computer
-        # we just need 12 cpus
         # therefore if the cpu_number is greater than 12, we will just return 12
+        # minus 2 in case of other possible process is running
+        ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)) - 2, 1)
+        if ncpus <= 16:
+            cpu_number = ncpus
+        else:
+            cpu_number = 16
 
-        # if cpu_count() <= 12:
-        #     cpu_number = cpu_count()
-        # else:
-        #     cpu_number = 12
-
-        cpu_number = 4
+        showMessage(f"number of CPUs is {ncpus} but we will use {cpu_number}")
 
         domainNumEach = int(domainNum / cpu_number)
 
@@ -163,14 +163,44 @@ class DomainGenerator:
             # then, split the number into lower and upper half
             upper = math.ceil(squareRoot)
             lower = int(squareRoot)
-            possiblePointNested = [[tup for tup in possiblePoint if tup[0] < int(surface.length/2) - restriction
-                                    and tup[1] > int(surface.width/2) + restriction],
-                             [tup for tup in possiblePoint if tup[0] > int(surface.length/2) + restriction
-                              and tup[1] > int(surface.width/2) + restriction],
-                             [tup for tup in possiblePoint if tup[0] < int(surface.length/2) - restriction
-                              and tup[1] < int(surface.width/2) - restriction],
-                             [tup for tup in possiblePoint if tup[0] > int(surface.length/2) + restriction
-                              and tup[1] < int(surface.width/2) - restriction]]
+
+            # use a for loop to see when the 2 numbers multiply to each other
+            # based on how we separate the CPUs, we will separate the surface based on this separation
+            # (column, row)
+            # use this one if surface.width is greater than surface.length
+            # tuple -> (number of x separations, number of y separations)
+            separate = [(i,j) for i in reversed(range(lower+1)) for j in range(upper, cpu_number+1) if i*j == cpu_number][0]
+
+            if surface.length > surface.width:
+                # reverse the order of separate
+                separate = (separate[1], separate[0])
+
+            # bacteria dimension that is smaller will be divided up by the first number in separate
+            # create a list of tuple which indicates which values will be divided by what number
+            # tuple -> (x,y)
+            dividor = [[(i/separate[0],j/separate[1]) for i in range(0, separate[0]+1)] for j in range(0, separate[1]+1)]
+
+            # initialize nested list
+            possiblePointNested = []
+            # this defines the number of columns
+            for i in range(separate[0]):
+                # this defines the number of rows
+                for j in range(separate[1]):
+                    points = [tup for tup in possiblePoint
+                              if tup[0] > int(surface.length*dividor[0][i][0] + restriction)
+                              and tup[0] < int(surface.length*dividor[0][i+1][0] - restriction)
+                              and tup[1] > int(surface.width*dividor[j][0][1] + restriction)
+                              and tup[1] < int(surface.width*dividor[j+1][0][1] - restriction)]
+                    possiblePointNested.append(points)
+
+            # possiblePointNested = [[tup for tup in possiblePoint if tup[0] < int(surface.length/2) - restriction
+            #                         and tup[1] > int(surface.width/2) + restriction],
+            #                  [tup for tup in possiblePoint if tup[0] > int(surface.length/2) + restriction
+            #                   and tup[1] > int(surface.width/2) + restriction],
+            #                  [tup for tup in possiblePoint if tup[0] < int(surface.length/2) - restriction
+            #                   and tup[1] < int(surface.width/2) - restriction],
+            #                  [tup for tup in possiblePoint if tup[0] > int(surface.length/2) + restriction
+            #                   and tup[1] < int(surface.width/2) - restriction]]
 
         # for 3D, separate the surface into 4 surfaces
 
@@ -183,7 +213,7 @@ class DomainGenerator:
                                                          domainNumChar1=domainNumChar1, domainNumChar2=domainNumChar2)
         newSurfaceMPList = []
         generatedList = []
-        with Pool(4) as pool:
+        with Pool(cpu_number) as pool:
             newSurfaceMP_generated = pool.map(_generateDomainMultiprocessingConstant, possiblePointNested)
             # extract the new surface and the number of generated domains for that surface
             for i in range(cpu_number):
@@ -194,12 +224,24 @@ class DomainGenerator:
                 newSurfaceMPList.append(newSurfaceMP)
                 generatedList.append(generated)
 
-        # need to think of a better way to combine the arrays, but this method works for now
-        # to combine the arrays, we will replace the specified section of the array with the developed domains
-        newSurface[0,int(surface.width/2):, :int(surface.length/2+1)] = newSurfaceMPList[0][0, int(surface.width/2):, :int(surface.length/2+1)]
-        newSurface[0,int(surface.width/2):, int(surface.length/2):] = newSurfaceMPList[1][0, int(surface.width/2):, int(surface.length/2):]
-        newSurface[0,:int(surface.width/2+1), :int(surface.length/2+1)] = newSurfaceMPList[2][0, :int(surface.width/2+1), :int(surface.length/2+1)]
-        newSurface[0,:int(surface.width/2+1), int(surface.length/2):] = newSurfaceMPList[3][0, :int(surface.width/2+1), int(surface.length/2):]
+        # now combine the arrays
+        k = 0
+        # this defines the number of columns
+        for i in range(separate[0]):
+            # this defines the number of rows
+            for j in range(separate[1]):
+                newSurface[0, int(surface.width*dividor[j][0][1]):int(surface.width*dividor[j+1][0][1]),
+                int(surface.length*dividor[0][i][0]):int(surface.length*dividor[0][i+1][0])] = \
+                    newSurfaceMPList[k][0, int(surface.width*dividor[j][0][1]):int(surface.width*dividor[j+1][0][1]),
+                int(surface.length*dividor[0][i][0]):int(surface.length*dividor[0][i+1][0])]
+                k += 1
+
+        # # need to think of a better way to combine the arrays, but this method works for now
+        # # to combine the arrays, we will replace the specified section of the array with the developed domains
+        # newSurface[0,int(surface.width/2):, :int(surface.length/2+1)] = newSurfaceMPList[0][0, int(surface.width/2):, :int(surface.length/2+1)]
+        # newSurface[0,int(surface.width/2):, int(surface.length/2):] = newSurfaceMPList[1][0, int(surface.width/2):, int(surface.length/2):]
+        # newSurface[0,:int(surface.width/2+1), :int(surface.length/2+1)] = newSurfaceMPList[2][0, :int(surface.width/2+1), :int(surface.length/2+1)]
+        # newSurface[0,:int(surface.width/2+1), int(surface.length/2):] = newSurfaceMPList[3][0, :int(surface.width/2+1), int(surface.length/2):]
 
         # current number of domains that have been generated
         # showMessage(generatedList)
