@@ -25,8 +25,8 @@ def runSimulation():
     trail = 999
     dimension = 2
     simulatorType = 1
-    # interactType = "DOT"
-    interactType = "CUTOFF"
+    interactType = "DOT"
+    # interactType = "CUTOFF"
 
     # film info
     filmSeed = 1
@@ -38,7 +38,7 @@ def runSimulation():
         raise RuntimeError("Unknown dimension: {}".format(dimension))
     filmSurfaceShape = "rectangle"
     filmNum = 1
-    bacteriaNum = 3
+    bacteriaNum = 1
     interval_x = 10
     interval_y = 10
     filmSurfaceCharge = +1
