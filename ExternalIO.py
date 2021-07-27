@@ -15,6 +15,7 @@ import matplotlib as mpl
 import sys
 from vispy import app, visuals, scene
 import vispy.io as io
+import plotly.io as pio
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
@@ -283,7 +284,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
 
     # save file
     # fig.write_html('{}/{}.html'.format(picFolder, picName), full_html=False)
-    fig.write_image('{}/{}.png'.format(picFolder, picName))
+    pio.write_image(fig, '{}/{}.png'.format(picFolder, picName), engine="kaleido")
     # plt.savefig(picPath, dpi=300, bbox_inches='tight')
 
     endTime = time.time()
