@@ -97,6 +97,8 @@ class DynamicSimulator(Simulator):
         result = [len(self.bacteriaManager.freeBacteria), len(self.bacteriaManager.stuckBacteria)]
         self._output(result, 0, False)
 
+        showMessage("Start simulation in dynamic simulator")
+
         # do the simulation
         end = False
         for currIter in range(1, self.timeStep):
@@ -230,10 +232,6 @@ class DynamicSimulator(Simulator):
         3. If bacteria is stick, change it from free list to stick list
         4. At the end, give the length of free and length of stick
         """
-        # raise NotImplementedError
-
-        showMessage("Start simulation in dynamic simulator")
-
         # if no free bacteria, do nothing
         if not self.unstuck:
             if len(self.bacteriaManager.freeBacteria) == 0:
@@ -270,7 +268,7 @@ class DynamicSimulator(Simulator):
             for sbact in self.bacteriaManager.stuckBacteria:
                 # get to see if bacteria can free
                 if self.probabilityType.upper() == "SIMPLE":
-                    bactStatus = bactMoveGenerator.unstuckBacteria(sbact, self.unstuckProbability)
+                    bactStatus = bactMoveGenerator.unstuckBacteria(self.probabilityType, self.unstuckProbability)
                 else:
                     raise RuntimeError(
                         "This is _interact in Dynamic simulator, the input probability type is not implement")

@@ -151,7 +151,7 @@ class BacteriaMovementGenerator:
         else:
             return self._nextPositionHelper(position)
 
-    def unstuckBacteria(self, probabilityType: str, probability: float = None) -> bool:
+    def unstuckBacteria(self, probabilityType: str, probability: float) -> bool:
         """
         This function is used to decide stuck bacteria free or not
         If free, return True
