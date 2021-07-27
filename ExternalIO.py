@@ -20,6 +20,8 @@ import plotly.graph_objects as go
 import pandas as pd
 import time
 
+log_cache = []
+
 
 def getHelp() -> Dict[str, str]:
     """
@@ -62,7 +64,7 @@ def getRestriction() -> [Dict[str, str], Dict[str, str]]:
     return info_dict, exec_dict
 
 
-def openLog() -> str:
+def openLog(write_at_last: bool) -> str:
     """
     This function open a log file
     """
@@ -78,6 +80,10 @@ def openLog() -> str:
     global log
     log = open(log_name, "w")
 
+    if write_at_last:
+        global write_last
+        write_last = True
+
     return log_name
 
 
@@ -85,6 +91,29 @@ def closeLog() -> None:
     """
     This function close the log file
     """
+    showMessage("Start to close log")
+    startTime = time.time()
+    if "write_last" in globals():
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+
+        info = "Time: {}, {}\n".format(current_time, "Write log at last, start to write it")
+        log.write(info)
+
+        for i in log_cache:
+            log.write(i)
+
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+
+        info = "Time: {}, {}\n".format(current_time, "Write log at last done")
+        log.write(info)
+
+        endTime = time.time()
+        totalTime = endTime - startTime
+
+        showMessage(f"Total time it took to write log is {totalTime} seconds")
+
     log.close()
 
 
@@ -106,7 +135,13 @@ def writeLog(message) -> None:
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
 
-    log.write("Time: {}, {}\n".format(current_time, message))
+    info = "Time: {}, {}\n".format(current_time, message)
+
+    # depends on the requirement, write log now or later
+    if "write_last" not in globals():
+        log.write(info)
+    else:
+        log_cache.append(info)
 
 
 def saveResult(wb: workbook, path: str) -> None:
