@@ -25,8 +25,8 @@ def runSimulation():
     trail = 999
     dimension = 2
     simulatorType = 1
-    interactType = "DOT"
-    # interactType = "CUTOFF"
+    # interactType = "DOT"
+    interactType = "CUTOFF"
 
     # film info
     filmSeed = 1
@@ -42,7 +42,7 @@ def runSimulation():
     interval_x = 10
     interval_y = 10
     filmSurfaceCharge = +1
-    filmDomainSize = (6, 6)
+    filmDomainSize = (100, 100)
     filmDomainShape = "diamond"
     filmNeutralDomain = False
     filmDomainCon = 0.2  # if need to change charge ratio, change this

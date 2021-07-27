@@ -63,7 +63,7 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
 
     # using partial to set all the constant variables
     _calculateEnergy2DConstant = partial(_calculateEnergy2D, cutoff=cutoff, interactType=interactType,
-                                         bactDict=bactDict, filmDict=filmDict, film=film, bacteria=bacteria)
+                                         bactDict=bactDict, filmDict=filmDict, filmSurface=film, bacteriaSurface=bacteria)
 
     # init parameter for multiprocess
     # minus 2 in case of other possible process is running
@@ -122,14 +122,22 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     return result
 
 
-def _calculateEnergy2D(data: Tuple[ndarray, ndarray], interactType: str, film: ndarray, bacteria: ndarray,
-                       filmDict: Union[None, Dict], bactDict: Union[None, Dict], cutoff: int = None,):
+def _calculateEnergy2D(data: Tuple[ndarray, ndarray, Union[None, Dict], Union[None, Dict]], interactType: str,
+                       filmSurface: ndarray, bacteriaSurface: ndarray, filmDict: Union[None, Dict],
+                       bactDict: Union[None, Dict], cutoff: int = None,):
     """
     This is the multiprocess helper function for calculating energy for 2D
     """
     # init some variable
     range_x = data[0]
     range_y = data[1]
+
+    if data[2] is not None:
+        film = data[2]
+        bacteria = data[3]
+    else:
+        film = filmSurface
+        bacteria = bacteriaSurface
 
     # shape of the film
     film_shape = film.shape
@@ -422,6 +430,10 @@ def _ndarrayToDict(arrayList: ndarray, isFilm: bool = None, isBacteria: bool = N
 
     # init the position at z direction
     z_height = 0
+
+    # if pass in is 2D, add z
+    if len(arrayList.shape) == 2:
+        arrayList = [arrayList]
 
     # get x, y range
     if x_range is not None:
