@@ -247,7 +247,8 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     fig.update_layout(title=name)
 
     # save file
-    fig.write_html('{}/{}.html'.format(picFolder, picName), full_html=False)
+    # fig.write_html('{}/{}.html'.format(picFolder, picName), full_html=False)
+    fig.write_image('{}/{}.png'.format(picFolder, picName))
     # plt.savefig(picPath, dpi=300, bbox_inches='tight')
 
     endTime = time.time()
@@ -332,17 +333,34 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         fig.update_layout(scene_camera=camera, title=name)
 
         # save file
-        fig.write_html('{}/{}.html'.format(picFolder, picName),full_html=False)
-        # fig.write_image('{}/{}.png'.format(picFolder, picName), width=1000, height=1000)
+        # fig.write_html('{}/{}.html'.format(picFolder, picName),full_html=False)
+        fig.write_image('{}/{}.png'.format(picFolder, picName))
 
     elif "bacteria" in picName:
-        # set camera angle
-        name = "Surface of Bacteria"
-        camera = dict(eye=dict(x=0, y=0, z=1.5))
-        fig.update_layout(scene_camera=camera, title=name)
+        # create folder for bacteria
+        global picFolderEach
+        picFolderEach = "{}/{}".format(picFolder, picName)
+        if not os.path.exists(picFolderEach):
+            os.mkdir(picFolderEach)
+
+        # set camera angle for each side of bacteria
+        name = ['X-Y plane','X-Z plane','Y-Z plane']
+        x = [0,0,2.5]
+        y = [0,2.5,0]
+        z = [2.5,0,0]
+        for i in range(3):
+            # set camera angle
+            camera = dict(eye=dict(x=x[i], y=y[i], z=z[i]))
+            fig.update_layout(scene_camera=camera, title=name[i])
+            # save file
+            fig.write_image('{}/Position_at_{}.png'.format(picFolderEach, name[i]))
+
+        # name = "Surface of Bacteria"
+        # camera = dict(eye=dict(x=0, y=0, z=1.5))
+        # fig.update_layout(scene_camera=camera, title=name)
 
         # save file
-        fig.write_html('{}/{}.html'.format(picFolder, picName),full_html=False)
+        # fig.write_image('{}/{}.png'.format(picFolderEach, picName),full_html=False)
 
         # global picFolderEach
         # picFolderEach = "{}/{}".format(picFolder, picName)
