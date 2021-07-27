@@ -203,6 +203,9 @@ class DomainGenerator:
             #                   and tup[1] < int(surface.width/2) - restriction]]
 
         # for 3D, separate the surface into 4 surfaces
+        # Just simple implement for dynamic simulation, change later
+        if surface.dimension == 3:
+            return newSurface, (0, 0)
 
 
         # use partial to set all the constant variables
