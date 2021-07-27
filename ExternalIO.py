@@ -20,7 +20,11 @@ import plotly.graph_objects as go
 import pandas as pd
 import time
 
-log_cache = []
+LOG_CACH = []
+
+# INDICATOR record three bool
+# first is generate image or not, second is generate log or not, third is write log at last or not
+INDICATOR = [False, False, False]
 
 
 def getHelp() -> Dict[str, str]:
@@ -64,57 +68,112 @@ def getRestriction() -> [Dict[str, str], Dict[str, str]]:
     return info_dict, exec_dict
 
 
-def openLog(write_at_last: bool) -> str:
+def setIndicator(writeImage: bool, recordLog: bool, writeAtLast: bool) -> str:
     """
-    This function open a log file
+    This function set indicator
     """
+
+    # get time
     now = datetime.now()
     day = now.strftime("%m_%d")
     current_time = now.strftime("%H_%M_%S")
 
-    if not os.path.exists("Log"):
-        os.mkdir("Log")
+    # based on pass in, set indicator and generate path
+    message = ""
 
-    log_name = "Log/log_{}_{}.txt".format(day, current_time)
+    # if write image
+    if writeImage:
+        INDICATOR[0] = True
 
+        # generate image folder for save result
+        if not os.path.exists("Image"):
+            os.mkdir("Image")
+
+        global picFolder
+        picFolder = "Image/{}_{}".format(day, current_time)
+
+        if not os.path.exists(picFolder):
+            os.mkdir(picFolder)
+
+        message += "Image is saved at: {}\n".format(picFolder)
+    else:
+        message += "Set to not generate image\n"
+
+    if recordLog:
+        INDICATOR[1] = True
+
+        if not os.path.exists("Log"):
+            os.mkdir("Log")
+
+        log_name = "Log/log_{}_{}.txt".format(day, current_time)
+        _openLog(log_name)
+
+        message += "Log saved as: {}\n".format(log_name)
+    else:
+        message += "Set not to save Log\n"
+
+    if writeAtLast:
+        INDICATOR[2] = True
+
+    return message
+
+
+def _openLog(log_name) -> None:
+    """
+    This function open a log file
+    """
     global log
     log = open(log_name, "w")
-
-    if write_at_last:
-        global write_last
-        write_last = True
-
-    return log_name
 
 
 def closeLog() -> None:
     """
     This function close the log file
     """
-    showMessage("Start to close log")
-    startTime = time.time()
-    if "write_last" in globals():
+    if not INDICATOR[1]:
+        pass
+    else:
+        showMessage("Start to close log")
+        startTime = time.time()
+        if INDICATOR[2]:
+            now = datetime.now()
+            current_time = now.strftime("%H:%M:%S")
+
+            info = "Time: {}, {}\n".format(current_time, "Write log at last, start to write it")
+            log.write(info)
+
+            for i in LOG_CACH:
+                log.write(i)
+
+            now = datetime.now()
+            current_time = now.strftime("%H:%M:%S")
+
+            info = "Time: {}, {}\n".format(current_time, "Write log at last done")
+            log.write(info)
+
+            endTime = time.time()
+            totalTime = endTime - startTime
+
+            showMessage(f"Total time it took to write log is {totalTime} seconds")
+
+        log.close()
+
+
+def writeLog(message) -> None:
+    """
+    This function write the message into log
+    """
+    if INDICATOR[1]:
         now = datetime.now()
         current_time = now.strftime("%H:%M:%S")
 
-        info = "Time: {}, {}\n".format(current_time, "Write log at last, start to write it")
-        log.write(info)
+        info = "Time: {}, {}\n".format(current_time, message)
 
-        for i in log_cache:
-            log.write(i)
-
-        now = datetime.now()
-        current_time = now.strftime("%H:%M:%S")
-
-        info = "Time: {}, {}\n".format(current_time, "Write log at last done")
-        log.write(info)
-
-        endTime = time.time()
-        totalTime = endTime - startTime
-
-        showMessage(f"Total time it took to write log is {totalTime} seconds")
-
-    log.close()
+        # depends on the requirement, write log now or later
+        if INDICATOR[2]:
+            log.write(info)
+        else:
+            LOG_CACH.append(info)
 
 
 def showMessage(message: str) -> None:
@@ -126,22 +185,6 @@ def showMessage(message: str) -> None:
 
     # write into the log
     writeLog(message)
-
-
-def writeLog(message) -> None:
-    """
-    This function write the message into log
-    """
-    now = datetime.now()
-    current_time = now.strftime("%H:%M:%S")
-
-    info = "Time: {}, {}\n".format(current_time, message)
-
-    # depends on the requirement, write log now or later
-    if "write_last" not in globals():
-        log.write(info)
-    else:
-        log_cache.append(info)
 
 
 def saveResult(wb: workbook, path: str) -> None:
@@ -160,14 +203,16 @@ def visPlot(array: ndarray, picName: str, dimension: int) -> None:
     """
     THis function based on the dimension of passed in ndarray to call appropriate function
     """
-    writeLog(["This is visplot", array, picName, dimension])
-    # based on the dimension call different function to generate image
-    if dimension == 2:
-        _visPlot2D(array, picName)
-    elif dimension == 3:
-        _visPlot3D(array, picName)
-    else:
-        raise RuntimeError("Unknown dimension of array pass in")
+    if INDICATOR[0]:
+        writeLog(["This is visplot", array, picName, dimension])
+        # based on the dimension call different function to generate image
+        if dimension == 2:
+            _visPlot2D(array, picName)
+        elif dimension == 3:
+            _visPlot3D(array, picName)
+        else:
+            raise RuntimeError("Unknown dimension of array pass in")
+
 
 def _visPlot2D(array: ndarray, picName: str) -> None:
     """
@@ -176,11 +221,6 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     showMessage("Start to generate image")
 
     startTime = time.time()
-
-    now = datetime.now()
-    day = now.strftime("%m_%d")
-    current_time = now.strftime("%H_%M_%S")
-
 
     # initialize the pandas dataframe
     column_names = ['X', 'Y', 'Legend']
@@ -236,7 +276,6 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # ax.scatter(neu_x, neu_y, s=size, c='green', label='neu')
     # ax.scatter(neg_x, neg_y, s=size, c='red', label='neg')
 
-
     #
     # ax.scatter(pos_x, pos_y, c='blue', label='pos')
     # ax.scatter(neu_x, neu_y, c='green', label='neu')
@@ -259,17 +298,6 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     #
     # plt.imshow(array, interpolation='nearest')
 
-    global picFolder
-    if "picFolder" not in globals():
-        # save the image
-        if not os.path.exists("Image"):
-            os.mkdir("Image")
-
-        picFolder = "Image/{}_{}".format(day, current_time)
-        if not os.path.exists(picFolder):
-            os.mkdir(picFolder)
-
-    picPath = "{}/{}".format(picFolder, picName)
     if 'film' in picName:
         # set title
         name = "Surface of Film"
@@ -300,12 +328,8 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
 
     startTime = time.time()
 
-    now = datetime.now()
-    day = now.strftime("%m_%d")
-    current_time = now.strftime("%H_%M_%S")
-
     # initialize the pandas dataframe
-    column_names = ['X','Y','Z','Legend']
+    column_names = ['X', 'Y', 'Z', 'Legend']
     df = pd.DataFrame(columns=column_names)
 
     # position of positive
@@ -314,7 +338,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     pos_y = pos[1]
     pos_x = pos[2]
     # color of positive
-    colors_pos = np.repeat(np.array(['Positive']),len(pos_z),axis=0)
+    colors_pos = np.repeat(np.array(['Positive']), len(pos_z), axis=0)
     # colors_pos = np.repeat(np.array([[0,0,1,0.8]]),len(pos_z),axis=0)
 
     # position of neutral
@@ -322,7 +346,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     neu_z = neu[0]
     neu_y = neu[1]
     neu_x = neu[2]
-    colors_neu = np.repeat(np.array(['Neutral']),len(neu_z),axis=0)
+    colors_neu = np.repeat(np.array(['Neutral']), len(neu_z), axis=0)
     # colors_neu = np.repeat(np.array([[0,1,0,0.8]]),len(neu_z),axis=0)
 
     # position of negative
@@ -330,7 +354,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     neg_z = neg[0]
     neg_y = neg[1]
     neg_x = neg[2]
-    colors_neg = np.repeat(np.array(['Negative']),len(neg_z),axis=0)
+    colors_neg = np.repeat(np.array(['Negative']), len(neg_z), axis=0)
 
     position_x = np.concatenate((pos_x, neu_x, neg_x))
     position_y = np.concatenate((pos_y, neu_y, neg_y))
@@ -348,17 +372,6 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
                                                                                                     'Neutral': 'green',
                                                                                                     'Negative': 'red'}))
 
-    # create a folder to store all the images]
-    global picFolder
-    if "picFolder" not in globals():
-        # save the image
-        if not os.path.exists("Image"):
-            os.mkdir("Image")
-
-        picFolder = "Image/{}_{}".format(day, current_time)
-        if not os.path.exists(picFolder):
-            os.mkdir(picFolder)
-
     # if the surface is a film, we only need to see the top
     if "film" in picName:
         # set camera angle
@@ -367,7 +380,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         fig.update_layout(scene_camera=camera, title=name)
 
         # save file
-        fig.write_html('{}/{}.html'.format(picFolder, picName),full_html=False)
+        fig.write_html('{}/{}.html'.format(picFolder, picName), full_html=False)
         # fig.write_image('{}/{}.png'.format(picFolder, picName), width=1000, height=1000)
 
     elif "bacteria" in picName:
@@ -377,7 +390,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         fig.update_layout(scene_camera=camera, title=name)
 
         # save file
-        fig.write_html('{}/{}.html'.format(picFolder, picName),full_html=False)
+        fig.write_html('{}/{}.html'.format(picFolder, picName), full_html=False)
 
         # global picFolderEach
         # picFolderEach = "{}/{}".format(picFolder, picName)
@@ -394,7 +407,6 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         #     fig.update_layout(scene_camera=camera, title=name[i])
         #     # save file
         #     fig.write_image('{}/Position_at_{}.png'.format(picFolderEach, name[i]))
-
 
         # # save each side of the picture
         # elevation = [0, 90, -90]

@@ -852,8 +852,11 @@ if __name__ == '__main__':
 
     # open log
     write_at_end = True
-    log_name = openLog(write_at_end)
-    showMessage(log_name)
+    write_log = True
+    generate_image = True
+
+    message = setIndicator(generate_image, write_log, write_at_end)
+    showMessage(message)
 
     try:
         # call the user input function

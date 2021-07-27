@@ -12,8 +12,11 @@ from ExternalIO import *
 def runSimulation():
     # get log file
     write_at_end = True
-    log_name = openLog(write_at_end)
-    showMessage(log_name)
+    write_log = True
+    generate_image = True
+
+    message = setIndicator(generate_image, write_log, write_at_end)
+    showMessage(message)
 
     showMessage("WARNING: validity of parameter uses is not check, use runSimulationCmd to check the validity of "
                 "parameter uses")
@@ -68,8 +71,10 @@ def runSimulation():
     probabilityType = "SIMPLE"
     timestep = 1000
     Lambda = 10
-    simple = 0.001
+    simple = 0.1
     bacteriaMovementSeed = 10
+    unstuck = False
+    unstuckProbability = 0.001
 
     # take info for simulator
     if simulatorType == 1:
@@ -79,9 +84,11 @@ def runSimulation():
 
     elif simulatorType == 2:
         simulator = DynamicSimulator
+
         # taking info for dynamic simulation
         parameter = {"probabilityType": probabilityType, "timeStep": timestep, "dumpStep": 1,
-                     "bacteriaMovementSeed": bacteriaMovementSeed}
+                     "bacteriaMovementSeed": bacteriaMovementSeed, "unstuck": unstuck,
+                     "unstuckProbability": unstuckProbability}
 
         if probabilityType.upper() == "SIMPLE":
             parameter["probability"] = simple
