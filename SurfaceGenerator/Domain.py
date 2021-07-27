@@ -272,10 +272,6 @@ class DomainGenerator:
         # determine the number of actual number of domains that generated onto the surface
         actualDomainNum = sum(generatedList)
 
-        # if the intended domain number is not equal to the actual domain number, there is something wrong in the code
-        if domainNum != actualDomainNum:
-            raise RuntimeError("Actual domain number does not equal the intended number of domains")
-
         # now, we will determine where
         concentration_charge = (len(np.where(newSurface == possible_charge[0])[0])) / (surface.length * surface.width)
         concentration_neutral = (len(np.where(newSurface == possible_charge[1])[0])) / (surface.length * surface.width)
