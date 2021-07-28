@@ -413,80 +413,80 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     day = now.strftime("%m_%d")
     current_time = now.strftime("%H_%M_%S")
 
-    # initialize the pandas dataframe
-    column_names = ['X','Y','Z','Legend']
-    df = pd.DataFrame(columns=column_names)
-
-    # position of positive
-    pos = np.where(array == 1)
-    pos_z = pos[0]
-    pos_y = pos[1]
-    pos_x = pos[2]
-    # color of positive
-    colors_pos = np.repeat(np.array(['Positive']),len(pos_z),axis=0)
-    # colors_pos = np.repeat(np.array([[0,0,1,0.8]]),len(pos_z),axis=0)
-
-    # position of neutral
-    neu = np.where(array == 0)
-    neu_z = neu[0]
-    neu_y = neu[1]
-    neu_x = neu[2]
-    colors_neu = np.repeat(np.array(['Neutral']),len(neu_z),axis=0)
-    # colors_neu = np.repeat(np.array([[0,1,0,0.8]]),len(neu_z),axis=0)
-
-    # position of negative
-    neg = np.where(array == -1)
-    neg_z = neg[0]
-    neg_y = neg[1]
-    neg_x = neg[2]
-    colors_neg = np.repeat(np.array(['Negative']),len(neg_z),axis=0)
-
-    position_x = np.concatenate((pos_x, neu_x, neg_x))
-    position_y = np.concatenate((pos_y, neu_y, neg_y))
-    position_z = np.concatenate((pos_z, neu_z, neg_z))
-    colors = np.concatenate((colors_pos, colors_neu, colors_neg))
-
-    # add list to pandas dataframe
-    df['X'] = position_x.tolist()
-    df['Y'] = position_y.tolist()
-    df['Z'] = position_z.tolist()
-    df['Legend'] = colors.tolist()
-
-    # show it on plotly
-    fig = go.Figure(data=px.scatter_3d(df, x='X', y='Y', z='Z', color='Legend', color_discrete_map={'Positive': 'blue',
-                                                                                                    'Neutral': 'green',
-                                                                                                    'Negative': 'red'}))
-
-    # create a folder to store all the images]
-    global picFolder
-    if "picFolder" not in globals():
-        # save the image
-        if not os.path.exists("Image"):
-            os.mkdir("Image")
-
-        picFolder = "Image/{}_{}".format(day, current_time)
-        if not os.path.exists(picFolder):
-            os.mkdir(picFolder)
-
-    # if the surface is a film, we only need to see the top
-    if "film" in picName:
-        # set camera angle
-        name = "Surface of Film"
-        camera = dict(eye=dict(x=0, y=0, z=1.5))
-        fig.update_layout(scene_camera=camera, title=name)
-
-        # save file
-        fig.write_html('{}/{}.html'.format(picFolder, picName))
-        # fig.write_image('{}/{}.png'.format(picFolder, picName))
-
-    elif "bacteria" in picName:
-        # set camera angle
-        name = "Surface of Bacteria"
-        camera = dict(eye=dict(x=0, y=0, z=1.5))
-        fig.update_layout(scene_camera=camera, title=name)
-
-        # save file
-        fig.write_html('{}/{}.html'.format(picFolder, picName))
+    # # initialize the pandas dataframe
+    # column_names = ['X','Y','Z','Legend']
+    # df = pd.DataFrame(columns=column_names)
+    #
+    # # position of positive
+    # pos = np.where(array == 1)
+    # pos_z = pos[0]
+    # pos_y = pos[1]
+    # pos_x = pos[2]
+    # # color of positive
+    # colors_pos = np.repeat(np.array(['Positive']),len(pos_z),axis=0)
+    # # colors_pos = np.repeat(np.array([[0,0,1,0.8]]),len(pos_z),axis=0)
+    #
+    # # position of neutral
+    # neu = np.where(array == 0)
+    # neu_z = neu[0]
+    # neu_y = neu[1]
+    # neu_x = neu[2]
+    # colors_neu = np.repeat(np.array(['Neutral']),len(neu_z),axis=0)
+    # # colors_neu = np.repeat(np.array([[0,1,0,0.8]]),len(neu_z),axis=0)
+    #
+    # # position of negative
+    # neg = np.where(array == -1)
+    # neg_z = neg[0]
+    # neg_y = neg[1]
+    # neg_x = neg[2]
+    # colors_neg = np.repeat(np.array(['Negative']),len(neg_z),axis=0)
+    #
+    # position_x = np.concatenate((pos_x, neu_x, neg_x))
+    # position_y = np.concatenate((pos_y, neu_y, neg_y))
+    # position_z = np.concatenate((pos_z, neu_z, neg_z))
+    # colors = np.concatenate((colors_pos, colors_neu, colors_neg))
+    #
+    # # add list to pandas dataframe
+    # df['X'] = position_x.tolist()
+    # df['Y'] = position_y.tolist()
+    # df['Z'] = position_z.tolist()
+    # df['Legend'] = colors.tolist()
+    #
+    # # show it on plotly
+    # fig = go.Figure(data=px.scatter_3d(df, x='X', y='Y', z='Z', color='Legend', color_discrete_map={'Positive': 'blue',
+    #                                                                                                 'Neutral': 'green',
+    #                                                                                                 'Negative': 'red'}))
+    #
+    # # create a folder to store all the images]
+    # global picFolder
+    # if "picFolder" not in globals():
+    #     # save the image
+    #     if not os.path.exists("Image"):
+    #         os.mkdir("Image")
+    #
+    #     picFolder = "Image/{}_{}".format(day, current_time)
+    #     if not os.path.exists(picFolder):
+    #         os.mkdir(picFolder)
+    #
+    # # if the surface is a film, we only need to see the top
+    # if "film" in picName:
+    #     # set camera angle
+    #     name = "Surface of Film"
+    #     camera = dict(eye=dict(x=0, y=0, z=1.5))
+    #     fig.update_layout(scene_camera=camera, title=name)
+    #
+    #     # save file
+    #     fig.write_html('{}/{}.html'.format(picFolder, picName))
+    #     # fig.write_image('{}/{}.png'.format(picFolder, picName))
+    #
+    # elif "bacteria" in picName:
+    #     # set camera angle
+    #     name = "Surface of Bacteria"
+    #     camera = dict(eye=dict(x=0, y=0, z=1.5))
+    #     fig.update_layout(scene_camera=camera, title=name)
+    #
+    #     # save file
+    #     fig.write_html('{}/{}.html'.format(picFolder, picName))
 
     # elif "bacteria" in picName:
     #     # create folder for bacteria
@@ -561,254 +561,141 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         #     # save file
         #     plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[i + 1], azimuth[0]))
 
-    # # graph the 3D visualization
-    # # if the array is small, we don't
-    # fig = plt.figure()
-    # ax = fig.add_subplot(111, projection='3d')
-    #
-    # # position of positive
-    # pos = np.where(array == 1)
-    # pos_z = pos[0]
-    # pos_y = pos[1]
-    # pos_x = pos[2]
-    # # color of positive
-    # # colors_pos = np.repeat(np.array([[0,0,1,0.8]]),len(pos_z),axis=0)
-    # ax.scatter3D(pos_x, pos_y, pos_z, marker="o", label='positive', color='blue', depthshade=False)
-    #
-    # # position of neutral
-    # neu = np.where(array == 0)
-    # neu_z = neu[0]
-    # neu_y = neu[1]
-    # neu_x = neu[2]
-    # # colors_neu = np.repeat(np.array([[0,1,0,0.8]]),len(neu_z),axis=0)
-    # ax.scatter3D(neu_x, neu_y, neu_z, marker="o", label='neutral', color='green', depthshade=False)
-    #
-    # # position of negative
-    # neg = np.where(array == -1)
-    # neg_z = neg[0]
-    # neg_y = neg[1]
-    # neg_x = neg[2]
-    # # colors_neg = np.repeat(np.array([[1,0,0,0.8]]),len(neg_z),axis=0)
-    # ax.scatter3D(neg_x, neg_y, neg_z, marker="o", label='negative', color='red', depthshade=False)
-    #
-    # # position_x = np.concatenate((pos_x, neu_x, neg_x))
-    # # position_y = np.concatenate((pos_y, neu_y, neg_y))
-    # # position_z = np.concatenate((pos_z, neu_z, neg_z))
-    # # colors = np.concatenate((colors_pos, colors_neu, colors_neg))
-    # # ax.scatter3D(position_x, position_y, position_z, marker="o", label=['neutral','positive','negative'], color=colors, depthshade=False)
-    #
-    # ax.legend(loc="upper right")
-    # ax.set_xlabel("X")
-    # ax.set_ylabel("Y")
-    # ax.set_zlabel("Z")
-    #
-    # # set axis limit
-    #
-    # # get the largest number in all x,y,z scales
-    # max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i])!=0]
-    # max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i])!=0]
-    # max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i])!=0]
-    # maximum = max(max1+max2+max3)
-    # ax.set_xlim3d(0, maximum)
-    # ax.set_ylim3d(0, maximum)
-    # ax.set_zlim3d(0, maximum)
-    #
-    # # create a folder to store all the images]
-    # global picFolder
-    # if "picFolder" not in globals():
-    #     # save the image
-    #     if not os.path.exists("Image"):
-    #         os.mkdir("Image")
-    #
-    #     picFolder = "Image/{}_{}".format(day, current_time)
-    #     if not os.path.exists(picFolder):
-    #         os.mkdir(picFolder)
-    #
-    # global picFolderEach
-    # picFolderEach = "{}/{}".format(picFolder, picName)
-    # if not os.path.exists(picFolderEach):
-    #     os.mkdir(picFolderEach)
-    #
-    # # if the surface is a film, we only need to see the top
-    # if "film" in picName:
-    #     # set camera angle
-    #     elev = 90
-    #     azim = 0
-    #     ax.view_init(elev=elev, azim=azim)
-    #     ax.dist = 7
-    #     plt.title("X-Y plane")
-    #
-    #     # save file
-    #     plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elev, azim))
-    # elif "bacteria" in picName:
-    #     # save each side of the picture
-    #     elevation = [0, 90, -90]
-    #     azimuth = [0, 90, -90, 180]
-    #     # if the sides are really small, we don't need to output the sides
-    #     # first 4 sides
-    #     for i in range(len(azimuth)):
-    #         elev = elevation[0]
-    #         azim = azimuth[i]
-    #         ax.view_init(elev=elev, azim=azim)
-    #         ax.dist = 6
-    #
-    #         # name the title
-    #         if azim == 90 or azim == -90:
-    #             plt.title('X-Z plane')
-    #         elif azim == 0 or azim == 180:
-    #             plt.title('Y-Z plane')
-    #
-    #         # save file
-    #         plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[0], azimuth[i]))
-    #
-    #     # last 2 sides
-    #     for i in range(len(elevation) - 1):
-    #         elev = elevation[i + 1]
-    #         azim = azimuth[0]
-    #         ax.view_init(elev=elev, azim=azim)
-    #         ax.dist = 6
-    #
-    #         # name the title
-    #         plt.title('X-Y plane')
-    #
-    #         # save file
-    #         plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[i + 1], azimuth[0]))
-    # plt.show()
-    # # build your visuals, that's all
-    # Scatter3D = scene.visuals.create_visual_node(visuals.MarkersVisual)
-    #
-    # # The real-things : plot using scene
-    # # build canvas
-    # canvas = scene.SceneCanvas(title="{}".format(picName),keys='interactive', show=True, bgcolor="white")
-    # view = canvas.central_widget.add_view()
-    #
-    # # for neutral
-    # neu = np.where(array == 0)
-    # neu_z = neu[0]
-    # neu_y = neu[1]
-    # neu_x = neu[2]
-    #
-    # n_neu = len(neu_z)
-    # c_neu = len(neu_z)
-    # position_neu = np.zeros((n_neu, 3))
-    # colors_neu = np.zeros((c_neu, 4))
-    # for i in range(n_neu):
-    #     # green
-    #     x = neu_x[i]
-    #     y = neu_y[i]
-    #     z = neu_z[i]
-    #     position_neu[i] = x, y, z
-    #     colors_neu[i] = (0, 1, 0, 0.8)
-    #
-    # # for positive
-    # pos = np.where(array == 1)
-    # pos_z = pos[0]
-    # pos_y = pos[1]
-    # pos_x = pos[2]
-    #
-    # n_pos = len(pos_z)
-    # c_pos = len(pos_z)
-    # position_pos = np.zeros((n_pos, 3))
-    # colors_pos = np.zeros((c_pos, 4))
-    #
-    # for i in range(n_pos):
-    #     # blue
-    #     x = pos_x[i]
-    #     y = pos_y[i]
-    #     z = pos_z[i]
-    #     position_pos[i] = x, y, z
-    #     colors_pos[i] = (0, 0, 1, 0.8)
-    #
-    # # for negative
-    # neg = np.where(array == -1)
-    # neg_z = neg[0]
-    # neg_y = neg[1]
-    # neg_x = neg[2]
-    #
-    # n_neg = len(neg_z)
-    # c_neg = len(neg_z)
-    #
-    # position_neg = np.zeros((n_neg, 3))
-    # colors_neg = np.zeros((c_neg, 4))
-    #
-    # for i in range(n_neg):
-    #     # red
-    #     x = neg_x[i]
-    #     y = neg_y[i]
-    #     z = neg_z[i]
-    #     position_neg[i] = x, y, z
-    #     colors_neg[i] = (1, 0, 0, 0.8)
-    #
-    # # concatenate both color and position
-    # position = np.concatenate((position_neu, position_pos, position_neg))
-    # colors = np.concatenate((colors_neu, colors_pos, colors_neg))
-    # # plot ! note the parent parameter
-    # p1 = Scatter3D(parent=view.scene)
-    # p1.set_gl_state(blend=True, depth_test=True)
-    # p1.set_data(position, face_color=colors, symbol='o', size=20,edge_width=0.5,edge_color=colors)
-    #
-    # # Add a ViewBox to let the user zoom/rotate
-    # view.camera = 'turntable'
-    # view.camera.fov = 0
-    # view.camera.distance = int(array.shape[1])
-    # view.camera.center = (int(array.shape[2]/2), int(array.shape[1]/2), int(array.shape[0]/2))
-    #
-    # # run
-    # elevation = 90
-    # azimuth = 90
-    # view.camera.elevation = elevation
-    # view.camera.azimuth = azimuth
-    # if sys.flags.interactive != 1:
-    #     app.run()
-    #
-    # global picFolder
-    # if "picFolder" not in globals():
-    #     # save the image
-    #     if not os.path.exists("Image"):
-    #         os.mkdir("Image")
-    #
-    #     picFolder = "Image/{}_{}".format(day, current_time)
-    #     if not os.path.exists(picFolder):
-    #         os.mkdir(picFolder)
-    #
-    # global picFolderEach
-    # picFolderEach = "{}/{}".format(picFolder, picName)
-    # if not os.path.exists(picFolderEach):
-    #     os.mkdir(picFolderEach)
-    #
-    # # if the surface is a film, we only need to see the top
-    # if "film" in picName:
-    #     # set camera angle
-    #     elevation = 90
-    #     azimuth = 90
-    #     view.camera.elevation = elevation
-    #     view.camera.azimuth = azimuth
-    #     image = canvas.render(bgcolor='white')[:, :, 0:3]
-    #
-    #     # save file
-    #     io.write_png('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation, azimuth), image)
-    # elif "bacteria" in picName:
-    #     # save each side of the picture
-    #     elevation = [0,90,-90]
-    #     azimuth = [0,90,-90,180]
-    #     # first 4 sides
-    #     for i in range(len(azimuth)):
-    #         view.camera.elevation = elevation[0]
-    #         view.camera.azimuth = azimuth[i]
-    #         image = canvas.render(bgcolor='white')[:, :, 0:3]
-    #
-    #         # save file
-    #         io.write_png('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[0], azimuth[i]), image)
-    #
-    #     # last 2 sides
-    #     for i in range(len(elevation)-1):
-    #         view.camera.elevation = elevation[i+1]
-    #         view.camera.azimuth = azimuth[0]
-    #         image = canvas.render(bgcolor='white')[:, :, 0:3]
-    #
-    #         # save file
-    #         io.write_png('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[i+1], azimuth[0]),
-    #                      image)
+    # build your visuals, that's all
+    Scatter3D = scene.visuals.create_visual_node(visuals.MarkersVisual)
+
+    # The real-things : plot using scene
+    # build canvas
+    canvas = scene.SceneCanvas(title="{}".format(picName),keys='interactive', show=True, bgcolor="white")
+    view = canvas.central_widget.add_view()
+
+    # for neutral
+    neu = np.where(array == 0)
+    neu_z = neu[0]
+    neu_y = neu[1]
+    neu_x = neu[2]
+
+    n_neu = len(neu_z)
+    c_neu = len(neu_z)
+    position_neu = np.zeros((n_neu, 3))
+    colors_neu = np.zeros((c_neu, 4))
+    for i in range(n_neu):
+        # green
+        x = neu_x[i]
+        y = neu_y[i]
+        z = neu_z[i]
+        position_neu[i] = x, y, z
+        colors_neu[i] = (0, 1, 0, 0.8)
+
+    # for positive
+    pos = np.where(array == 1)
+    pos_z = pos[0]
+    pos_y = pos[1]
+    pos_x = pos[2]
+
+    n_pos = len(pos_z)
+    c_pos = len(pos_z)
+    position_pos = np.zeros((n_pos, 3))
+    colors_pos = np.zeros((c_pos, 4))
+
+    for i in range(n_pos):
+        # blue
+        x = pos_x[i]
+        y = pos_y[i]
+        z = pos_z[i]
+        position_pos[i] = x, y, z
+        colors_pos[i] = (0, 0, 1, 0.8)
+
+    # for negative
+    neg = np.where(array == -1)
+    neg_z = neg[0]
+    neg_y = neg[1]
+    neg_x = neg[2]
+
+    n_neg = len(neg_z)
+    c_neg = len(neg_z)
+
+    position_neg = np.zeros((n_neg, 3))
+    colors_neg = np.zeros((c_neg, 4))
+
+    for i in range(n_neg):
+        # red
+        x = neg_x[i]
+        y = neg_y[i]
+        z = neg_z[i]
+        position_neg[i] = x, y, z
+        colors_neg[i] = (1, 0, 0, 0.8)
+
+    # concatenate both color and position
+    position = np.concatenate((position_neu, position_pos, position_neg))
+    colors = np.concatenate((colors_neu, colors_pos, colors_neg))
+    # plot ! note the parent parameter
+    p1 = Scatter3D(parent=view.scene)
+    p1.set_gl_state(blend=True, depth_test=True)
+    p1.set_data(position, face_color=colors, symbol='o', size=20,edge_width=0.5,edge_color=colors)
+
+    # Add a ViewBox to let the user zoom/rotate
+    view.camera = 'turntable'
+    view.camera.fov = 0
+    view.camera.distance = int(array.shape[1])
+    view.camera.center = (int(array.shape[2]/2), int(array.shape[1]/2), int(array.shape[0]/2))
+
+    # run
+    elevation = 90
+    azimuth = 90
+    view.camera.elevation = elevation
+    view.camera.azimuth = azimuth
+    if sys.flags.interactive != 1:
+        app.run()
+
+    global picFolder
+    if "picFolder" not in globals():
+        # save the image
+        if not os.path.exists("Image"):
+            os.mkdir("Image")
+
+        picFolder = "Image/{}_{}".format(day, current_time)
+        if not os.path.exists(picFolder):
+            os.mkdir(picFolder)
+
+    global picFolderEach
+    picFolderEach = "{}/{}".format(picFolder, picName)
+    if not os.path.exists(picFolderEach):
+        os.mkdir(picFolderEach)
+
+    # if the surface is a film, we only need to see the top
+    if "film" in picName:
+        # set camera angle
+        elevation = 90
+        azimuth = 90
+        view.camera.elevation = elevation
+        view.camera.azimuth = azimuth
+        image = canvas.render(bgcolor='white')[:, :, 0:3]
+
+        # save file
+        io.write_png('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation, azimuth), image)
+    elif "bacteria" in picName:
+        # save each side of the picture
+        elevation = [0,90,-90]
+        azimuth = [0,90,-90,180]
+        # first 4 sides
+        for i in range(len(azimuth)):
+            view.camera.elevation = elevation[0]
+            view.camera.azimuth = azimuth[i]
+            image = canvas.render(bgcolor='white')[:, :, 0:3]
+
+            # save file
+            io.write_png('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[0], azimuth[i]), image)
+
+        # last 2 sides
+        for i in range(len(elevation)-1):
+            view.camera.elevation = elevation[i+1]
+            view.camera.azimuth = azimuth[0]
+            image = canvas.render(bgcolor='white')[:, :, 0:3]
+
+            # save file
+            io.write_png('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[i+1], azimuth[0]),
+                         image)
 
     endTime = time.time()
     totalTime = endTime - startTime
