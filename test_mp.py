@@ -31,7 +31,7 @@ def start(ncpus):
         trail = 9999
         seed = 10
         shape = 'rectangle'
-        filmSize = (1000, 1000)
+        filmSize = (5000, 5000)
         bacteriaSize = (100, 100)
         filmSurfaceCharge = 1
         bacteriaSurfaceCharge = -1
