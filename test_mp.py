@@ -31,14 +31,14 @@ def start(ncpus):
         trail = 9999
         seed = 10
         shape = 'rectangle'
-        filmSize = (10000, 10000)
+        filmSize = (1000, 1000)
         bacteriaSize = (100, 100)
         filmSurfaceCharge = 1
         bacteriaSurfaceCharge = -1
 
         domainShape = 'diamond'
-        domainSize = (11, 11)
-        domainConc = 0.5
+        domainSize = (10, 10)
+        domainConc = 0.2
         chargeConc = 0.5
 
         startTime = time.time()
@@ -272,8 +272,8 @@ if __name__ == '__main__':
     ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)), 1)
     print("ncpus is: {}".format(ncpus))
 
-    for n in range(1, ncpus):
-        start(1)
+    for n in range(1, ncpus + 1):
+        start(n)
 
     time_result.append("%%%%%%%%%%%%%%%%%%%")
 
