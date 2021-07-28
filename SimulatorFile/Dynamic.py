@@ -151,11 +151,24 @@ class DynamicSimulator(Simulator):
 
         if self.probabilityType.upper() == "SIMPLE":
             ws1.cell(1, 15, "Probability")
+            last_col = 15
         elif self.probabilityType.upper() == "POISSON":
             ws1.cell(1, 15, "Lambda value")
+            last_col = 15
         elif self.probabilityType.upper() == "BOLTZMANN":
             ws1.cell(1, 15, "Temperature")
             ws1.cell(1, 16, "Energy")
+            last_col = 15
+
+        ws1.cell(1, last_col + 1, "Unstuck")
+        last_col += 1
+        # if it can unstuck
+        if self.unstuck:
+            ws1.cell(1, last_col + 1, "Stuck probability")
+            last_col += 1
+
+        # calculate the number of stuck / number of total
+        ws1.cell(1, last_col + 1, "Number of stuck / number of total")
 
         return (wb, ws1)
 
@@ -202,11 +215,25 @@ class DynamicSimulator(Simulator):
 
         if self.probabilityType.upper() == "SIMPLE":
             ws1.cell(row_pos, 15, self.probability)
+            last_col = 15
         elif self.probabilityType.upper() == "POISSON":
             ws1.cell(row_pos, 15, self.Lambda)
+            last_col = 15
         elif self.probabilityType.upper() == "BOLTZMANN":
             ws1.cell(row_pos, 15, self.temperature)
             ws1.cell(row_pos, 16, self.energy)
+            last_col = 16
+
+        ws1.cell(row_pos, last_col + 1, self.unstuck)
+        last_col += 1
+
+        # if it can unstuck
+        if self.unstuck:
+            ws1.cell(1, last_col + 1, self.unstuckProbability)
+            last_col += 1
+
+        # calculate the number of stuck / number of total
+        ws1.cell(1, last_col + 1, self.unstuck / self.bacteriaNum)
 
         # if this is not the last iterator, update the time and return this
         if not end:
