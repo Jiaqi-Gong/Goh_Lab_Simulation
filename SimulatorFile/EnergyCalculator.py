@@ -74,7 +74,7 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     # depends on the interact type, using different methods to set paters
     # this step is caused by numpy is a parallel package, when doing DOT, using np.dot so need to give some cpu for it
     if interactType.upper() == "DOT":
-        # based on test on beluga, this method is fastest
+        # based on test on Compute Canada beluga server, this method is fastest
         part = len(range_x) // int(np.floor(np.sqrt(ncpus)))
         processNum = part
 

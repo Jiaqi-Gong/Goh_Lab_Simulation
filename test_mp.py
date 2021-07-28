@@ -4,6 +4,9 @@ from functools import partial
 from typing import Tuple, List, Union, Dict
 import time
 
+from guppy import hpy
+
+
 import numpy as np
 from numpy import ndarray
 import multiprocessing as mp
@@ -19,10 +22,10 @@ def start(ncpus):
     intervalX = 10
     intervalY = 10
     cutoff = 6
-    interactType = "DOT"
-    tests = [dot_test1, dot_test2, dot_test3]
-    # interactType = "CUTOFF"
-    # tests = [1]
+    # interactType = "DOT"
+    # tests = [dot_test1, dot_test2, dot_test3]
+    interactType = "CUTOFF"
+    tests = [1]
 
     time_result.append("Current ncpus is: {}".format(ncpus))
 
@@ -216,7 +219,6 @@ def _calculateEnergy2D(data: Tuple[ndarray, ndarray, Union[None, Dict], Union[No
 
                 # call function to calculate energy
                 energy = _twoPointEnergy(filmDict, bactDict, cutoff, startPoint, (film_shape[1], film_shape[0]))
-                print("cut off energy is: {}".format(energy))
 
             else:
                 raise RuntimeError("Unknown interact type: {}".format(interactType))
