@@ -27,7 +27,7 @@ def runSimulation():
     # simulator info
     simulationType = 1
     trail = 103
-    dimension = 3
+    dimension = 2
     simulatorType = 1
     interactType = "DOT"
     # interactType = "CUTOFF"
@@ -60,7 +60,7 @@ def runSimulation():
         bacteriaSize = (50, 50, 5)  # For bacteria, z value is the height of bacteria, can be any number
     else:
         raise RuntimeError("Unknown dimension: {}".format(dimension))
-    bacteriaSurfaceShape = "cuboid"
+    bacteriaSurfaceShape = "rectangle"
     bacteriaSurfaceCharge = -1
     bacteriaDomainSize = (10, 10)
     bacteriaDomainShape = "diamond"

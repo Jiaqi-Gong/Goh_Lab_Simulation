@@ -357,7 +357,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     picPath = "{}/{}".format(picFolder, picName)
     if 'film' in picName:
         # set title
-        # name = "Surface of Film"
+        name = "Surface of Film"
         # set camera angle
         elevation = 90
         azimuth = 0
@@ -370,7 +370,11 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
 
     elif 'bacteria' in picName:
         # set title
-        # name = 'Surface of Bacteria'
+        name = 'Surface of Bacteria'
+        # txt = scene.visuals.Text(text=name, font_size=256*factor, pos=(int(array.shape[1]/2), int(3*array.shape[0]/2)),
+        #                                                                parent=view.scene)
+        # view.add(txt)
+
         # set camera angle
         elevation = 90
         azimuth = 0
