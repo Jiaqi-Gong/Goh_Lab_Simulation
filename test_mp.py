@@ -4,8 +4,6 @@ from functools import partial
 from typing import Tuple, List, Union, Dict
 import time
 
-from guppy import hpy
-
 
 import numpy as np
 from numpy import ndarray
