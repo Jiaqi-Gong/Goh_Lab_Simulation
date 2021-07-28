@@ -4,6 +4,7 @@ This program is used to run the simulation, but do not check the validity of par
 import time
 import traceback
 
+import sys
 from SimulatorFile.Dynamic import DynamicSimulator
 from SimulatorFile.EnergyScan import EnergySimulator
 from ExternalIO import *
