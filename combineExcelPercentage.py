@@ -19,6 +19,9 @@ file_list = os.listdir(folder_path)
 file_list.sort()
 
 result = []
+# generate title
+title = []
+bactNum = []
 
 # init a new workbook
 wb = Workbook()
@@ -35,6 +38,7 @@ for file in file_list:
         if timeStep is None:
             timeStep = sheet["L"]
             result.append(timeStep)
+            title.append("Time step")
 
         total_bact_col_name = "I"
         stuck_bact_col_name = "N"
@@ -44,21 +48,34 @@ for file in file_list:
         stuck_bact_col = sheet[stuck_bact_col_name]
 
         # Record result
-        result.append(total_bact_col)
+        bact_num = total_bact_col[2].value
+        title.append("{} bact stuck %".format(bact_num))
+        bactNum.append(bact_num)
         result.append(stuck_bact_col)
 
 
 # write result into ws
+
+# write title
+ws1.append(title)
+
 # generate rwo list, read every part in
-for row_num in range(len(timeStep)):
+for row_num in range(1, len(timeStep)):
     rowList = []
+    n = -1
     for col in result:
-        rowList.append(col[row_num].value)
+        if n == -1:
+            rowList.append(col[row_num].value)
+        else:
+            # if this is time step, just append
+            rowList.append(col[row_num].value / bactNum[n])
+        n += 1
+
     ws1.append(rowList)
 
 
 # save result
-name = "Dynamic_combine.xlsx"
+name = "Dynamic_combine_percen.xlsx"
 
 file_path = "{}/{}".format(folder_path, name)
 
