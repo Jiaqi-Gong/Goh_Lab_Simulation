@@ -19,9 +19,6 @@ file_list = os.listdir(folder_path)
 file_list.sort()
 
 result = []
-# generate title
-title = []
-bactNum = []
 
 # init a new workbook
 wb = Workbook()
@@ -29,48 +26,33 @@ ws1 = wb.create_sheet("Combine", 0)
 timeStep = None
 
 for file in file_list:
-    if "trail" in file:
-        filepath = "{}/{}".format(folder_path, file)
-        workbook = load_workbook(filename=filepath)
-        sheet = workbook["Results"]
+    filepath = "{}/{}".format(folder_path, file)
+    workbook = load_workbook(filename=filepath)
+    sheet = workbook["Results"]
 
-        # get total time step
-        if timeStep is None:
-            timeStep = sheet["L"]
-            result.append(timeStep)
-            title.append("Time step")
+    # get total time step
+    if timeStep is None:
+        timeStep = sheet["L"]
+        result.append(timeStep)
 
-        total_bact_col_name = "I"
-        stuck_bact_col_name = "N"
+    total_bact_col_name = "I"
+    stuck_bact_col_name = "N"
 
-        # get column for total bacteria and stuck bacteria
-        total_bact_col = sheet[total_bact_col_name]
-        stuck_bact_col = sheet[stuck_bact_col_name]
+    # get column for total bacteria and stuck bacteria
+    total_bact_col = sheet[total_bact_col_name]
+    stuck_bact_col = sheet[stuck_bact_col_name]
 
-        # Record result
-        bact_num = total_bact_col[2].value
-        title.append("{} bact stuck %".format(bact_num))
-        bactNum.append(bact_num)
-        result.append(stuck_bact_col)
+    # Record result
+    result.append(total_bact_col)
+    result.append(stuck_bact_col)
 
 
 # write result into ws
-
-# write title
-ws1.append(title)
-
 # generate rwo list, read every part in
-for row_num in range(1, len(timeStep)):
+for row_num in range(len(timeStep)):
     rowList = []
-    n = -1
     for col in result:
-        if n == -1:
-            rowList.append(col[row_num].value)
-        else:
-            # if this is time step, just append
-            rowList.append(col[row_num].value / bactNum[n])
-        n += 1
-
+        rowList.append(col[row_num].value)
     ws1.append(rowList)
 
 
