@@ -4,6 +4,7 @@ This program is used to run the simulation, but do not check the validity of par
 import time
 import traceback
 
+from ExternalIO import _openLog
 from SimulatorFile.Dynamic import DynamicSimulator
 from SimulatorFile.EnergyScan import EnergySimulator
 from ExternalIO import *
@@ -12,7 +13,7 @@ from ExternalIO import *
 def runSimulation():
     # get log file
     write_at_end = True
-    log_name = openLog(write_at_end)
+    log_name = _openLog(write_at_end)
     showMessage(log_name)
 
     showMessage("WARNING: validity of parameter uses is not check, use runSimulationCmd to check the validity of "
