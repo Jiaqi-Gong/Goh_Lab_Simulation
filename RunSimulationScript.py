@@ -8,6 +8,7 @@ from ExternalIO import _openLog
 from SimulatorFile.Dynamic import DynamicSimulator
 from SimulatorFile.EnergyScan import EnergySimulator
 from ExternalIO import *
+import sys
 
 
 def runSimulation():
@@ -22,7 +23,7 @@ def runSimulation():
     time.sleep(3)
 
     # simulator info
-    simulationType = 1
+    simulationType = 2
     trail = 101
     dimension = 2
     simulatorType = 1

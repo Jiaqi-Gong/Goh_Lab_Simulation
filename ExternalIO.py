@@ -266,7 +266,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     fig.update_layout(title=name)
 
     # save file
-    pio.write_image(fig, '{}/{}.png'.format(picFolder, picName), engine='kaleido')
+    pio.write_image(fig, '{}/{}.png'.format(picFolder, picName), engine='orca')
 
     endTime = time.time()
     totalTime = endTime - startTime
