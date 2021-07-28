@@ -183,38 +183,112 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     current_time = now.strftime("%H_%M_%S")
 
 
-    # initialize the pandas dataframe
-    column_names = ['X', 'Y', 'Legend']
-    df = pd.DataFrame(columns=column_names)
+    # # initialize the pandas dataframe
+    # column_names = ['X', 'Y', 'Legend']
+    # df = pd.DataFrame(columns=column_names)
+    #
+    # pos = np.where(array == 1)
+    # neu = np.where(array == 0)
+    # neg = np.where(array == -1)
+    #
+    # pos_x = pos[0]
+    # pos_y = pos[1]
+    # neu_x = neu[0]
+    # neu_y = neu[1]
+    # neg_x = neg[0]
+    # neg_y = neg[1]
+    #
+    # position_x = np.concatenate((pos_x, neu_x, neg_x))
+    # position_y = np.concatenate((pos_y, neu_y, neg_y))
+    #
+    # colors_pos = np.repeat(np.array(['Positive']), len(pos_x), axis=0)
+    # colors_neu = np.repeat(np.array(['Neutral']), len(neu_x), axis=0)
+    # colors_neg = np.repeat(np.array(['Negative']), len(neg_x), axis=0)
+    # colors = np.concatenate((colors_pos, colors_neu, colors_neg))
+    #
+    # # add list to pandas dataframe
+    # df['X'] = position_x.tolist()
+    # df['Y'] = position_y.tolist()
+    # df['Legend'] = colors.tolist()
+    #
+    # # show it on plotly
+    # fig = go.Figure(data=px.scatter(df, x='X', y='Y', color='Legend', color_discrete_map={'Positive': 'blue',
+    #                                                                                       'Neutral': 'green',
+    #                                                                                       'Negative': 'red'}))
 
-    pos = np.where(array == 1)
+    # build your visuals, that's all
+    Scatter3D = scene.visuals.create_visual_node(visuals.MarkersVisual)
+
+    # The real-things : plot using scene
+    # build canvas
+    canvas = scene.SceneCanvas(title="{}".format(picName),keys='interactive', show=True, bgcolor="white")
+    view = canvas.central_widget.add_view()
+
+    # for neutral
     neu = np.where(array == 0)
+    neu_y = neu[0]
+    neu_x = neu[1]
+
+    n_neu = len(neu_y)
+    c_neu = len(neu_y)
+    position_neu = np.zeros((n_neu, 2))
+    colors_neu = np.zeros((c_neu, 4))
+    for i in range(n_neu):
+        # green
+        x = neu_x[i]
+        y = neu_y[i]
+        position_neu[i] = x, y
+        colors_neu[i] = (0, 1, 0, 0.8)
+
+    # for positive
+    pos = np.where(array == 1)
+    pos_y = pos[0]
+    pos_x = pos[1]
+
+    n_pos = len(pos_y)
+    c_pos = len(pos_y)
+    position_pos = np.zeros((n_pos, 2))
+    colors_pos = np.zeros((c_pos, 4))
+
+    for i in range(n_pos):
+        # blue
+        x = pos_x[i]
+        y = pos_y[i]
+        position_pos[i] = x, y
+        colors_pos[i] = (0, 0, 1, 0.8)
+
+    # for negative
     neg = np.where(array == -1)
+    neg_y = neg[0]
+    neg_x = neg[1]
 
-    pos_x = pos[0]
-    pos_y = pos[1]
-    neu_x = neu[0]
-    neu_y = neu[1]
-    neg_x = neg[0]
-    neg_y = neg[1]
+    n_neg = len(neg_y)
+    c_neg = len(neg_y)
 
-    position_x = np.concatenate((pos_x, neu_x, neg_x))
-    position_y = np.concatenate((pos_y, neu_y, neg_y))
+    position_neg = np.zeros((n_neg, 2))
+    colors_neg = np.zeros((c_neg, 4))
 
-    colors_pos = np.repeat(np.array(['Positive']), len(pos_x), axis=0)
-    colors_neu = np.repeat(np.array(['Neutral']), len(neu_x), axis=0)
-    colors_neg = np.repeat(np.array(['Negative']), len(neg_x), axis=0)
-    colors = np.concatenate((colors_pos, colors_neu, colors_neg))
+    for i in range(n_neg):
+        # red
+        x = neg_x[i]
+        y = neg_y[i]
+        position_neg[i] = x, y
+        colors_neg[i] = (1, 0, 0, 0.8)
 
-    # add list to pandas dataframe
-    df['X'] = position_x.tolist()
-    df['Y'] = position_y.tolist()
-    df['Legend'] = colors.tolist()
+    # concatenate both color and position
+    position = np.concatenate((position_neu, position_pos, position_neg))
+    colors = np.concatenate((colors_neu, colors_pos, colors_neg))
+    # plot ! note the parent parameter
+    p1 = Scatter3D(parent=view.scene)
+    p1.set_gl_state(blend=True, depth_test=True)
+    p1.set_data(position, face_color=colors, symbol='o', size=20,edge_width=0.5,edge_color=colors)
 
-    # show it on plotly
-    fig = go.Figure(data=px.scatter(df, x='X', y='Y', color='Legend', color_discrete_map={'Positive': 'blue',
-                                                                                          'Neutral': 'green',
-                                                                                          'Negative': 'red'}))
+    # Add a ViewBox to let the user zoom/rotate
+    view.camera = 'turntable'
+    view.camera.fov = 0
+    view.camera.distance = int(array.shape[1])
+    view.camera.center = (int(array.shape[1]/2), int(array.shape[0]/2))
+
 
     # if len(array[0]) > 1000:
     #     img_length = len(array[0]) // 100
@@ -273,18 +347,42 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     picPath = "{}/{}".format(picFolder, picName)
     if 'film' in picName:
         # set title
-        name = "Surface of Film"
+        # name = "Surface of Film"
+
+        # set camera angle
+        elevation = 90
+        azimuth = 90
+        view.camera.elevation = elevation
+        view.camera.azimuth = azimuth
+        image = canvas.render(bgcolor='white')[:, :, 0:3]
+
+        # save file
+        io.write_png('{}/{}.png'.format(picFolder, picName), image)
 
     elif 'bacteria' in picName:
         # set title
-        name = 'Surface of Bacteria'
+        # name = 'Surface of Bacteria'
 
-    # set camera angle
-    fig.update_layout(title=name)
+        # set camera angle
+        elevation = 90
+        azimuth = 90
+        view.camera.elevation = elevation
+        view.camera.azimuth = azimuth
+        image = canvas.render(bgcolor='white')[:, :, 0:3]
+
+        # save file
+        io.write_png('{}/{}.png'.format(picFolder, picName), image)
+    """
+    run
+    """
+    if sys.flags.interactive != 1:
+        app.run()
+        # # set camera angle
+    # fig.update_layout(title=name)
 
     # save file
     # fig.write_html('{}/{}.html'.format(picFolder, picName), full_html=False)
-    pio.write_image(fig, '{}/{}.png'.format(picFolder, picName), engine="kaleido")
+    # pio.write_image(fig, '{}/{}.png'.format(picFolder, picName), engine="kaleido")
     # plt.savefig(picPath, dpi=300, bbox_inches='tight')
 
     endTime = time.time()
