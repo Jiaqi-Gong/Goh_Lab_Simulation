@@ -26,69 +26,68 @@ def start(ncpus):
 
     time_result.append("Current ncpus is: {}".format(ncpus))
 
+    domainGenerator = DomainGenerator(10, False)
+
+    # prepare film and bacteria
+    trail = 9999
+    seed = 10
+    shape = 'rectangle'
+    filmSize = (1000, 1000)
+    bacteriaSize = (100, 100)
+    filmSurfaceCharge = 1
+    bacteriaSurfaceCharge = -1
+
+    domainShape = 'diamond'
+    domainSize = (10, 10)
+    domainConc = 0.2
+    chargeConc = 0.5
+
+    startTime = time.time()
+
+    film = Film.FilmSurface2D(trail, shape, filmSize, filmSurfaceCharge, seed)
+    bacteria = Bacteria.Bacteria2D(trail, shape, bacteriaSize, bacteriaSurfaceCharge, seed)
+
+    film = domainGenerator.generateDomain(film, domainShape, domainSize, domainConc, chargeConc)[0][0]
+    bacteria = domainGenerator.generateDomain(bacteria, domainShape, domainSize, domainConc, chargeConc)[0][0]
+
+    endTime = time.time()
+
+    print("***********\nTime uses for generate film and bacteria is: {}\n***********\n".format(endTime - startTime))
+
+    # shape of the film
+    film_shape = film.shape
+
+    # shape of bacteria
+    bact_shape = bacteria.shape
+
+    # set the range
+    range_x = np.arange(0, film_shape[1], intervalX)
+    range_y = np.arange(0, film_shape[0], intervalY)
+
+    print("len(range_x) is:{}".format(len(range_x)))
+
+    # scan through the surface and make calculation
+    # scan through the surface and make calculation
+    if interactType.upper() in ["CUTOFF", "CUT-OFF"]:
+
+        # change ndarray to dictionary
+        filmDict = _ndarrayToDict(film, x_range=(range_x[0], range_x[-1]), y_range=(range_y[0], range_y[-1]))
+        bactDict = _ndarrayToDict(bacteria, isBacteria=True)
+    else:
+        filmDict = None
+        bactDict = None
+
+    startTime = time.time()
+    # using partial to set all the constant variables
+    _calculateEnergy2DConstant = partial(_calculateEnergy2D, cutoff=cutoff, interactType=interactType,
+                                         bactDict=bactDict, filmDict=filmDict, filmSurface=film,
+                                         bacteriaSurface=bacteria)
+
+    # init parameter for multiprocess
+    # minus 2 in case of other possible process is running
+
+
     for test in tests:
-        film, bacteria, result, _calculateEnergy2DConstant, range_x, range_y, pool, data = \
-            None, None, None, None, None, None, None, None
-        domainGenerator = DomainGenerator(10, False)
-
-        # prepare film and bacteria
-        trail = 9999
-        seed = 10
-        shape = 'rectangle'
-        filmSize = (1000, 1000)
-        bacteriaSize = (100, 100)
-        filmSurfaceCharge = 1
-        bacteriaSurfaceCharge = -1
-
-        domainShape = 'diamond'
-        domainSize = (10, 10)
-        domainConc = 0.2
-        chargeConc = 0.5
-
-        startTime = time.time()
-
-        film = Film.FilmSurface2D(trail, shape, filmSize, filmSurfaceCharge, seed)
-        bacteria = Bacteria.Bacteria2D(trail, shape, bacteriaSize, bacteriaSurfaceCharge, seed)
-
-        film = domainGenerator.generateDomain(film, domainShape, domainSize, domainConc, chargeConc)[0][0]
-        bacteria = domainGenerator.generateDomain(bacteria, domainShape, domainSize, domainConc, chargeConc)[0][0]
-
-        endTime = time.time()
-
-        print("***********\nTime uses for generate film and bacteria is: {}\n***********\n".format(endTime - startTime))
-
-        # shape of the film
-        film_shape = film.shape
-
-        # shape of bacteria
-        bact_shape = bacteria.shape
-
-        # set the range
-        range_x = np.arange(0, film_shape[1], intervalX)
-        range_y = np.arange(0, film_shape[0], intervalY)
-
-        print("len(range_x) is:{}".format(len(range_x)))
-
-        # scan through the surface and make calculation
-        # scan through the surface and make calculation
-        if interactType.upper() in ["CUTOFF", "CUT-OFF"]:
-
-            # change ndarray to dictionary
-            filmDict = _ndarrayToDict(film, x_range=(range_x[0], range_x[-1]), y_range=(range_y[0], range_y[-1]))
-            bactDict = _ndarrayToDict(bacteria, isBacteria=True)
-        else:
-            filmDict = None
-            bactDict = None
-
-        startTime = time.time()
-        # using partial to set all the constant variables
-        _calculateEnergy2DConstant = partial(_calculateEnergy2D, cutoff=cutoff, interactType=interactType,
-                                             bactDict=bactDict, filmDict=filmDict, filmSurface=film,
-                                             bacteriaSurface=bacteria)
-
-        # init parameter for multiprocess
-        # minus 2 in case of other possible process is running
-
         # depends on the interact type, using different methods to set paters
         # this step is caused by numpy is a parallel package, when doing DOT, using np.dot so need to give some cpu for it
         if interactType.upper() == "DOT":
@@ -398,6 +397,7 @@ def _twoPointEnergy(film: Dict[Tuple[int, int], List[Tuple[int, int]]],
 
 if __name__ == '__main__':
     ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)), 1)
+    # ncpus = 4
     print("ncpus is: {}".format(ncpus))
 
     for n in range(1, ncpus + 1):
