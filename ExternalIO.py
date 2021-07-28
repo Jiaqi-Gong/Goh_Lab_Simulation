@@ -9,6 +9,7 @@ import logging
 import numpy as np
 from numpy import ndarray
 from openpyxl.packaging import workbook
+import plotly.io as pio
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
@@ -265,7 +266,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     fig.update_layout(title=name)
 
     # save file
-    fig.write_image('{}/{}.png'.format(picFolder, picName))
+    pio.write_image(fig, '{}/{}.png'.format(picFolder, picName), engine='kaleido')
 
     endTime = time.time()
     totalTime = endTime - startTime
