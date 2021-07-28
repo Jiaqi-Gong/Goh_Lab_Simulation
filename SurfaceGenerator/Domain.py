@@ -203,6 +203,9 @@ class DomainGenerator:
             #                   and tup[1] < int(surface.width/2) - restriction]]
 
         # for 3D, separate the surface into 4 surfaces
+        # Just simple implement for dynamic simulation, change later
+        if surface.dimension == 3:
+            return newSurface, (0, 0)
 
 
         # use partial to set all the constant variables
@@ -271,6 +274,10 @@ class DomainGenerator:
 
         # determine the number of actual number of domains that generated onto the surface
         actualDomainNum = sum(generatedList)
+
+        # if the intended domain number is not equal to the actual domain number, there is something wrong in the code
+        # if domainNum != actualDomainNum:
+        #     raise RuntimeError("Actual domain number does not equal the intended number of domains")
 
         # now, we will determine where
         concentration_charge = (len(np.where(newSurface == possible_charge[0])[0])) / (surface.length * surface.width)

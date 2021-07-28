@@ -270,19 +270,22 @@ class EnergySimulator(Simulator):
 
         # save no count first
         # save the excel file into folder result
-        name = "EnergyScan_Type_{}_trail_{}-{}-{}.xlsx".format(str(self.simulationType), self.trail, date, time)
-        file_path = "Result/" + name
-
-        # call function in ExternalIO to save workbook
-        saveResult(wb, file_path)
+        # name = "EnergyScan_Type_{}_trail_{}-{}-{}.xlsx".format(str(self.simulationType), self.trail, date, time)
+        # file_path = "Result/" + name
+        #
+        # # call function in ExternalIO to save workbook
+        # saveResult(wb, file_path)
 
         # special count for simulation type 2
-        # count number of min_energy locations at each gradient strip
+        # count number of min_energy locations at each gradient strip, also record all energy
+        all_energy = []
         if self.simulationType == 2:
             showMessage("WARNING: Potential bug here")
             for row_num in range(self.bacteriaManager.bacteriaNum):
                 row = 2 + row_num
                 val_id = ws1.cell(row, 15).value
+                energy = ws1.cell(row, 11).value
+                all_energy.append(energy)
                 val = ws1.cell(2, 18 + int(val_id)).value
 
                 # deal with if val value is none
@@ -291,6 +294,11 @@ class EnergySimulator(Simulator):
                     ws1.cell(1, 18 + int(val_id), 0)
 
                 ws1.cell(2, 18 + int(val_id), int(val) + 1)
+
+            # calculate average energy
+            average_energy = sum(all_energy) / len(all_energy)
+            ws1.cell(self.bacteriaManager.bacteriaNum + 2, 11, "Average energy")
+            ws1.cell(self.bacteriaManager.bacteriaNum + 3, 11, average_energy)
 
             # save the excel file into folder result
             name = "EnergyScan_Type_{}_trail_{}-{}-{}_count.xlsx".format(str(self.simulationType), self.trail, date, time)

@@ -69,17 +69,21 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     # minus 2 in case of other possible process is running
     ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)), 1)
 
+    showMessage("len(range_x) is:{}".format(len(range_x)))
+
     # depends on the interact type, using different methods to set paters
     # this step is caused by numpy is a parallel package, when doing DOT, using np.dot so need to give some cpu for it
     if interactType.upper() == "DOT":
+        # based on test, for using np.dot to calculate energy, do not spilt is fastest
+        ncpus = 1
         part = len(range_x) // int(np.floor(np.sqrt(ncpus)))
-        processNum = part
+        processNum = ncpus
+
     else:
         part = len(range_x) // int(ncpus)
         processNum = ncpus
 
-    showMessage("Process number is: {}".format(processNum))
-    showMessage("ncpu number is: {}, part is: {}".format(ncpus, part))
+    showMessage("Process number is: {}, ncpu number is: {}, part is: {}".format(processNum, ncpus, part))
 
     pool = mp.Pool(processes=processNum)
 

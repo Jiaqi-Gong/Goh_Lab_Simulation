@@ -12,8 +12,11 @@ from ExternalIO import *
 def runSimulation():
     # get log file
     write_at_end = True
-    log_name = openLog(write_at_end)
-    showMessage(log_name)
+    write_log = False
+    generate_image = False
+
+    message = setIndicator(generate_image, write_log, write_at_end)
+    showMessage(message)
 
     showMessage("WARNING: validity of parameter uses is not check, use runSimulationCmd to check the validity of "
                 "parameter uses")
@@ -23,22 +26,22 @@ def runSimulation():
     # simulator info
     simulationType = 2
     trail = 999
-    dimension = 2
-    simulatorType = 1
+    dimension = 3
+    simulatorType = 2
     interactType = "DOT"
     # interactType = "CUTOFF"
 
     # film info
     filmSeed = 1
     if dimension == 2:
-        filmSurfaceSize = (1000, 1000)
+        filmSurfaceSize = (2000, 2000)
     elif dimension == 3:
         filmSurfaceSize = (1000, 1000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
     else:
         raise RuntimeError("Unknown dimension: {}".format(dimension))
     filmSurfaceShape = "rectangle"
     filmNum = 1
-    bacteriaNum = 1
+    bacteriaNum = 100
     interval_x = 10
     interval_y = 10
     filmSurfaceCharge = +1
@@ -58,7 +61,7 @@ def runSimulation():
         raise RuntimeError("Unknown dimension: {}".format(dimension))
     bacteriaSurfaceShape = "rectangle"
     bacteriaSurfaceCharge = -1
-    bacteriaDomainSize = (10, 10)
+    bacteriaDomainSize = (5, 5)
     bacteriaDomainShape = "diamond"
     bacteriaDomainCon = 0.1
     bacteriaDomainChargeConcentration = 0.5  # ignore
@@ -68,8 +71,10 @@ def runSimulation():
     probabilityType = "SIMPLE"
     timestep = 1000
     Lambda = 10
-    simple = 0.001
+    simple = 0.1
     bacteriaMovementSeed = 10
+    unstuck = False
+    unstuckProbability = 0.001
 
     # take info for simulator
     if simulatorType == 1:
@@ -79,9 +84,11 @@ def runSimulation():
 
     elif simulatorType == 2:
         simulator = DynamicSimulator
+
         # taking info for dynamic simulation
         parameter = {"probabilityType": probabilityType, "timeStep": timestep, "dumpStep": 1,
-                     "bacteriaMovementSeed": bacteriaMovementSeed}
+                     "bacteriaMovementSeed": bacteriaMovementSeed, "unstuck": unstuck,
+                     "unstuckProbability": unstuckProbability}
 
         if probabilityType.upper() == "SIMPLE":
             parameter["probability"] = simple

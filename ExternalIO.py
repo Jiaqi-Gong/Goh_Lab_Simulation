@@ -208,6 +208,7 @@ def visPlot(array: ndarray, picName: str, dimension: int) -> None:
         else:
             raise RuntimeError("Unknown dimension of array pass in")
 
+
 def _visPlot2D(array: ndarray, picName: str) -> None:
     """
     This function take in a 2D ndarray and save this array as a image with given name

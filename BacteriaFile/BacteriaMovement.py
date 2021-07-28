@@ -151,6 +151,27 @@ class BacteriaMovementGenerator:
         else:
             return self._nextPositionHelper(position)
 
+    def unstuckBacteria(self, probabilityType: str, probability: float) -> bool:
+        """
+        This function is used to decide stuck bacteria free or not
+        If free, return True
+        """
+
+        # call appropriate probability function to decide free or not
+        if probabilityType == "SIMPLE":
+            result = self._simple(probability)
+        else:
+            raise RuntimeError("Unknown probability type")
+
+        # check free or not
+        # if free, result == 1, return True
+        if result == 1:
+            return True
+        else:
+            return False
+
+
+
     def _nextPositionHelper(self, position: Tuple[int, int, int]) -> Tuple[int, int, int]:
         """
         This function return new position for 3D bacteria (next position is based on random movement of bacteria)
