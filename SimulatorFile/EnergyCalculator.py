@@ -13,6 +13,8 @@ import multiprocessing as mp
 
 COULOMB_CONSTANT = 8.99
 
+FIX_2D_HEIGHT = 2
+
 
 def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray, currIter: int,
                cutoff: int) -> Tuple[Union[float, int], int, int, Union[float, int], Union[float, int], int, int]:
@@ -83,6 +85,10 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
         # processNum = ncpus
 
     else:
+        # check validity of CUTOFF value
+        if cutoff < FIX_2D_HEIGHT:
+            raise RuntimeError("cutoff value {} is smaller than FIX_2D_HEIGHT {}".format(cutoff, FIX_2D_HEIGHT))
+
         part = len(range_x) // int(ncpus)
         processNum = ncpus
 
@@ -458,7 +464,7 @@ def _ndarrayToDict(arrayList: ndarray, isFilm: bool = None, isBacteria: bool = N
         y_end = float('INF')
 
     if isBacteria:
-        z_height += 3
+        z_height += FIX_2D_HEIGHT
 
     # loop whole dictionary
     for z in range(len(arrayList)):
@@ -515,8 +521,8 @@ def _twoPointEnergy(film: Dict[Tuple[int, int], List[Tuple[int, int]]],
     # loop point on the bacteria to do the calculation
     for bact_point in bacteria.keys():
         # loop point in the cutoff range of this bacteria point on the film
-        for x in range(max(x_start, bact_point[0] - cutoff), min(x_end, bact_point[0] + cutoff)):
-            for y in range(max(y_start, bact_point[1] - cutoff), min(y_end, bact_point[1] + cutoff)):
+        for x in range(max(x_start, bact_point[0] - cutoff + FIX_2D_HEIGHT), min(x_end, bact_point[0] + cutoff - FIX_2D_HEIGHT)):
+            for y in range(max(y_start, bact_point[1] - cutoff + FIX_2D_HEIGHT), min(y_end, bact_point[1] + cutoff - FIX_2D_HEIGHT)):
                 # get coordination of point on the film
                 film_point = (x, y)
 

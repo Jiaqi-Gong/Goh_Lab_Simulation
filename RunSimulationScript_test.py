@@ -59,7 +59,7 @@ def runSimulation():
         bacteriaSize = (50, 50, 5)  # For bacteria, z value is the height of bacteria, can be any number
     else:
         raise RuntimeError("Unknown dimension: {}".format(dimension))
-    bacteriaSurfaceShape = "rectangle"
+    bacteriaSurfaceShape = "cuboid"
     bacteriaSurfaceCharge = -1
     bacteriaDomainSize = (5, 5)
     bacteriaDomainShape = "diamond"
@@ -73,8 +73,8 @@ def runSimulation():
     Lambda = 10
     simple = 0.1
     bacteriaMovementSeed = 10
-    unstuck = False
-    unstuckProbability = 0.001
+    unstuck = True
+    unstuckProbability = 0.01
 
     # take info for simulator
     if simulatorType == 1:
