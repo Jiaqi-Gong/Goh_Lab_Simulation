@@ -2,7 +2,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=28
 #SBATCH --time=24:00:00
-#SBATCH --mem=187G
+#SBATCH --mem=186G
 
 #SBATCH --mail-user=jiaqi.gong@mail.utoronto.ca
 #SBATCH --mail-type=BEGIN

@@ -4,7 +4,6 @@ from functools import partial
 from typing import Tuple, List, Union, Dict
 import time
 
-
 import numpy as np
 from numpy import ndarray
 import multiprocessing as mp
@@ -15,13 +14,15 @@ from BacteriaFile import Bacteria
 
 time_result = []
 
+FIX_2D_HEIGHT = 2
+
 
 def start(ncpus):
     intervalX = 10
     intervalY = 10
     cutoff = 6
     # interactType = "DOT"
-    # tests = [dot_test1, dot_test2, dot_test3]
+    # tests = [dot_test1]
     interactType = "CUTOFF"
     tests = [1]
 
@@ -33,7 +34,7 @@ def start(ncpus):
     trail = 9999
     seed = 10
     shape = 'rectangle'
-    filmSize = (1000, 1000)
+    filmSize = (4000, 4000)
     bacteriaSize = (100, 100)
     filmSurfaceCharge = 1
     bacteriaSurfaceCharge = -1
@@ -87,7 +88,6 @@ def start(ncpus):
     # init parameter for multiprocess
     # minus 2 in case of other possible process is running
 
-
     for test in tests:
         # depends on the interact type, using different methods to set paters
         # this step is caused by numpy is a parallel package, when doing DOT, using np.dot so need to give some cpu for it
@@ -132,7 +132,7 @@ def start(ncpus):
         totalTime = endTime - startTime
 
         record = "Process number is: {}, ncpu number is: {}, part is: {}, time uses for {} calculate is: {}".format(
-                processNum, ncpus, part, test, totalTime)
+            processNum, ncpus, part, test, totalTime)
 
         print(record)
 
@@ -316,7 +316,7 @@ def _ndarrayToDict(arrayList: ndarray, isFilm: bool = None, isBacteria: bool = N
         y_end = float('INF')
 
     if isBacteria:
-        z_height += 3
+        z_height += FIX_2D_HEIGHT
 
     # loop whole dictionary
     for z in range(len(arrayList)):
@@ -373,8 +373,10 @@ def _twoPointEnergy(film: Dict[Tuple[int, int], List[Tuple[int, int]]],
     # loop point on the bacteria to do the calculation
     for bact_point in bacteria.keys():
         # loop point in the cutoff range of this bacteria point on the film
-        for x in range(max(x_start, bact_point[0] - cutoff), min(x_end, bact_point[0] + cutoff)):
-            for y in range(max(y_start, bact_point[1] - cutoff), min(y_end, bact_point[1] + cutoff)):
+        for x in range(max(x_start, bact_point[0] - cutoff + FIX_2D_HEIGHT),
+                       min(x_end, bact_point[0] + cutoff - FIX_2D_HEIGHT)):
+            for y in range(max(y_start, bact_point[1] - cutoff + FIX_2D_HEIGHT),
+                           min(y_end, bact_point[1] + cutoff - FIX_2D_HEIGHT)):
                 # get coordination of point on the film
                 film_point = (x, y)
 
@@ -397,10 +399,10 @@ def _twoPointEnergy(film: Dict[Tuple[int, int], List[Tuple[int, int]]],
 
 if __name__ == '__main__':
     ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)), 1)
-    # ncpus = 4
+    # ncpus = 8
     print("ncpus is: {}".format(ncpus))
 
-    for n in range(1, ncpus + 1):
+    for n in range(4, ncpus + 1):
         start(n)
 
     time_result.append("%%%%%%%%%%%%%%%%%%%")
