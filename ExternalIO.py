@@ -11,7 +11,8 @@ from numpy import ndarray
 from openpyxl.packaging import workbook
 import time
 
-from vispy import app, visuals, scene
+from vispy import app, visuals, scene, gloo
+from vispy.gloo.util import _screenshot
 import vispy.io as io
 import sys
 
@@ -21,6 +22,76 @@ LOG_CACH = []
 # first is generate image or not, second is generate log or not, third is write log at last or not
 INDICATOR = [False, False, False]
 
+FRAGMENT_SHADER = """
+    // Extensions for WebGL
+    #extension GL_OES_standard_derivatives : enable
+    #extension GL_OES_element_index_uint : enable
+    #include "misc/spatial-filters.frag"
+    // Adapted from glumpy with permission
+    const float M_SQRT1_2 = 0.707106781186547524400844362104849039;
+    uniform sampler2D u_font_atlas;
+    uniform vec2 u_font_atlas_shape;
+    varying vec4 v_color;
+    uniform float u_npix;
+    varying vec2 v_texcoord;
+    const float center = 0.5;
+    float contour(in float d, in float w)
+    {
+        return smoothstep(center - w, center + w, d);
+    }
+    float sample(sampler2D texture, vec2 uv, float w)
+    {
+        return contour(texture2D(texture, uv).r, w);
+    }
+    void main(void) {
+        vec2 uv = v_texcoord.xy;
+        vec4 rgb;
+        // Use interpolation at high font sizes
+        if(u_npix >= 50.0)
+            rgb = CatRom(u_font_atlas, u_font_atlas_shape, uv);
+        else
+            rgb = texture2D(u_font_atlas, uv);
+        float distance = rgb.r;
+        // GLSL's fwidth = abs(dFdx(uv)) + abs(dFdy(uv))
+        float width = 0.5 * fwidth(distance);  // sharpens a bit
+        // Regular SDF
+        float alpha = contour(distance, width);
+        if (u_npix < 30.) {
+            // Supersample, 4 extra points
+            // Half of 1/sqrt2; you can play with this
+            float dscale = 0.5 * M_SQRT1_2;
+            vec2 duv = dscale * (dFdx(v_texcoord) + dFdy(v_texcoord));
+            vec4 box = vec4(v_texcoord-duv, v_texcoord+duv);
+            float asum = sample(u_font_atlas, box.xy, width)
+                       + sample(u_font_atlas, box.zw, width)
+                       + sample(u_font_atlas, box.xw, width)
+                       + sample(u_font_atlas, box.zy, width);
+            // weighted average, with 4 extra points having 0.5 weight
+            // each, so 1 + 0.5*4 = 3 is the divisor
+            alpha = (alpha + 0.5 * asum) / 3.0;
+        }
+        gl_FragColor = vec4(v_color.rgb, v_color.a * alpha);
+    }
+    """
+VERTEX_SHADER = """
+    attribute float a_rotation;  // rotation in rad
+    attribute vec2 a_position; // in point units
+    attribute vec2 a_texcoord;
+    attribute vec3 a_pos;  // anchor position
+    varying vec2 v_texcoord;
+    varying vec4 v_color;
+    void main(void) {
+        // Eventually "rot" should be handled by SRTTransform or so...
+        mat4 rot = mat4(cos(a_rotation), -sin(a_rotation), 0, 0,
+                        sin(a_rotation), cos(a_rotation), 0, 0,
+                        0, 0, 1, 0, 0, 0, 0, 1);
+        vec4 pos = $transform(vec4(a_pos, 1.0)) +
+                   vec4($text_scale(rot * vec4(a_position, 0.0, 1.0)).xyz, 0.0);
+        gl_Position = pos;
+        v_texcoord = a_texcoord;
+        v_color = $color;
+    }
+    """
 
 def getHelp() -> Dict[str, str]:
     """
@@ -226,7 +297,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
 
     # The real-things : plot using scene
     # build canvas
-    canvas = scene.SceneCanvas(title="{}".format(picName), keys='interactive', show=True, bgcolor="white")
+    canvas = scene.SceneCanvas(title="{}".format(picName), keys='interactive', show=True, bgcolor="white", dpi=64)
     view = canvas.central_widget.add_view()
 
     # for neutral
@@ -285,7 +356,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     colors = np.concatenate((colors_neu, colors_pos, colors_neg))
     # plot ! note the parent parameter
     p1 = Scatter3D(parent=view.scene)
-    # p1 = scene.visuals.Markers()
+    # p1 = scene.visuals.Markers(fcode=FRAGMENT_SHADER)
     p1.set_gl_state('opaque', blend=True, depth_test=False)
 
     if 'whole_film' in picName:
@@ -299,7 +370,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # Add a ViewBox to let the user zoom/rotate
     view.camera = 'turntable'
     view.camera.fov = 45
-    view.camera.distance = int(max(array.shape[1], array.shape[0])+max(array.shape[1], array.shape[0]))
+    view.camera.distance = int(max(2*array.shape[1], 2*array.shape[0]))
     view.camera.center = (int(array.shape[1] / 2), int(array.shape[0] / 2))
 
     # plot XYZ axes
@@ -380,160 +451,12 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     day = now.strftime("%m_%d")
     current_time = now.strftime("%H_%M_%S")
 
-    # # initialize the pandas dataframe
-    # column_names = ['X','Y','Z','Legend']
-    # df = pd.DataFrame(columns=column_names)
-    #
-    # # position of positive
-    # pos = np.where(array == 1)
-    # pos_z = pos[0]
-    # pos_y = pos[1]
-    # pos_x = pos[2]
-    # # color of positive
-    # colors_pos = np.repeat(np.array(['Positive']),len(pos_z),axis=0)
-    # # colors_pos = np.repeat(np.array([[0,0,1,0.8]]),len(pos_z),axis=0)
-    #
-    # # position of neutral
-    # neu = np.where(array == 0)
-    # neu_z = neu[0]
-    # neu_y = neu[1]
-    # neu_x = neu[2]
-    # colors_neu = np.repeat(np.array(['Neutral']),len(neu_z),axis=0)
-    # # colors_neu = np.repeat(np.array([[0,1,0,0.8]]),len(neu_z),axis=0)
-    #
-    # # position of negative
-    # neg = np.where(array == -1)
-    # neg_z = neg[0]
-    # neg_y = neg[1]
-    # neg_x = neg[2]
-    # colors_neg = np.repeat(np.array(['Negative']),len(neg_z),axis=0)
-    #
-    # position_x = np.concatenate((pos_x, neu_x, neg_x))
-    # position_y = np.concatenate((pos_y, neu_y, neg_y))
-    # position_z = np.concatenate((pos_z, neu_z, neg_z))
-    # colors = np.concatenate((colors_pos, colors_neu, colors_neg))
-    #
-    # # add list to pandas dataframe
-    # df['X'] = position_x.tolist()
-    # df['Y'] = position_y.tolist()
-    # df['Z'] = position_z.tolist()
-    # df['Legend'] = colors.tolist()
-    #
-    # # show it on plotly
-    # fig = go.Figure(data=px.scatter_3d(df, x='X', y='Y', z='Z', color='Legend', color_discrete_map={'Positive': 'blue',
-    #                                                                                                 'Neutral': 'green',
-    #                                                                                                 'Negative': 'red'}))
-    #
-    # # create a folder to store all the images]
-    # global picFolder
-    # if "picFolder" not in globals():
-    #     # save the image
-    #     if not os.path.exists("Image"):
-    #         os.mkdir("Image")
-    #
-    #     picFolder = "Image/{}_{}".format(day, current_time)
-    #     if not os.path.exists(picFolder):
-    #         os.mkdir(picFolder)
-    #
-    # # if the surface is a film, we only need to see the top
-    # if "film" in picName:
-    #     # set camera angle
-    #     name = "Surface of Film"
-    #     camera = dict(eye=dict(x=0, y=0, z=1.5))
-    #     fig.update_layout(scene_camera=camera, title=name)
-    #
-    #     # save file
-    #     fig.write_html('{}/{}.html'.format(picFolder, picName))
-    #     # fig.write_image('{}/{}.png'.format(picFolder, picName))
-    #
-    # elif "bacteria" in picName:
-    #     # set camera angle
-    #     name = "Surface of Bacteria"
-    #     camera = dict(eye=dict(x=0, y=0, z=1.5))
-    #     fig.update_layout(scene_camera=camera, title=name)
-    #
-    #     # save file
-    #     fig.write_html('{}/{}.html'.format(picFolder, picName))
-
-    # elif "bacteria" in picName:
-    #     # create folder for bacteria
-    #     global picFolderEach
-    #     picFolderEach = "{}/{}".format(picFolder, picName)
-    #     if not os.path.exists(picFolderEach):
-    #         os.mkdir(picFolderEach)
-    #
-    #     # set camera angle for each side of bacteria
-    #     name = ['X-Y plane','X-Z plane','Y-Z plane']
-    #     x = [0,0,2.5]
-    #     y = [0,2.5,0]
-    #     z = [2.5,0,0]
-    #     for i in range(3):
-    #         # set camera angle
-    #         camera = dict(eye=dict(x=x[i], y=y[i], z=z[i]))
-    #         fig.update_layout(scene_camera=camera, title=name[i])
-    #         # save file
-    #         fig.write_image('{}/Position_at_{}.png'.format(picFolderEach, name[i]))
-
-        # name = "Surface of Bacteria"
-        # camera = dict(eye=dict(x=0, y=0, z=1.5))
-        # fig.update_layout(scene_camera=camera, title=name)
-
-        # save file
-        # fig.write_image('{}/{}.png'.format(picFolderEach, picName),full_html=False)
-
-        # global picFolderEach
-        # picFolderEach = "{}/{}".format(picFolder, picName)
-        # if not os.path.exists(picFolderEach):
-        #     os.mkdir(picFolderEach)
-
-        # name = ['X-Y plane','X-Z plane','Y-Z plane']
-        # x = [0,0,2.5]
-        # y = [0,2.5,0]
-        # z = [2.5,0,0]
-        # for i in range(3):
-        #     # set camera angle
-        #     camera = dict(eye=dict(x=x[i], y=y[i], z=z[i]))
-        #     fig.update_layout(scene_camera=camera, title=name[i])
-        #     # save file
-        #     fig.write_image('{}/Position_at_{}.png'.format(picFolderEach, name[i]))
-
-
-        # # save each side of the picture
-        # elevation = [0, 90, -90]
-        # azimuth = [0, 90, -90, 180]
-        # # if the sides are really small, we don't need to output the sides
-        # # first 4 sides
-        # for i in range(len(azimuth)):
-        #
-        #
-        #     # name the title
-        #     if azim == 90 or azim == -90:
-        #         plt.title('X-Z plane')
-        #     elif azim == 0 or azim == 180:
-        #         plt.title('Y-Z plane')
-        #
-        #     # save file
-        #     plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[0], azimuth[i]))
-        #
-        # # last 2 sides
-        # for i in range(len(elevation) - 1):
-        #     elev = elevation[i + 1]
-        #     azim = azimuth[0]
-        #     ax.view_init(elev=elev, azim=azim)
-        #     ax.dist = 6
-        #
-        #     # name the title
-        #     plt.title('X-Y plane')
-        #
-        #     # save file
-        #     plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[i + 1], azimuth[0]))
-
     # build your visuals, that's all
     Scatter3D = scene.visuals.create_visual_node(visuals.MarkersVisual)
 
     # The real-things : plot using scene
     # build canvas
-    canvas = scene.SceneCanvas(title="{}".format(picName),keys='interactive', show=True, bgcolor="white")
+    canvas = scene.SceneCanvas(title="{}".format(picName),keys='interactive', show=True, bgcolor="white", dpi=64)
     view = canvas.central_widget.add_view()
 
     # for neutral
@@ -597,23 +520,54 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     position = np.concatenate((position_neu, position_pos, position_neg))
     colors = np.concatenate((colors_neu, colors_pos, colors_neg))
     # plot ! note the parent parameter
-    p1 = Scatter3D(parent=view.scene)
-    p1.set_gl_state(blend=True, depth_test=True)
-    p1.set_data(position, face_color=colors, symbol='o', size=20,edge_width=0.5,edge_color=colors)
+    # p1 = Scatter3D(parent=view.scene)
+    p1 = scene.visuals.Markers()
+    p1.set_gl_state('opaque', blend=True, depth_test=False)
+
+    if 'whole_film' in picName:
+        size = 1
+    else:
+        size = 10
+
+    p1.set_data(position, face_color=colors, symbol='o', size=size,edge_width=0.5,edge_color=colors)
+    view.add(p1)
 
     # Add a ViewBox to let the user zoom/rotate
     view.camera = 'turntable'
-    view.camera.fov = 0
-    view.camera.distance = int(array.shape[1])
+    view.camera.fov = 45
+    view.camera.distance = int(max(2*array.shape[2], 2*array.shape[1], 2*array.shape[0]))
     view.camera.center = (int(array.shape[2]/2), int(array.shape[1]/2), int(array.shape[0]/2))
 
-    # run
-    elevation = 90
-    azimuth = 90
-    view.camera.elevation = elevation
-    view.camera.azimuth = azimuth
-    if sys.flags.interactive != 1:
-        app.run()
+    # plot XYZ axes
+    # create a factor number that takes the size of the array and determines the size for font, and tick length
+    factor = max(array.shape[0], array.shape[1], array.shape[2]) / 10
+
+    xax = scene.visuals.Axis(pos=[[0, 0], [int(array.shape[2]), 0]], domain=(0, int(array.shape[1])),
+                             tick_direction=(0, -1), axis_color='black', tick_color='black', text_color='black',
+                             font_size=128 * factor, minor_tick_length=100 * factor, major_tick_length=200 * factor,
+                             axis_label='X axis', axis_font_size=128 * factor, tick_label_margin=300 * factor,
+                             axis_label_margin=800 * factor, parent=view.scene)
+    yax = scene.visuals.Axis(pos=[[0, 0], [0, int(array.shape[1])]], domain=(0, int(array.shape[0])),
+                             tick_direction=(-1, 0), axis_color='black', tick_color='black', text_color='black',
+                             font_size=128 * factor, minor_tick_length=100 * factor, major_tick_length=200 * factor,
+                             axis_label='Y axis', axis_font_size=128 * factor, tick_label_margin=300 * factor,
+                             axis_label_margin=800 * factor, parent=view.scene)
+    zax = scene.visuals.Axis(pos=[[0, 0], [-int(array.shape[0]), 0]], domain=(0, int(array.shape[0])),
+                             tick_direction=(0, -1), axis_color='black', tick_color='black', text_color='black',
+                             font_size=128 * factor, minor_tick_length=100 * factor, major_tick_length=200 * factor,
+                             axis_label='Z axis', axis_font_size=128 * factor, tick_label_margin=300 * factor,
+                             axis_label_margin=800 * factor, parent=view.scene)
+    zax.transform = scene.transforms.MatrixTransform()  # its acutally an inverted xaxis
+    zax.transform.rotate(90, (0, 1, 0))  # rotate cw around yaxis
+    zax.transform.rotate(-45, (0, 0, 1))  # tick direction towards (-1,-1)
+
+    view.add(xax)
+    view.add(yax)
+    view.add(zax)
+
+    # create shader
+    shader = gloo.program.Program(vert=VERTEX_SHADER, frag=FRAGMENT_SHADER)
+
 
     global picFolder
     if "picFolder" not in globals():
@@ -634,7 +588,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     if "film" in picName:
         # set camera angle
         elevation = 90
-        azimuth = 90
+        azimuth = 0
         view.camera.elevation = elevation
         view.camera.azimuth = azimuth
         image = canvas.render(bgcolor='white')[:, :, 0:3]
