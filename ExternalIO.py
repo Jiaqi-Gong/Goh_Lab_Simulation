@@ -9,10 +9,6 @@ import logging
 import numpy as np
 from numpy import ndarray
 from openpyxl.packaging import workbook
-import plotly.io as pio
-import plotly.express as px
-import plotly.graph_objects as go
-import pandas as pd
 import time
 
 from vispy import app, visuals, scene
@@ -224,31 +220,6 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     now = datetime.now()
     day = now.strftime("%m_%d")
     current_time = now.strftime("%H_%M_%S")
-    # # initialize the pandas dataframe
-    # column_names = ['X', 'Y', 'Legend']
-    # df = pd.DataFrame(columns=column_names)
-    #
-    # pos = np.where(array == 1)
-    # neu = np.where(array == 0)
-    # neg = np.where(array == -1)
-    #
-    # pos_x = pos[0]
-    # pos_y = pos[1]
-    # neu_x = neu[0]
-    # neu_y = neu[1]
-    # neg_x = neg[0]
-    # neg_y = neg[1]
-    #
-    # # show it on plotly
-    # plot = []
-    # # plot positive
-    # plot.append(go.Scattergl(x=pos_x, y=pos_y, mode='markers', marker=dict(color='blue'), name='Positive'))
-    # # plot neutral
-    # plot.append(go.Scattergl(x=neu_x, y=neu_y, mode='markers', marker=dict(color='green'), name='Neutral'))
-    # # plot negative
-    # plot.append(go.Scattergl(x=neg_x, y=neg_y, mode='markers', marker=dict(color='red'), name='Negative'))
-    #
-    # fig = go.Figure(data=plot)
 
     # build your visuals, that's all
     Scatter3D = scene.visuals.create_visual_node(visuals.MarkersVisual)
@@ -313,8 +284,8 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     position = np.concatenate((position_neu, position_pos, position_neg))
     colors = np.concatenate((colors_neu, colors_pos, colors_neg))
     # plot ! note the parent parameter
-    # p1 = Scatter3D(parent=view.scene)
-    p1 = scene.visuals.Markers()
+    p1 = Scatter3D(parent=view.scene)
+    # p1 = scene.visuals.Markers()
     p1.set_gl_state('opaque', blend=True, depth_test=False)
 
     if 'whole_film' in picName:
@@ -390,10 +361,6 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # if sys.flags.interactive != 1:
     #     app.run()
     # fig.update_layout(title=name)
-
-    # save file
-    # pio.write_image(fig, '{}/{}.png'.format(picFolder, picName), engine='orca')
-
     endTime = time.time()
     totalTime = endTime - startTime
 
