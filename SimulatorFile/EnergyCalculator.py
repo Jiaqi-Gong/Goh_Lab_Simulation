@@ -69,7 +69,8 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
 
     # init parameter for multiprocess
     # minus 2 in case of other possible process is running
-    ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)), 1)
+    # ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)), 1)
+    ncpus = 10
 
     showMessage("len(range_x) is:{}".format(len(range_x)))
 
