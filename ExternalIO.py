@@ -12,7 +12,6 @@ from openpyxl.packaging import workbook
 import time
 
 import vispy
-import imageio
 # vispy.use("osmesa")
 from vispy import app, visuals, scene, gloo
 import vispy.io as io
@@ -410,7 +409,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
         image = canvas.render(bgcolor='white')[:, :, 0:3]
 
         # save file
-        imageio.imwrite('{}/{}.png'.format(picFolder, picName), image)
+        io.write_png('{}/{}.png'.format(picFolder, picName), image)
 
     elif 'bacteria' in picName:
         # set title
@@ -427,7 +426,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
         image = canvas.render(bgcolor='white')[:, :, 0:3]
 
         # save file
-        imageio.imwrite('{}/{}.png'.format(picFolder, picName), image)
+        io.write_png('{}/{}.png'.format(picFolder, picName), image)
     """
     run
     """
