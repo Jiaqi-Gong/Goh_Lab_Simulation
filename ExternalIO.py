@@ -297,7 +297,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
 
     # The real-things : plot using scene
     # build canvas
-    canvas = scene.SceneCanvas(title="{}".format(picName), keys='interactive', show=True, bgcolor="white", dpi=64)
+    canvas = scene.SceneCanvas(title="{}".format(picName), keys='interactive', show=True, bgcolor="white", dpi=128)
     view = canvas.central_widget.add_view()
 
     # for neutral
