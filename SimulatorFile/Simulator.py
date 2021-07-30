@@ -15,6 +15,9 @@ from Manager.FilmManager import FilmManager
 from Manager.BacteriaManager import BacteriaManager
 
 
+from guppy import hpy
+hp = hpy()
+
 class Simulator(ABC):
     """
     This is an abstract class for all simulator, all simulator are same in generate bacteria and film
@@ -87,9 +90,17 @@ class Simulator(ABC):
         # write to log
         writeLog(self.__dict__)
 
+        showMessage("Here is Simulator before call generate film, Size of program is: {} Bytes".format(hp.heap().size))
+
         # generate corresponding variable
         self.filmManager.generateFilm()
+
+        showMessage("Here is Simulator before call generate bacteria, Size of program is: {} Bytes".format(hp.heap().size))
+
         self.bacteriaManager.generateBacteria()
+
+        showMessage("Here is Simulator after call generate film, Size of program is: {} Bytes".format(hp.heap().size))
+
 
         # write two manager into the log
         writeLog(self.filmManager.__dict__)

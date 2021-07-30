@@ -7,7 +7,8 @@ import traceback
 from SimulatorFile.Dynamic import DynamicSimulator
 from SimulatorFile.EnergyScan import EnergySimulator
 from ExternalIO import *
-
+from guppy import hpy
+hp = hpy()
 
 def runSimulation():
     # get log file
@@ -18,8 +19,7 @@ def runSimulation():
     message = setIndicator(generate_image, write_log, write_at_end)
     showMessage(message)
 
-    print("Using 10 CPU for CUTOFF")
-    showMessage("Using 10 CPU for CUTOFF")
+    showMessage("Using 1 CPU for CUTOFF")
 
     showMessage("WARNING: validity of parameter uses is not check, use runSimulationCmd to check the validity of "
                 "parameter uses")
@@ -62,7 +62,7 @@ def runSimulation():
         bacteriaSize = (50, 50, 5)  # For bacteria, z value is the height of bacteria, can be any number
     else:
         raise RuntimeError("Unknown dimension: {}".format(dimension))
-    bacteriaSurfaceShape = "cuboid"
+    bacteriaSurfaceShape = "rectangle"
     bacteriaSurfaceCharge = -1
     bacteriaDomainSize = (5, 5)
     bacteriaDomainShape = "diamond"
@@ -112,6 +112,9 @@ def runSimulation():
                         parameter)
 
         sim.runSimulate()
+
+        showMessage("Here before close log, Size of program is: {} Bytes".format(hp.heap().size))
+
         closeLog()
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()

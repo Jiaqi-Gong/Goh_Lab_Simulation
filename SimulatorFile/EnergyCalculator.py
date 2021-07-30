@@ -11,6 +11,9 @@ from numpy import ndarray
 from ExternalIO import *
 import multiprocessing as mp
 
+from guppy import hpy
+hp = hpy()
+
 COULOMB_CONSTANT = 8.99
 
 FIX_2D_HEIGHT = 2
@@ -51,6 +54,8 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
 
     writeLog("shape is : {}, range_x is: {}, range_y is: {}".format(film_shape, range_x, range_y))
 
+    showMessage("Here interact2D before generate Dict, Size of program is: {} Bytes".format(hp.heap().size))
+
     # scan through the surface and make calculation
     if interactType.upper() in ["CUTOFF", "CUT-OFF"]:
         showMessage("Start to calculate cutoff energy, this step is slow")
@@ -63,6 +68,9 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
         filmDict = None
         bactDict = None
 
+    showMessage("Here is interact2D after generate Dict, Size of program is: {} Bytes".format(hp.heap().size))
+
+
     # using partial to set all the constant variables
     _calculateEnergy2DConstant = partial(_calculateEnergy2D, cutoff=cutoff, interactType=interactType,
                                          bactDict=bactDict, filmDict=filmDict, filmSurface=film, bacteriaSurface=bacteria)
@@ -70,7 +78,7 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     # init parameter for multiprocess
     # minus 2 in case of other possible process is running
     # ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)), 1)
-    ncpus = 10
+    ncpus = 1
 
     showMessage("len(range_x) is:{}".format(len(range_x)))
 
@@ -112,8 +120,14 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
             else:
                 data.append((x, y, None, None))
 
+    showMessage("Here interact2D after generate data, Size of program is: {} Bytes".format(hp.heap().size))
+
+
     # run interact
     result = pool.map(_calculateEnergy2DConstant, data)
+
+    showMessage("Here interact2D after pool.map, Size of program is: {} Bytes".format(hp.heap().size))
+
 
     # get the minimum result
     result.sort()
@@ -132,6 +146,9 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     endTime = time.time()
     totalTime = endTime - startTime
     showMessage(f"Total time it took for calculating energy is {totalTime} seconds")
+
+    showMessage("Here interact2D before return result, Size of program is: {} Bytes".format(hp.heap().size))
+
 
     return result
 
