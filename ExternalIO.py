@@ -10,6 +10,7 @@ import numpy as np
 from numpy import ndarray
 from openpyxl.packaging import workbook
 import time
+import math
 
 import matplotlib as mpl
 mpl.use('Agg')
@@ -235,23 +236,23 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     ax = fig.add_subplot(111)
 
     # define factor
-    factor = 100 / int(max(array.shape[0], array.shape[1]))
+    factor = 10000/(int(max(array.shape[0], array.shape[1]))**2)
 
     if 'whole_film' in picName:
         # set title
         name = "Surface of Film"
-        size = 5*factor
+        size = factor*30
 
     else:
         # set title
         name = 'Surface of Bacteria'
-        size = 5*factor
+        size = factor*30
 
     ax.scatter(pos_x, pos_y, c='blue', label='pos', s=size)
     ax.scatter(neu_x, neu_y, c='green', label='neu', s=size)
     ax.scatter(neg_x, neg_y, c='red', label='neg', s=size)
 
-    ax.legend(loc="upper right")
+    ax.legend(loc="upper right", markerscale=float(1/size))
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
     ax.xaxis.set_ticks_position('top')
