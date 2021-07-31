@@ -165,9 +165,6 @@ def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     # writeLog("intervalX is: {}, intervalY is: {}, film is: {}, bacteria is: {}".format(
     #     intervalX, intervalY, film, bacteria))
 
-    # change ndarray to dictionary
-    filmDict = _ndarrayToDict(film)
-    bactDict = _ndarrayToDict(bacteria, isBacteria=True)
 
     # show image of whole film and bacteria
     visPlot(film, "whole_film_3D_{}".format(currIter), 3)
@@ -222,25 +219,7 @@ def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
             if interactType.upper() == "DOT":
                 writeLog("Only consider the lower surface of bacteria for now, may change in the future")
                 # calculate energy, uses electrostatic energy formula
-                for i in range(x, x_boundary):
-                    for j in range(y, y_boundary):
-                        # get the x,y position of bacteria and film
-                        film_pos = (i, j)
-                        bact_pos = (i - x, j - y)
-
-                        # get the distance between two charge, only consider the lower surface of bacteria
-                        distance = bactDict[bact_pos][0][0] - filmDict[film_pos][0][0]
-
-                        # get charge on film and bacteria
-                        film_charge = filmDict[film_pos][0][1]
-                        bact_charge = bactDict[bact_pos][0][1]
-
-                        # save this charge to film_use
-                        film_use.append(film_charge)
-
-                        # calculate the energy
-                        cur_energy = film_charge * bact_charge / distance
-                        energy += cur_energy
+                raise NotImplementedError
 
             # cutoff interact
             elif interactType.upper() in ["CUTOFF", "CUT-OFF"]:
