@@ -13,7 +13,7 @@ def runSimulation():
     # get log file
     write_at_end = True
     write_log = True
-    generate_image = True
+    generate_image = False
 
     message = setIndicator(generate_image, write_log, write_at_end)
     showMessage(message)
@@ -28,20 +28,20 @@ def runSimulation():
     trail = 999
     dimension = 3
     simulatorType = 1
-    interactType = "DOT"
-    # interactType = "CUTOFF"
+    # interactType = "DOT"
+    interactType = "CUTOFF"
 
     # film info
     filmSeed = 1
     if dimension == 2:
-        filmSurfaceSize = (10000, 10000)
+        filmSurfaceSize = (1000, 1000)
     elif dimension == 3:
-        filmSurfaceSize = (10000, 10000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
+        filmSurfaceSize = (1000, 1000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
     else:
         raise RuntimeError("Unknown dimension: {}".format(dimension))
     filmSurfaceShape = "rectangle"
     filmNum = 1
-    bacteriaNum = 2000
+    bacteriaNum = 5
     interval_x = 10
     interval_y = 10
     filmSurfaceCharge = +1
@@ -69,6 +69,8 @@ def runSimulation():
     bacteriaDomainChargeConcentration = 0.5  # ignore
     bacteriaNeutralDomain = False
 
+    cutoff = 3
+
     # below are for dynamic simulation
     probabilityType = "SIMPLE"
     timestep = 1000
@@ -82,7 +84,7 @@ def runSimulation():
     if simulatorType == 1:
         simulator = EnergySimulator
         # taking info for energy scan simulation
-        parameter = {"interactType": interactType, "simulationType": simulationType, "cutoff": 6}
+        parameter = {"interactType": interactType, "simulationType": simulationType, "cutoff": cutoff}
 
     elif simulatorType == 2:
         simulator = DynamicSimulator

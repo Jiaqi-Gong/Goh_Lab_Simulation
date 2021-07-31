@@ -68,21 +68,11 @@ def start(ncpus):
 
     print("len(range_x) is:{}".format(len(range_x)))
 
-    # scan through the surface and make calculation
-    # scan through the surface and make calculation
-    # if interactType.upper() in ["CUTOFF", "CUT-OFF"]:
-    #
-    #     # change ndarray to dictionary
-    #     filmDict = _ndarrayToDict(film, x_range=(range_x[0], range_x[-1]), y_range=(range_y[0], range_y[-1]))
-    #     bactDict = _ndarrayToDict(bacteria, isBacteria=True)
-    # else:
-    #     filmDict = None
-    #     bactDict = None
-
     startTime = time.time()
+
     # using partial to set all the constant variables
-    _calculateEnergy2DConstant = partial(_calculateEnergy2D, cutoff=cutoff, interactType=interactType,
-                                         filmSurface=film, bacteriaSurface=bacteria)
+    _calculateEnergyConstant = partial(_calculateEnergy, cutoff=cutoff, interactType=interactType,
+                                       bacteriaShape=bacteria.shape)
 
     # init parameter for multiprocess
     # minus 2 in case of other possible process is running
@@ -116,7 +106,7 @@ def start(ncpus):
                     data.append((x, y, None, None))
 
         # run interact
-        result = pool.map(_calculateEnergy2DConstant, data)
+        result = pool.map(_calculateEnergyConstant, data)
 
         # get the minimum result
         result.sort()
@@ -140,27 +130,22 @@ def start(ncpus):
     time_result.append("@@@@@@@@@@@@@@@@@@@@@@@@")
 
 
-def _calculateEnergy2D(data: Tuple[ndarray, ndarray, Union[None, Dict], Union[None, Dict]], interactType: str,
-                       filmSurface: ndarray, bacteriaSurface: ndarray, cutoff: int = None):
+def _calculateEnergy(data: Tuple[ndarray, ndarray, ndarray, ndarray], interactType: str, bacteriaShape: Tuple,
+                     cutoff: int = None):
     """
-    This is the multiprocess helper function for calculating energy for 2D
+    This is the multiprocess helper function for calculating energy, need 2D film and 1D bacteria
     """
     # init some variable
     range_x = data[0]
     range_y = data[1]
-
-    if data[2] is not None:
-        film = data[2]
-        bacteria = data[3]
-    else:
-        film = filmSurface
-        bacteria = bacteriaSurface
+    film = data[2]
+    bacteria = data[3]
 
     # shape of the film
     film_shape = film.shape
 
     # shape of bacteria
-    bact_shape = bacteria.shape
+    bact_shape = bacteriaShape
 
     # randomly, just not negative
     min_energy = float("INF")
@@ -171,9 +156,6 @@ def _calculateEnergy2D(data: Tuple[ndarray, ndarray, Union[None, Dict], Union[No
     min_x = -1
     min_y = -1
     min_film = []
-
-    # change the bacteria surface into 1D
-    bacteria_1D = np.reshape(bacteria, (-1))
 
     # loop all point in the range
     for x in range_x:
@@ -204,7 +186,7 @@ def _calculateEnergy2D(data: Tuple[ndarray, ndarray, Union[None, Dict], Union[No
                 # WARNING: r should be change based on the height difference between film and bacteria in future
                 # writeLog(["This is surface and film uses to calculate energy", film_1D, bacteria_1D])
 
-                energy = np.dot(film_1D, bacteria_1D)
+                energy = np.dot(film_1D, bacteria)
 
             # cutoff interact
             elif interactType.upper() in ["CUTOFF", "CUT-OFF"]:
@@ -218,7 +200,7 @@ def _calculateEnergy2D(data: Tuple[ndarray, ndarray, Union[None, Dict], Union[No
 
                 # loop all film in the cutoff range
                 for film_1D in film_list:
-                    energy_list.append(np.dot(film_1D, bacteria_1D))
+                    energy_list.append(np.dot(film_1D, bacteria))
 
                 # calculate average energy
                 energy = sum(energy_list) / len(energy_list)
@@ -367,121 +349,6 @@ def print_result():
     for string in time_result:
         print(string)
 
-
-
-# def _ndarrayToDict(arrayList: ndarray, isFilm: bool = None, isBacteria: bool = None, x_range: Tuple[int, int] = None,
-#                    y_range: Tuple[int, int] = None) -> \
-#         Dict[Tuple[int, int], List[Tuple[int, int]]]:
-#     """
-#     This function takes in a ndarray and reshape this array into a dictionary
-#     Key is a tuple represent (x, y), value is a list [(z, charge)], for 2D length of value is 1, for 3D it can be various
-#     """
-#     # init the result
-#     result = {}
-#
-#     # init the position at z direction
-#     z_height = 0
-#
-#     # if pass in is 2D, add z
-#     if len(arrayList.shape) == 2:
-#         arrayList = [arrayList]
-#
-#     # get x, y range
-#     if x_range is not None:
-#         x_start = x_range[0]
-#         x_end = x_range[1]
-#     else:
-#         x_start = float('-INF')
-#         x_end = float('INF')
-#
-#     if y_range is not None:
-#         y_start = x_range[0]
-#         y_end = x_range[1]
-#     else:
-#         y_start = float('-INF')
-#         y_end = float('INF')
-#
-#     if isBacteria:
-#         z_height += FIX_2D_HEIGHT
-#
-#     # loop whole dictionary
-#     for z in range(len(arrayList)):
-#         for y in range(len(arrayList[z])):
-#             for x in range(len(arrayList[z][y])):
-#                 # get charge
-#                 charge = arrayList[z][y][x]
-#
-#                 # if charge is 2 means empty, do not save
-#                 if charge == 2:
-#                     continue
-#
-#                 # if not in range, then continue
-#                 if x < x_start or x > x_end or y < y_start or y > y_end:
-#                     continue
-#
-#                 # get key
-#                 key = (x, y)
-#
-#                 # get value
-#                 value = (z + z_height, charge)
-#
-#                 # add into the result dictionary
-#                 if key not in result:
-#                     result[key] = [value]
-#                 else:
-#                     result[key].append(value)
-#
-#     # sort all values in the order of value of z
-#     for i in result.keys():
-#         result[i].sort()
-#
-#     return result
-#
-
-# def _twoPointEnergy(film: Dict[Tuple[int, int], List[Tuple[int, int]]],
-#                     bacteria: Dict[Tuple[int, int], List[Tuple[int, int]]],
-#                     cutoff: int, startPointOnFilm: Tuple[int, int], limit: Tuple[int, int]) -> float:
-#     """
-#     This function takes in two point list in tuple format and calculate the energy between every tep points based
-#     on Coulomb's law
-#     If the distance excess the cutoff, energy is 0
-#     startPointOnFilm: This is the start point on the film to react with bacteria
-#     limit: This is a tuple contain two number, first is the length of film, second is the width of film
-#     """
-#     # init variable uses
-#     total_energy = 0
-#
-#     x_start = max(0, startPointOnFilm[0] - cutoff)
-#     x_end = min(limit[0] - 1, startPointOnFilm[0] + cutoff)
-#     y_start = max(0, startPointOnFilm[1] - cutoff)
-#     y_end = min(limit[1] - 1, startPointOnFilm[1] + cutoff)
-#
-#     # loop point on the bacteria to do the calculation
-#     for bact_point in bacteria.keys():
-#         # loop point in the cutoff range of this bacteria point on the film
-#         for x in range(max(x_start, bact_point[0] - cutoff + FIX_2D_HEIGHT),
-#                        min(x_end, bact_point[0] + cutoff - FIX_2D_HEIGHT)):
-#             for y in range(max(y_start, bact_point[1] - cutoff + FIX_2D_HEIGHT),
-#                            min(y_end, bact_point[1] + cutoff - FIX_2D_HEIGHT)):
-#                 # get coordination of point on the film
-#                 film_point = (x, y)
-#
-#                 # calculate distance between two distance
-#                 distance = ((bact_point[0] - film_point[0]) ** 2 + (bact_point[1] - film_point[1]) ** 2 +
-#                             (bacteria[bact_point][0][0] - film[film_point][0][0]) ** 2) ** 0.5
-#
-#                 # if distance excess cutoff, then don't count energy
-#                 if distance > cutoff:
-#                     continue
-#                 if distance == 0:
-#                     continue
-#                 else:
-#                     # if distance is smaller than cutoff, calculate the energy
-#                     energy = bacteria[bact_point][0][1] * film[film_point][0][1] / distance
-#                     total_energy += energy
-#
-#     return total_energy
-#
 
 if __name__ == '__main__':
     ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)), 1)

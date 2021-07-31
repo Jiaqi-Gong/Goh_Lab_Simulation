@@ -8,7 +8,7 @@ import numpy as np
 from numpy import ndarray
 from openpyxl.worksheet._write_only import WriteOnlyWorksheet
 from openpyxl.worksheet.worksheet import Worksheet
-from SimulatorFile.EnergyCalculator import interact2D, interact3D
+from SimulatorFile.EnergyCalculator import interact
 from ExternalIO import showMessage, writeLog, saveResult
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter  # allows access to letters of each column
@@ -134,13 +134,8 @@ class EnergySimulator(Simulator):
         else:
             cutoff = 0
 
-        # call simulation based on the simulation type
-        if self.dimension == 2:
-            result = interact2D(self.interactType, self.intervalX, self.intervalY, film, bacteria, currIter, cutoff)
-        elif self.dimension == 3:
-            result = interact3D(self.interactType, self.intervalX, self.intervalY, film, bacteria, currIter, cutoff)
-        else:
-            raise RuntimeError("Wrong dimension in _simulate")
+        # call simulation
+        result = interact(self.interactType, self.intervalX, self.intervalY, film, bacteria, currIter, cutoff, self.dimension)
 
         showMessage("Interact done")
 
