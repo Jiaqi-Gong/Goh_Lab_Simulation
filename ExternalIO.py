@@ -241,7 +241,8 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     if 'whole_film' in picName:
         # set title
         name = "Surface of Film"
-        size = 40*((100/factor))**2
+        size = 0.00001
+        # size = 40*((100/factor))**2
 
     else:
         # set title
