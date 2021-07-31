@@ -241,13 +241,20 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     if 'whole_film' in picName:
         # set title
         name = "Surface of Film"
-        size = 0.00001
+        # size = 0.00001
         # size = 40*((100/factor))**2
+
+        # size = 40*(4**(-factor/100))
+        size = 40*((100/factor)**4)
+
 
     else:
         # set title
         name = 'Surface of Bacteria'
-        size = 40*((100/factor))**2
+        # size = 40*((100/factor))**2
+
+        # size = 40*(4**(-factor/100))
+        size = 40*((100/factor)**4)
 
     ax.scatter(pos_x, pos_y, c='blue', label='pos', s=size)
     ax.scatter(neu_x, neu_y, c='green', label='neu', s=size)
