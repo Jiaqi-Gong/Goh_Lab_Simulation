@@ -65,6 +65,7 @@ class DomainGenerator:
             generateShape = self._generateDiamond
             checkEmpty = self._diamondEmpty
             # Number of domains
+            # if the surface is 2d, only 1 domain should be present
             domainNum = int((surface.length * surface.width * concentration) / int(4*((1+domainWidth)/2)*domainWidth + 1))
             restriction = domainWidth + 1
             # showMessage("concentration = {}".format(concentration))
