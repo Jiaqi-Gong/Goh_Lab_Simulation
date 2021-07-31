@@ -12,7 +12,7 @@ from ExternalIO import *
 def runSimulation():
     # get log file
     write_at_end = True
-    write_log = False
+    write_log = True
     generate_image = False
 
     message = setIndicator(generate_image, write_log, write_at_end)
@@ -24,24 +24,24 @@ def runSimulation():
     time.sleep(3)
 
     # simulator info
-    simulationType = 2
+    simulationType = 1
     trail = 999
     dimension = 3
-    simulatorType = 2
-    interactType = "DOT"
-    # interactType = "CUTOFF"
+    simulatorType = 1
+    # interactType = "DOT"
+    interactType = "CUTOFF"
 
     # film info
     filmSeed = 1
     if dimension == 2:
-        filmSurfaceSize = (2000, 2000)
+        filmSurfaceSize = (1000, 1000)
     elif dimension == 3:
         filmSurfaceSize = (1000, 1000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
     else:
         raise RuntimeError("Unknown dimension: {}".format(dimension))
     filmSurfaceShape = "rectangle"
     filmNum = 1
-    bacteriaNum = 100
+    bacteriaNum = 5
     interval_x = 10
     interval_y = 10
     filmSurfaceCharge = +1
@@ -54,12 +54,14 @@ def runSimulation():
     # bacteria info
     bacteriaSeed = 10
     if dimension == 2:
-        bacteriaSize = (50, 50)
+        bacteriaSize = (100, 100)
+        bacteriaSurfaceShape = "rectangle"
     elif dimension == 3:
         bacteriaSize = (50, 50, 5)  # For bacteria, z value is the height of bacteria, can be any number
+        bacteriaSurfaceShape = "cuboid"
     else:
         raise RuntimeError("Unknown dimension: {}".format(dimension))
-    bacteriaSurfaceShape = "rectangle"
+
     bacteriaSurfaceCharge = -1
     bacteriaDomainSize = (5, 5)
     bacteriaDomainShape = "diamond"
@@ -73,8 +75,8 @@ def runSimulation():
     Lambda = 10
     simple = 0.1
     bacteriaMovementSeed = 10
-    unstuck = False
-    unstuckProbability = 0.001
+    unstuck = True
+    unstuckProbability = 0.01
 
     # take info for simulator
     if simulatorType == 1:

@@ -22,6 +22,7 @@ import time
 
 LOG_CACH = []
 
+
 # INDICATOR record three bool
 # first is generate image or not, second is generate log or not, third is write log at last or not
 INDICATOR = [False, False, False]

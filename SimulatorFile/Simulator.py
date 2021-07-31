@@ -14,7 +14,6 @@ from ExternalIO import writeLog, showMessage
 from Manager.FilmManager import FilmManager
 from Manager.BacteriaManager import BacteriaManager
 
-
 class Simulator(ABC):
     """
     This is an abstract class for all simulator, all simulator are same in generate bacteria and film
@@ -87,9 +86,14 @@ class Simulator(ABC):
         # write to log
         writeLog(self.__dict__)
 
+
         # generate corresponding variable
         self.filmManager.generateFilm()
+
+
         self.bacteriaManager.generateBacteria()
+
+
 
         # write two manager into the log
         writeLog(self.filmManager.__dict__)
