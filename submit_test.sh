@@ -13,4 +13,3 @@
 
 
 python3 RunSimulationScript_test.py
-#python3 test_mp.py >> mp_result.txt
