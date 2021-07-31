@@ -11,9 +11,6 @@ from numpy import ndarray
 from ExternalIO import *
 import multiprocessing as mp
 
-from guppy import hpy
-hp = hpy()
-
 COULOMB_CONSTANT = 8.99
 
 FIX_2D_HEIGHT = 2
@@ -31,6 +28,11 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     # writeLog("intervalX is: {}, intervalY is: {}, film is: {}, bacteria is: {}".format(
     #     intervalX, intervalY, film, bacteria))
 
+    if interactType.upper() in ["CUTOFF", "CUT-OFF"]:
+        # check validity of CUTOFF value
+        if cutoff < FIX_2D_HEIGHT:
+            raise RuntimeError("cutoff value {} is smaller than FIX_2D_HEIGHT {}".format(cutoff, FIX_2D_HEIGHT))
+
     startTime = time.time()
 
     # change the format of film and bacteria
@@ -45,65 +47,38 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     # shape of the film
     film_shape = film.shape
 
-    # shape of bacteria
-    bact_shape = bacteria.shape
-
     # set the range
     range_x = np.arange(0, film_shape[1], intervalX)
     range_y = np.arange(0, film_shape[0], intervalY)
 
     writeLog("shape is : {}, range_x is: {}, range_y is: {}".format(film_shape, range_x, range_y))
-
-    showMessage("Here interact2D before generate Dict, Size of program is: {} Bytes".format(hp.heap().size))
-
-    # scan through the surface and make calculation
-    if interactType.upper() in ["CUTOFF", "CUT-OFF"]:
-        showMessage("Start to calculate cutoff energy, this step is slow")
-
-        # change ndarray to dictionary
-        filmDict = _ndarrayToDict(film, x_range=(range_x[0], range_x[-1]), y_range=(range_y[0], range_y[-1]))
-        bactDict = _ndarrayToDict(bacteria, isBacteria=True)
-    else:
-        showMessage("Start to calculate energy in dot type")
-        filmDict = None
-        bactDict = None
-
-    showMessage("Here is interact2D after generate Dict, Size of program is: {} Bytes".format(hp.heap().size))
-
+    showMessage("len(range_x) is:{}".format(len(range_x)))
 
     # using partial to set all the constant variables
-    _calculateEnergy2DConstant = partial(_calculateEnergy2D, cutoff=cutoff, interactType=interactType,
-                                         bactDict=bactDict, filmDict=filmDict, filmSurface=film, bacteriaSurface=bacteria)
+    _calculateEnergyConstant = partial(_calculateEnergy, cutoff=cutoff, interactType=interactType,
+                                       bacteriaShape=bacteria.shape)
 
     # init parameter for multiprocess
     # minus 2 in case of other possible process is running
-    # ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)), 1)
-    ncpus = 1
-
-    showMessage("len(range_x) is:{}".format(len(range_x)))
+    ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)), 1)
 
     # depends on the interact type, using different methods to set paters
     # this step is caused by numpy is a parallel package, when doing DOT, using np.dot so need to give some cpu for it
-    if interactType.upper() == "DOT":
-        # based on test on Compute Canada beluga server, this method is fastest
-        part = len(range_x) // int(np.floor(np.sqrt(ncpus)))
-        processNum = part
 
-        # ncpus = 1
-        # part = len(range_x) // int(np.floor(np.sqrt(ncpus)))
-        # processNum = ncpus
+    # based on test on Compute Canada beluga server, this method is fastest
+    part = len(range_x) // int(np.floor(np.sqrt(ncpus)))
+    processNum = part
 
-    else:
-        # check validity of CUTOFF value
-        if cutoff < FIX_2D_HEIGHT:
-            raise RuntimeError("cutoff value {} is smaller than FIX_2D_HEIGHT {}".format(cutoff, FIX_2D_HEIGHT))
-
-        part = len(range_x) // int(ncpus)
-        processNum = ncpus
+    # ncpus = 1
+    # part = len(range_x) // int(np.floor(np.sqrt(ncpus)))
+    # processNum = ncpus
 
     showMessage("Process number is: {}, ncpu number is: {}, part is: {}".format(processNum, ncpus, part))
 
     pool = mp.Pool(processes=processNum)
+
+    # change the bacteria surface into 1D
+    bacteria_1D = np.reshape(bacteria, (-1))
 
     # prepare data for multiprocess, data is divided range into various parts, not exceed sqrt of ncpus can use
     data = []
@@ -115,19 +90,10 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     # put combination into data
     for x in range_x_list:
         for y in range_y_list:
-            if interactType.upper() == "DOT":
-                data.append((x, y, deepcopy(film), deepcopy(bacteria)))
-            else:
-                data.append((x, y, None, None))
-
-    showMessage("Here interact2D after generate data, Size of program is: {} Bytes".format(hp.heap().size))
-
+            data.append((x, y, deepcopy(film), deepcopy(bacteria_1D)))
 
     # run interact
-    result = pool.map(_calculateEnergy2DConstant, data)
-
-    showMessage("Here interact2D after pool.map, Size of program is: {} Bytes".format(hp.heap().size))
-
+    result = pool.map(_calculateEnergyConstant, data)
 
     # get the minimum result
     result.sort()
@@ -147,9 +113,6 @@ def interact2D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     totalTime = endTime - startTime
     showMessage(f"Total time it took for calculating energy is {totalTime} seconds")
 
-    showMessage("Here interact2D before return result, Size of program is: {} Bytes".format(hp.heap().size))
-
-
     return result
 
 
@@ -165,6 +128,12 @@ def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     # writeLog("intervalX is: {}, intervalY is: {}, film is: {}, bacteria is: {}".format(
     #     intervalX, intervalY, film, bacteria))
 
+    if interactType.upper() in ["CUTOFF", "CUT-OFF"]:
+        # check validity of CUTOFF value
+        if cutoff < FIX_2D_HEIGHT:
+            raise RuntimeError("cutoff value {} is smaller than FIX_2D_HEIGHT {}".format(cutoff, FIX_2D_HEIGHT))
+
+    startTime = time.time()
 
     # show image of whole film and bacteria
     visPlot(film, "whole_film_3D_{}".format(currIter), 3)
@@ -173,8 +142,11 @@ def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
     # shape of the film
     film_shape = film.shape
 
-    # shape of bacteria
-    bact_shape = bacteria.shape
+    # shape of bacteria in 2D
+    bact_shape = bacteria.shape[1:]
+
+    # currently, all film uses will be convert to 2D, in the future may change
+    film = film[0]
 
     # set the range
     range_x = np.arange(0, film_shape[2], intervalX)
@@ -182,142 +154,191 @@ def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray,
 
     writeLog("shape is : {}, range_x is: {}, range_y is: {}".format(film_shape, range_x, range_y))
 
-    # init some variable
-    # randomly, just not negative
-    min_energy = float("INF")
-    min_charge = float("INF")
-    min_energy_charge = float("INF")
-    min_charge_x = 0
-    min_charge_y = 0
-    min_x = -1
-    min_y = -1
-    min_film = []
+    # using partial to set all the constant variables
+    _calculateEnergyConstant = partial(_calculateEnergy, cutoff=cutoff, interactType=interactType,
+                                       bacteriaShape=bact_shape)
 
-    # calculate the energy
-    # scan through the surface and make calculation
-    for x in range_x:
-        for y in range_y:
-            # init film use and energy
-            film_use = []
-            energy = 0
+    # init parameter for multiprocess
+    # minus 2 in case of other possible process is running
+    ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)), 1)
 
-            # set the x boundary and y boundary
-            x_boundary = bact_shape[2] + x
-            y_boundary = bact_shape[1] + y
+    # depends on the interact type, using different methods to set paters
+    # this step is caused by numpy is a parallel package, when doing DOT, using np.dot so need to give some cpu for it
 
-            writeLog("x_boundary is: {}, y_boundary is: {}, film_shape is:{}, bacteria shape is: {} ".format(
-                x_boundary, y_boundary, film_shape, bact_shape))
+    # based on test on Compute Canada beluga server, this method is fastest
+    part = len(range_x) // int(np.floor(np.sqrt(ncpus)))
+    processNum = part
 
-            # check if bacteria surface is exceed range of film surface
-            if x_boundary > film_shape[2] or y_boundary > film_shape[1]:
-                # if exceed the surface, go to next iteration
-                writeLog("outside the range, continue")
-                continue
+    showMessage("Process number is: {}, ncpu number is: {}, part is: {}".format(processNum, ncpus, part))
 
-            # do the energy calculation based on the interact type
-            # dot interact
-            if interactType.upper() == "DOT":
-                writeLog("Only consider the lower surface of bacteria for now, may change in the future")
-                # calculate energy, uses electrostatic energy formula
-                raise NotImplementedError
+    pool = mp.Pool(processes=processNum)
 
-            # cutoff interact
-            elif interactType.upper() in ["CUTOFF", "CUT-OFF"]:
-                # calculate energy by using cutoff calculation function
-                raise NotImplementedError
+    # change the bacteria surface into 1D
+    bacteria_1D = _trans3DTo1D(bacteria)
 
-            else:
-                raise RuntimeError("Unknown interact type")
+    # prepare data for multiprocess, data is divided range into various parts, not exceed sqrt of ncpus can use
+    data = []
 
-            # count and unique
-            unique, counts = np.unique(film_use, return_counts=True)
+    # double loop to prepare range x and range y
+    range_x_list = [range_x[i:i + part] for i in range(0, len(range_x), part)]
+    range_y_list = [range_y[i:i + part] for i in range(0, len(range_y), part)]
 
-            # record all variables
-            writeLog("film_use is: {}, energy is: {}, unique is: {}, counts is: {}".format(
-                film_use, energy, unique, counts))
+    # put combination into data
+    for x in range_x_list:
+        for y in range_y_list:
+            data.append((x, y, deepcopy(film), deepcopy(bacteria_1D)))
 
-            # check the calculation result and change corresponding value
-            charge = 0
-            for i in range(len(unique)):
-                if unique[i] == -1:
-                    charge -= counts[i]
-                elif unique[i] == 1:
-                    charge += counts[i]
-                else:
-                    charge += 0
+    # run interact
+    result = pool.map(_calculateEnergyConstant, data)
 
-            # below is the way of calculating charge in the old code, however for now we have 0 on the surface while
-            # in the old code only -1 nad 1 on the surface
-            # if len(unique) == 1:
-            #     if unique[0] == -1:
-            #         charge = -counts[0]
-            #     else:
-            #         charge = counts[0]
-            # elif unique[0] == -1:
-            #     charge = -counts[0] + counts[1]
-            # elif unique[0] == 1:
-            #     charge = counts[0] - counts[1]
-            # else:
-            #     showMessage("This is an error, parameter unique is not -1 or 1, it is: {}".format(unique))
-            #     writeLog(__dict__)
-            #     raise RuntimeError("Variable 'charge' in _interact2D not init, caused by the error in unique")
+    # get the minimum result
+    result.sort()
+    result = result.pop(0)
+    result, min_film = result[0], result[1]
 
-            if charge < min_charge:
-                min_charge = charge
-                min_charge_x = x
-                min_charge_y = y
-
-            # find minimum energy and location
-            if energy < min_energy:
-                min_energy = energy
-                min_x = x
-                min_y = y
-                min_energy_charge = charge
-                min_film = film_use
-
-    # save the result
-    result = (min_energy, min_x, min_y, min_energy_charge, min_charge, min_charge_x, min_charge_y)
-
-    # reshape the min_film from 1d to 3d
-    # first reshape it into 2d array
-    min_film = np.array(min_film)
-
-    min_film = np.reshape(min_film, (bact_shape[1], bact_shape[2]), order='F')
-    # now convert it into 3d, but because film only has a height of 1, we will just add an extra square bracket
-    # around min_film
-    min_film = np.array([min_film])
+    writeLog("Result in interact 3D is: {}".format(result))
 
     # print the min_film
-    visPlot(min_film, "film_at_minimum_{}".format(currIter), 3)
+    visPlot(min_film, "film_at_minimum_{}".format(currIter), 2)
 
     showMessage("Interact done")
     writeLog(result)
 
+    # record time uses
+    endTime = time.time()
+    totalTime = endTime - startTime
+    showMessage(f"Total time it took for calculating energy is {totalTime} seconds")
+
     return result
 
+    # # init some variable
+    # # randomly, just not negative
+    # min_energy = float("INF")
+    # min_charge = float("INF")
+    # min_energy_charge = float("INF")
+    # min_charge_x = 0
+    # min_charge_y = 0
+    # min_x = -1
+    # min_y = -1
+    # min_film = []
+    #
+    # # get bacteria 1D
+    #
+    #
+    # # calculate the energy
+    # # scan through the surface and make calculation
+    # for x in range_x:
+    #     for y in range_y:
+    #         # set the x boundary and y boundary
+    #         x_boundary = bact_shape[2] + x
+    #         y_boundary = bact_shape[1] + y
+    #
+    #         writeLog("x_boundary is: {}, y_boundary is: {}, film_shape is:{}, bacteria shape is: {} ".format(
+    #             x_boundary, y_boundary, film_shape, bact_shape))
+    #
+    #         # check if bacteria surface is exceed range of film surface
+    #         if x_boundary > film_shape[2] or y_boundary > film_shape[1]:
+    #             # if exceed the surface, go to next iteration
+    #             writeLog("outside the range, continue")
+    #             continue
+    #
+    #         # do the energy calculation based on the interact type
+    #         # dot interact
+    #         if interactType.upper() == "DOT":
+    #             writeLog("Only consider the lower surface of bacteria for now, may change in the future")
+    #             # calculate energy, uses electrostatic energy formula
+    #             raise NotImplementedError
+    #
+    #         # cutoff interact
+    #         elif interactType.upper() in ["CUTOFF", "CUT-OFF"]:
+    #             # calculate energy by using cutoff calculation function
+    #             raise NotImplementedError
+    #
+    #         else:
+    #             raise RuntimeError("Unknown interact type")
+    #
+    #         # count and unique
+    #         unique, counts = np.unique(film_use, return_counts=True)
+    #
+    #         # record all variables
+    #         writeLog("film_use is: {}, energy is: {}, unique is: {}, counts is: {}".format(
+    #             film_use, energy, unique, counts))
+    #
+    #         # check the calculation result and change corresponding value
+    #         charge = 0
+    #         for i in range(len(unique)):
+    #             if unique[i] == -1:
+    #                 charge -= counts[i]
+    #             elif unique[i] == 1:
+    #                 charge += counts[i]
+    #             else:
+    #                 charge += 0
+    #
+    #         # below is the way of calculating charge in the old code, however for now we have 0 on the surface while
+    #         # in the old code only -1 nad 1 on the surface
+    #         # if len(unique) == 1:
+    #         #     if unique[0] == -1:
+    #         #         charge = -counts[0]
+    #         #     else:
+    #         #         charge = counts[0]
+    #         # elif unique[0] == -1:
+    #         #     charge = -counts[0] + counts[1]
+    #         # elif unique[0] == 1:
+    #         #     charge = counts[0] - counts[1]
+    #         # else:
+    #         #     showMessage("This is an error, parameter unique is not -1 or 1, it is: {}".format(unique))
+    #         #     writeLog(__dict__)
+    #         #     raise RuntimeError("Variable 'charge' in _interact2D not init, caused by the error in unique")
+    #
+    #         if charge < min_charge:
+    #             min_charge = charge
+    #             min_charge_x = x
+    #             min_charge_y = y
+    #
+    #         # find minimum energy and location
+    #         if energy < min_energy:
+    #             min_energy = energy
+    #             min_x = x
+    #             min_y = y
+    #             min_energy_charge = charge
+    #             min_film = film_use
+    #
+    # # save the result
+    # result = (min_energy, min_x, min_y, min_energy_charge, min_charge, min_charge_x, min_charge_y)
+    #
+    # # reshape the min_film from 1d to 3d
+    # # first reshape it into 2d array
+    # min_film = np.array(min_film)
+
+    # min_film = np.reshape(min_film, (bact_shape[1], bact_shape[2]), order='F')
+    # # now convert it into 3d, but because film only has a height of 1, we will just add an extra square bracket
+    # # around min_film
+    # min_film = np.array([min_film])
+    #
+    # # print the min_film
+    # visPlot(min_film, "film_at_minimum_{}".format(currIter), 3)
+    #
+    # showMessage("Interact done")
+    # writeLog(result)
+    #
+    # return result
 
 
-def _calculateEnergy2D(data: Tuple[ndarray, ndarray, Union[None, Dict], Union[None, Dict]], interactType: str,
-                       filmSurface: ndarray, bacteriaSurface: ndarray, cutoff: int = None, ):
+def _calculateEnergy(data: Tuple[ndarray, ndarray, ndarray, ndarray], interactType: str, bacteriaShape: Tuple, cutoff: int = None):
     """
-    This is the multiprocess helper function for calculating energy for 2D
+    This is the multiprocess helper function for calculating energy, need 2D film and 1D bacteria
     """
     # init some variable
     range_x = data[0]
     range_y = data[1]
-
-    if data[2] is not None:
-        film = data[2]
-        bacteria = data[3]
-    else:
-        film = filmSurface
-        bacteria = bacteriaSurface
+    film = data[2]
+    bacteria = data[3]
 
     # shape of the film
     film_shape = film.shape
 
     # shape of bacteria
-    bact_shape = bacteria.shape
+    bact_shape = bacteriaShape
 
     # randomly, just not negative
     min_energy = float("INF")
@@ -328,9 +349,6 @@ def _calculateEnergy2D(data: Tuple[ndarray, ndarray, Union[None, Dict], Union[No
     min_x = -1
     min_y = -1
     min_film = []
-
-    # change the bacteria surface into 1D
-    bacteria_1D = np.reshape(bacteria, (-1))
 
     # loop all point in the range
     for x in range_x:
@@ -361,7 +379,7 @@ def _calculateEnergy2D(data: Tuple[ndarray, ndarray, Union[None, Dict], Union[No
                 # WARNING: r should be change based on the height difference between film and bacteria in future
                 # writeLog(["This is surface and film uses to calculate energy", film_1D, bacteria_1D])
 
-                energy = np.dot(film_1D, bacteria_1D)
+                energy = np.dot(film_1D, bacteria)
 
             # cutoff interact
             elif interactType.upper() in ["CUTOFF", "CUT-OFF"]:
@@ -375,7 +393,7 @@ def _calculateEnergy2D(data: Tuple[ndarray, ndarray, Union[None, Dict], Union[No
 
                 # loop all film in the cutoff range
                 for film_1D in film_list:
-                    energy_list.append(np.dot(film_1D, bacteria_1D))
+                    energy_list.append(np.dot(film_1D, bacteria))
 
                 # calculate average energy
                 energy = sum(energy_list) / len(energy_list)
@@ -458,7 +476,7 @@ def _trans3DTo1D(arrayList: ndarray) -> ndarray:
                     height = z + 1
 
                 # change value
-                array_2D[y][x] = value/height
+                array_2D[y][x] = value / height
                 visited_size += 1
 
                 if visited_size == arrayList.size:
@@ -490,10 +508,9 @@ def _getCutoffFilm1D(film: ndarray, startPoint: Tuple[int, int], bacteriaSize: T
     # append corresponding film into list in 1D
     for x_s in range(x_start, x_end + 1):
         for y_s in range(y_start, y_end + 1):
-            film_list.append(np.reshape(film[y_s : y_s + bacteriaSize[1], x_s : x_s + bacteriaSize[1]], (-1,)))
+            film_list.append(np.reshape(film[y_s: y_s + bacteriaSize[1], x_s: x_s + bacteriaSize[1]], (-1,)))
 
     return film_list
-
 
 # def _calculateEnergy2D(data: Tuple[ndarray, ndarray, Union[None, Dict], Union[None, Dict]], interactType: str,
 #                        filmSurface: ndarray, bacteriaSurface: ndarray, filmDict: Union[None, Dict],
@@ -625,7 +642,6 @@ def _getCutoffFilm1D(film: ndarray, startPoint: Tuple[int, int], bacteriaSize: T
 #
 #     # return result
 #     return (result, min_film)
-
 
 
 # def _ndarrayToDict(arrayList: ndarray, isFilm: bool = None, isBacteria: bool = None, x_range: Tuple[int, int] = None,

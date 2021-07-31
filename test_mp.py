@@ -141,7 +141,7 @@ def start(ncpus):
 
 
 def _calculateEnergy2D(data: Tuple[ndarray, ndarray, Union[None, Dict], Union[None, Dict]], interactType: str,
-                       filmSurface: ndarray, bacteriaSurface: ndarray, cutoff: int = None, ):
+                       filmSurface: ndarray, bacteriaSurface: ndarray, cutoff: int = None):
     """
     This is the multiprocess helper function for calculating energy for 2D
     """

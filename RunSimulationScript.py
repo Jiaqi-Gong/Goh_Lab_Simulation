@@ -55,11 +55,13 @@ def runSimulation():
     bacteriaSeed = 10
     if dimension == 2:
         bacteriaSize = (100, 100)
+        bacteriaSurfaceShape = "rectangle"
     elif dimension == 3:
         bacteriaSize = (50, 50, 5)  # For bacteria, z value is the height of bacteria, can be any number
+        bacteriaSurfaceShape = "cuboid"
     else:
         raise RuntimeError("Unknown dimension: {}".format(dimension))
-    bacteriaSurfaceShape = "cuboid"
+
     bacteriaSurfaceCharge = -1
     bacteriaDomainSize = (10, 10)
     bacteriaDomainShape = "diamond"

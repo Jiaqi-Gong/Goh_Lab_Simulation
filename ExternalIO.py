@@ -22,7 +22,6 @@ import time
 
 LOG_CACH = []
 
-SIZE_CACH = []
 
 # INDICATOR record three bool
 # first is generate image or not, second is generate log or not, third is write log at last or not
@@ -158,14 +157,6 @@ def closeLog() -> None:
 
             showMessage(f"Total time it took to write log is {totalTime} seconds")
 
-        # write size info
-        size_file = open("size_info.txt", "w")
-
-        for s in SIZE_CACH:
-            size_file.write(s + "\n")
-
-        size_file.close()
-
         log.close()
 
 
@@ -192,9 +183,6 @@ def showMessage(message: str) -> None:
     """
     # print to screen
     print(message)
-
-    if "Bytes" in message:
-        SIZE_CACH.append(message)
 
     # write into the log
     writeLog(message)

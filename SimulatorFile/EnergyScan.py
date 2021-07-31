@@ -14,9 +14,6 @@ from openpyxl import Workbook
 from openpyxl.utils import get_column_letter  # allows access to letters of each column
 from SimulatorFile.Simulator import Simulator
 
-from guppy import hpy
-hp = hpy()
-
 
 class EnergySimulator(Simulator):
     """
@@ -38,7 +35,6 @@ class EnergySimulator(Simulator):
         Init the simulation class based on the input info
         Description of input info are shown in the HelpFile.txt
         """
-        showMessage("Here is the beginning of EnergySimulator, Size of program is: {} Bytes".format(hp.heap().size))
         simulatorType = 1
 
         # get simulationType
@@ -68,7 +64,6 @@ class EnergySimulator(Simulator):
         """
         Based on the simulation type, do the corresponding simulation
         """
-        showMessage("Here is the beginning of EnergySimulator runSimulate, Size of program is: {} Bytes".format(hp.heap().size))
 
         writeLog("This is runSimulation in Simulation")
         showMessage("Start to run simulation baed on simulation type")
@@ -124,7 +119,6 @@ class EnergySimulator(Simulator):
         This is the simulation function in this program, call function do the simulation and output the result
         Prerequisite: surface already generated
         """
-        showMessage("Here is the beginning of _simulate, Size of program is: {} Bytes".format(hp.heap().size))
 
         writeLog("This is _simulate in Simulation")
         showMessage("Start to run simulation")
@@ -276,13 +270,6 @@ class EnergySimulator(Simulator):
         date = datetime.now().strftime("%m_%d")
         time = datetime.now().strftime("%H-%M-%S")
 
-        # save no count first
-        # save the excel file into folder result
-        # name = "EnergyScan_Type_{}_trail_{}-{}-{}.xlsx".format(str(self.simulationType), self.trail, date, time)
-        # file_path = "Result/" + name
-        #
-        # # call function in ExternalIO to save workbook
-        # saveResult(wb, file_path)
 
         # special count for simulation type 2
         # count number of min_energy locations at each gradient strip, also record all energy
@@ -308,12 +295,10 @@ class EnergySimulator(Simulator):
             ws1.cell(self.bacteriaManager.bacteriaNum + 2, 11, "Average energy")
             ws1.cell(self.bacteriaManager.bacteriaNum + 3, 11, average_energy)
 
-            # save the excel file into folder result
-            name = "EnergyScan_Type_{}_trail_{}-{}-{}_count.xlsx".format(str(self.simulationType), self.trail, date, time)
-            file_path = "Result/" + name
+        # save the excel file into folder result
+        name = "EnergyScan_Type_{}_trail_{}-{}-{}_count.xlsx".format(str(self.simulationType), self.trail, date, time)
+        file_path = "Result/" + name
 
-            # call function in ExternalIO to save workbook
-            showMessage("Here _output before save all, Size of program is: {} Bytes".format(hp.heap().size))
-
-            saveResult(wb, file_path)
+        # call function in ExternalIO to save workbook
+        saveResult(wb, file_path)
 
