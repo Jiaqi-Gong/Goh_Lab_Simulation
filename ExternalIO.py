@@ -245,7 +245,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
         # size = 40*((100/factor))**2
 
         # size = 40*(4**(-factor/100))
-        size = 40*((100/factor)**3)
+        size = 40*((100/factor)**4)
 
 
     else:
@@ -254,7 +254,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
         # size = 40*((100/factor))**2
 
         # size = 40*(4**(-factor/100))
-        size = 40*((100/factor)**3)
+        size = 40*((100/factor)**4)
 
     ax.scatter(pos_x, pos_y, c='blue', label='pos', s=size)
     ax.scatter(neu_x, neu_y, c='green', label='neu', s=size)
@@ -314,125 +314,62 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     now = datetime.now()
     day = now.strftime("%m_%d")
     current_time = now.strftime("%H_%M_%S")
+    # graph the 3D visualization
+    # if the array is small, we don't
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
 
-    # build your visuals, that's all
-    Scatter3D = scene.visuals.create_visual_node(visuals.MarkersVisual)
-
-    # The real-things : plot using scene
-    # build canvas
-    canvas = scene.SceneCanvas(title="{}".format(picName),keys='interactive', show=True, bgcolor="white", dpi=64)
-    view = canvas.central_widget.add_view()
-
-    # for neutral
-    neu = np.where(array == 0)
-    neu_z = neu[0]
-    neu_y = neu[1]
-    neu_x = neu[2]
-
-    n_neu = len(neu_z)
-    c_neu = len(neu_z)
-    position_neu = np.zeros((n_neu, 3))
-    colors_neu = np.zeros((c_neu, 4))
-    for i in range(n_neu):
-        # green
-        x = neu_x[i]
-        y = neu_y[i]
-        z = neu_z[i]
-        position_neu[i] = x, y, z
-        colors_neu[i] = (0, 1, 0, 0.8)
-
-    # for positive
+    # position of positive
     pos = np.where(array == 1)
     pos_z = pos[0]
     pos_y = pos[1]
     pos_x = pos[2]
+    # color of positive
+    # colors_pos = np.repeat(np.array([[0,0,1,0.8]]),len(pos_z),axis=0)
+    ax.scatter3D(pos_x, pos_y, pos_z, marker="o", label='positive', color='blue', depthshade=False)
 
-    n_pos = len(pos_z)
-    c_pos = len(pos_z)
-    position_pos = np.zeros((n_pos, 3))
-    colors_pos = np.zeros((c_pos, 4))
+    # position of neutral
+    neu = np.where(array == 0)
+    neu_z = neu[0]
+    neu_y = neu[1]
+    neu_x = neu[2]
+    # colors_neu = np.repeat(np.array([[0,1,0,0.8]]),len(neu_z),axis=0)
+    ax.scatter3D(neu_x, neu_y, neu_z, marker="o", label='neutral', color='green', depthshade=False)
 
-    for i in range(n_pos):
-        # blue
-        x = pos_x[i]
-        y = pos_y[i]
-        z = pos_z[i]
-        position_pos[i] = x, y, z
-        colors_pos[i] = (0, 0, 1, 0.8)
-
-    # for negative
+    # position of negative
     neg = np.where(array == -1)
     neg_z = neg[0]
     neg_y = neg[1]
     neg_x = neg[2]
+    # colors_neg = np.repeat(np.array([[1,0,0,0.8]]),len(neg_z),axis=0)
+    ax.scatter3D(neg_x, neg_y, neg_z, marker="o", label='negative', color='red', depthshade=False)
 
-    n_neg = len(neg_z)
-    c_neg = len(neg_z)
+    # position_x = np.concatenate((pos_x, neu_x, neg_x))
+    # position_y = np.concatenate((pos_y, neu_y, neg_y))
+    # position_z = np.concatenate((pos_z, neu_z, neg_z))
+    # colors = np.concatenate((colors_pos, colors_neu, colors_neg))
+    # ax.scatter3D(position_x, position_y, position_z, marker="o", label=['neutral','positive','negative'], color=colors, depthshade=False)
 
-    position_neg = np.zeros((n_neg, 3))
-    colors_neg = np.zeros((c_neg, 4))
+    lgnd = ax.legend(loc="upper right")
+    for handle in lgnd.legendHandles:
+        handle.set_sizes([10.0])
 
-    for i in range(n_neg):
-        # red
-        x = neg_x[i]
-        y = neg_y[i]
-        z = neg_z[i]
-        position_neg[i] = x, y, z
-        colors_neg[i] = (1, 0, 0, 0.8)
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.set_zlabel("Z")
 
-    # concatenate both color and position
-    position = np.concatenate((position_neu, position_pos, position_neg))
-    colors = np.concatenate((colors_neu, colors_pos, colors_neg))
-    # plot ! note the parent parameter
-    # p1 = Scatter3D(parent=view.scene)
-    p1 = scene.visuals.Markers()
-    p1.set_gl_state('opaque', blend=True, depth_test=False)
+    # set axis limit
 
-    if 'whole_film' in picName:
-        size = 1
-    else:
-        size = 10
+    # get the largest number in all x,y,z scales
+    max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i])!=0]
+    max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i])!=0]
+    max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i])!=0]
+    maximum = max(max1+max2+max3)
+    ax.set_xlim3d(0, maximum)
+    ax.set_ylim3d(0, maximum)
+    ax.set_zlim3d(0, maximum)
 
-    p1.set_data(position, face_color=colors, symbol='o', size=size,edge_width=0.5,edge_color=colors)
-    view.add(p1)
-
-    # Add a ViewBox to let the user zoom/rotate
-    view.camera = 'turntable'
-    view.camera.fov = 45
-    view.camera.distance = int(max(2*array.shape[2], 2*array.shape[1], 2*array.shape[0]))
-    view.camera.center = (int(array.shape[2]/2), int(array.shape[1]/2), int(array.shape[0]/2))
-
-    # plot XYZ axes
-    # create a factor number that takes the size of the array and determines the size for font, and tick length
-    factor = max(array.shape[0], array.shape[1], array.shape[2]) / 10
-
-    xax = scene.visuals.Axis(pos=[[0, 0], [int(array.shape[2]), 0]], domain=(0, int(array.shape[1])),
-                             tick_direction=(0, -1), axis_color='black', tick_color='black', text_color='black',
-                             font_size=128 * factor, minor_tick_length=100 * factor, major_tick_length=200 * factor,
-                             axis_label='X axis', axis_font_size=128 * factor, tick_label_margin=300 * factor,
-                             axis_label_margin=800 * factor, parent=view.scene)
-    yax = scene.visuals.Axis(pos=[[0, 0], [0, int(array.shape[1])]], domain=(0, int(array.shape[0])),
-                             tick_direction=(-1, 0), axis_color='black', tick_color='black', text_color='black',
-                             font_size=128 * factor, minor_tick_length=100 * factor, major_tick_length=200 * factor,
-                             axis_label='Y axis', axis_font_size=128 * factor, tick_label_margin=300 * factor,
-                             axis_label_margin=800 * factor, parent=view.scene)
-    zax = scene.visuals.Axis(pos=[[0, 0], [-int(array.shape[0]), 0]], domain=(0, int(array.shape[0])),
-                             tick_direction=(0, -1), axis_color='black', tick_color='black', text_color='black',
-                             font_size=128 * factor, minor_tick_length=100 * factor, major_tick_length=200 * factor,
-                             axis_label='Z axis', axis_font_size=128 * factor, tick_label_margin=300 * factor,
-                             axis_label_margin=800 * factor, parent=view.scene)
-    zax.transform = scene.transforms.MatrixTransform()  # its acutally an inverted xaxis
-    zax.transform.rotate(90, (0, 1, 0))  # rotate cw around yaxis
-    zax.transform.rotate(-45, (0, 0, 1))  # tick direction towards (-1,-1)
-
-    view.add(xax)
-    view.add(yax)
-    view.add(zax)
-
-    # create shader
-    shader = gloo.program.Program(vert=VERTEX_SHADER, frag=FRAGMENT_SHADER)
-
-
+    # create a folder to store all the images]
     global picFolder
     if "picFolder" not in globals():
         # save the image
@@ -451,36 +388,48 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     # if the surface is a film, we only need to see the top
     if "film" in picName:
         # set camera angle
-        elevation = 90
-        azimuth = 0
-        view.camera.elevation = elevation
-        view.camera.azimuth = azimuth
-        image = canvas.render(bgcolor='white')[:, :, 0:3]
+        elev = 90
+        azim = 0
+        ax.view_init(elev=elev, azim=azim)
+        ax.dist = 7
+        plt.title("X-Y plane")
 
         # save file
-        io.write_png('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation, azimuth), image)
+        plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elev, azim))
     elif "bacteria" in picName:
         # save each side of the picture
-        elevation = [0,90,-90]
-        azimuth = [0,90,-90,180]
+        elevation = [0, 90, -90]
+        azimuth = [0, 90, -90, 180]
+        # if the sides are really small, we don't need to output the sides
         # first 4 sides
         for i in range(len(azimuth)):
-            view.camera.elevation = elevation[0]
-            view.camera.azimuth = azimuth[i]
-            image = canvas.render(bgcolor='white')[:, :, 0:3]
+            elev = elevation[0]
+            azim = azimuth[i]
+            ax.view_init(elev=elev, azim=azim)
+            ax.dist = 6
+
+            # name the title
+            if azim == 90 or azim == -90:
+                plt.title('X-Z plane')
+            elif azim == 0 or azim == 180:
+                plt.title('Y-Z plane')
 
             # save file
-            io.write_png('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[0], azimuth[i]), image)
+            plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[0], azimuth[i]))
 
         # last 2 sides
-        for i in range(len(elevation)-1):
-            view.camera.elevation = elevation[i+1]
-            view.camera.azimuth = azimuth[0]
-            image = canvas.render(bgcolor='white')[:, :, 0:3]
+        for i in range(len(elevation) - 1):
+            elev = elevation[i + 1]
+            azim = azimuth[0]
+            ax.view_init(elev=elev, azim=azim)
+            ax.dist = 6
+
+            # name the title
+            plt.title('X-Y plane')
 
             # save file
-            io.write_png('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[i+1], azimuth[0]),
-                         image)
+            plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[i + 1], azimuth[0]))
+    plt.show()
 
     endTime = time.time()
     totalTime = endTime - startTime
