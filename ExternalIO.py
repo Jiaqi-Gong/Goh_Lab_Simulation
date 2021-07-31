@@ -251,7 +251,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
         # size = 40 * ((100 / factor) ** 3.5)
 
         # fourth
-        size = 40 * ((100 / factor) ** 3.8)
+        size = 40 * ((100 / factor) ** 3.9)
 
     else:
         # set title
@@ -259,7 +259,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
         # size = 40*((100/factor))**2
 
         # size = 40*(4**(-factor/100))
-        size = 40*((100/factor)**3.8)
+        size = 40*((100/factor)**3.9)
 
     ax.scatter(pos_x, pos_y, c='blue', label='pos', s=size)
     ax.scatter(neu_x, neu_y, c='green', label='neu', s=size)
