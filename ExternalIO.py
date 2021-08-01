@@ -15,6 +15,7 @@ import math
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
+from matplotlib import collections
 
 LOG_CACH = []
 
@@ -235,22 +236,58 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    # define factor
-    factor = (int(max(array.shape[0], array.shape[1])))
+    colors_pos = np.repeat(np.array([[0,0,1,0.8]]),len(pos_x),axis=0)
+    colors_neu = np.repeat(np.array([[0,1,0,0.8]]),len(neu_x),axis=0)
+    colors_neg = np.repeat(np.array([[1,0,0,0.8]]),len(neg_x),axis=0)
+
+    # # define factor
+    # factor = (int(max(array.shape[0], array.shape[1])))
+    size = ((ax.get_window_extent().width / (max(array.shape[0], array.shape[1]) + 1.) * 72. / fig.dpi) ** 2)
 
     if 'whole_film' in picName:
         # set title
         name = "Surface of Film"
-        size = 40 * ((100 / factor) ** 3)
 
     else:
         # set title
         name = 'Surface of Bacteria'
-        size = 40*((100/factor)**3)
+
 
     ax.scatter(pos_x, pos_y, c='blue', label='pos', s=size)
     ax.scatter(neu_x, neu_y, c='green', label='neu', s=size)
     ax.scatter(neg_x, neg_y, c='red', label='neg', s=size)
+
+    # # positive
+    # circlesPos = [plt.Circle((xi, yi), radius=0.5, linewidth=0, color='blue') for xi, yi in zip(pos_x, pos_y)]
+    # cPos = mpl.collections.PatchCollection(circlesPos)
+    # ax.add_collection(cPos)
+    # # neutral
+    # circlesNeu = [plt.Circle((xi, yi), radius=0.5, linewidth=0, color='green') for xi, yi in zip(neu_x, neu_y)]
+    # cNeu = mpl.collections.PatchCollection(circlesNeu)
+    # ax.add_collection(cNeu)
+    # # negative
+    # circlesNeg = [plt.Circle((xi, yi), radius=0.5, linewidth=0, color='red') for xi, yi in zip(neg_x, neg_y)]
+    # cNeg = mpl.collections.PatchCollection(circlesNeg)
+    # ax.add_collection(cNeg)
+
+    #
+    # # positive
+    # circlesPos = [plt.Circle((xi, yi), radius=0.5, linewidth=0, color='blue') for xi, yi in zip(pos_x, pos_y)]
+    # cPos = collections.PatchCollection(circlesPos)
+    # cPos.set_array(colors_pos)
+    # ax.add_collection(cPos)
+    #
+    # # neutral
+    # circlesNeu = [plt.Circle((xi, yi), radius=0.5, linewidth=0, color='green') for xi, yi in zip(neu_x, neu_y)]
+    # cNeu = collections.PatchCollection(circlesNeu)
+    # cNeu.set_array(colors_neu)
+    # ax.add_collection(cNeu)
+    #
+    # # negative
+    # circlesNeg = [plt.Circle((xi, yi), radius=0.5, linewidth=0, color='red') for xi, yi in zip(neg_x, neg_y)]
+    # cNeg = collections.PatchCollection(circlesNeg)
+    # cNeg.set_array(colors_neg)
+    # ax.add_collection(cNeg)
 
     lgnd = ax.legend(loc="upper right")
     for handle in lgnd.legendHandles:
@@ -311,6 +348,19 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
+    # define factor
+    factor = (int(max(array.shape[0], array.shape[1])))
+
+    if 'whole_film' in picName:
+        # set title
+        name = "Surface of Film"
+        size = 40 * ((100 / factor) ** 4)
+
+    else:
+        # set title
+        name = 'Surface of Bacteria'
+        size = 40 * ((100 / factor) ** 4)
+
     # position of positive
     pos = np.where(array == 1)
     pos_z = pos[0]
@@ -318,7 +368,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     pos_x = pos[2]
     # color of positive
     # colors_pos = np.repeat(np.array([[0,0,1,0.8]]),len(pos_z),axis=0)
-    ax.scatter3D(pos_x, pos_y, pos_z, marker="o", label='positive', color='blue', depthshade=False)
+    ax.scatter3D(pos_x, pos_y, pos_z, marker="o", label='positive', color='blue', depthshade=False, s=size)
 
     # position of neutral
     neu = np.where(array == 0)
@@ -326,7 +376,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     neu_y = neu[1]
     neu_x = neu[2]
     # colors_neu = np.repeat(np.array([[0,1,0,0.8]]),len(neu_z),axis=0)
-    ax.scatter3D(neu_x, neu_y, neu_z, marker="o", label='neutral', color='green', depthshade=False)
+    ax.scatter3D(neu_x, neu_y, neu_z, marker="o", label='neutral', color='green', depthshade=False, s=size)
 
     # position of negative
     neg = np.where(array == -1)
@@ -334,7 +384,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     neg_y = neg[1]
     neg_x = neg[2]
     # colors_neg = np.repeat(np.array([[1,0,0,0.8]]),len(neg_z),axis=0)
-    ax.scatter3D(neg_x, neg_y, neg_z, marker="o", label='negative', color='red', depthshade=False)
+    ax.scatter3D(neg_x, neg_y, neg_z, marker="o", label='negative', color='red', depthshade=False, s=size)
 
     # position_x = np.concatenate((pos_x, neu_x, neg_x))
     # position_y = np.concatenate((pos_y, neu_y, neg_y))
@@ -361,7 +411,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     ax.set_ylim3d(0, maximum)
     ax.set_zlim3d(0, maximum)
 
-    # create a folder to store all the images]
+    # create a folder to store all the images
     global picFolder
     if "picFolder" not in globals():
         # save the image
@@ -371,11 +421,6 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         picFolder = "Image/{}_{}".format(day, current_time)
         if not os.path.exists(picFolder):
             os.mkdir(picFolder)
-
-    global picFolderEach
-    picFolderEach = "{}/{}".format(picFolder, picName)
-    if not os.path.exists(picFolderEach):
-        os.mkdir(picFolderEach)
 
     # if the surface is a film, we only need to see the top
     if "film" in picName:
@@ -387,8 +432,14 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         plt.title("X-Y plane")
 
         # save file
-        plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elev, azim))
+        plt.savefig('{}/{}'.format(picFolder, picName))
+
     elif "bacteria" in picName:
+
+        global picFolderEach
+        picFolderEach = "{}/{}".format(picFolder, picName)
+        if not os.path.exists(picFolderEach):
+            os.mkdir(picFolderEach)
         # save each side of the picture
         elevation = [0, 90, -90]
         azimuth = [0, 90, -90, 180]
@@ -421,7 +472,6 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
 
             # save file
             plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[i + 1], azimuth[0]))
-    plt.show()
 
     endTime = time.time()
     totalTime = endTime - startTime
