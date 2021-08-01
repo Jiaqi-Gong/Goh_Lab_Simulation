@@ -25,11 +25,11 @@ def runSimulation():
 
     # simulator info
     simulationType = 2
-    trail = 213
+    trail = 402
     dimension = 2
     simulatorType = 1
-    # interactType = "DOT"
-    interactType = "CUTOFF"
+    interactType = "DOT"
+    # interactType = "CUTOFF"
 
     # film info
     filmSeed = 1
@@ -45,10 +45,10 @@ def runSimulation():
     interval_x = 10
     interval_y = 10
     filmSurfaceCharge = +1
-    filmDomainSize = (11, 11)
+    filmDomainSize = (7, 7)
     filmDomainShape = "diamond"
-    filmNeutralDomain = False
-    filmDomainCon = 0.4  # if need to change charge ratio, change this
+    filmNeutralDomain = True
+    filmDomainCon = 0.2  # if need to change charge ratio, change this
     filmDomainChargeConcentration = 0.5  # ignore
 
     # bacteria info
@@ -63,11 +63,11 @@ def runSimulation():
         raise RuntimeError("Unknown dimension: {}".format(dimension))
 
     bacteriaSurfaceCharge = -1
-    bacteriaDomainSize = (15, 15)
+    bacteriaDomainSize = (7, 7)
     bacteriaDomainShape = "diamond"
-    bacteriaDomainCon = 0.15
+    bacteriaDomainCon = 0.2
     bacteriaDomainChargeConcentration = 0.5  # ignore
-    bacteriaNeutralDomain = False
+    bacteriaNeutralDomain = True
 
     cutoff = 3
 
