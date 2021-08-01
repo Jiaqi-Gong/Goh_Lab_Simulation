@@ -8,7 +8,7 @@ import numpy as np
 from numpy import ndarray
 from openpyxl.worksheet._write_only import WriteOnlyWorksheet
 from openpyxl.worksheet.worksheet import Worksheet
-from SimulatorFile.EnergyCalculator import interact2D, interact3D
+from SimulatorFile.EnergyCalculator import interact
 from ExternalIO import showMessage, writeLog, saveResult
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter  # allows access to letters of each column
@@ -64,6 +64,7 @@ class EnergySimulator(Simulator):
         """
         Based on the simulation type, do the corresponding simulation
         """
+
         writeLog("This is runSimulation in Simulation")
         showMessage("Start to run simulation baed on simulation type")
         writeLog(self.__dict__)
@@ -118,10 +119,11 @@ class EnergySimulator(Simulator):
         This is the simulation function in this program, call function do the simulation and output the result
         Prerequisite: surface already generated
         """
+
         writeLog("This is _simulate in Simulation")
         showMessage("Start to run simulation")
-        writeLog("self is: {}, currIter is: {}, film is: {}, bacteria is: {}, end is: {}".format(
-            self.__dict__, currIter, film, bacteria, end))
+        # writeLog("self is: {}, currIter is: {}, film is: {}, bacteria is: {}, end is: {}".format(
+        #     self.__dict__, currIter, film, bacteria, end))
 
         # check does cutoff value set
         if self.interactType.upper() in ["CUTOFF", "CUT-OFF"]:
@@ -132,13 +134,8 @@ class EnergySimulator(Simulator):
         else:
             cutoff = 0
 
-        # call simulation based on the simulation type
-        if self.dimension == 2:
-            result = interact2D(self.interactType, self.intervalX, self.intervalY, film, bacteria, currIter, cutoff)
-        elif self.dimension == 3:
-            result = interact3D(self.interactType, self.intervalX, self.intervalY, film, bacteria, currIter, cutoff)
-        else:
-            raise RuntimeError("Wrong dimension in _simulate")
+        # call simulation
+        result = interact(self.interactType, self.intervalX, self.intervalY, film, bacteria, currIter, cutoff, self.dimension)
 
         showMessage("Interact done")
 
@@ -206,9 +203,8 @@ class EnergySimulator(Simulator):
         Copy from old code with minor change
         """
         writeLog("This is _output in Simulation")
-        showMessage("Start to write result into out put")
-        writeLog("self is: {}, result is: {}, currIter is: {}, end is: {}".format(
-            self.__dict__, result, currIter, end))
+        showMessage("Start to write result into out put with iter: {}".format(currIter))
+        writeLog("result is: {}, currIter is: {}, end is: {}".format(result, currIter, end))
 
         # calculate the time use
         time_consume = (datetime.now() - self.startTime)
@@ -269,21 +265,17 @@ class EnergySimulator(Simulator):
         date = datetime.now().strftime("%m_%d")
         time = datetime.now().strftime("%H-%M-%S")
 
-        # save no count first
-        # save the excel file into folder result
-        name = "EnergyScan_Type_{}_trail_{}-{}-{}.xlsx".format(str(self.simulationType), self.trail, date, time)
-        file_path = "Result/" + name
-
-        # call function in ExternalIO to save workbook
-        saveResult(wb, file_path)
 
         # special count for simulation type 2
-        # count number of min_energy locations at each gradient strip
+        # count number of min_energy locations at each gradient strip, also record all energy
+        all_energy = []
         if self.simulationType == 2:
             showMessage("WARNING: Potential bug here")
             for row_num in range(self.bacteriaManager.bacteriaNum):
                 row = 2 + row_num
                 val_id = ws1.cell(row, 15).value
+                energy = ws1.cell(row, 11).value
+                all_energy.append(energy)
                 val = ws1.cell(2, 18 + int(val_id)).value
 
                 # deal with if val value is none
@@ -293,10 +285,15 @@ class EnergySimulator(Simulator):
 
                 ws1.cell(2, 18 + int(val_id), int(val) + 1)
 
-            # save the excel file into folder result
-            name = "EnergyScan_Type_{}_trail_{}-{}-{}_count.xlsx".format(str(self.simulationType), self.trail, date, time)
-            file_path = "Result/" + name
+            # calculate average energy
+            average_energy = sum(all_energy) / len(all_energy)
+            ws1.cell(self.bacteriaManager.bacteriaNum + 2, 11, "Average energy")
+            ws1.cell(self.bacteriaManager.bacteriaNum + 3, 11, average_energy)
 
-            # call function in ExternalIO to save workbook
-            saveResult(wb, file_path)
+        # save the excel file into folder result
+        name = "EnergyScan_Type_{}_trail_{}-{}-{}_count.xlsx".format(str(self.simulationType), self.trail, date, time)
+        file_path = "Result/" + name
+
+        # call function in ExternalIO to save workbook
+        saveResult(wb, file_path)
 

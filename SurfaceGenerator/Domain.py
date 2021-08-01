@@ -9,7 +9,11 @@ from typing import Tuple, List, Union
 from ExternalIO import showMessage, writeLog, visPlot
 import math
 import time
+from multiprocessing import Pool, cpu_count
+from functools import partial
+import os
 
+WAIT_TIME = 10
 
 class DomainGenerator:
     """
@@ -44,6 +48,8 @@ class DomainGenerator:
         showMessage("Start to generate domain ......")
         writeLog([self.__dict__, surface.__dict__, shape, size, concentration])
 
+        startTime = time.time()
+
         # get size
         domainLength = size[0]
         domainWidth = size[1]
@@ -60,23 +66,27 @@ class DomainGenerator:
             checkEmpty = self._diamondEmpty
             # Number of domains
             domainNum = int((surface.length * surface.width * concentration) / int(4*((1+domainWidth)/2)*domainWidth + 1))
+            restriction = domainWidth + 1
             # showMessage("concentration = {}".format(concentration))
         elif shape.upper() == "CROSS":
             generateShape = self._generateCross
             checkEmpty = self._crossEmpty
             # Number of domains
             domainNum = int((surface.length * surface.width * concentration) / int(domainWidth*2+domainLength*2+1))
+            restriction = max(domainWidth+1, domainLength+1)
         elif shape.upper() == "OCTAGON":
             generateShape = self._generateOctagon
             checkEmpty = self._octagonEmpty
             # Number of domains
             domainNum = int((surface.length * surface.width * concentration) / int((domainWidth+1 + domainWidth*2)**2 -
                                                                                    4*((1+domainWidth)/2)*domainWidth))
+            restriction = (3/2)*domainWidth
         elif shape.upper() == "SINGLE":
             generateShape = self._generateSingle
             checkEmpty = self._singleEmpty
             # Number of domains
             domainNum = int(surface.length * surface.width * concentration)
+            restriction = 0
         else:
             raise RuntimeError("Unknown shape")
 
@@ -84,7 +94,7 @@ class DomainGenerator:
         newSurface = surface.originalSurface
 
 
-        # np.set_printoptions(threshold=np.inf)
+        np.set_printoptions(threshold=np.inf)
         # showMessage(newSurface)
         # raise NotImplementedError
 
@@ -98,58 +108,208 @@ class DomainGenerator:
         # therefore, remove the surfaceCharge from possible_charge
         possible_charge.remove(surfaceCharge)
 
-        # now, initalize how many of each charged domains we need to generate
-        # for now, half will be neutral, half will be +ve/-ve charged
-        if self.neutral:
-            domainNumChar1 = math.ceil(domainNum * charge_concentration) # this will have the first charge from the possible_charge list
-            domainNumChar2 = domainNum - domainNumChar1 # this will have the second charge from the possible_charge list
-        elif not self.neutral:
-            domainNumChar1 = domainNum
-            domainNumChar2 = 0
-
-        # initialize the total number of domain generated for each charge
-        # the first and second correspond to domainNumChar1 and domainNumChar2 respectively
-        totalDomainChar = [0,0]
-
-        # show how many of each charged domain will be generated
-        showMessage("Total of {} domains will be generated with charge {}".format(domainNumChar1, possible_charge[0]))
-        showMessage("Total of {} domains will be generated with charge {}".format(domainNumChar2, possible_charge[1]))
-
-
         # make the new surface either all positive or all negative
         newSurface[newSurface == 0] = surfaceCharge
 
         # record info into log
         showMessage("generate new surface done")
-        writeLog(newSurface)
+        # writeLog(newSurface)
         writeLog("Charge of the surface is {}".format(surfaceCharge))
         writeLog("Charge of domain is {} and {}".format(possible_charge[0], possible_charge[1]))
 
         # set the seed for random
         np.random.seed(self.seed)
 
-        # initialize number of domain generated on the surface
-        generated = 0
-
-        # check generate domain number is not too small
-        if generated >= domainNum:
-            raise RuntimeError("Domain concentration is too low")
-
         # Determine all the possible points allowed to be chosen as the start point to begin generating the domain
         possiblePoint = self._allPossiblePoint(newSurface, surface, surface.length, surface.width, surface.height, domainLength,
                                                domainWidth, shape)
-
-        # initialize how long we want the code to run
-        # if its running for too long, that means we most likely reached the maximum amount of domains on the surface and
-        # end the while loop
-        timeout = time.time() + 60  # 60 seconds from now
 
         # if there are no possible points, either domain is too large or surface is too small
         if len(possiblePoint) == 0:
             raise RuntimeError("Either Domain is too large or Surface is too small")
 
+        # for the multiprocessing domain generator, because there is 4 CPU (on my computer), divide the domainNum by 4
+        # we can change the domainNum for each multiprocessor depending on the number of CPU later
+
+        # set how many domains we should make for each CPU
+        # find the number of CPUs on the computer
+        # therefore if the cpu_number is greater than 12, we will just return 12
+        # minus 2 in case of other possible process is running
+        ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)) - 2, 1)
+        if ncpus <= 16:
+            cpu_number = ncpus
+        else:
+            cpu_number = 16
+
+        showMessage(f"number of CPUs is {ncpus} but we will use {cpu_number}")
+
+        domainNumEach = int(domainNum / cpu_number)
+
+        # if we want neutral charges on the surface, we can define domainNumChar2, otherwise, it will be zero
+        if self.neutral:
+            domainNumChar1 = math.ceil(domainNumEach * charge_concentration)  # this will have the first charge from the possible_charge list
+            domainNumChar2 = domainNumEach - domainNumChar1  # this will have the second charge from the possible_charge list
+        elif not self.neutral:
+            domainNumChar1 = domainNumEach
+            domainNumChar2 = 0
+
+        # now for the multiprocessing, separate the surface by the number of CPUs in the computer
+        # for 2D
+        if surface.dimension == 2:
+            # we will find 2 numbers that are closest to each other that multiply to the number of CPUs
+            # first, find the square root of that number
+            squareRoot = math.sqrt(cpu_number)
+
+            # then, split the number into lower and upper half
+            upper = math.ceil(squareRoot)
+            lower = int(squareRoot)
+
+            # use a for loop to see when the 2 numbers multiply to each other
+            # based on how we separate the CPUs, we will separate the surface based on this separation
+            # (column, row)
+            # use this one if surface.width is greater than surface.length
+            # tuple -> (number of x separations, number of y separations)
+            separate = [(i,j) for i in reversed(range(lower+1)) for j in range(upper, cpu_number+1) if i*j == cpu_number][0]
+
+            if surface.length > surface.width:
+                # reverse the order of separate
+                separate = (separate[1], separate[0])
+
+            # bacteria dimension that is smaller will be divided up by the first number in separate
+            # create a list of tuple which indicates which values will be divided by what number
+            # tuple -> (x,y)
+            dividor = [[(i/separate[0],j/separate[1]) for i in range(0, separate[0]+1)] for j in range(0, separate[1]+1)]
+
+            # initialize nested list
+            possiblePointNested = []
+            # this defines the number of columns
+            for i in range(separate[0]):
+                # this defines the number of rows
+                for j in range(separate[1]):
+                    points = [tup for tup in possiblePoint
+                              if tup[0] > int(surface.length*dividor[0][i][0] + restriction)
+                              and tup[0] < int(surface.length*dividor[0][i+1][0] - restriction)
+                              and tup[1] > int(surface.width*dividor[j][0][1] + restriction)
+                              and tup[1] < int(surface.width*dividor[j+1][0][1] - restriction)]
+                    possiblePointNested.append(points)
+
+            # possiblePointNested = [[tup for tup in possiblePoint if tup[0] < int(surface.length/2) - restriction
+            #                         and tup[1] > int(surface.width/2) + restriction],
+            #                  [tup for tup in possiblePoint if tup[0] > int(surface.length/2) + restriction
+            #                   and tup[1] > int(surface.width/2) + restriction],
+            #                  [tup for tup in possiblePoint if tup[0] < int(surface.length/2) - restriction
+            #                   and tup[1] < int(surface.width/2) - restriction],
+            #                  [tup for tup in possiblePoint if tup[0] > int(surface.length/2) + restriction
+            #                   and tup[1] < int(surface.width/2) - restriction]]
+
+        # for 3D, separate the surface into 4 surfaces
+        # Just simple implement for dynamic simulation, change later
+        if surface.dimension == 3:
+            return newSurface, (0, 0)
+
+
+        # use partial to set all the constant variables
+        _generateDomainMultiprocessingConstant = partial(self._generateDomainMultiprocessing, newSurface=newSurface,
+                                                         domainWidth=domainWidth, domainLength=domainLength,
+                                                         possible_charge=possible_charge, domainNumEach=domainNumEach,
+                                                         generateShape=generateShape, checkEmpty=checkEmpty,
+                                                         domainNumChar1=domainNumChar1, domainNumChar2=domainNumChar2)
+        newSurfaceMPList = []
+        generatedList = []
+        with Pool(cpu_number) as pool:
+            newSurfaceMP_generated = pool.map(_generateDomainMultiprocessingConstant, possiblePointNested)
+            # extract the new surface and the number of generated domains for that surface
+            for i in range(cpu_number):
+                newSurfaceMP = newSurfaceMP_generated[i][0]
+                generated = newSurfaceMP_generated[i][1]
+
+                # append both to a list
+                newSurfaceMPList.append(newSurfaceMP)
+                generatedList.append(generated)
+
+        # now combine the arrays
+        k = 0
+        # this defines the number of columns
+        for i in range(separate[0]):
+            # this defines the number of rows
+            for j in range(separate[1]):
+                newSurface[0, int(surface.width*dividor[j][0][1]):int(surface.width*dividor[j+1][0][1]),
+                int(surface.length*dividor[0][i][0]):int(surface.length*dividor[0][i+1][0])] = \
+                    newSurfaceMPList[k][0, int(surface.width*dividor[j][0][1]):int(surface.width*dividor[j+1][0][1]),
+                int(surface.length*dividor[0][i][0]):int(surface.length*dividor[0][i+1][0])]
+                k += 1
+
+        # # need to think of a better way to combine the arrays, but this method works for now
+        # # to combine the arrays, we will replace the specified section of the array with the developed domains
+        # newSurface[0,int(surface.width/2):, :int(surface.length/2+1)] = newSurfaceMPList[0][0, int(surface.width/2):, :int(surface.length/2+1)]
+        # newSurface[0,int(surface.width/2):, int(surface.length/2):] = newSurfaceMPList[1][0, int(surface.width/2):, int(surface.length/2):]
+        # newSurface[0,:int(surface.width/2+1), :int(surface.length/2+1)] = newSurfaceMPList[2][0, :int(surface.width/2+1), :int(surface.length/2+1)]
+        # newSurface[0,:int(surface.width/2+1), int(surface.length/2):] = newSurfaceMPList[3][0, :int(surface.width/2+1), int(surface.length/2):]
+
+        # current number of domains that have been generated
+        # showMessage(generatedList)
+        currentdomainNum = sum(generatedList)
+        if domainNum > currentdomainNum:
+            domainRemaining = domainNum - currentdomainNum
+            if self.neutral:
+                domainNumChar1 = math.ceil(domainRemaining * charge_concentration)  # this will have the first charge from the possible_charge list
+                domainNumChar2 = domainRemaining - domainNumChar1  # this will have the second charge from the possible_charge list
+            elif not self.neutral:
+                domainNumChar1 = domainRemaining
+                domainNumChar2 = 0
+            _generateDomainMultiprocessingConstant = partial(self._generateDomainMultiprocessing, newSurface=newSurface,
+                                                             domainWidth=domainWidth, domainLength=domainLength,
+                                                             possible_charge=possible_charge,
+                                                             domainNumEach=domainRemaining,
+                                                             generateShape=generateShape, checkEmpty=checkEmpty,
+                                                             domainNumChar1=domainNumChar1,
+                                                             domainNumChar2=domainNumChar2)
+            [newSurface, generated] = _generateDomainMultiprocessingConstant(possiblePoint)
+            generatedList.append(generated)
+
+        # if the total domain number is less than current domain number, we generated too much and there is an error
+        # in the code
+        elif domainNum < currentdomainNum:
+            raise RuntimeError("Generated too many domains during multiprocessing")
+
+        # determine the number of actual number of domains that generated onto the surface
+        actualDomainNum = sum(generatedList)
+
+        # if the intended domain number is not equal to the actual domain number, there is something wrong in the code
+        # if domainNum != actualDomainNum:
+        #     raise RuntimeError("Actual domain number does not equal the intended number of domains")
+
+        # now, we will determine where
+        concentration_charge = (len(np.where(newSurface == possible_charge[0])[0])) / (surface.length * surface.width)
+        concentration_neutral = (len(np.where(newSurface == possible_charge[1])[0])) / (surface.length * surface.width)
+
+        endTime = time.time()
+        totalTime = endTime - startTime
+        showMessage(f"Total time it took for generating domain is {totalTime} seconds")
+        return newSurface, (concentration_charge, concentration_neutral)
+
+    def _generateDomainMultiprocessing(self, possiblePoint: List[int], newSurface: ndarray, domainWidth: int,
+                                       domainLength: int,possible_charge: List[int], domainNumEach: int,
+                                       generateShape, checkEmpty, domainNumChar1: int, domainNumChar2: int) -> [ndarray, int]:
+        """
+        This function actually generates the domains
+        It was implemented as a test for multiprocessing
+        Return the number of generated domains as well as the film
+        """
+        # initialize totalDomainChar
+        totalDomainChar = [0,0]
+
+        # initialize how long we want the code to run
+        # if its running for too long, that means we most likely reached the maximum amount of domains on the surface and
+        # end the while loop
+        timeout = time.time() + WAIT_TIME  # 60 seconds from now
+
+        # initialize generated
+        generated = 0
+
         # start to generate the domain on surface
-        while generated < domainNum:
+        # to generate the domains on the surface, we will be using multiprocessing to take advantage of all 4 CPUS
+        while generated < domainNumEach:
             # if the while loop has been running for too long, break the while loop
             if time.time() > timeout or len(possiblePoint) == 0:
                 break
@@ -182,21 +342,11 @@ class DomainGenerator:
             # initialize how long we want the code to run
             # if its running for too long, that means we most likely reached the maximum amount of domains on the surface and
             # end the while loop
-            timeout = time.time() + 60  # 60 seconds from now
+            timeout = time.time() + WAIT_TIME  # 60 seconds from now
 
-            # showMessage("Generated domain number {}".format(generated))
-
-        concentration_charge = (len(np.where(newSurface == possible_charge[0])[0])) / (surface.length * surface.width)
-        concentration_neutral = (len(np.where(newSurface == possible_charge[1])[0])) / (surface.length * surface.width)
-        actual_concentration = concentration_neutral + concentration_charge
-
-        showMessage("actual concentration is {} with charge being {}, neutral being {}".format(actual_concentration,
-                                                                                               concentration_charge,
-                                                                                               concentration_neutral))
-        showMessage("intended concentration is {}".format(concentration))
-        showMessage("generated total of {} with charge {}".format(totalDomainChar[0], possible_charge[0]))
-        showMessage("generated total of {} with charge {}".format(totalDomainChar[1], possible_charge[1]))
-        return newSurface, (concentration_charge, concentration_neutral)
+        # combine the new surface and total number of domains generated into a list
+        surface_generated = [newSurface, generated]
+        return surface_generated
 
     def _allPossiblePoint(self, newSurface: ndarray, surface: Surface, surfaceLength: int, surfaceWidth: int, surfaceHeight: int,
                           domainLength: int, domainWidth: int, shape: str) -> List[Tuple[int, int, int]]:
@@ -228,9 +378,6 @@ class DomainGenerator:
                                       max(np.where(newSurface != 2)[1]) - domainWidth - 2)
                 z_possibility = range(domainWidth + 2 + min(np.where(newSurface != 2)[0]),
                                       max(np.where(newSurface != 2)[0]) - domainWidth - 2)
-                # x_possibility = range(domainLength + 2, surfaceLength - domainLength - 2)
-                # y_possibility = range(domainWidth + 2, surfaceWidth - domainWidth - 2)
-                # z_possibility = range(domainWidth + 2, surfaceHeight - domainWidth - 2)
 
                 if surface.shape.upper() == "CUBOID" or surface.shape.upper() == "RECTANGLE":
                     # create list with all possible coordinates using list comprehension
@@ -283,10 +430,6 @@ class DomainGenerator:
                                            (i - center[0]) ** 2 + (j - center[1]) ** 2 < radius ** 2]
 
                 elif surface.shape.upper() == "ROD":
-                    # # define all the possible coordinates where domain can be generated
-                    # x_possibility = range(domainLength + 2 + min(np.where(newSurface!=2)[2]), max(np.where(newSurface!=2)[2]) - domainLength - 2)
-                    # y_possibility = range(domainWidth + 2 + min(np.where(newSurface!=2)[1]), max(np.where(newSurface!=2)[1]) - domainWidth - 2)
-                    # z_possibility = range(domainWidth + 2, surfaceHeight - domainWidth - 2)
                     # initalize the center point of the circles
                     rod_dim = min(surface.length, surface.width, surface.height)
 
@@ -336,10 +479,6 @@ class DomainGenerator:
                                       max(np.where(newSurface != 2)[1]) - domainWidth - 2)
                 z_possibility = range(domainWidth + 2 + min(np.where(newSurface != 2)[0]),
                                       max(np.where(newSurface != 2)[0]) - domainWidth - 2)
-                # # define all the possible coordinates where domain can be generated
-                # x_possibility = range(domainLength + 2, surfaceLength - domainLength - 2)
-                # y_possibility = range(domainWidth + 2, surfaceWidth - domainWidth - 2)
-                # z_possibility = range(domainWidth + 2, surfaceHeight - domainWidth - 2)
 
                 if surface.shape.upper() == "CUBOID" or surface.shape.upper() == "RECTANGLE":
                     # create list with all possible coordinates using list comprehension
@@ -398,10 +537,6 @@ class DomainGenerator:
                                            (i - center[0]) ** 2 + (j - center[1]) ** 2 < radius ** 2]
 
                 elif surface.shape.upper() == "ROD":
-                    # # define all the possible coordinates where domain can be generated
-                    # x_possibility = range(domainLength + 2 + min(np.where(newSurface!=2)[2]), max(np.where(newSurface!=2)[2]) - domainLength - 2)
-                    # y_possibility = range(domainWidth + 2 + min(np.where(newSurface!=2)[1]), max(np.where(newSurface!=2)[1]) - domainWidth - 2)
-                    # z_possibility = range(domainWidth + 2, surfaceHeight - domainWidth - 2)
                     # initalize the center point of the circles
                     rod_dim = min(surface.length, surface.width, surface.height)
 
@@ -474,22 +609,6 @@ class DomainGenerator:
                                           int(max(np.where(newSurface != 2)[1]) - (3 * domainWidth + 1) / 2 - 2))
                     z_possibility = range(int((3 * domainWidth + 1) / 2) + 2 + min(np.where(newSurface != 2)[0]),
                                           int(max(np.where(newSurface != 2)[0]) - (3 * domainWidth + 1) / 2 - 2))
-                # if domainLength % 2 == 0:
-                #     # define all the possible coordinates where domain can be generated
-                #     x_possibility = range(int(3*domainLength / 2) + 1,
-                #                           int(surfaceLength - (3*domainLength / 2) - 1))
-                #     y_possibility = range(int(3*domainWidth / 2) + 1,
-                #                           int(surfaceWidth - 3*domainWidth / 2 - 1))
-                #     z_possibility = range(int(3*domainWidth / 2) + 1,
-                #                           int(surfaceHeight - (3*domainWidth / 2) - 1))
-                # # if the domainLength is an odd number
-                # elif domainLength % 2 == 1:
-                #     x_possibility = range(int(domainLength + ((domainLength + 1) / 2) + 1),
-                #                           int(surfaceLength - domainLength - ((domainLength + 1) / 2) - 1))
-                #     y_possibility = range(int(domainWidth + ((domainWidth + 1) / 2) + 1),
-                #                           int(surfaceWidth - domainWidth - ((domainWidth + 1) / 2) - 1))
-                #     z_possibility = range(int(domainWidth + ((domainWidth + 1) / 2) + 1),
-                #                           int(surfaceHeight - domainWidth - ((domainWidth + 1) / 2) - 1))
 
                 # for 3D surface
                 if surface.shape.upper() == "CUBOID" or surface.shape.upper() == "RECTANGLE":
@@ -545,10 +664,6 @@ class DomainGenerator:
                                            (i - center[0]) ** 2 + (j - center[1]) ** 2 < radius ** 2]
 
                 elif surface.shape.upper() == "ROD":
-                    # # define all the possible coordinates where domain can be generated
-                    # x_possibility = range(domainLength + 2 + min(np.where(newSurface!=2)[2]), max(np.where(newSurface!=2)[2]) - domainLength - 2)
-                    # y_possibility = range(domainWidth + 2 + min(np.where(newSurface!=2)[1]), max(np.where(newSurface!=2)[1]) - domainWidth - 2)
-                    # z_possibility = range(domainWidth + 2, surfaceHeight - domainWidth - 2)
                     # initalize the center point of the circles
                     rod_dim = min(surface.length, surface.width, surface.height)
 
@@ -599,10 +714,6 @@ class DomainGenerator:
                                       max(np.where(newSurface != 2)[1]))
                 z_possibility = range(min(np.where(newSurface != 2)[0]),
                                       max(np.where(newSurface != 2)[0]))
-                # # If the surface was a rectangle/cuboid, the points can fall inside the surface length, width, height
-                # x_possibility = range(2, surface.length - 2)
-                # y_possibility = range(2, surface.width - 2)
-                # z_possibility = range(2, surface.height - 2)
                 if surface.shape.upper() == "RECTANGLE" or surface.shape.upper() == "CUBOID":
                     # create list with all possible coordinates using list comprehension
                     # when x is constant
@@ -672,50 +783,22 @@ class DomainGenerator:
 
                     # initalize center of semicircles
                     radius = int(np.floor(rod_dim/5))
-
-                    # length = int(3 * radius) + 2
-
                     center_bottom = (center[0], center[1], int(min(np.where(newSurface != 2)[0]) + radius))
 
                     center_top = (center[0], center[1], int(max(np.where(newSurface != 2)[0]) - radius))
 
-                    showMessage(center_bottom)
-                    showMessage(center_top)
-                    showMessage(radius)
-
 
                     # create list with all possible coordinates using list comprehension
                     # when x is constant
-                    possibleCoordinate1 = []
-                    for i in [0, int(surface.length) - 1]:
-                        for j in y_possibility:
-                            for k in z_possibility:
-                                if (k > center_top[2] and (j - center_top[1]) ** 2 + (
-                                        k - center_top[2]) ** 2 < radius ** 2) or (
-                                        k < center_bottom[2] and (j - center_bottom[1]) ** 2 + (
-                                        k - center_bottom[2]) ** 2 < radius ** 2) or k < center_top[2] or k > \
-                                        center_bottom[2]:
-                                    possibleCoordinate1.append((i, j, k))
-
-                    # possibleCoordinate1 = [(i, j, k) for i in [0, int(surface.length) - 1] for j in y_possibility for k
-                    #                        in z_possibility if ((k>center_top[2] and (j - center_top[1]) ** 2 + (k - center_top[2]) ** 2 < radius ** 2)
-                    #                        or (k<center_bottom[2] and (j - center_bottom[1]) ** 2 + (k - center_bottom[2]) ** 2 < radius ** 2) or
-                    #                        k<center_top[2] or k>center_bottom[2])]
+                    possibleCoordinate1 = [(i, j, k) for i in [0, int(surface.length) - 1] for j in y_possibility for k
+                                           in z_possibility if ((k>center_top[2] and (j - center_top[1]) ** 2 + (k - center_top[2]) ** 2 < radius ** 2)
+                                           or (k<center_bottom[2] and (j - center_bottom[1]) ** 2 + (k - center_bottom[2]) ** 2 < radius ** 2) or
+                                            (k<=center_top[2] and k>=center_bottom[2]))]
                     # when y is constant
-                    possibleCoordinate2 = []
-                    for i in x_possibility:
-                        for j in [0, int(surface.width) - 1]:
-                            for k in z_possibility:
-                                if (k > center_top[2] and (i - center_top[0]) ** 2 + (
-                                        k - center_top[2]) ** 2 < radius ** 2) or (
-                                        k < center_bottom[2] and (i - center_bottom[0]) ** 2 + (
-                                        k - center_bottom[2]) ** 2 < radius ** 2) or k < center_top[2] or k > \
-                                        center_bottom[2]:
-                                    possibleCoordinate2.append((i, j, k))
-                    # possibleCoordinate2 = [(i, j, k) for i in x_possibility for j in [0, int(surface.width) - 1] for k
-                    #                        in z_possibility if ((k>center_top[2] and (i - center_top[0]) ** 2 + (k - center_top[2]) ** 2 < radius ** 2)
-                    #                        or (k<center_bottom[2] and (i - center_bottom[0]) ** 2 + (k - center_bottom[2]) ** 2 < radius ** 2) or
-                    #                        k<center_top[2] or k>center_bottom[2])]
+                    possibleCoordinate2 = [(i, j, k) for i in x_possibility for j in [0, int(surface.width) - 1] for k
+                                           in z_possibility if ((k>center_top[2] and (i - center_top[0]) ** 2 + (k - center_top[2]) ** 2 < radius ** 2)
+                                           or (k<center_bottom[2] and (i - center_bottom[0]) ** 2 + (k - center_bottom[2]) ** 2 < radius ** 2) or
+                                            (k<=center_top[2] and k>=center_bottom[2]))]
                     # when z is constant
                     possibleCoordinate3 = [(i, j, k) for i in x_possibility for j in y_possibility for k in
                                            [0, int(surface.height) - 1] if
@@ -744,8 +827,10 @@ class DomainGenerator:
         # return the coordinate
         coordinate = possiblePoint[index]
         # remove the chosen coordinate from all possiblepoints
-        possiblePoint.pop(index)
-
+        try:
+            possiblePoint.pop(index)
+        except AttributeError:
+            print(len(possiblePoint))
 
         # writeLog("Point picked is: {}".format(coordinate))
 
@@ -764,8 +849,6 @@ class DomainGenerator:
         # for a 2D surface, return the point since we don't need to traverse through the z-axis
         if surface.shape[0] == 1:
             return point
-
-        # showMessage("surface shape is {}".format(surface.shape))
 
         # if the point is already on the surface, return the point
         if surface[point[0], point[1], point[2]] != 2:

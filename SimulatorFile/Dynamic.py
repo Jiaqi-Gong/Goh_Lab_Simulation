@@ -38,6 +38,10 @@ class DynamicSimulator(Simulator):
         self.timeStep = None
         self.bacteriaMovementSeed = None
         self.dumpStep = None
+        self.unstuck = None
+
+        if parameters["unstuck"]:
+            self.unstuckProbability = None
 
         # simulation type is not applicable for dynamic simulator
         simulationType = -1
@@ -93,6 +97,8 @@ class DynamicSimulator(Simulator):
         result = [len(self.bacteriaManager.freeBacteria), len(self.bacteriaManager.stuckBacteria)]
         self._output(result, 0, False)
 
+        showMessage("Start simulation in dynamic simulator")
+
         # do the simulation
         end = False
         for currIter in range(1, self.timeStep):
@@ -145,11 +151,24 @@ class DynamicSimulator(Simulator):
 
         if self.probabilityType.upper() == "SIMPLE":
             ws1.cell(1, 15, "Probability")
+            last_col = 15
         elif self.probabilityType.upper() == "POISSON":
             ws1.cell(1, 15, "Lambda value")
+            last_col = 15
         elif self.probabilityType.upper() == "BOLTZMANN":
             ws1.cell(1, 15, "Temperature")
             ws1.cell(1, 16, "Energy")
+            last_col = 15
+
+        ws1.cell(1, last_col + 1, "Unstuck")
+        last_col += 1
+        # if it can unstuck
+        if self.unstuck:
+            ws1.cell(1, last_col + 1, "Stuck probability")
+            last_col += 1
+
+        # calculate the number of stuck / number of total
+        ws1.cell(1, last_col + 1, "Number of stuck / number of total")
 
         return (wb, ws1)
 
@@ -196,11 +215,25 @@ class DynamicSimulator(Simulator):
 
         if self.probabilityType.upper() == "SIMPLE":
             ws1.cell(row_pos, 15, self.probability)
+            last_col = 15
         elif self.probabilityType.upper() == "POISSON":
             ws1.cell(row_pos, 15, self.Lambda)
+            last_col = 15
         elif self.probabilityType.upper() == "BOLTZMANN":
             ws1.cell(row_pos, 15, self.temperature)
             ws1.cell(row_pos, 16, self.energy)
+            last_col = 16
+
+        ws1.cell(row_pos, last_col + 1, self.unstuck)
+        last_col += 1
+
+        # if it can unstuck
+        if self.unstuck:
+            ws1.cell(1, last_col + 1, self.unstuckProbability)
+            last_col += 1
+
+        # calculate the number of stuck / number of total
+        ws1.cell(1, last_col + 1, self.unstuck / self.bacteriaNum)
 
         # if this is not the last iterator, update the time and return this
         if not end:
@@ -226,16 +259,17 @@ class DynamicSimulator(Simulator):
         3. If bacteria is stick, change it from free list to stick list
         4. At the end, give the length of free and length of stick
         """
-        # raise NotImplementedError
-
-        showMessage("Start simulation in dynamic simulator")
-
         # if no free bacteria, do nothing
-        if len(self.bacteriaManager.freeBacteria) == 0:
-            return None
+        if not self.unstuck:
+            if len(self.bacteriaManager.freeBacteria) == 0:
+                return None
 
         # if probability type is Boltzmann, need to update self.temperature and self.energy
         # will be implement in the future
+
+        # init two list for temp record
+        free_bact = self.bacteriaManager.freeBacteria[:]
+        stuck_bact = self.bacteriaManager.stuckBacteria[:]
 
         # loop all free bacteria
         for bact in self.bacteriaManager.freeBacteria:
@@ -250,8 +284,27 @@ class DynamicSimulator(Simulator):
             # based on next position, move the bacteria
             if bactNextPos is False:
                 # bacteria is stuck, move from free list to stuck list
-                self.bacteriaManager.freeBacteria.remove(bact)
-                self.bacteriaManager.stuckBacteria.append(bact)
+                free_bact.remove(bact)
+                stuck_bact.append(bact)
             else:
                 # bacteria is not stuck, update the position
                 bact.position = bactNextPos
+
+        # if can unstack, loop all stuck bacteria
+        if self.unstuck:
+            for sbact in self.bacteriaManager.stuckBacteria:
+                # get to see if bacteria can free
+                if self.probabilityType.upper() == "SIMPLE":
+                    bactStatus = bactMoveGenerator.unstuckBacteria(self.probabilityType, self.unstuckProbability)
+                else:
+                    raise RuntimeError(
+                        "This is _interact in Dynamic simulator, the input probability type is not implement")
+
+                # based on bact status, move bacteria in list
+                if bactStatus:
+                    stuck_bact.remove(sbact)
+                    free_bact.append(sbact)
+
+        # updated free and stuck bacteria to manager
+        self.bacteriaManager.freeBacteria = free_bact
+        self.bacteriaManager.stuckBacteria = stuck_bact

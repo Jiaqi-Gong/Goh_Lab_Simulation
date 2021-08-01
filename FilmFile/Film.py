@@ -42,7 +42,7 @@ class FilmSurface2D(Film, ABC):
         Film.__init__(self, trail, shape, size, surfaceCharge, seed, dimension)
 
         showMessage("Generate Film surface 2D done")
-        writeLog(self.__dict__)
+        # writeLog(self.__dict__)
 
     def _generateSurface(self) -> ndarray:
         """
@@ -86,7 +86,7 @@ class FilmSurface3D(Film, ABC):
         Film.__init__(self, trail, shape, size, surfaceCharge, seed, dimension)
 
         showMessage("Generate Film surface 3D done")
-        writeLog(self.__dict__)
+        # writeLog(self.__dict__)
 
     def _generateSurface(self) -> ndarray:
         """

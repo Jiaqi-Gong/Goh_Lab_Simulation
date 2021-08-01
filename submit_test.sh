@@ -11,5 +11,5 @@
 #SBATCH --mail-type=REQUEUE
 #SBATCH --mail-type=ALL
 
-source ../ENV/bin/activate
-python3 RunSimulationScript.py
+
+python3 RunSimulationScript_test.py

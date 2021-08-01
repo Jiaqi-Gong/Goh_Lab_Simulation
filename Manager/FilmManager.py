@@ -58,7 +58,7 @@ class FilmManager:
         """
         writeLog("This is function generate Film in the FilmManager.py")
         showMessage("Start to generate Film")
-        writeLog(self.__dict__)
+        # writeLog(self.__dict__)
 
         # depends on the dimension to call appropriate function
         for i in range(self.filmNum):

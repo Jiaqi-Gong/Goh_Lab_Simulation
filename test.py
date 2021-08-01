@@ -1,15 +1,20 @@
 import random
 from datetime import datetime
+from functools import partial
+from typing import Tuple, List
 
 import numpy as np  # numpy is required to make matrices
 from PIL import Image
+from numpy import ndarray
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 import time
 
 from SimulatorFile.Dynamic import DynamicSimulator
 from SimulatorFile.EnergyScan import EnergySimulator
-from ExternalIO import getHelp, getRestriction, openLog
+from ExternalIO import getHelp, getRestriction
+import multiprocessing as mp
+import os
 
 
 def test_diamond():
@@ -215,70 +220,6 @@ def testchange():
     return tupleList
 
 
-def test_simulation():
-    # get the help info
-    helpDict = getHelp()
-
-    # get special info dict, exec dict
-    infoDict, execDict = getRestriction()
-
-    # get log file
-    openLog()
-
-    simulationType = 1
-    trail = 1
-    dimension = 2
-    filmSeed = 1
-    filmSurfaceSize = (10, 10)
-    filmSurfaceShape = "rectangle"
-    filmNum = 1
-    bacteriaNum = 5
-    interval_x = 50
-    interval_y = 50
-    filmSurfaceCharge = -1
-    filmDomainSize = (1, 1)
-    filmDomainShape = "octagon"
-    filmDomainCon = 0.5
-    filmDomainChargeConcentration = 0.5
-    bacteriaSeed = 10
-    bacteriaSize = (5, 5)
-    bacteriaSurfaceShape = "rectangle"
-    bacteriaSurfaceCharge = 1
-    bacteriaDomainSize = (1, 1)
-    bacteriaDomainShape = "octagon"
-    bacteriaDomainCon = 0.5
-    bacteriaDomainChargeConcentration = 0.5
-
-    ### below is new variable
-    simulatorType = 1
-    interactType = "DOT"
-
-    # below are for dynamic simulation, we are not using for now
-    probabilityType = ""
-    timestep = ""
-
-    # take info for simulator
-    if simulatorType == 1:
-        simulator = EnergySimulator
-        # taking info for energy scan simulation
-        parameter = {"interactType": interactType}
-
-    elif simulatorType == 2:
-        simulator = DynamicSimulator
-        # taking info for dynamic simulation
-        parameter = {"probabilityType": probabilityType, "timestep": timestep}
-    else:
-        raise RuntimeError("Unknown simulator type")
-
-    # generate simulator
-    sim = simulator(simulationType, trail, dimension,
-                    filmSeed, filmSurfaceSize, filmSurfaceShape, filmSurfaceCharge,
-                    filmDomainSize, filmDomainShape, filmDomainCon, filmDomainChargeConcentration,
-                    bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
-                    bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, bacteriaDomainChargeConcentration,
-                    filmNum, bacteriaNum, interval_x, interval_y, parameter)
-
-    sim.runSimulate()
 
 def testVisible():
 
@@ -385,6 +326,92 @@ def _simple(probability: float) -> bool:
 
     return stick
 
+def test_mp1():
+
+    ncpus = int(os.environ.get('SLURM_CPUS_PER_TASK', default=1))
+    pool = mp.Pool(processes=ncpus)
+    data = [(11, 1), (22, 3), (41, 5, 6)]
+    result = {}
+
+    _cube = partial(cube, result=result)
+
+    cubes = pool.map(_cube, data)
+    print(cubes)
+    cubes.sort()
+    print(cubes)
+
+def cube(x):
+    return (x[0], x[0] ** 3)
+
+def test_mp2():
+    # init parameter for multiprocess
+    ncpus = 10
+    pool = mp.Pool(processes=ncpus)
+
+    range_x = [i for i in range(50)]
+    range_y = [i for i in range(50)]
+
+    # prepare data for multiprocess, data is divided range into various parts, not exceed sqrt of ncpus can use
+    part = int(np.floor(np.sqrt(ncpus)))
+    data = []
+
+    # double loop to prepare range x and range y
+    range_x_list = [range_x[i:i + part] for i in range(0, len(range_x), part)]
+    range_y_list = [range_y[i:i + part] for i in range(0, len(range_y), part)]
+
+    # put combination into data
+    for x in range_x_list:
+        for y in range_y_list:
+            data.append((x, y))
+
+    result = pool.map(cube, data)
+
+    # get the minimum result
+    result.sort()
+    result = result.pop(0)
+    result, min_film = result[0], result[1]
+
+
+def testCutoffFilm():
+    film = np.arange(start=0, stop=10000)
+    film = np.reshape(film, (100, 100))
+    bacteria = np.ones((10, 10))
+
+    startPoint = (10, 10)
+    cutoff = 2
+
+    r = _getCutoffFilm1D(film, startPoint, bacteria.shape, cutoff)
+    print(r)
+
+def _getCutoffFilm1D(film: ndarray, startPoint: Tuple[int, int], bacteriaSize: Tuple[int, int], cutoff: int) \
+        -> List[ndarray]:
+    """
+    This function based on the start point and cut off value, general a list of film need to calculate energy
+    """
+    # init a empty list
+    film_list = []
+
+    # get the size of film
+    if len(film.shape) == 2:
+        filmSize = film.shape
+    else:
+        filmSize = film.shape[1:]
+
+    # get the range on x and y axis
+    x_start = max(0, startPoint[0] - cutoff)
+    x_end = min(filmSize[1] - 1 - bacteriaSize[1], startPoint[0] + cutoff)
+    y_start = max(0, startPoint[1] - cutoff)
+    y_end = min(filmSize[0] - 1 - bacteriaSize[0], startPoint[1] + cutoff)
+
+    # append corresponding film into list in 1D
+    for x_s in range(x_start, x_end + 1):
+        for y_s in range(y_start, y_end + 1):
+            y = y_s + bacteriaSize[1]
+            x = x_s + bacteriaSize[0]
+            fy = film[y_s: y, x_s: x]
+            film_list.append(fy)
+
+    return film_list
 
 
 
@@ -418,4 +445,8 @@ if __name__ == '__main__':
 
     # print(testCutoff())
 
-    print(test_random())
+    # print(test_random())
+
+    # test_mp2()
+
+    testCutoffFilm()
