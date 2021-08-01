@@ -3,8 +3,8 @@ This file deal with the read/write from the text file
 """
 import os
 from datetime import datetime
-from typing import Dict, IO
-import logging
+from typing import Dict, IO, List
+from multiprocessing import Pool, cpu_count
 
 import numpy as np
 from numpy import ndarray
@@ -259,23 +259,38 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # ax.scatter(neu_x, neu_y, c='green', label='neu', s=size)
     # ax.scatter(neg_x, neg_y, c='red', label='neg', s=size)
 
-    # positive
-    circlesPos = [plt.Rectangle((xi, yi), width=1, height=1, linewidth=0) for xi, yi in zip(pos_x, pos_y)]
-    cPos = collections.PatchCollection(circlesPos)
-    cPos.set_facecolor(colors_pos)
-    ax.add_collection(cPos)
+    # create a nested list containing position [positive, neutral, negative]
+    positive = [pos_x, pos_y, colors_pos]
+    neutral = [neu_x, neu_y, colors_neu]
+    negative = [neg_x, neg_y, colors_neg]
+    nested = [positive, neutral, negative]
+    # x_pos = [pos_x, neu_x, neg_x]
+    # y_pos = [pos_y, neu_y, neg_y]
+    # colors = [colors_pos, colors_neu, colors_neg]
 
-    # neutral
-    circlesNeu = [plt.Rectangle((xi, yi), width=1, height=1, linewidth=0) for xi, yi in zip(neu_x, neu_y)]
-    cNeu = collections.PatchCollection(circlesNeu)
-    cNeu.set_facecolor(colors_neu)
-    ax.add_collection(cNeu)
-
-    # negative
-    circlesNeg = [plt.Rectangle((xi, yi), width=1, height=1, linewidth=0) for xi, yi in zip(neg_x, neg_y)]
-    cNeg = collections.PatchCollection(circlesNeg)
-    cNeg.set_facecolor(colors_neg)
-    ax.add_collection(cNeg)
+    # use multiprocessing to speed up visualization
+    pool = Pool(3)
+    c = pool.starmap(_circleAdder, nested)
+    # extract the PathCollection for each
+    for i in c:
+        ax.add_collection(i)
+    # # positive
+    # circlesPos = [plt.Rectangle((xi, yi), width=1, height=1, linewidth=0) for xi, yi in zip(pos_x, pos_y)]
+    # cPos = collections.PatchCollection(circlesPos)
+    # cPos.set_facecolor(colors_pos)
+    # ax.add_collection(cPos)
+    #
+    # # neutral
+    # circlesNeu = [plt.Rectangle((xi, yi), width=1, height=1, linewidth=0) for xi, yi in zip(neu_x, neu_y)]
+    # cNeu = collections.PatchCollection(circlesNeu)
+    # cNeu.set_facecolor(colors_neu)
+    # ax.add_collection(cNeu)
+    #
+    # # negative
+    # circlesNeg = [plt.Rectangle((xi, yi), width=1, height=1, linewidth=0) for xi, yi in zip(neg_x, neg_y)]
+    # cNeg = collections.PatchCollection(circlesNeg)
+    # cNeg.set_facecolor(colors_neg)
+    # ax.add_collection(cNeg)
 
 
     # # positive
@@ -338,6 +353,15 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     showMessage(f"Total time it took to generate 2D image is {totalTime} seconds")
     showMessage("Image generate done")
 
+def _circleAdder(x: ndarray, y:ndarray, color:ndarray) -> None:
+    # extract the nested list
+    # color = nested[2]
+    # x = nested[0]
+    # y = nested[1]
+    circles = [plt.Rectangle((xi, yi), width=1, height=1, linewidth=0) for xi, yi in zip(x, y)]
+    c = collections.PatchCollection(circles)
+    c.set_facecolor(color)
+    return c
 
 def _visPlot3D(array: ndarray, picName: str) -> None:
     """
