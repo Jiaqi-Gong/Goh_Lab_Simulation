@@ -26,7 +26,7 @@ def runSimulation():
     # simulator info
     simulationType = 2
     trail = 999
-    dimension = 3
+    dimension = 2
     simulatorType = 1
     # interactType = "DOT"
     interactType = "CUTOFF"
@@ -34,9 +34,9 @@ def runSimulation():
     # film info
     filmSeed = 1
     if dimension == 2:
-        filmSurfaceSize = (1000, 1000)
+        filmSurfaceSize = (10000, 10000)
     elif dimension == 3:
-        filmSurfaceSize = (1000, 1000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
+        filmSurfaceSize = (10000, 10000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
     else:
         raise RuntimeError("Unknown dimension: {}".format(dimension))
     filmSurfaceShape = "rectangle"
@@ -45,7 +45,7 @@ def runSimulation():
     interval_x = 10
     interval_y = 10
     filmSurfaceCharge = +1
-    filmDomainSize = (100, 100)
+    filmDomainSize = (11, 11)
     filmDomainShape = "diamond"
     filmNeutralDomain = False
     filmDomainCon = 0.2  # if need to change charge ratio, change this
