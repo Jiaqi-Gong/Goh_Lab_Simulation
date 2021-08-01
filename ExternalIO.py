@@ -244,7 +244,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # factor = (int(max(array.shape[0], array.shape[1])))
     # size = ((ax.get_window_extent().width / (max(array.shape[0], array.shape[1]) + 1.) * 72. / fig.dpi) ** 2)
 
-    if 'whole_film' in picName:
+    if 'film' in picName:
         # set title
         name = "Surface of Film"
 
@@ -259,17 +259,100 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # ax.scatter(neu_x, neu_y, c='green', label='neu', s=size)
     # ax.scatter(neg_x, neg_y, c='red', label='neg', s=size)
 
+    # get the total number of CPUs
+    ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)) - 2, 1)
+    # ncpus = cpu_count()
+    if ncpus <= 18:
+        cpu_number = ncpus
+    else:
+        cpu_number = 18
+
+    # initialize nested list
+    nested = []
+    # if there are neutral domains, we will divide the cpu by 3. Else, we will divide the cpu into 2
+    if len(neu_x) == 0:
+        divide = 2
+        remainder_pos = int(cpu_number / divide)
+        remainder_neg = cpu_number - remainder_pos
+
+        # now divide up the surface into parts based on the number of cpus for positive and negative
+        # positive
+        dividor_pos = [int((len(pos_x)-1)*i/remainder_pos) for i in range(remainder_pos+1)]
+        for i in range(len(dividor_pos)-1):
+            pos_x_new = pos_x[dividor_pos[i]:dividor_pos[i+1]]
+            pos_y_new = pos_y[dividor_pos[i]:dividor_pos[i+1]]
+            pos_colors_new = colors_pos[dividor_pos[i]:dividor_pos[i+1]]
+            positive_new = [pos_x_new, pos_y_new, pos_colors_new]
+
+            # append it to nested
+            nested.append(positive_new)
+
+        # negative
+        dividor_neg = [int(len(neg_x) * i / remainder_neg) for i in range(remainder_neg+1)]
+        for i in range(len(dividor_neg) - 1):
+            neg_x_new = neg_x[dividor_neg[i]:dividor_neg[i + 1]]
+            neg_y_new = neg_y[dividor_neg[i]:dividor_neg[i + 1]]
+            neg_colors_new = colors_neg[dividor_neg[i]:dividor_neg[i + 1]]
+            negative_new = [neg_x_new, neg_y_new, neg_colors_new]
+
+            # append it to nested
+            nested.append(negative_new)
+
+
+    else:
+        divide = 3
+        remainder_pos = int(cpu_number / divide)
+        remainder_neu = int(cpu_number / divide)
+        remainder_neg = cpu_number - remainder_pos - remainder_neu
+
+        # now divide up the surface into parts based on the number of cpus for positive and negative
+        # positive
+        dividor_pos = [int((len(pos_x) - 1) * i / remainder_pos) for i in range(remainder_pos + 1)]
+        for i in range(len(dividor_pos) - 1):
+            pos_x_new = pos_x[dividor_pos[i]:dividor_pos[i + 1]]
+            pos_y_new = pos_y[dividor_pos[i]:dividor_pos[i + 1]]
+            pos_colors_new = colors_pos[dividor_pos[i]:dividor_pos[i + 1]]
+            positive_new = [pos_x_new, pos_y_new, pos_colors_new]
+
+            # append it to nested
+            nested.append(positive_new)
+
+        # neutral
+        dividor_neu = [int((len(neu_x) - 1) * i / remainder_neu) for i in range(remainder_neu + 1)]
+        for i in range(len(dividor_neu) - 1):
+            neu_x_new = neu_x[dividor_neu[i]:dividor_neu[i + 1]]
+            neu_y_new = neu_y[dividor_neu[i]:dividor_neu[i + 1]]
+            neu_colors_new = colors_neu[dividor_neu[i]:dividor_neu[i + 1]]
+            neutral_new = [neu_x_new, neu_y_new, neu_colors_new]
+
+            # append it to nested
+            nested.append(neutral_new)
+
+        # negative
+        dividor_neg = [int(len(neg_x) * i / remainder_neg) for i in range(remainder_neg + 1)]
+        for i in range(len(dividor_neg) - 1):
+            neg_x_new = neg_x[dividor_neg[i]:dividor_neg[i + 1]]
+            neg_y_new = neg_y[dividor_neg[i]:dividor_neg[i + 1]]
+            neg_colors_new = colors_neg[dividor_neg[i]:dividor_neg[i + 1]]
+            negative_new = [neg_x_new, neg_y_new, neg_colors_new]
+
+            # append it to nested
+            nested.append(negative_new)
+
+    # step 1: divide the total number of cpus available by the specified divide
+
+
     # create a nested list containing position [positive, neutral, negative]
-    positive = [pos_x, pos_y, colors_pos]
-    neutral = [neu_x, neu_y, colors_neu]
-    negative = [neg_x, neg_y, colors_neg]
-    nested = [positive, neutral, negative]
+    # positive = [pos_x, pos_y, colors_pos]
+    # neutral = [neu_x, neu_y, colors_neu]
+    # negative = [neg_x, neg_y, colors_neg]
+    # nested = [positive, neutral, negative]
     # x_pos = [pos_x, neu_x, neg_x]
     # y_pos = [pos_y, neu_y, neg_y]
     # colors = [colors_pos, colors_neu, colors_neg]
 
     # use multiprocessing to speed up visualization
-    pool = Pool(3)
+    pool = Pool(cpu_number)
     c = pool.starmap(_circleAdder, nested)
     # extract the PathCollection for each
     for i in c:
