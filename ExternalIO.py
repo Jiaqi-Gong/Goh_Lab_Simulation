@@ -252,6 +252,8 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
         # set title
         name = 'Surface of Bacteria'
 
+    ax.set_aspect(1)
+    fig.canvas.draw()
 
     ax.scatter(pos_x, pos_y, c='blue', label='pos', s=size)
     ax.scatter(neu_x, neu_y, c='green', label='neu', s=size)
