@@ -236,13 +236,13 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    colors_pos = np.repeat(np.array([[0,0,1,0.8]]),len(pos_x),axis=0)
-    colors_neu = np.repeat(np.array([[0,1,0,0.8]]),len(neu_x),axis=0)
-    colors_neg = np.repeat(np.array([[1,0,0,0.8]]),len(neg_x),axis=0)
+    colors_pos = np.repeat(np.array([[0,0,1,1]]),len(pos_x),axis=0)
+    colors_neu = np.repeat(np.array([[0,1,0,1]]),len(neu_x),axis=0)
+    colors_neg = np.repeat(np.array([[1,0,0,1]]),len(neg_x),axis=0)
 
     # # define factor
     # factor = (int(max(array.shape[0], array.shape[1])))
-    size = ((ax.get_window_extent().width / (max(array.shape[0], array.shape[1]) + 1.) * 72. / fig.dpi) ** 2)
+    # size = ((ax.get_window_extent().width / (max(array.shape[0], array.shape[1]) + 1.) * 72. / fig.dpi) ** 2)
 
     if 'whole_film' in picName:
         # set title
@@ -252,48 +252,53 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
         # set title
         name = 'Surface of Bacteria'
 
-    ax.set_aspect(1)
-    fig.canvas.draw()
-
-    ax.scatter(pos_x, pos_y, c='blue', label='pos', s=size)
-    ax.scatter(neu_x, neu_y, c='green', label='neu', s=size)
-    ax.scatter(neg_x, neg_y, c='red', label='neg', s=size)
-
-    # # positive
-    # circlesPos = [plt.Circle((xi, yi), radius=0.5, linewidth=0, color='blue') for xi, yi in zip(pos_x, pos_y)]
-    # cPos = mpl.collections.PatchCollection(circlesPos)
-    # ax.add_collection(cPos)
-    # # neutral
-    # circlesNeu = [plt.Circle((xi, yi), radius=0.5, linewidth=0, color='green') for xi, yi in zip(neu_x, neu_y)]
-    # cNeu = mpl.collections.PatchCollection(circlesNeu)
-    # ax.add_collection(cNeu)
-    # # negative
-    # circlesNeg = [plt.Circle((xi, yi), radius=0.5, linewidth=0, color='red') for xi, yi in zip(neg_x, neg_y)]
-    # cNeg = mpl.collections.PatchCollection(circlesNeg)
-    # ax.add_collection(cNeg)
-
+    # ax.set_aspect(1)
+    # fig.canvas.draw()
     #
+    # ax.scatter(pos_x, pos_y, c='blue', label='pos', s=size)
+    # ax.scatter(neu_x, neu_y, c='green', label='neu', s=size)
+    # ax.scatter(neg_x, neg_y, c='red', label='neg', s=size)
+
+    # positive
+    circlesPos = [plt.Rectangle((xi, yi), width=1, height=1, linewidth=0) for xi, yi in zip(pos_x, pos_y)]
+    cPos = collections.PatchCollection(circlesPos)
+    cPos.set_facecolor(colors_pos)
+    ax.add_collection(cPos)
+
+    # neutral
+    circlesNeu = [plt.Rectangle((xi, yi), width=1, height=1, linewidth=0) for xi, yi in zip(neu_x, neu_y)]
+    cNeu = collections.PatchCollection(circlesNeu)
+    cNeu.set_facecolor(colors_neu)
+    ax.add_collection(cNeu)
+
+    # negative
+    circlesNeg = [plt.Rectangle((xi, yi), width=1, height=1, linewidth=0) for xi, yi in zip(neg_x, neg_y)]
+    cNeg = collections.PatchCollection(circlesNeg)
+    cNeg.set_facecolor(colors_neg)
+    ax.add_collection(cNeg)
+
+
     # # positive
     # circlesPos = [plt.Circle((xi, yi), radius=0.5, linewidth=0, color='blue') for xi, yi in zip(pos_x, pos_y)]
     # cPos = collections.PatchCollection(circlesPos)
-    # cPos.set_array(colors_pos)
+    # cPos.set_facecolor(colors_pos)
     # ax.add_collection(cPos)
     #
     # # neutral
     # circlesNeu = [plt.Circle((xi, yi), radius=0.5, linewidth=0, color='green') for xi, yi in zip(neu_x, neu_y)]
     # cNeu = collections.PatchCollection(circlesNeu)
-    # cNeu.set_array(colors_neu)
+    # cNeu.set_facecolor(colors_neu)
     # ax.add_collection(cNeu)
     #
     # # negative
     # circlesNeg = [plt.Circle((xi, yi), radius=0.5, linewidth=0, color='red') for xi, yi in zip(neg_x, neg_y)]
     # cNeg = collections.PatchCollection(circlesNeg)
-    # cNeg.set_array(colors_neg)
+    # cNeg.set_facecolor(colors_neg)
     # ax.add_collection(cNeg)
 
-    lgnd = ax.legend(loc="upper right")
-    for handle in lgnd.legendHandles:
-        handle.set_sizes([10.0])
+    # lgnd = ax.legend(loc="upper right")
+    # for handle in lgnd.legendHandles:
+    #     handle.set_sizes([10.0])
 
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
@@ -356,13 +361,16 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     if 'whole_film' in picName:
         # set title
         name = "Surface of Film"
-        size = 40 * ((100 / factor) ** 4)
+        # size = 40 * ((100 / factor) ** 4)
 
     else:
         # set title
         name = 'Surface of Bacteria'
-        size = 40 * ((100 / factor) ** 4)
+        # size = 40 * ((100 / factor) ** 4)
 
+    size = ((ax.get_window_extent().width / (max(array.shape[0], array.shape[1]) + 1.) * 72. / fig.dpi) ** 2)
+    ax.set_aspect('auto')
+    fig.canvas.draw()
     # position of positive
     pos = np.where(array == 1)
     pos_z = pos[0]
