@@ -267,7 +267,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     ax.set_aspect(1)
     fig.canvas.draw()
     # size = ((ax.get_window_extent().width / (vmax-vmin + 1.) * 72. / fig.dpi) ** 2)
-    size = (((ax.get_window_extent().width / (maximum + 1.)) * (72. / fig.dpi)) ** 2)
+    # size = (((ax.get_window_extent().width / (maximum + 1.)) * (72. / fig.dpi)) ** 2)
     # size = (ax.get_window_extent().width / ((maximum + 1.) * (72. / fig.dpi))) ** 2
 
     if 'film' in picName:
@@ -277,13 +277,21 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     else:
         # set title
         name = 'Surface of Bacteria'
+    extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width,
+                 ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height)
 
     if maximum < 500:
         width = 1
+        size = ((extent / (maximum + 1.) * 72. / fig.dpi) ** 2)
     elif maximum < 10000 and maximum > 500:
         width = 0
+        size = ((extent / (maximum + 1.) * 72. / fig.dpi) ** 2)
     else:
         width = 1
+        size = ((extent / (maximum + 1.) * 72. / fig.dpi) ** 2)
+
+    showMessage(f"width of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width}")
+    showMessage(f"height of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height}")
 
     ax.scatter(pos_x, pos_y, marker='s', c='blue', label='pos', s=size, linewidth=width)
     ax.scatter(neu_x, neu_y, marker='s', c='green', label='neu', s=size, linewidth=width)
