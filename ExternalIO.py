@@ -233,17 +233,26 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     neu_y = neu[1]
     neg_x = neg[0]
     neg_y = neg[1]
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots(dpi=141)
 
-    colors_pos = np.repeat(np.array([[0,0,1,1]]),len(pos_x),axis=0)
-    colors_neu = np.repeat(np.array([[0,1,0,1]]),len(neu_x),axis=0)
-    colors_neg = np.repeat(np.array([[1,0,0,1]]),len(neg_x),axis=0)
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111)
+
+    # colors_pos = np.repeat(np.array([[0,0,1,1]]),len(pos_x),axis=0)
+    # colors_neu = np.repeat(np.array([[0,1,0,1]]),len(neu_x),axis=0)
+    # colors_neg = np.repeat(np.array([[1,0,0,1]]),len(neg_x),axis=0)
+
+    vmin = 1
+    vmax = max(array.shape[0], array.shape[1]) - 1
+
+    # for v in np.arange(0, max(array.shape[0], array.shape[1])):
+    #     ax.axvline(v - 0.5)
+    #     ax.axvline(v + 0.5)
+    #     ax.axhline(v - 0.5)
+    #     ax.axhline(v + 0.5)
 
     # # define factor
     # factor = (int(max(array.shape[0], array.shape[1])))
-    # size = ((ax.get_window_extent().width / (max(array.shape[0], array.shape[1]) + 1.) * 72. / fig.dpi) ** 2)
-
     if 'film' in picName:
         # set title
         name = "Surface of Film"
@@ -252,94 +261,112 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
         # set title
         name = 'Surface of Bacteria'
 
-    # ax.set_aspect(1)
-    # fig.canvas.draw()
+    # set x limit and y limit
+    max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i]) != 0]
+    max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i]) != 0]
+    max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i]) != 0]
+    maximum = max(max1 + max2 + max3)
+    # ax.set_xlim(vmin - 0.5, vmax + 0.5)
+    # ax.set_ylim(vmin - 0.5, vmax + 0.5)
+    ax.set_xlim(0, maximum)
+    ax.set_ylim(0, maximum)
+
+    ax.set_aspect(1)
+    fig.canvas.draw()
+    size = ((ax.get_window_extent().width / (vmax-vmin + 1.) * 72. / fig.dpi) ** 2)
+
+
+    ax.scatter(pos_x, pos_y, marker='s', c='blue', label='pos', s=size, linewidth=0)
+    ax.scatter(neu_x, neu_y, marker='s', c='green', label='neu', s=size, linewidth=0)
+    ax.scatter(neg_x, neg_y, marker='s', c='red', label='neg', s=size, linewidth=0)
+
+    # # get the total number of CPUs
+    # ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)) - 2, 1)
+    # # ncpus = cpu_count()
+    # if ncpus <= 18:
+    #     cpu_number = ncpus
+    # else:
+    #     cpu_number = 18
     #
-    # ax.scatter(pos_x, pos_y, c='blue', label='pos', s=size)
-    # ax.scatter(neu_x, neu_y, c='green', label='neu', s=size)
-    # ax.scatter(neg_x, neg_y, c='red', label='neg', s=size)
+    # # initialize nested list
+    # nested = []
+    # # if there are neutral domains, we will divide the cpu by 3. Else, we will divide the cpu into 2
+    # if len(neu_x) == 0:
+    #     divide = 2
+    #     remainder_pos = int(cpu_number / divide)
+    #     remainder_neg = cpu_number - remainder_pos
+    #
+    #     # now divide up the surface into parts based on the number of cpus for positive and negative
+    #     # positive
+    #     dividor_pos = [int((len(pos_x)-1)*i/remainder_pos) for i in range(remainder_pos+1)]
+    #     for i in range(len(dividor_pos)-1):
+    #         pos_x_new = pos_x[dividor_pos[i]:dividor_pos[i+1]]
+    #         pos_y_new = pos_y[dividor_pos[i]:dividor_pos[i+1]]
+    #         pos_colors_new = colors_pos[dividor_pos[i]:dividor_pos[i+1]]
+    #         positive_new = [pos_x_new, pos_y_new, pos_colors_new]
+    #
+    #         # append it to nested
+    #         nested.append(positive_new)
+    #
+    #     # negative
+    #     dividor_neg = [int(len(neg_x) * i / remainder_neg) for i in range(remainder_neg+1)]
+    #     for i in range(len(dividor_neg) - 1):
+    #         neg_x_new = neg_x[dividor_neg[i]:dividor_neg[i + 1]]
+    #         neg_y_new = neg_y[dividor_neg[i]:dividor_neg[i + 1]]
+    #         neg_colors_new = colors_neg[dividor_neg[i]:dividor_neg[i + 1]]
+    #         negative_new = [neg_x_new, neg_y_new, neg_colors_new]
+    #
+    #         # append it to nested
+    #         nested.append(negative_new)
+    #
+    #
+    # else:
+    #     divide = 3
+    #     remainder_pos = int(cpu_number / divide)
+    #     remainder_neu = int(cpu_number / divide)
+    #     remainder_neg = cpu_number - remainder_pos - remainder_neu
+    #
+    #     # now divide up the surface into parts based on the number of cpus for positive and negative
+    #     # positive
+    #     dividor_pos = [int((len(pos_x) - 1) * i / remainder_pos) for i in range(remainder_pos + 1)]
+    #     for i in range(len(dividor_pos) - 1):
+    #         pos_x_new = pos_x[dividor_pos[i]:dividor_pos[i + 1]]
+    #         pos_y_new = pos_y[dividor_pos[i]:dividor_pos[i + 1]]
+    #         pos_colors_new = colors_pos[dividor_pos[i]:dividor_pos[i + 1]]
+    #         positive_new = [pos_x_new, pos_y_new, pos_colors_new]
+    #
+    #         # append it to nested
+    #         nested.append(positive_new)
+    #
+    #     # neutral
+    #     dividor_neu = [int((len(neu_x) - 1) * i / remainder_neu) for i in range(remainder_neu + 1)]
+    #     for i in range(len(dividor_neu) - 1):
+    #         neu_x_new = neu_x[dividor_neu[i]:dividor_neu[i + 1]]
+    #         neu_y_new = neu_y[dividor_neu[i]:dividor_neu[i + 1]]
+    #         neu_colors_new = colors_neu[dividor_neu[i]:dividor_neu[i + 1]]
+    #         neutral_new = [neu_x_new, neu_y_new, neu_colors_new]
+    #
+    #         # append it to nested
+    #         nested.append(neutral_new)
+    #
+    #     # negative
+    #     dividor_neg = [int(len(neg_x) * i / remainder_neg) for i in range(remainder_neg + 1)]
+    #     for i in range(len(dividor_neg) - 1):
+    #         neg_x_new = neg_x[dividor_neg[i]:dividor_neg[i + 1]]
+    #         neg_y_new = neg_y[dividor_neg[i]:dividor_neg[i + 1]]
+    #         neg_colors_new = colors_neg[dividor_neg[i]:dividor_neg[i + 1]]
+    #         negative_new = [neg_x_new, neg_y_new, neg_colors_new]
+    #
+    #         # append it to nested
+    #         nested.append(negative_new)
+    #
+    # # use multiprocessing to speed up visualization
+    # pool = Pool(cpu_number)
+    # c = pool.starmap(_circleAdder, nested)
+    # # extract the PathCollection for each
+    # for i in c:
+    #     ax.add_collection(i)
 
-    # get the total number of CPUs
-    ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)) - 2, 1)
-    # ncpus = cpu_count()
-    if ncpus <= 18:
-        cpu_number = ncpus
-    else:
-        cpu_number = 18
-
-    # initialize nested list
-    nested = []
-    # if there are neutral domains, we will divide the cpu by 3. Else, we will divide the cpu into 2
-    if len(neu_x) == 0:
-        divide = 2
-        remainder_pos = int(cpu_number / divide)
-        remainder_neg = cpu_number - remainder_pos
-
-        # now divide up the surface into parts based on the number of cpus for positive and negative
-        # positive
-        dividor_pos = [int((len(pos_x)-1)*i/remainder_pos) for i in range(remainder_pos+1)]
-        for i in range(len(dividor_pos)-1):
-            pos_x_new = pos_x[dividor_pos[i]:dividor_pos[i+1]]
-            pos_y_new = pos_y[dividor_pos[i]:dividor_pos[i+1]]
-            pos_colors_new = colors_pos[dividor_pos[i]:dividor_pos[i+1]]
-            positive_new = [pos_x_new, pos_y_new, pos_colors_new]
-
-            # append it to nested
-            nested.append(positive_new)
-
-        # negative
-        dividor_neg = [int(len(neg_x) * i / remainder_neg) for i in range(remainder_neg+1)]
-        for i in range(len(dividor_neg) - 1):
-            neg_x_new = neg_x[dividor_neg[i]:dividor_neg[i + 1]]
-            neg_y_new = neg_y[dividor_neg[i]:dividor_neg[i + 1]]
-            neg_colors_new = colors_neg[dividor_neg[i]:dividor_neg[i + 1]]
-            negative_new = [neg_x_new, neg_y_new, neg_colors_new]
-
-            # append it to nested
-            nested.append(negative_new)
-
-
-    else:
-        divide = 3
-        remainder_pos = int(cpu_number / divide)
-        remainder_neu = int(cpu_number / divide)
-        remainder_neg = cpu_number - remainder_pos - remainder_neu
-
-        # now divide up the surface into parts based on the number of cpus for positive and negative
-        # positive
-        dividor_pos = [int((len(pos_x) - 1) * i / remainder_pos) for i in range(remainder_pos + 1)]
-        for i in range(len(dividor_pos) - 1):
-            pos_x_new = pos_x[dividor_pos[i]:dividor_pos[i + 1]]
-            pos_y_new = pos_y[dividor_pos[i]:dividor_pos[i + 1]]
-            pos_colors_new = colors_pos[dividor_pos[i]:dividor_pos[i + 1]]
-            positive_new = [pos_x_new, pos_y_new, pos_colors_new]
-
-            # append it to nested
-            nested.append(positive_new)
-
-        # neutral
-        dividor_neu = [int((len(neu_x) - 1) * i / remainder_neu) for i in range(remainder_neu + 1)]
-        for i in range(len(dividor_neu) - 1):
-            neu_x_new = neu_x[dividor_neu[i]:dividor_neu[i + 1]]
-            neu_y_new = neu_y[dividor_neu[i]:dividor_neu[i + 1]]
-            neu_colors_new = colors_neu[dividor_neu[i]:dividor_neu[i + 1]]
-            neutral_new = [neu_x_new, neu_y_new, neu_colors_new]
-
-            # append it to nested
-            nested.append(neutral_new)
-
-        # negative
-        dividor_neg = [int(len(neg_x) * i / remainder_neg) for i in range(remainder_neg + 1)]
-        for i in range(len(dividor_neg) - 1):
-            neg_x_new = neg_x[dividor_neg[i]:dividor_neg[i + 1]]
-            neg_y_new = neg_y[dividor_neg[i]:dividor_neg[i + 1]]
-            neg_colors_new = colors_neg[dividor_neg[i]:dividor_neg[i + 1]]
-            negative_new = [neg_x_new, neg_y_new, neg_colors_new]
-
-            # append it to nested
-            nested.append(negative_new)
-
-    # step 1: divide the total number of cpus available by the specified divide
 
 
     # create a nested list containing position [positive, neutral, negative]
@@ -351,12 +378,8 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # y_pos = [pos_y, neu_y, neg_y]
     # colors = [colors_pos, colors_neu, colors_neg]
 
-    # use multiprocessing to speed up visualization
-    pool = Pool(cpu_number)
-    c = pool.starmap(_circleAdder, nested)
-    # extract the PathCollection for each
-    for i in c:
-        ax.add_collection(i)
+
+
     # # positive
     # circlesPos = [plt.Rectangle((xi, yi), width=1, height=1, linewidth=0) for xi, yi in zip(pos_x, pos_y)]
     # cPos = collections.PatchCollection(circlesPos)
@@ -394,9 +417,9 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # cNeg.set_facecolor(colors_neg)
     # ax.add_collection(cNeg)
 
-    # lgnd = ax.legend(loc="upper right")
-    # for handle in lgnd.legendHandles:
-    #     handle.set_sizes([10.0])
+    lgnd = ax.legend(loc="upper right")
+    for handle in lgnd.legendHandles:
+        handle.set_sizes([10.0])
 
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
@@ -404,14 +427,8 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     ax.xaxis.set_label_position('top')
 
 
-    # set x limit and y limit
-    max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i]) != 0]
-    max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i]) != 0]
-    max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i]) != 0]
-    maximum = max(max1 + max2 + max3)
-
-    plt.xlim(0,maximum)
-    plt.ylim(0,maximum)
+    # plt.xlim(0,maximum)
+    # plt.ylim(0,maximum)
     plt.title(name)
 
     plt.imshow(array, interpolation='nearest')
@@ -428,8 +445,8 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
 
     picPath = "{}/{}".format(picFolder, picName)
 
-    # plt.savefig(picPath, dpi=300, bbox_inches='tight')
-    plt.savefig(picPath)
+    plt.savefig(picPath, dpi=300, bbox_inches='tight')
+    # plt.savefig(picPath)
     endTime = time.time()
     totalTime = endTime - startTime
 
@@ -441,8 +458,8 @@ def _circleAdder(x: ndarray, y:ndarray, color:ndarray) -> None:
     # color = nested[2]
     # x = nested[0]
     # y = nested[1]
-    circles = [plt.Rectangle((xi, yi), width=1, height=1, linewidth=0) for xi, yi in zip(x, y)]
-    c = collections.PatchCollection(circles)
+    rectangle = [plt.Rectangle((xi, yi), width=1, height=1, linewidth=0) for xi, yi in zip(x, y)]
+    c = collections.PatchCollection(rectangle)
     c.set_facecolor(color)
     return c
 
@@ -475,33 +492,41 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         name = 'Surface of Bacteria'
         # size = 40 * ((100 / factor) ** 4)
 
-    size = ((ax.get_window_extent().width / (max(array.shape[0], array.shape[1]) + 1.) * 72. / fig.dpi) ** 2)
-    ax.set_aspect('auto')
-    fig.canvas.draw()
+    # size = ((ax.get_window_extent().width / (max(array.shape[0], array.shape[1]) + 1.) * 72. / fig.dpi) ** 2)
+    # ax.set_aspect('auto')
+    # fig.canvas.draw()
     # position of positive
     pos = np.where(array == 1)
     pos_z = pos[0]
     pos_y = pos[1]
     pos_x = pos[2]
     # color of positive
-    # colors_pos = np.repeat(np.array([[0,0,1,0.8]]),len(pos_z),axis=0)
-    ax.scatter3D(pos_x, pos_y, pos_z, marker="o", label='positive', color='blue', depthshade=False, s=size)
+    colors_pos = np.repeat(np.array([[0,0,1,0.8]]),len(pos_z),axis=0)
+    # ax.scatter3D(pos_x, pos_y, pos_z, marker="o", label='positive', color='blue', depthshade=False, s=size)
 
     # position of neutral
     neu = np.where(array == 0)
     neu_z = neu[0]
     neu_y = neu[1]
     neu_x = neu[2]
-    # colors_neu = np.repeat(np.array([[0,1,0,0.8]]),len(neu_z),axis=0)
-    ax.scatter3D(neu_x, neu_y, neu_z, marker="o", label='neutral', color='green', depthshade=False, s=size)
+    colors_neu = np.repeat(np.array([[0,1,0,0.8]]),len(neu_z),axis=0)
+    # ax.scatter3D(neu_x, neu_y, neu_z, marker="o", label='neutral', color='green', depthshade=False, s=size)
 
     # position of negative
     neg = np.where(array == -1)
     neg_z = neg[0]
     neg_y = neg[1]
     neg_x = neg[2]
-    # colors_neg = np.repeat(np.array([[1,0,0,0.8]]),len(neg_z),axis=0)
-    ax.scatter3D(neg_x, neg_y, neg_z, marker="o", label='negative', color='red', depthshade=False, s=size)
+    colors_neg = np.repeat(np.array([[1,0,0,0.8]]),len(neg_z),axis=0)
+    position_neg = np.zeros((len(neg_z), 3))
+    for i in range(len(neg_z)):
+        x = neg_x[i]
+        y = neg_y[i]
+        z = neg_z[i]
+        position_neg[i] = x,y,z
+
+    # ax.scatter3D(neg_x, neg_y, neg_z, marker="o", label='negative', color='red', depthshade=False, s=size)
+
 
     # position_x = np.concatenate((pos_x, neu_x, neg_x))
     # position_y = np.concatenate((pos_y, neu_y, neg_y))
@@ -509,9 +534,11 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     # colors = np.concatenate((colors_pos, colors_neu, colors_neg))
     # ax.scatter3D(position_x, position_y, position_z, marker="o", label=['neutral','positive','negative'], color=colors, depthshade=False)
 
-    lgnd = ax.legend(loc="upper right")
-    for handle in lgnd.legendHandles:
-        handle.set_sizes([10.0])
+
+
+    # lgnd = ax.legend(loc="upper right")
+    # for handle in lgnd.legendHandles:
+    #     handle.set_sizes([10.0])
 
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
