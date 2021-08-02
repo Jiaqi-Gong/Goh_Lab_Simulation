@@ -273,7 +273,8 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
 
     ax.set_aspect(1)
     fig.canvas.draw()
-    size = ((ax.get_window_extent().width / (vmax-vmin + 1.) * 72. / fig.dpi) ** 2)
+    # size = ((ax.get_window_extent().width / (vmax-vmin + 1.) * 72. / fig.dpi) ** 2)
+    size = (ax.get_window_extent().width / ((vmax-vmin + 1.) * (72. / fig.dpi))) ** 2
 
 
     ax.scatter(pos_x, pos_y, marker='s', c='blue', label='pos', s=size, linewidth=0)
@@ -476,13 +477,13 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     current_time = now.strftime("%H_%M_%S")
     # graph the 3D visualization
     # if the array is small, we don't
-    fig = plt.figure()
+    fig = plt.figure(dpi=141)
     ax = fig.add_subplot(111, projection='3d')
 
     # define factor
     factor = (int(max(array.shape[0], array.shape[1])))
 
-    if 'whole_film' in picName:
+    if 'film' in picName:
         # set title
         name = "Surface of Film"
         # size = 40 * ((100 / factor) ** 4)
@@ -492,17 +493,17 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         name = 'Surface of Bacteria'
         # size = 40 * ((100 / factor) ** 4)
 
-    # size = ((ax.get_window_extent().width / (max(array.shape[0], array.shape[1]) + 1.) * 72. / fig.dpi) ** 2)
-    # ax.set_aspect('auto')
-    # fig.canvas.draw()
+    size = ((ax.get_window_extent().width / (max(array.shape[0], array.shape[1]) + 1.) * 72. / fig.dpi) ** 2)
+    ax.set_aspect('auto')
+    fig.canvas.draw()
     # position of positive
     pos = np.where(array == 1)
     pos_z = pos[0]
     pos_y = pos[1]
     pos_x = pos[2]
     # color of positive
-    colors_pos = np.repeat(np.array([[0,0,1,0.8]]),len(pos_z),axis=0)
-    # ax.scatter3D(pos_x, pos_y, pos_z, marker="o", label='positive', color='blue', depthshade=False, s=size)
+    # colors_pos = np.repeat(np.array([[0,0,1,0.8]]),len(pos_z),axis=0)
+    ax.scatter3D(pos_x, pos_y, pos_z, marker="s", label='positive', color='blue', depthshade=True, s=size, linewidths=0)
 
     # position of neutral
     neu = np.where(array == 0)
@@ -510,7 +511,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     neu_y = neu[1]
     neu_x = neu[2]
     colors_neu = np.repeat(np.array([[0,1,0,0.8]]),len(neu_z),axis=0)
-    # ax.scatter3D(neu_x, neu_y, neu_z, marker="o", label='neutral', color='green', depthshade=False, s=size)
+    ax.scatter3D(neu_x, neu_y, neu_z, marker="s", label='neutral', color='green', depthshade=True, s=size, linewidths=0)
 
     # position of negative
     neg = np.where(array == -1)
@@ -518,15 +519,14 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     neg_y = neg[1]
     neg_x = neg[2]
     colors_neg = np.repeat(np.array([[1,0,0,0.8]]),len(neg_z),axis=0)
-    position_neg = np.zeros((len(neg_z), 3))
-    for i in range(len(neg_z)):
-        x = neg_x[i]
-        y = neg_y[i]
-        z = neg_z[i]
-        position_neg[i] = x,y,z
+    ax.scatter3D(neg_x, neg_y, neg_z, marker="s", label='negative', color='red', depthshade=True, s=size, linewidths=0)
 
-    # ax.scatter3D(neg_x, neg_y, neg_z, marker="o", label='negative', color='red', depthshade=False, s=size)
-
+    # position_neg = np.zeros((len(neg_z), 3))
+    # for i in range(len(neg_z)):
+    #     x = neg_x[i]
+    #     y = neg_y[i]
+    #     z = neg_z[i]
+    #     position_neg[i] = x, y, z
 
     # position_x = np.concatenate((pos_x, neu_x, neg_x))
     # position_y = np.concatenate((pos_y, neu_y, neg_y))
@@ -536,9 +536,9 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
 
 
 
-    # lgnd = ax.legend(loc="upper right")
-    # for handle in lgnd.legendHandles:
-    #     handle.set_sizes([10.0])
+    lgnd = ax.legend(loc="upper right")
+    for handle in lgnd.legendHandles:
+        handle.set_sizes([10.0])
 
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
@@ -572,11 +572,11 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         elev = 90
         azim = 0
         ax.view_init(elev=elev, azim=azim)
-        ax.dist = 7
+        # ax.dist = 7
         plt.title("X-Y plane")
 
         # save file
-        plt.savefig('{}/{}'.format(picFolder, picName))
+        plt.savefig('{}/{}'.format(picFolder, picName), dpi=300, bbox_inches='tight')
 
     elif "bacteria" in picName:
 
@@ -593,7 +593,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
             elev = elevation[0]
             azim = azimuth[i]
             ax.view_init(elev=elev, azim=azim)
-            ax.dist = 6
+            # ax.dist = 6
 
             # name the title
             if azim == 90 or azim == -90:
@@ -602,20 +602,20 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
                 plt.title('Y-Z plane')
 
             # save file
-            plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[0], azimuth[i]))
+            plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[0], azimuth[i]), dpi=300, bbox_inches='tight')
 
         # last 2 sides
         for i in range(len(elevation) - 1):
             elev = elevation[i + 1]
             azim = azimuth[0]
             ax.view_init(elev=elev, azim=azim)
-            ax.dist = 6
+            # ax.dist = 6
 
             # name the title
             plt.title('X-Y plane')
 
             # save file
-            plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[i + 1], azimuth[0]))
+            plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[i + 1], azimuth[0]), dpi=300, bbox_inches='tight')
 
     endTime = time.time()
     totalTime = endTime - startTime
