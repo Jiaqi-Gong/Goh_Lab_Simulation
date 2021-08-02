@@ -253,13 +253,6 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
 
     # # define factor
     # factor = (int(max(array.shape[0], array.shape[1])))
-    if 'film' in picName:
-        # set title
-        name = "Surface of Film"
-
-    else:
-        # set title
-        name = 'Surface of Bacteria'
 
     # set x limit and y limit
     max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i]) != 0]
@@ -274,12 +267,27 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     ax.set_aspect(1)
     fig.canvas.draw()
     # size = ((ax.get_window_extent().width / (vmax-vmin + 1.) * 72. / fig.dpi) ** 2)
-    size = (ax.get_window_extent().width / ((vmax-vmin + 1.) * (72. / fig.dpi))) ** 2
+    size = (((ax.get_window_extent().width / (maximum + 1.)) * (72. / fig.dpi)) ** 2)
+    # size = (ax.get_window_extent().width / ((maximum + 1.) * (72. / fig.dpi))) ** 2
 
+    if 'film' in picName:
+        # set title
+        name = "Surface of Film"
 
-    ax.scatter(pos_x, pos_y, marker='s', c='blue', label='pos', s=size, linewidth=0)
-    ax.scatter(neu_x, neu_y, marker='s', c='green', label='neu', s=size, linewidth=0)
-    ax.scatter(neg_x, neg_y, marker='s', c='red', label='neg', s=size, linewidth=0)
+    else:
+        # set title
+        name = 'Surface of Bacteria'
+
+    if maximum < 500:
+        width = 1
+    elif maximum < 10000 and maximum > 500:
+        width = 0
+    else:
+        width = 1
+
+    ax.scatter(pos_x, pos_y, marker='s', c='blue', label='pos', s=size, linewidth=width)
+    ax.scatter(neu_x, neu_y, marker='s', c='green', label='neu', s=size, linewidth=width)
+    ax.scatter(neg_x, neg_y, marker='s', c='red', label='neg', s=size, linewidth=width)
 
     # # get the total number of CPUs
     # ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)) - 2, 1)
@@ -446,7 +454,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
 
     picPath = "{}/{}".format(picFolder, picName)
 
-    plt.savefig(picPath, dpi=300, bbox_inches='tight')
+    plt.savefig(picPath, dpi=400, bbox_inches='tight')
     # plt.savefig(picPath)
     endTime = time.time()
     totalTime = endTime - startTime
