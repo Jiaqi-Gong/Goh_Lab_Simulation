@@ -290,10 +290,13 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width*fig.dpi,
                  ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height*fig.dpi)
     # extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width,
-                 # ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height)
+    #              ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height)
 
-    size = ((extent / (maximum + 1.)) ** 2)
-    # size = (((extent / maximum) * (fig.dpi / 72.)) ** 2)
+    # size = ((extent / (maximum + 1.)) ** 2)
+    size = (((extent /(maximum * (fig.dpi / 72.)))) ** 2)
+    # size = (((extent / maximum) * (fig.dpi / 1.99)) ** 2)
+    # size = (((extent /(maximum * fig.dpi))) ** 2)
+
 
     # if maximum < 500:
     #     width = 1
@@ -301,7 +304,6 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     #     width = 0
     # else:
     #     width = 1
-    width = 0
 
     # showMessage(f"width of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width*fig.dpi}")
     # showMessage(f"height of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height*fig.dpi}")
@@ -313,7 +315,8 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # showMessage(f"number of positive is {nPos}")
     # showMessage(f"number of neutral is {nNeu}")
     # showMessage(f"number of negative is {nNeg}")
-    plotnotfinite = True
+    plotnotfinite = False
+    width = 0
     # if positive is the charge of surface, we plot positive first
     if nPos == max(nPos, nNeu, nNeg):
         # ax.scatter(tot_x, tot_y, marker='s', c='blue', label='pos', s=size, linewidth=width, plotnonfinite=plotnotfinite)
@@ -532,7 +535,10 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     # graph the 3D visualization
     # if the array is small, we don't
     fig = plt.figure(dpi=141)
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.gca(projection='3d')
+    # ax = fig.add_subplot(111, projection='3d')
+
+    # ax.set_aspect('equal')
 
     # define factor
     factor = (int(max(array.shape[0], array.shape[1])))
@@ -576,47 +582,72 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     ax.set_ylim3d(0, maximum)
     ax.set_zlim3d(0, maximum)
 
+    # position_pos = np.zeros((len(pos_z), 3))
+    # for i in range(len(pos_z)):
+    #     x = pos_x[i]
+    #     y = pos_y[i]
+    #     z = pos_z[i]
+    #     position_pos[i] = x, y, z
+    #
+    # position_neg = np.zeros((len(neg_z), 3))
+    # for i in range(len(neg_z)):
+    #     x = neg_x[i]
+    #     y = neg_y[i]
+    #     z = neg_z[i]
+    #     position_neg[i] = x, y, z
+    #
+    # position_neu = np.zeros((len(neu_z), 3))
+    # for i in range(len(neu_z)):
+    #     x = neu_x[i]
+    #     y = neu_y[i]
+    #     z = neu_z[i]
+    #     position_neu[i] = x, y, z
+    # showMessage(position_neg)
+
+
     ax.set_aspect('auto')
     fig.canvas.draw()
 
     extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width * fig.dpi,
                  ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height * fig.dpi)
-    size = ((extent / (maximum + 1.)) ** 2)
+
+    size = (((extent / (maximum * (fig.dpi / 72.)))) ** 2)
 
     # size = ((ax.get_window_extent().width / (max(array.shape[0], array.shape[1]) + 1.) * 72. / fig.dpi) ** 2)
     # order which we plot the points matter
     nPos = len(pos_x)
     nNeu = len(neu_x)
     nNeg = len(neg_x)
-    showMessage(f"number of positive is {nPos}")
-    showMessage(f"number of neutral is {nNeu}")
-    showMessage(f"number of negative is {nNeg}")
+    # showMessage(f"number of positive is {nPos}")
+    # showMessage(f"number of neutral is {nNeu}")
+    # showMessage(f"number of negative is {nNeg}")
 
-    marker = '.'
+    marker = 's'
+    depthshade = True
 
     # if positive is the charge of surface, we plot positive first
     if nPos == max(nPos, nNeu, nNeg):
-        ax.scatter3D(neu_x, neu_y, neu_z, marker=marker, label='neutral', color='green', depthshade=False, s=size,
+        ax.scatter3D(neu_x, neu_y, neu_z, marker=marker, label='neutral', color='green', depthshade=depthshade, s=size,
                      linewidths=0)
-        ax.scatter3D(neg_x, neg_y, neg_z, marker=marker, label='negative', color='red', depthshade=False, s=size,
+        ax.scatter3D(neg_x, neg_y, neg_z, marker=marker, label='negative', color='red', depthshade=depthshade, s=size,
                      linewidths=0)
-        ax.scatter3D(pos_x, pos_y, pos_z, marker=marker, label='positive', color='blue', depthshade=False, s=size,
+        ax.scatter3D(pos_x, pos_y, pos_z, marker=marker, label='positive', color='blue', depthshade=depthshade, s=size,
                      linewidths=0)
 
     elif nNeg == max(nPos, nNeu, nNeg):
-        ax.scatter3D(neu_x, neu_y, neu_z, marker=marker, label='neutral', color='green', depthshade=False, s=size,
+        ax.scatter3D(neu_x, neu_y, neu_z, marker=marker, label='neutral', color='green', depthshade=depthshade, s=size,
                      linewidths=0)
-        ax.scatter3D(pos_x, pos_y, pos_z, marker=marker, label='positive', color='blue', depthshade=False, s=size,
+        ax.scatter3D(pos_x, pos_y, pos_z, marker=marker, label='positive', color='blue', depthshade=depthshade, s=size,
                      linewidths=0)
-        ax.scatter3D(neg_x, neg_y, neg_z, marker=marker, label='negative', color='red', depthshade=False, s=size,
+        ax.scatter3D(neg_x, neg_y, neg_z, marker=marker, label='negative', color='red', depthshade=depthshade, s=size,
                      linewidths=0)
 
     elif nNeu == max(nPos, nNeu, nNeg):
-        ax.scatter3D(pos_x, pos_y, pos_z, marker=marker, label='positive', color='blue', depthshade=False, s=size,
+        ax.scatter3D(pos_x, pos_y, pos_z, marker=marker, label='positive', color='blue', depthshade=depthshade, s=size,
                      linewidths=0)
-        ax.scatter3D(neg_x, neg_y, neg_z, marker=marker, label='negative', color='red', depthshade=False, s=size,
+        ax.scatter3D(neg_x, neg_y, neg_z, marker=marker, label='negative', color='red', depthshade=depthshade, s=size,
                      linewidths=0)
-        ax.scatter3D(neu_x, neu_y, neu_z, marker=marker, label='neutral', color='green', depthshade=False, s=size,
+        ax.scatter3D(neu_x, neu_y, neu_z, marker=marker, label='neutral', color='green', depthshade=depthshade, s=size,
                      linewidths=0)
 
     # # position of positive
@@ -685,7 +716,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         azim = 0
         ax.view_init(elev=elev, azim=azim)
         # ax.dist = 7
-        plt.title("X-Y plane")
+        plt.title("Above the film")
 
         # save file
         plt.savefig('{}/{}'.format(picFolder, picName), dpi=300, bbox_inches='tight')
