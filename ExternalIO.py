@@ -277,21 +277,27 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     else:
         # set title
         name = 'Surface of Bacteria'
-    extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width,
-                 ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height)
 
-    if maximum < 500:
-        width = 1
-        size = ((extent / (maximum + 1.) * 72. / fig.dpi) ** 2)
-    elif maximum < 10000 and maximum > 500:
-        width = 0
-        size = ((extent / (maximum + 1.) * 72. / fig.dpi) ** 2)
-    else:
-        width = 1
-        size = ((extent / (maximum + 1.) * 72. / fig.dpi) ** 2)
+    # ax = plt.Axes(fig, [0., 0., 1., 1.])
+    # ax.set_axis_off()
+    # fig.add_axes(ax)
 
-    showMessage(f"width of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width}")
-    showMessage(f"height of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height}")
+    extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width*fig.dpi,
+                 ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height*fig.dpi)
+
+    size = ((extent / (maximum + 1.)) ** 2)
+    # size = ((extent / (maximum + 1.) * 72. / fig.dpi) ** 2)
+
+    # if maximum < 500:
+    #     width = 1
+    # elif maximum < 10000 and maximum > 500:
+    #     width = 0
+    # else:
+    #     width = 1
+    width = 0
+
+    showMessage(f"width of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width*fig.dpi}")
+    showMessage(f"height of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height*fig.dpi}")
 
     ax.scatter(pos_x, pos_y, marker='s', c='blue', label='pos', s=size, linewidth=width)
     ax.scatter(neu_x, neu_y, marker='s', c='green', label='neu', s=size, linewidth=width)
@@ -462,7 +468,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
 
     picPath = "{}/{}".format(picFolder, picName)
 
-    plt.savefig(picPath, dpi=400, bbox_inches='tight')
+    plt.savefig(picPath, dpi=300, bbox_inches='tight')
     # plt.savefig(picPath)
     endTime = time.time()
     totalTime = endTime - startTime
