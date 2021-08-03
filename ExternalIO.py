@@ -476,15 +476,15 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     showMessage(f"Total time it took to generate 2D image is {totalTime} seconds")
     showMessage("Image generate done")
 
-def _circleAdder(x: ndarray, y:ndarray, color:ndarray) -> None:
-    # extract the nested list
-    # color = nested[2]
-    # x = nested[0]
-    # y = nested[1]
-    rectangle = [plt.Rectangle((xi, yi), width=1, height=1, linewidth=0) for xi, yi in zip(x, y)]
-    c = collections.PatchCollection(rectangle)
-    c.set_facecolor(color)
-    return c
+# def _circleAdder(x: ndarray, y:ndarray, color:ndarray) -> None:
+#     # extract the nested list
+#     # color = nested[2]
+#     # x = nested[0]
+#     # y = nested[1]
+#     rectangle = [plt.Rectangle((xi, yi), width=1, height=1, linewidth=0) for xi, yi in zip(x, y)]
+#     c = collections.PatchCollection(rectangle)
+#     c.set_facecolor(color)
+#     return c
 
 def _visPlot3D(array: ndarray, picName: str) -> None:
     """
@@ -515,33 +515,71 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         name = 'Surface of Bacteria'
         # size = 40 * ((100 / factor) ** 4)
 
-    size = ((ax.get_window_extent().width / (max(array.shape[0], array.shape[1]) + 1.) * 72. / fig.dpi) ** 2)
-    ax.set_aspect('auto')
-    fig.canvas.draw()
     # position of positive
     pos = np.where(array == 1)
     pos_z = pos[0]
     pos_y = pos[1]
     pos_x = pos[2]
-    # color of positive
-    # colors_pos = np.repeat(np.array([[0,0,1,0.8]]),len(pos_z),axis=0)
-    ax.scatter3D(pos_x, pos_y, pos_z, marker="s", label='positive', color='blue', depthshade=True, s=size, linewidths=0)
 
     # position of neutral
     neu = np.where(array == 0)
     neu_z = neu[0]
     neu_y = neu[1]
     neu_x = neu[2]
-    colors_neu = np.repeat(np.array([[0,1,0,0.8]]),len(neu_z),axis=0)
-    ax.scatter3D(neu_x, neu_y, neu_z, marker="s", label='neutral', color='green', depthshade=True, s=size, linewidths=0)
 
     # position of negative
     neg = np.where(array == -1)
     neg_z = neg[0]
     neg_y = neg[1]
     neg_x = neg[2]
-    colors_neg = np.repeat(np.array([[1,0,0,0.8]]),len(neg_z),axis=0)
-    ax.scatter3D(neg_x, neg_y, neg_z, marker="s", label='negative', color='red', depthshade=True, s=size, linewidths=0)
+
+    # set axis limit
+
+    # get the largest number in all x,y,z scales
+    max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i])!=0]
+    max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i])!=0]
+    max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i])!=0]
+    maximum = max(max1+max2+max3)
+    ax.set_xlim3d(0, maximum)
+    ax.set_ylim3d(0, maximum)
+    ax.set_zlim3d(0, maximum)
+
+    ax.set_aspect('auto')
+    fig.canvas.draw()
+
+    extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width * fig.dpi,
+                 ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height * fig.dpi)
+    size = ((extent / (maximum + 1.)) ** 2)
+
+    # size = ((ax.get_window_extent().width / (max(array.shape[0], array.shape[1]) + 1.) * 72. / fig.dpi) ** 2)
+
+    ax.scatter3D(pos_x, pos_y, pos_z, marker="s", label='positive', color='blue', depthshade=False, s=size, linewidths=0)
+    ax.scatter3D(neu_x, neu_y, neu_z, marker="s", label='neutral', color='green', depthshade=False, s=size, linewidths=0)
+
+    # # position of positive
+    # pos = np.where(array == 1)
+    # pos_z = pos[0]
+    # pos_y = pos[1]
+    # pos_x = pos[2]
+    # # color of positive
+    # # colors_pos = np.repeat(np.array([[0,0,1,0.8]]),len(pos_z),axis=0)
+    # ax.scatter3D(pos_x, pos_y, pos_z, marker="s", label='positive', color='blue', depthshade=True, s=size, linewidths=0)
+    #
+    # # position of neutral
+    # neu = np.where(array == 0)
+    # neu_z = neu[0]
+    # neu_y = neu[1]
+    # neu_x = neu[2]
+    # colors_neu = np.repeat(np.array([[0,1,0,0.8]]),len(neu_z),axis=0)
+    # ax.scatter3D(neu_x, neu_y, neu_z, marker="s", label='neutral', color='green', depthshade=True, s=size, linewidths=0)
+    #
+    # # position of negative
+    # neg = np.where(array == -1)
+    # neg_z = neg[0]
+    # neg_y = neg[1]
+    # neg_x = neg[2]
+    # colors_neg = np.repeat(np.array([[1,0,0,0.8]]),len(neg_z),axis=0)
+    # ax.scatter3D(neg_x, neg_y, neg_z, marker="s", label='negative', color='red', depthshade=True, s=size, linewidths=0)
 
     # position_neg = np.zeros((len(neg_z), 3))
     # for i in range(len(neg_z)):
@@ -565,17 +603,6 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
     ax.set_zlabel("Z")
-
-    # set axis limit
-
-    # get the largest number in all x,y,z scales
-    max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i])!=0]
-    max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i])!=0]
-    max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i])!=0]
-    maximum = max(max1+max2+max3)
-    ax.set_xlim3d(0, maximum)
-    ax.set_ylim3d(0, maximum)
-    ax.set_zlim3d(0, maximum)
 
     # create a folder to store all the images
     global picFolder
@@ -618,13 +645,18 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
             # ax.dist = 6
 
             # name the title
-            if azim == 90 or azim == -90:
-                plt.title('X-Z plane')
-            elif azim == 0 or azim == 180:
-                plt.title('Y-Z plane')
+            if azim == 0:
+                title = 'Front'
+            elif azim == 180:
+                title = 'Behind'
+            elif azim == 90:
+                title = 'Right'
+            elif azim == -90:
+                title = 'Left'
 
+            plt.title(title)
             # save file
-            plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[0], azimuth[i]), dpi=300, bbox_inches='tight')
+            plt.savefig('{}/From_{}_of_Bacteria.png'.format(picFolderEach, title), dpi=300, bbox_inches='tight')
 
         # last 2 sides
         for i in range(len(elevation) - 1):
@@ -634,10 +666,13 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
             # ax.dist = 6
 
             # name the title
-            plt.title('X-Y plane')
-
+            if elev == 90:
+                title = 'Above'
+            elif elev == -90:
+                title = 'Below'
+            plt.title(title)
             # save file
-            plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[i + 1], azimuth[0]), dpi=300, bbox_inches='tight')
+            plt.savefig('{}/From_{}_of_Bacteria.png'.format(picFolderEach, title), dpi=300, bbox_inches='tight')
 
     endTime = time.time()
     totalTime = endTime - startTime
