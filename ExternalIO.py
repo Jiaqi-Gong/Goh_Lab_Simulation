@@ -288,7 +288,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     ax.set_xlim(0, maximum)
     ax.set_ylim(0, maximum)
 
-    size = 1000 / maximum
+    # size = 1000 / maximum
 
     ax.set_aspect(1)
     fig.canvas.draw()
