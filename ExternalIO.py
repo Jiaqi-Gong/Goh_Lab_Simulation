@@ -313,12 +313,14 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width,
     #              ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height)
 
+    size = ((ax.get_window_extent().width / (maximum + 1.) * 72. / fig.dpi) ** 2)
+
     ax.set_axis_on()
     #
     # size = ((extent / (maximum + 1.)) ** 2)
     # size = ((extent / (maximum + 1.) * 72. / fig.dpi) ** 2)
-    size = (((extent /(maximum * (fig.dpi / 72.)))) ** 2)
-    # size = (((extent / maximum) * (ig.dpi / 1.99)) ** 2)
+    # size = (((extent /(maximum * (fig.dpi / 72.)))) ** 2)
+    # size = (((extent / maximum) * (fig.dpi / 1.99)) ** 2)
     # size = (((extent /(maximum * fig.dpi))) ** 2)
 
     # size = (1/maximum* (fig.dpi / 72.))**2
