@@ -1,6 +1,7 @@
 """
 This program is used to run the simulation, but do not check the validity of parameter
 """
+import sys
 import time
 import traceback
 
