@@ -337,7 +337,9 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # size = ((dimension.width - dimension.x0)/(maximum)*(fig.dpi / 30.)) * ((dimension.height - dimension.y0)/(maximum)* (fig.dpi / 30.))
     # size = ((2*(dimension.width - dimension.x0) / maximum * (fig.dpi / 72.))*(2*(dimension.width - dimension.x0) / maximum * (fig.dpi / 72.)))
 
-    size = ((ax.transData.transform([1,0])[0] - ax.transData.transform([0,0])[0]))**2
+    size = (2*(ax.transData.transform([1,0])[0] - ax.transData.transform([0,0])[0]))**2
+    showMessage(f"size of marker is {size}")
+
     # size = (((extent /(maximum * (fig.dpi / 72.)))) ** 2)
     # size = (((extent / maximum) * (fig.dpi / 1.99)) ** 2)
     # size = (((extent /(maximum * fig.dpi))) ** 2)
@@ -664,8 +666,10 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
 
     showMessage(f"x is {dimension.width - dimension.x0}, y is {dimension.height - dimension.y0}")
 
-    size = ((dimension.width - dimension.x0)/(maximum)) * ((dimension.height - dimension.y0)/(maximum))
+    # size = ((dimension.width - dimension.x0)/(maximum)) * ((dimension.height - dimension.y0)/(maximum))
     # size = (((extent / (maximum * (fig.dpi / 72.)))) ** 2)
+    size = ((ax.transData.transform([(1,0,0)]) - ax.transData.transform([(0,0,0)]))[0,0,0])**2
+    showMessage(f"size of marker is {size}")
 
     # size = ((ax.get_window_extent().width / (max(array.shape[0], array.shape[1]) + 1.) * 72. / fig.dpi) ** 2)
     # order which we plot the points matter
