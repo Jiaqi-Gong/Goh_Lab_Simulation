@@ -243,7 +243,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     if len(array[0]) >= 10000:
         img_length = len(array[0]) // 1000
         img_width = len(array) // 1000
-        size = 0.1
+        size = 0.5
     elif len(array[0]) >= 1000:
         img_length = len(array[0]) // 100
         img_width = len(array) // 100
