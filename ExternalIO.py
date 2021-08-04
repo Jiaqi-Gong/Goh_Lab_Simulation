@@ -304,21 +304,30 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
         # set title
         name = 'Surface of Bacteria'
 
-    ax = plt.Axes(fig, [0., 0., 1., 1.])
-    ax.set_axis_off()
-    fig.add_axes(ax)
+    # ax = plt.Axes(fig, [0., 0., 1., 1.])
+    # ax.set_axis_off()
+    # fig.add_axes(ax)
 
     extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width*fig.dpi,
                  ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height*fig.dpi)
-    # extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width,
-    #              ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height)
+    dimension = ax.get_tightbbox(fig.canvas.get_renderer(),
+                     call_axes_locator = True,
+                     bbox_extra_artists = None)
 
-    size = ((ax.get_window_extent().width / (maximum + 1.) * 72. / fig.dpi) ** 2)
+    showMessage(f"x is {dimension.width - dimension.x0}, y is {dimension.height - dimension.y0}")
+    extent = max(dimension.width - dimension.x0,
+                 dimension.height - dimension.y0)
 
-    ax.set_axis_on()
+    # size = ((ax.get_window_extent().width / (maximum + 1.) * 72. / fig.dpi) ** 2)
+
+    # showMessage(f"width of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width*fig.dpi}")
+    # showMessage(f"height of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height*fig.dpi}")
+
+    # ax.set_axis_on()
     #
     # size = ((extent / (maximum + 1.)) ** 2)
-    # size = ((extent / (maximum + 1.) * 72. / fig.dpi) ** 2)
+    size = ((dimension.width - dimension.x0)/maximum) * ((dimension.height - dimension.y0)/maximum)
+    # size = (((dimension.width - dimension.x0) / (maximum + 1.) * 72. / fig.dpi) * ((dimension.height - dimension.y0) / (maximum + 1.) * 72. / fig.dpi))
     # size = (((extent /(maximum * (fig.dpi / 72.)))) ** 2)
     # size = (((extent / maximum) * (fig.dpi / 1.99)) ** 2)
     # size = (((extent /(maximum * fig.dpi))) ** 2)
@@ -326,9 +335,10 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # size = (1/maximum* (fig.dpi / 72.))**2
     # size = (fig.dpi/maximum)**2
 
+    # fig.set_size_inches(18.5, 10.5)
 
-    # showMessage(f"width of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width*fig.dpi}")
-    # showMessage(f"height of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height*fig.dpi}")
+    showMessage(f"width of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width*fig.dpi}")
+    showMessage(f"height of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height*fig.dpi}")
 
     # order which we plot the points matter
     nPos = len(pos_x)
