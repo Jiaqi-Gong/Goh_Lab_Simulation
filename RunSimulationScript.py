@@ -14,7 +14,7 @@ def runSimulation():
     # get log file
     write_at_end = True
     write_log = True
-    generate_image = False
+    generate_image = True
 
     message = setIndicator(generate_image, write_log, write_at_end)
     showMessage(message)
@@ -22,15 +22,15 @@ def runSimulation():
     showMessage("WARNING: validity of parameter uses is not check, use runSimulationCmd to check the validity of "
                 "parameter uses")
 
-    time.sleep(3)
+    time.sleep(1)
 
     # simulator info
     simulationType = 2
     trail = 999
     dimension = 3
     simulatorType = 1
-    # interactType = "DOT"
-    interactType = "CUTOFF"
+    interactType = "DOT"
+    # interactType = "CUTOFF"
 
     # film info
     filmSeed = 1
@@ -46,9 +46,9 @@ def runSimulation():
     interval_x = 10
     interval_y = 10
     filmSurfaceCharge = +1
-    filmDomainSize = (100, 100)
+    filmDomainSize = (6, 6)
     filmDomainShape = "diamond"
-    filmNeutralDomain = False
+    filmNeutralDomain = True
     filmDomainCon = 0.2  # if need to change charge ratio, change this
     filmDomainChargeConcentration = 0.5  # ignore
 
@@ -58,7 +58,7 @@ def runSimulation():
         bacteriaSize = (100, 100)
         bacteriaSurfaceShape = "rectangle"
     elif dimension == 3:
-        bacteriaSize = (50, 50, 5)  # For bacteria, z value is the height of bacteria, can be any number
+        bacteriaSize = (100, 100, 5)  # For bacteria, z value is the height of bacteria, can be any number
         bacteriaSurfaceShape = "cuboid"
     else:
         raise RuntimeError("Unknown dimension: {}".format(dimension))
@@ -66,9 +66,9 @@ def runSimulation():
     bacteriaSurfaceCharge = -1
     bacteriaDomainSize = (10, 10)
     bacteriaDomainShape = "diamond"
-    bacteriaDomainCon = 0.15
+    bacteriaDomainCon = 0.2
     bacteriaDomainChargeConcentration = 0.5  # ignore
-    bacteriaNeutralDomain = False
+    bacteriaNeutralDomain = True
 
     cutoff = 3
 
