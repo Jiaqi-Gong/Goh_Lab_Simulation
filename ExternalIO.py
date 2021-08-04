@@ -337,8 +337,23 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # size = ((dimension.width - dimension.x0)/(maximum)*(fig.dpi / 30.)) * ((dimension.height - dimension.y0)/(maximum)* (fig.dpi / 30.))
     # size = ((2*(dimension.width - dimension.x0) / maximum * (fig.dpi / 72.))*(2*(dimension.width - dimension.x0) / maximum * (fig.dpi / 72.)))
 
-    size = (2*(ax.transData.transform([1,0])[0] - ax.transData.transform([0,0])[0]))**2
-    showMessage(f"size of marker is {size}")
+    # size = ((ax.transData.transform([1,0])[0] - ax.transData.transform([0,0])[0]))**2
+    # showMessage(f"initial size of marker is {size}")
+    #
+    # # plot with invisible color
+    # x, y = np.indices((len(array[0]), len(array)))
+    # ax.scatter(x.flatten(), y.flatten(), s=size, color=(0, 0, 0, 0))
+    # # calculate scaling
+    # scl = ax.get_xlim()[1] - ax.get_xlim()[0]
+    #
+    # # new size
+    # size = size/scl**2
+
+    M = ax.transData.get_matrix()
+    xscale = M[0, 0]
+    yscale = M[1, 1]
+
+    size = (xscale*yscale)
 
     # size = (((extent /(maximum * (fig.dpi / 72.)))) ** 2)
     # size = (((extent / maximum) * (fig.dpi / 1.99)) ** 2)
