@@ -313,11 +313,13 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # ax.set_axis_off()
     # fig.add_axes(ax)
 
-    extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width*fig.dpi,
-                 ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height*fig.dpi)
+    # extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width*fig.dpi,
+    #              ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height*fig.dpi)
     dimension = ax.get_tightbbox(fig.canvas.get_renderer(),
                      call_axes_locator = True,
                      bbox_extra_artists = None)
+
+    extent = max((dimension.width - dimension.x0),(dimension.height - dimension.y0))
 
     showMessage(f"x is {dimension.width - dimension.x0}, y is {dimension.height - dimension.y0}")
 
@@ -330,7 +332,8 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     #
     # size = ((extent / (maximum + 1.)) ** 2)
     # size = ((dimension.width - dimension.x0)/(maximum)*(fig.dpi / 72.)) * ((dimension.height - dimension.y0)/(maximum)* (fig.dpi / 72.))
-    size = ((dimension.width - dimension.x0)/(maximum)*(fig.dpi / 60.)) * ((dimension.height - dimension.y0)/(maximum)* (fig.dpi / 60.))
+    # size = ((dimension.width - dimension.x0)/(maximum)*(fig.dpi / 30.)) * ((dimension.height - dimension.y0)/(maximum)* (fig.dpi / 30.))
+    size = (((extent / maximum)) ** 2)
 
     # size = (((extent /(maximum * (fig.dpi / 72.)))) ** 2)
     # size = (((extent / maximum) * (fig.dpi / 1.99)) ** 2)
