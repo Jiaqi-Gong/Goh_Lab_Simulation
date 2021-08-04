@@ -329,8 +329,9 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # ax.set_axis_on()
     #
     # size = ((extent / (maximum + 1.)) ** 2)
-    size = ((dimension.width - dimension.x0)/(maximum)*(fig.dpi / 72.)) * ((dimension.height - dimension.y0)/(maximum)* (fig.dpi / 72.))
-    # size = (((dimension.width - dimension.x0) / (maximum + 1.) * 72. / fig.dpi) * ((dimension.height - dimension.y0) / (maximum + 1.) * 72. / fig.dpi))
+    # size = ((dimension.width - dimension.x0)/(maximum)*(fig.dpi / 72.)) * ((dimension.height - dimension.y0)/(maximum)* (fig.dpi / 72.))
+    size = ((dimension.width - dimension.x0)/(maximum)*(fig.dpi / 50.)) * ((dimension.height - dimension.y0)/(maximum)* (fig.dpi / 50.))
+
     # size = (((extent /(maximum * (fig.dpi / 72.)))) ** 2)
     # size = (((extent / maximum) * (fig.dpi / 1.99)) ** 2)
     # size = (((extent /(maximum * fig.dpi))) ** 2)

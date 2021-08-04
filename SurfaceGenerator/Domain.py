@@ -389,6 +389,8 @@ class DomainGenerator:
         # initialize generated
         generated = 0
 
+        # time.sleep(1)
+
         # start to generate the domain on surface
         # to generate the domains on the surface, we will be using multiprocessing to take advantage of all 4 CPUS
         while generated < domainNumEach:
