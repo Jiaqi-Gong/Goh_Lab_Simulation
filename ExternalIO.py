@@ -239,26 +239,28 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     tot_y = tot[1]
     # fig, ax = plt.subplots(dpi=141)
 
+    img_length = 10
+    img_width = 10
+    # len(array[0]) // int(max(array.shape[0], array.shape[1])/100)
+    # if len(array[0]) >= 10000:
+    #     img_length = len(array[0]) // 1000
+    #     img_width = len(array) // 1000
+    #     size = 0.5
+    # elif len(array[0]) >= 1000:
+    #     img_length = len(array[0]) // 100
+    #     img_width = len(array) // 100
+    #     size = 1
+    # elif len(array[0]) >= 100:
+    #     img_length = len(array[0]) // 10
+    #     img_width = len(array) // 10
+    #     size = 10
+    # else:
+    #     img_length = len(array[0])
+    #     img_width = len(array)
+    #     size = 100
 
-    if len(array[0]) >= 10000:
-        img_length = len(array[0]) // 1000
-        img_width = len(array) // 1000
-        size = 0.5
-    elif len(array[0]) >= 1000:
-        img_length = len(array[0]) // 100
-        img_width = len(array) // 100
-        size = 1
-    elif len(array[0]) >= 100:
-        img_length = len(array[0]) // 10
-        img_width = len(array) // 10
-        size = 10
-    else:
-        img_length = len(array[0])
-        img_width = len(array)
-        size = 100
-
-    # fig = plt.figure(figsize=(img_length, img_width))
-    fig = plt.figure()
+    fig = plt.figure(figsize=(img_length, img_width))
+    # fig = plt.figure()
     ax = fig.add_subplot(111)
 
 
@@ -315,8 +317,6 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
                      bbox_extra_artists = None)
 
     showMessage(f"x is {dimension.width - dimension.x0}, y is {dimension.height - dimension.y0}")
-    extent = max(dimension.width - dimension.x0,
-                 dimension.height - dimension.y0)
 
     # size = ((ax.get_window_extent().width / (maximum + 1.) * 72. / fig.dpi) ** 2)
 
@@ -326,7 +326,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # ax.set_axis_on()
     #
     # size = ((extent / (maximum + 1.)) ** 2)
-    size = ((dimension.width - dimension.x0)/maximum) * ((dimension.height - dimension.y0)/maximum)
+    size = ((dimension.width - dimension.x0)/(maximum)) * ((dimension.height - dimension.y0)/(maximum))
     # size = (((dimension.width - dimension.x0) / (maximum + 1.) * 72. / fig.dpi) * ((dimension.height - dimension.y0) / (maximum + 1.) * 72. / fig.dpi))
     # size = (((extent /(maximum * (fig.dpi / 72.)))) ** 2)
     # size = (((extent / maximum) * (fig.dpi / 1.99)) ** 2)
@@ -349,7 +349,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # showMessage(f"number of negative is {nNeg}")
     plotnotfinite = False
     width = 0
-    marker = ','
+    marker = 's'
     # if positive is the charge of surface, we plot positive first
     if nPos == max(nPos, nNeu, nNeg):
         # ax.scatter(tot_x, tot_y, marker='s', c='blue', label='pos', s=size, linewidth=width, plotnonfinite=plotnotfinite)
@@ -569,9 +569,9 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     current_time = now.strftime("%H_%M_%S")
     # graph the 3D visualization
     # if the array is small, we don't
-    fig = plt.figure(dpi=141)
-    ax = fig.gca(projection='3d')
-    # ax = fig.add_subplot(111, projection='3d')
+    fig = plt.figure()
+    # ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(111, projection='3d')
 
     # ax.set_aspect('equal')
 
@@ -646,7 +646,14 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width * fig.dpi,
                  ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height * fig.dpi)
 
-    size = (((extent / (maximum * (fig.dpi / 72.)))) ** 2)
+    dimension = ax.get_tightbbox(fig.canvas.get_renderer(),
+                                 call_axes_locator=True,
+                                 bbox_extra_artists=None)
+
+    showMessage(f"x is {dimension.width - dimension.x0}, y is {dimension.height - dimension.y0}")
+
+    size = ((dimension.width - dimension.x0)/(maximum)) * ((dimension.height - dimension.y0)/(maximum))
+    # size = (((extent / (maximum * (fig.dpi / 72.)))) ** 2)
 
     # size = ((ax.get_window_extent().width / (max(array.shape[0], array.shape[1]) + 1.) * 72. / fig.dpi) ** 2)
     # order which we plot the points matter
