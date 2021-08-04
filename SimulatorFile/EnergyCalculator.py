@@ -118,9 +118,10 @@ def interact(interactType: str, intervalX: int, intervalY: int, film: ndarray, b
     # get the minimum result
     result.sort()
     result = result.pop(0)
-    result, min_film = result[0], result[1]
+    result, min_film, path = result[0], result[1], result[2]
 
     writeLog("Result in interact {}D is: {}".format(dimension, result))
+    writeLog("Path is: {}".format(path))
 
     # print the min_film
     visPlot(min_film, "film_at_minimum_{}".format(currIter), 2)
@@ -253,6 +254,7 @@ def _calculateEnergy(data: Tuple[ndarray, ndarray, ndarray, ndarray], interactTy
     min_x = -1
     min_y = -1
     min_film = []
+    path = []
 
     # loop all point in the range
     for x in range_x:
@@ -301,6 +303,7 @@ def _calculateEnergy(data: Tuple[ndarray, ndarray, ndarray, ndarray], interactTy
 
                 # calculate average energy
                 energy = sum(energy_list) / len(energy_list)
+                film_1D = film_list[0]
 
             else:
                 raise RuntimeError("Unknown interact type: {}".format(interactType))
@@ -309,8 +312,8 @@ def _calculateEnergy(data: Tuple[ndarray, ndarray, ndarray, ndarray], interactTy
             unique, counts = np.unique(film_use, return_counts=True)
 
             # record all variables
-            # writeLog("film_use is: {}, film_1D is: {}, energy is: {}, unique is: {}, counts is: {}".format(
-            #     film_use, film_1D, energy, unique, counts))
+            path.append("energy is: {}, unique is: {}, counts is: {}, position is:{}".format(
+                energy, unique, counts, (x, y)))
 
             # check the calculation result and change corresponding value
             charge = 0
@@ -337,7 +340,7 @@ def _calculateEnergy(data: Tuple[ndarray, ndarray, ndarray, ndarray], interactTy
     # save the result
     result = (min_energy, min_x, min_y, min_energy_charge, min_charge, min_charge_x, min_charge_y)
 
-    return (result, min_film)
+    return (result, min_film, path)
 
 
 def _trans3DTo1D(arrayList: ndarray) -> ndarray:
