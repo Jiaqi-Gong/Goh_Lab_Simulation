@@ -257,8 +257,8 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
         img_width = len(array)
         size = 100
 
-    # fig = plt.figure(figsize=(img_length, img_width))
-    fig = plt.figure()
+    fig = plt.figure(figsize=(img_length, img_width))
+    # fig = plt.figure()
     ax = fig.add_subplot(111)
 
 
@@ -308,12 +308,12 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # ax.set_axis_off()
     # fig.add_axes(ax)
 
-    # extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width*fig.dpi,
-    #              ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height*fig.dpi)
+    extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width*fig.dpi,
+                 ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height*fig.dpi)
     # extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width,
-    #              ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height)
+                 # ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height)
     #
-    # size = ((extent / (maximum + 1.)) ** 2)
+    size = ((extent / (maximum + 1.)) ** 2)
     # size = (((extent /(maximum * (fig.dpi / 72.)))) ** 2)
     # size = (((extent / maximum) * (fig.dpi / 1.99)) ** 2)
     # size = (((extent /(maximum * fig.dpi))) ** 2)
