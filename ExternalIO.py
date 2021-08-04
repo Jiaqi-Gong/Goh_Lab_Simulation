@@ -242,22 +242,24 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # img_length = 10
     # img_width = 10
     # len(array[0]) // int(max(array.shape[0], array.shape[1])/100)
-    if len(array[0]) >= 10000:
-        img_length = len(array[0]) // 1000
-        img_width = len(array) // 1000
-        size = 0.5
-    elif len(array[0]) >= 1000:
-        img_length = len(array[0]) // 100
-        img_width = len(array) // 100
-        size = 1
-    elif len(array[0]) >= 100:
-        img_length = len(array[0]) // 10
-        img_width = len(array) // 10
-        size = 10
-    else:
-        img_length = len(array[0])
-        img_width = len(array)
-        size = 100
+    # digits
+    c = -len(str(len(array[0]))) + 1
+    dividor = int(round(len(array[0]), c) / int(str(round(len(array[0]), c))[0]+str(round(len(array[0]), c))[1]))
+    img_length = len(array[0]) // dividor
+    img_width = len(array) // dividor
+
+    # if len(array[0]) >= 10000:
+    #     img_length = len(array[0]) // 1000
+    #     img_width = len(array) // 1000
+    # elif len(array[0]) >= 1000:
+    #     img_length = len(array[0]) // 100
+    #     img_width = len(array) // 100
+    # elif len(array[0]) >= 100:
+    #     img_length = len(array[0]) // 10
+    #     img_width = len(array) // 10
+    # else:
+    #     img_length = len(array[0])
+    #     img_width = len(array)
 
     fig = plt.figure(figsize=(img_length, img_width))
     # fig = plt.figure()
@@ -284,7 +286,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i]) != 0]
     max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i]) != 0]
     max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i]) != 0]
-    maximum = max(max1 + max2 + max3)
+    maximum = max(max1 + max2 + max3)+1
     # ax.set_xlim(vmin - 0.5, vmax + 0.5)
     # ax.set_ylim(vmin - 0.5, vmax + 0.5)
     ax.set_xlim(0, maximum)
