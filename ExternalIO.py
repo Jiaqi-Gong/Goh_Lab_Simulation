@@ -304,21 +304,24 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
         # set title
         name = 'Surface of Bacteria'
 
-    # ax = plt.Axes(fig, [0., 0., 1., 1.])
-    # ax.set_axis_off()
-    # fig.add_axes(ax)
+    ax = plt.Axes(fig, [0., 0., 1., 1.])
+    ax.set_axis_off()
+    fig.add_axes(ax)
 
     extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width*fig.dpi,
                  ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height*fig.dpi)
     # extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width,
                  # ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height)
+
+    ax.set_axis_on()
     #
-    size = ((extent / (maximum + 1.)) ** 2)
-    # size = (((extent /(maximum * (fig.dpi / 72.)))) ** 2)
+    # size = ((extent / (maximum + 1.)) ** 2)
+    size = (((extent /(maximum * (fig.dpi / 72.)))) ** 2)
     # size = (((extent / maximum) * (fig.dpi / 1.99)) ** 2)
     # size = (((extent /(maximum * fig.dpi))) ** 2)
 
     # size = (1/maximum* (fig.dpi / 72.))**2
+    # size = (fig.dpi/maximum)**2
 
 
     # showMessage(f"width of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width*fig.dpi}")
