@@ -248,6 +248,8 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     img_length = len(array[0]) // dividor
     img_width = len(array) // dividor
 
+    showMessage(f"Length of image is {img_length}, width of image is {img_width}")
+
     # if len(array[0]) >= 10000:
     #     img_length = len(array[0]) // 1000
     #     img_width = len(array) // 1000
@@ -332,9 +334,10 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     #
     # size = ((extent / (maximum + 1.)) ** 2)
     # size = ((dimension.width - dimension.x0)/(maximum)*(fig.dpi / 72.)) * ((dimension.height - dimension.y0)/(maximum)* (fig.dpi / 72.))
-    size = ((dimension.width - dimension.x0)/(maximum)*(fig.dpi / 30.)) * ((dimension.height - dimension.y0)/(maximum)* (fig.dpi / 30.))
-    # size = (2*((dimension.width - dimension.x0) / maximum * (fig.dpi / 72.))*((dimension.width - dimension.x0) / maximum * (fig.dpi / 72.)))
+    # size = ((dimension.width - dimension.x0)/(maximum)*(fig.dpi / 30.)) * ((dimension.height - dimension.y0)/(maximum)* (fig.dpi / 30.))
+    # size = ((2*(dimension.width - dimension.x0) / maximum * (fig.dpi / 72.))*(2*(dimension.width - dimension.x0) / maximum * (fig.dpi / 72.)))
 
+    size = ((ax.transData.transform([1,0])[0] - ax.transData.transform([0,0])[0]))**2
     # size = (((extent /(maximum * (fig.dpi / 72.)))) ** 2)
     # size = (((extent / maximum) * (fig.dpi / 1.99)) ** 2)
     # size = (((extent /(maximum * fig.dpi))) ** 2)
@@ -376,7 +379,9 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
         ax.scatter(neg_x, neg_y, marker=marker, c='red', label='neg', s=size, linewidth=width, plotnonfinite=plotnotfinite)
         ax.scatter(neu_x, neu_y, marker=marker, c='green', label='neu', s=size, linewidth=width, plotnonfinite=plotnotfinite)
 
-
+    # ax.tricontourf(pos_x, pos_y, colors='blue')
+    # ax.tricontourf(neu_x, neu_y, colors='green')
+    # ax.tricontourf(neg_x, neg_y, colors='red')
 
     # # get the total number of CPUs
     # ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)) - 2, 1)
