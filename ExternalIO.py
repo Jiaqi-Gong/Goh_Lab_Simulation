@@ -509,7 +509,9 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # plt.ylim(0,maximum)
     plt.title(name)
 
-    plt.imshow(array, interpolation='nearest')
+    ax.imshow(array, interpolation='nearest', aspect='equal')
+
+    # plt.imshow(array, interpolation='nearest')
 
     global picFolder
     if "picFolder" not in globals():
