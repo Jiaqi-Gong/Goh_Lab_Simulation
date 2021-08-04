@@ -239,6 +239,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     tot_y = tot[1]
     # fig, ax = plt.subplots(dpi=141)
 
+
     if len(array[0]) >= 10000:
         img_length = len(array[0]) // 1000
         img_width = len(array) // 1000
@@ -286,6 +287,8 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # ax.set_ylim(vmin - 0.5, vmax + 0.5)
     ax.set_xlim(0, maximum)
     ax.set_ylim(0, maximum)
+
+    size = 1000 / maximum
 
     ax.set_aspect(1)
     fig.canvas.draw()
