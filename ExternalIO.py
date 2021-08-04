@@ -239,25 +239,25 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     tot_y = tot[1]
     # fig, ax = plt.subplots(dpi=141)
 
-    img_length = 10
-    img_width = 10
+    # img_length = 10
+    # img_width = 10
     # len(array[0]) // int(max(array.shape[0], array.shape[1])/100)
-    # if len(array[0]) >= 10000:
-    #     img_length = len(array[0]) // 1000
-    #     img_width = len(array) // 1000
-    #     size = 0.5
-    # elif len(array[0]) >= 1000:
-    #     img_length = len(array[0]) // 100
-    #     img_width = len(array) // 100
-    #     size = 1
-    # elif len(array[0]) >= 100:
-    #     img_length = len(array[0]) // 10
-    #     img_width = len(array) // 10
-    #     size = 10
-    # else:
-    #     img_length = len(array[0])
-    #     img_width = len(array)
-    #     size = 100
+    if len(array[0]) >= 10000:
+        img_length = len(array[0]) // 1000
+        img_width = len(array) // 1000
+        size = 0.5
+    elif len(array[0]) >= 1000:
+        img_length = len(array[0]) // 100
+        img_width = len(array) // 100
+        size = 1
+    elif len(array[0]) >= 100:
+        img_length = len(array[0]) // 10
+        img_width = len(array) // 10
+        size = 10
+    else:
+        img_length = len(array[0])
+        img_width = len(array)
+        size = 100
 
     fig = plt.figure(figsize=(img_length, img_width))
     # fig = plt.figure()
@@ -290,7 +290,8 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     ax.set_xlim(0, maximum)
     ax.set_ylim(0, maximum)
 
-    size = 1000 / maximum
+    showMessage(maximum)
+    # size = 1000 / maximum
 
     ax.set_aspect(1)
     fig.canvas.draw()

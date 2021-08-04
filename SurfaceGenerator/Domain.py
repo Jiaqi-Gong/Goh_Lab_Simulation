@@ -154,7 +154,9 @@ class DomainGenerator:
             # minus 2 in case of other possible process is running
 
             ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)) - 2, 1)
-            # ncpus = cpu_count()
+            if ncpus == 1:
+                ncpus = cpu_count()
+
             if ncpus <= 16:
                 cpu_number = ncpus
             else:
