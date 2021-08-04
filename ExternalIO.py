@@ -237,11 +237,29 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     neg_y = neg[1]
     tot_x = tot[0]
     tot_y = tot[1]
-    fig, ax = plt.subplots(dpi=141)
+    # fig, ax = plt.subplots(dpi=141)
 
+    if len(array[0]) >= 10000:
+        img_length = len(array[0]) // 1000
+        img_width = len(array) // 1000
+        size = 0.1
+    elif len(array[0]) >= 1000:
+        img_length = len(array[0]) // 100
+        img_width = len(array) // 100
+        size = 1
+    elif len(array[0]) >= 100:
+        img_length = len(array[0]) // 10
+        img_width = len(array) // 10
+        size = 10
+    else:
+        img_length = len(array[0])
+        img_width = len(array)
+        size = 100
 
-    # fig = plt.figure()
-    # ax = fig.add_subplot(111)
+    # fig = plt.figure(figsize=(img_length, img_width))
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
 
     # colors_pos = np.repeat(np.array([[0,0,1,1]]),len(pos_x),axis=0)
     # colors_neu = np.repeat(np.array([[0,1,0,1]]),len(neu_x),axis=0)
@@ -287,23 +305,18 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # ax.set_axis_off()
     # fig.add_axes(ax)
 
-    extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width*fig.dpi,
-                 ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height*fig.dpi)
+    # extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width*fig.dpi,
+    #              ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height*fig.dpi)
     # extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width,
     #              ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height)
-
+    #
     # size = ((extent / (maximum + 1.)) ** 2)
-    size = (((extent /(maximum * (fig.dpi / 72.)))) ** 2)
+    # size = (((extent /(maximum * (fig.dpi / 72.)))) ** 2)
     # size = (((extent / maximum) * (fig.dpi / 1.99)) ** 2)
     # size = (((extent /(maximum * fig.dpi))) ** 2)
 
+    # size = (1/maximum* (fig.dpi / 72.))**2
 
-    # if maximum < 500:
-    #     width = 1
-    # elif maximum < 10000 and maximum > 500:
-    #     width = 0
-    # else:
-    #     width = 1
 
     # showMessage(f"width of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width*fig.dpi}")
     # showMessage(f"height of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height*fig.dpi}")

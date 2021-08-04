@@ -32,6 +32,8 @@ class DomainGenerator:
         """
         self.seed = seed
         self.neutral = neutral
+        # set the seed for random
+        np.random.seed(self.seed)
 
     def generateDomain(self, surface: Surface, shape: str, size: Tuple[int, int], concentration: float,
                        charge_concentration: float) -> [ndarray, float, float]:
@@ -132,9 +134,6 @@ class DomainGenerator:
         # writeLog(newSurface)
         writeLog("Charge of the surface is {}".format(surfaceCharge))
         writeLog("Charge of domain is {} and {}".format(possible_charge[0], possible_charge[1]))
-
-        # set the seed for random
-        np.random.seed(self.seed)
 
         # Determine all the possible points allowed to be chosen as the start point to begin generating the domain
         possiblePoint = self._allPossiblePoint(newSurface, surface, surface.length, surface.width, surface.height, domainLength,
