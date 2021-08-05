@@ -15,7 +15,7 @@ import math
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
-from matplotlib import collections
+from matplotlib.colors import LinearSegmentedColormap
 
 LOG_CACH = []
 
@@ -395,44 +395,44 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # initialize colors and labels
     colors = ['red','green','blue']
     labels = ["negative", "neutral", "positive"]
-    levels = np.linspace(-2,2,5)
+    # levels = np.linspace(-2,2,5)
 
     # separate the cases into 3
     # if no negative is present
     if len(neg_x) == 0:
         colors.remove('red')
         labels.remove('negative')
-        levels = np.delete(levels, 1)
+        # levels = np.delete(levels, 1)
         showMessage('removed negative')
     # if no neutral is present
     if len(neu_x) == 0:
         colors.remove('green')
         labels.remove('neutral')
-        levels = np.delete(levels, 2)
+        # levels = np.delete(levels, 2)
         showMessage('removed neutral')
 
     # if no positive is present
     if len(pos_x) == 0:
         colors.remove('blue')
         labels.remove('positive')
-        levels = np.delete(levels, 3)
+        # levels = np.delete(levels, 3)
         showMessage('removed positive')
 
-    showMessage(f"colors is {colors}, labels is {labels}, levels is {levels}")
+    # initialize colors
+    n_bins = len(colors)
+    cmap_name = 'my_list'
+    cmap = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bins)
 
-    fig.canvas.draw()
+    ax.imshow(array, origin='lower', cmap=cmap)
 
-    # initialize area
-    x, y = np.indices((len(array[0]), len(array)))
-    surface = ax.contourf(x, y, array, levels=levels, colors=colors, vmin=-1, vmax=1)
-    ax.set_aspect('equal')
+    for i in range(len(colors)):
+        plt.plot(0, 0, "-", color=colors[i], label=labels[i])
 
-    # ax.contourf(x, y, array, levels, colors=colors, vmin=-2, vmax=2)
-
-    proxy = [plt.Rectangle((1, 1), 2, 2, fc=pc.get_facecolor()[0]) for pc in
-             surface.collections]
-
-    ax.legend(proxy, labels)
+    ax.legend(loc="upper right", bbox_to_anchor=(1.25, 1.0))
+    # proxy = [plt.Rectangle((1, 1), 2, 2, fc=pc.get_facecolor()[0]) for pc in
+    #          surface.collections]
+    #
+    # ax.legend(proxy, labels)
 
     # ax.contourf(pos_x, pos_y,  colors='blue')
     # ax.contourf(neu_x, neu_y, colors='green')
@@ -613,7 +613,6 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     picPath = "{}/{}".format(picFolder, picName)
 
     plt.savefig(picPath, dpi=300, bbox_inches='tight')
-    # plt.savefig(picPath)
     endTime = time.time()
     totalTime = endTime - startTime
 
