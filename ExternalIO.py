@@ -237,11 +237,6 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     neg_y = neg[1]
     tot_x = tot[0]
     tot_y = tot[1]
-    # fig, ax = plt.subplots(dpi=141)
-
-    # img_length = 10
-    # img_width = 10
-    # len(array[0]) // int(max(array.shape[0], array.shape[1])/100)
     # digits
     c = -len(str(len(array[0]))) + 1
     dividor = int(round(len(array[0]), c) / int(str(round(len(array[0]), c))[0]+str(round(len(array[0]), c))[1]))
@@ -262,6 +257,25 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # else:
     #     img_length = len(array[0])
     #     img_width = len(array)
+
+    # Calculate maximum
+    max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i]) != 0]
+    max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i]) != 0]
+    max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i]) != 0]
+    maximum = max(max1 + max2 + max3) + 1
+
+    # # Figure settings
+    # margin = 0.12
+    # subplot_fraction = 1 - 2 * margin
+    # fig_ppi = 72
+    # n_markers = maximum
+    #
+    #
+    # # Size of the marker, in points^2
+    # size = (subplot_fraction * img_length * fig_ppi / n_markers) ** 2
+    #
+    # fig = plt.figure(figsize=(img_length, img_width))
+    # fig.subplots_adjust(margin, margin, 1 - margin, 1 - margin, 0, 0)
 
     fig = plt.figure(figsize=(img_length, img_width))
     # fig = plt.figure()
@@ -285,12 +299,6 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # factor = (int(max(array.shape[0], array.shape[1])))
 
     # set x limit and y limit
-    max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i]) != 0]
-    max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i]) != 0]
-    max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i]) != 0]
-    maximum = max(max1 + max2 + max3)+1
-    # ax.set_xlim(vmin - 0.5, vmax + 0.5)
-    # ax.set_ylim(vmin - 0.5, vmax + 0.5)
     ax.set_xlim(0, maximum)
     ax.set_ylim(0, maximum)
 
@@ -330,30 +338,33 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # showMessage(f"width of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width*fig.dpi}")
     # showMessage(f"height of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height*fig.dpi}")
 
-    # ax.set_axis_on()
-    #
+    # size = ((dimension.x1 - dimension.x0)/(maximum)*(72. / fig.dpi)) * ((dimension.y1 - dimension.y0)/(maximum)* (72 / fig.dpi))
+    size = ((dimension.x1 - dimension.x0)/(maximum)*(fig.dpi / 72.)) * ((dimension.y1 - dimension.y0)/(maximum)* (fig.dpi / 72))
+
+
     # size = ((extent / (maximum + 1.)) ** 2)
-    # size = ((dimension.width - dimension.x0)/(maximum)*(fig.dpi / 72.)) * ((dimension.height - dimension.y0)/(maximum)* (fig.dpi / 72.))
+    # size = ((dimension.x1 - dimension.x0)/(maximum)*(fig.dpi / 72.)) * ((dimension.y1 - dimension.y0)/(maximum)* (fig.dpi / 72.))
     # size = ((dimension.width - dimension.x0)/(maximum)*(fig.dpi / 30.)) * ((dimension.height - dimension.y0)/(maximum)* (fig.dpi / 30.))
     # size = ((2*(dimension.width - dimension.x0) / maximum * (fig.dpi / 72.))*(2*(dimension.width - dimension.x0) / maximum * (fig.dpi / 72.)))
 
-    # size = ((ax.transData.transform([1,0])[0] - ax.transData.transform([0,0])[0]))**2
-    # showMessage(f"initial size of marker is {size}")
-    #
     # # plot with invisible color
     # x, y = np.indices((len(array[0]), len(array)))
-    # ax.scatter(x.flatten(), y.flatten(), s=size, color=(0, 0, 0, 0))
+    # ax.scatter(x.flatten(), y.flatten(), color=(0, 0, 0, 0))
+    #
+    # size = ((ax.transData.transform([1, 0])[0] - ax.transData.transform([0, 0])[0])) ** 2
+    # showMessage(f"initial size of marker is {size}")
+    #
     # # calculate scaling
     # scl = ax.get_xlim()[1] - ax.get_xlim()[0]
     #
     # # new size
     # size = size/scl**2
 
-    M = ax.transData.get_matrix()
-    xscale = M[0, 0]
-    yscale = M[1, 1]
-
-    size = (xscale*yscale)
+    # M = ax.transData.get_matrix()
+    # xscale = M[0, 0]
+    # yscale = M[1, 1]
+    #
+    # size = (xscale*yscale)
 
     # size = (((extent /(maximum * (fig.dpi / 72.)))) ** 2)
     # size = (((extent / maximum) * (fig.dpi / 1.99)) ** 2)
