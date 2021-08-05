@@ -237,6 +237,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     neg_y = neg[1]
     tot_x = tot[0]
     tot_y = tot[1]
+
     # digits
     c = -len(str(len(array[0]))) + 1
     dividor = int(round(len(array[0]), c) / int(str(round(len(array[0]), c))[0]+str(round(len(array[0]), c))[1]))
@@ -262,7 +263,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i]) != 0]
     max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i]) != 0]
     max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i]) != 0]
-    maximum = max(max1 + max2 + max3) + 1
+    maximum = max(max1 + max2 + max3)
 
     # # Figure settings
     # margin = 0.12
@@ -298,15 +299,8 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # # define factor
     # factor = (int(max(array.shape[0], array.shape[1])))
 
-    # set x limit and y limit
-    ax.set_xlim(0, maximum)
-    ax.set_ylim(0, maximum)
-
-    showMessage(maximum)
-    # size = 1000 / maximum
-
-    ax.set_aspect(1)
-    fig.canvas.draw()
+    # ax.set_aspect(1)
+    # fig.canvas.draw()
     # size = ((ax.get_window_extent().width / (vmax-vmin + 1.) * 72. / fig.dpi) ** 2)
     # size = (((ax.get_window_extent().width / (maximum + 1.)) * (72. / fig.dpi)) ** 2)
     # size = (ax.get_window_extent().width / ((maximum + 1.) * (72. / fig.dpi))) ** 2
@@ -366,15 +360,6 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     #
     # size = (xscale*yscale)
 
-    # size = (((extent /(maximum * (fig.dpi / 72.)))) ** 2)
-    # size = (((extent / maximum) * (fig.dpi / 1.99)) ** 2)
-    # size = (((extent /(maximum * fig.dpi))) ** 2)
-
-    # size = (1/maximum* (fig.dpi / 72.))**2
-    # size = (fig.dpi/maximum)**2
-
-    # fig.set_size_inches(18.5, 10.5)
-
     showMessage(f"width of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width*fig.dpi}")
     showMessage(f"height of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height*fig.dpi}")
 
@@ -388,28 +373,68 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     plotnotfinite = False
     width = 0
     marker = 's'
-    # if positive is the charge of surface, we plot positive first
-    if nPos == max(nPos, nNeu, nNeg):
-        # ax.scatter(tot_x, tot_y, marker='s', c='blue', label='pos', s=size, linewidth=width, plotnonfinite=plotnotfinite)
-        ax.scatter(neu_x, neu_y, marker=marker, c='green', label='neu', s=size, linewidth=width, plotnonfinite=plotnotfinite)
-        ax.scatter(neg_x, neg_y, marker=marker, c='red', label='neg', s=size, linewidth=width, plotnonfinite=plotnotfinite)
-        ax.scatter(pos_x, pos_y, marker=marker, c='blue', label='pos', s=size, linewidth=width, plotnonfinite=plotnotfinite)
+    # # if positive is the charge of surface, we plot positive first
+    # if nPos == max(nPos, nNeu, nNeg):
+    #     # ax.scatter(tot_x, tot_y, marker='s', c='blue', label='pos', s=size, linewidth=width, plotnonfinite=plotnotfinite)
+    #     ax.scatter(neu_x, neu_y, marker=marker, c='green', label='neu', s=size, linewidth=width, plotnonfinite=plotnotfinite)
+    #     ax.scatter(neg_x, neg_y, marker=marker, c='red', label='neg', s=size, linewidth=width, plotnonfinite=plotnotfinite)
+    #     ax.scatter(pos_x, pos_y, marker=marker, c='blue', label='pos', s=size, linewidth=width, plotnonfinite=plotnotfinite)
+    #
+    # elif nNeg == max(nPos, nNeu, nNeg):
+    #     # ax.scatter(tot_x, tot_y, marker='s', c='red', label='neg', s=size, linewidth=width, plotnonfinite=plotnotfinite)
+    #     ax.scatter(neu_x, neu_y, marker=marker, c='green', label='neu', s=size, linewidth=width, plotnonfinite=plotnotfinite)
+    #     ax.scatter(pos_x, pos_y, marker=marker, c='blue', label='pos', s=size, linewidth=width, plotnonfinite=plotnotfinite)
+    #     ax.scatter(neg_x, neg_y, marker=marker, c='red', label='neg', s=size, linewidth=width, plotnonfinite=plotnotfinite)
+    #
+    # elif nNeu == max(nPos, nNeu, nNeg):
+    #     # ax.scatter(tot_x, tot_y, marker='s', c='green', label='neu', s=size, linewidth=width, plotnonfinite=plotnotfinite)
+    #     ax.scatter(pos_x, pos_y, marker=marker, c='blue', label='pos', s=size, linewidth=width, plotnonfinite=plotnotfinite)
+    #     ax.scatter(neg_x, neg_y, marker=marker, c='red', label='neg', s=size, linewidth=width, plotnonfinite=plotnotfinite)
+    #     ax.scatter(neu_x, neu_y, marker=marker, c='green', label='neu', s=size, linewidth=width, plotnonfinite=plotnotfinite)
 
-    elif nNeg == max(nPos, nNeu, nNeg):
-        # ax.scatter(tot_x, tot_y, marker='s', c='red', label='neg', s=size, linewidth=width, plotnonfinite=plotnotfinite)
-        ax.scatter(neu_x, neu_y, marker=marker, c='green', label='neu', s=size, linewidth=width, plotnonfinite=plotnotfinite)
-        ax.scatter(pos_x, pos_y, marker=marker, c='blue', label='pos', s=size, linewidth=width, plotnonfinite=plotnotfinite)
-        ax.scatter(neg_x, neg_y, marker=marker, c='red', label='neg', s=size, linewidth=width, plotnonfinite=plotnotfinite)
+    # initialize colors and labels
+    colors = ['red','green','blue']
+    labels = ["negative", "neutral", "positive"]
+    levels = np.linspace(-1,1,3)
 
-    elif nNeu == max(nPos, nNeu, nNeg):
-        # ax.scatter(tot_x, tot_y, marker='s', c='green', label='neu', s=size, linewidth=width, plotnonfinite=plotnotfinite)
-        ax.scatter(pos_x, pos_y, marker=marker, c='blue', label='pos', s=size, linewidth=width, plotnonfinite=plotnotfinite)
-        ax.scatter(neg_x, neg_y, marker=marker, c='red', label='neg', s=size, linewidth=width, plotnonfinite=plotnotfinite)
-        ax.scatter(neu_x, neu_y, marker=marker, c='green', label='neu', s=size, linewidth=width, plotnonfinite=plotnotfinite)
+    # separate the cases into 3
+    # if no negative is present
+    if len(neg_x) == 0:
+        colors.remove('red')
+        labels.remove('negative')
+        levels = np.delete(levels, 0)
+        showMessage('removed negative')
+    # if no neutral is present
+    if len(neu_x) == 0:
+        colors.remove('green')
+        labels.remove('neutral')
+        levels = np.delete(levels, 1)
+        showMessage('removed neutral')
 
-    # ax.tricontourf(pos_x, pos_y, colors='blue')
-    # ax.tricontourf(neu_x, neu_y, colors='green')
-    # ax.tricontourf(neg_x, neg_y, colors='red')
+    # if no positive is present
+    if len(pos_x) == 0:
+        colors.remove('blue')
+        labels.remove('positive')
+        levels = np.delete(levels, 2)
+        showMessage('removed positive')
+
+    showMessage(f"colors is {colors}, labels is {labels}, levels is {levels}")
+
+    # initialize area
+    x, y = np.indices((len(array[0]), len(array)))
+    surface = ax.contourf(x, y, array, levels=levels, colors=colors, vmin=-1, vmax=1)
+    ax.set_aspect('equal')
+
+    # ax.contourf(x, y, array, levels, colors=colors, vmin=-2, vmax=2)
+
+    proxy = [plt.Rectangle((1, 1), 2, 2, fc=pc.get_facecolor()[0]) for pc in
+             surface.collections]
+
+    ax.legend(proxy, labels)
+
+    # ax.contourf(pos_x, pos_y,  colors='blue')
+    # ax.contourf(neu_x, neu_y, colors='green')
+    # ax.contourf(neg_x, neg_y, colors='red')
 
     # # get the total number of CPUs
     # ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)) - 2, 1)
@@ -548,9 +573,14 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # cNeg.set_facecolor(colors_neg)
     # ax.add_collection(cNeg)
 
-    lgnd = ax.legend(loc="upper right")
-    for handle in lgnd.legendHandles:
-        handle.set_sizes([10.0])
+    # lgnd = ax.legend(loc="upper right")
+    # for handle in lgnd.legendHandles:
+    #     handle.set_sizes([10.0])
+
+
+    # set x limit and y limit
+    ax.set_xlim(0, maximum)
+    ax.set_ylim(0, maximum)
 
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
@@ -562,7 +592,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # plt.ylim(0,maximum)
     plt.title(name)
 
-    ax.imshow(array, interpolation='nearest', aspect='equal')
+    # ax.imshow(array, interpolation='nearest', aspect='equal')
 
     # plt.imshow(array, interpolation='nearest')
 
@@ -578,7 +608,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
 
     picPath = "{}/{}".format(picFolder, picName)
 
-    plt.savefig(picPath, bbox_inches='tight')
+    plt.savefig(picPath, dpi=300, bbox_inches='tight')
     # plt.savefig(picPath)
     endTime = time.time()
     totalTime = endTime - startTime
