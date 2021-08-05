@@ -395,30 +395,32 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # initialize colors and labels
     colors = ['red','green','blue']
     labels = ["negative", "neutral", "positive"]
-    levels = np.linspace(-1,1,3)
+    levels = np.linspace(-2,2,5)
 
     # separate the cases into 3
     # if no negative is present
     if len(neg_x) == 0:
         colors.remove('red')
         labels.remove('negative')
-        levels = np.delete(levels, 0)
+        levels = np.delete(levels, 1)
         showMessage('removed negative')
     # if no neutral is present
     if len(neu_x) == 0:
         colors.remove('green')
         labels.remove('neutral')
-        levels = np.delete(levels, 1)
+        levels = np.delete(levels, 2)
         showMessage('removed neutral')
 
     # if no positive is present
     if len(pos_x) == 0:
         colors.remove('blue')
         labels.remove('positive')
-        levels = np.delete(levels, 2)
+        levels = np.delete(levels, 3)
         showMessage('removed positive')
 
     showMessage(f"colors is {colors}, labels is {labels}, levels is {levels}")
+
+    fig.canvas.draw()
 
     # initialize area
     x, y = np.indices((len(array[0]), len(array)))
@@ -590,6 +592,8 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
 
     # plt.xlim(0,maximum)
     # plt.ylim(0,maximum)
+    plt.xlabel('X')
+    plt.ylabel('Y')
     plt.title(name)
 
     # ax.imshow(array, interpolation='nearest', aspect='equal')
