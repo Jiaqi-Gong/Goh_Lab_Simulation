@@ -100,17 +100,26 @@ class DomainGenerator:
             # the domain number will be formatted as a list
             # domainNum will contain number of domains on each side
             # domainNum = [x0, x1, y0, y1, z0, z1]
+
+            # define total number of points of 3d shape
+            # first get all location of possible points using _allPossiblePoint function
+            allPoints = self._allPossiblePoint(newSurface, surface, surface.length, surface.width, surface.height, 0, 0, 'SINGLE')
+            # then, separate them into each plane
+            allPointsSeparated = self._allPoints(surface, allPoints)
+            # lastly, find the length of the lists for each plane
+            allPointsLength = [len(allPointsSeparated[i]) for i in range(len(allPointsSeparated))]
+
             if shape.upper() == "DIAMOND":
                 domainNum = [int((number*concentration)/int(4*((1+domainWidth)/2)*domainWidth+1))
-                             for number in self._allPoints(newSurface)]
+                             for number in allPointsLength]
             elif shape.upper() == "CROSS":
                 domainNum = [int((number*concentration)/int(domainWidth*2+domainLength*2+1))
-                             for number in self._allPoints(newSurface)]
+                             for number in allPointsLength]
             elif shape.upper() == "OCTAGON":
                 domainNum = [int((number*concentration)/int((domainWidth+1+domainWidth*2)**2-4*((1+domainWidth)/2)*domainWidth))
-                             for number in self._allPoints(newSurface)]
+                             for number in allPointsLength]
             elif shape.upper() == "SINGLE":
-                domainNum = [int((number*concentration)) for number in self._allPoints(newSurface)]
+                domainNum = [int((number*concentration)) for number in allPointsLength]
 
         showMessage("Total Domain is: {}".format(domainNum))
 
@@ -285,9 +294,6 @@ class DomainGenerator:
                 domainNumChar1 = domainNum
                 domainNumChar2 = 0
 
-            showMessage(f"domainNumChar1 is {domainNumChar1}")
-            showMessage(f"domainNumChar2 is {domainNumChar2}")
-
 
             newSurfaceGenerated = self._generateDomainMultiprocessing(possiblePoint=possiblePoint,
                                                                       newSurface=newSurface,
@@ -336,16 +342,53 @@ class DomainGenerator:
                     possiblePointz1.append(tup)
             possiblePointSide = [possiblePointx0, possiblePointx1, possiblePointy0, possiblePointy1, possiblePointz0, possiblePointz1]
 
+            # calculate the total number of domains necessairy for both neutral and charge
+            # this will dictate the number of neutral and
+            if self.neutral:
+                domainNumChar1Tot = math.ceil(sum(domainNum) * charge_concentration)  # this will have the first charge from the possible_charge list
+                domainNumChar2Tot = sum(domainNum) - domainNumChar1Tot  # this will have the second charge from the possible_charge list
+            elif not self.neutral:
+                domainNumChar1Tot = sum(domainNum)
+                domainNumChar2Tot = 0
+
+            # initialize the total number of domains for each charge generated
+            domainNumCharTot = [0,0]
+
+            # showMessage(f"domainNumChar1Tot is {domainNumChar1Tot}")
+            # showMessage(f"domainNumChar2Tot is {domainNumChar2Tot}")
+
             for i in range(len(possiblePointSide)):
                 # determine how many neutral or charged domains for the surface
                 if self.neutral:
                     domainNumChar1 = math.ceil(
                         domainNum[i] * charge_concentration)  # this will have the first charge from the possible_charge list
                     domainNumChar2 = domainNum[i] - domainNumChar1  # this will have the second charge from the possible_charge list
+
                 elif not self.neutral:
                     domainNumChar1 = domainNum[i]
                     domainNumChar2 = 0
 
+                # append to domainNumCharTot
+                domainNumCharTot[0] += domainNumChar1
+                domainNumCharTot[1] += domainNumChar2
+                # if the total number of domains for either charge exceeds, we will set the first domainNumChar
+                if domainNumCharTot[0] > domainNumChar1Tot:
+                    # convert one domain from charge 1 to charge 2
+                    domainNumChar1 -= 1
+                    domainNumCharTot[0] -= 1
+                    domainNumChar2 += 1
+                    domainNumCharTot[1] += 1
+
+                if domainNumCharTot[1] > domainNumChar2Tot:
+                    # convert one domain from charge 2 to charge 1
+                    domainNumChar2 -= 1
+                    domainNumCharTot[1] -= 1
+                    domainNumChar1 += 1
+                    domainNumCharTot[0] += 1
+
+                # showMessage(f"domainNumChar1 is {domainNumChar1}")
+                # showMessage(f"domainNumChar2 is {domainNumChar2}")
+                # generate the domains onto the surface
                 newSurfaceGenerated = self._generateDomainMultiprocessing(possiblePoint=possiblePointSide[i], newSurface=newSurface,
                                                                  domainWidth=domainWidth, domainLength=domainLength,
                                                                  possible_charge=possible_charge, domainNumEach=domainNum[i],
@@ -434,14 +477,43 @@ class DomainGenerator:
         surface_generated = [newSurface, generated]
         return surface_generated
 
-    def _allPoints(self, newSurface: ndarray) -> List[int]:
+    def _allPoints(self, surface: Surface, possiblePoint: List[Tuple[int,int,int]]) -> List[int]:
         """
         This function calculates all points on the surface on each plane
         _allPoints -> [x0, x1, y0, y1, z0, z1]
         """
-        return [len(np.where(newSurface[:,:,0] != 2)[0]), len(np.where(newSurface[:,:,newSurface.shape[2]-1] != 2)[0]),
-                   len(np.where(newSurface[:,0,:] != 2)[0]), len(np.where(newSurface[:,newSurface.shape[1]-1,:] != 2)[0]),
-                   len(np.where(newSurface[0,:,:] != 2)[0]), len(np.where(newSurface[newSurface.shape[0]-1,:,:] != 2)[0])]
+        # define all possible location
+        # initialize all lists
+        possiblePointx0 = []
+        possiblePointx1 = []
+        possiblePointy0 = []
+        possiblePointy1 = []
+        possiblePointz0 = []
+        possiblePointz1 = []
+
+        for tup in possiblePoint:
+            # x0
+            if tup[0] == 0:
+                possiblePointx0.append(tup)
+            # x1
+            elif tup[0] == int(surface.length - 1):
+                possiblePointx1.append(tup)
+            # y0
+            elif tup[1] == 0:
+                possiblePointy0.append(tup)
+            # y1
+            elif tup[1] == int(surface.width - 1):
+                possiblePointy1.append(tup)
+            # z0
+            elif tup[2] == 0:
+                possiblePointz0.append(tup)
+            # z1
+            elif tup[2] == int(surface.height - 1):
+                possiblePointz1.append(tup)
+        possiblePointSide = [possiblePointx0, possiblePointx1, possiblePointy0, possiblePointy1, possiblePointz0,
+                             possiblePointz1]
+
+        return possiblePointSide
 
     def _allPossiblePoint(self, newSurface: ndarray, surface: Surface, surfaceLength: int, surfaceWidth: int, surfaceHeight: int,
                           domainLength: int, domainWidth: int, shape: str) -> List[Tuple[int, int, int]]:

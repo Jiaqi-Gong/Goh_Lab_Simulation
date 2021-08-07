@@ -12,8 +12,8 @@ from ExternalIO import *
 
 def runSimulation():
     # get log file
-    write_at_end = False
-    write_log = False
+    write_at_end = True
+    write_log = True
     generate_image = True
 
     message = setIndicator(generate_image, write_log, write_at_end)
@@ -25,8 +25,8 @@ def runSimulation():
     time.sleep(3)
 
     # simulator info
-    simulationType = 1
-    trail = 103
+    simulationType = 2
+    trail = 491
     dimension = 2
     simulatorType = 1
     interactType = "DOT"
@@ -46,11 +46,11 @@ def runSimulation():
     interval_x = 10
     interval_y = 10
     filmSurfaceCharge = +1
-    filmDomainSize = (6, 6)
+    filmDomainSize = (9, 9)
     filmDomainShape = "diamond"
     filmNeutralDomain = True
     filmDomainCon = 0.2  # if need to change charge ratio, change this
-    filmDomainChargeConcentration = 0.5  # ignore
+    filmDomainChargeConcentration = 0.1  # ignore
 
     # bacteria info
     bacteriaSeed = 10
@@ -64,11 +64,11 @@ def runSimulation():
         raise RuntimeError("Unknown dimension: {}".format(dimension))
     # bacteriaSurfaceShape = "rectangle"
     bacteriaSurfaceCharge = -1
-    bacteriaDomainSize = (10, 10)
+    bacteriaDomainSize = (7, 7)
     bacteriaDomainShape = "diamond"
-    bacteriaDomainCon = 0.1
-    bacteriaDomainChargeConcentration = 0.5  # ignore
-    bacteriaNeutralDomain = True
+    bacteriaDomainCon = 0.2
+    bacteriaDomainChargeConcentration = 0.1  # ignore
+    bacteriaNeutralDomain = False
 
     # below are for dynamic simulation
     probabilityType = "SIMPLE"
