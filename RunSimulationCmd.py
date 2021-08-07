@@ -3,6 +3,7 @@ This is a text interface for running the simulation
 Checking all user input is valid at here
 """
 import re
+import sys
 import traceback
 from typing import Union, Tuple
 
