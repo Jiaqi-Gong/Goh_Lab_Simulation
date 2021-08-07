@@ -311,7 +311,7 @@ class DomainGenerator:
                 # determine how many neutral or charged domains for the surface
                 if self.neutral:
                     domainNumChar1 = math.ceil(
-                        domainNum * charge_concentration)  # this will have the first charge from the possible_charge list
+                        domainNum[i] * charge_concentration)  # this will have the first charge from the possible_charge list
                     domainNumChar2 = domainNum[i] - domainNumChar1  # this will have the second charge from the possible_charge list
                 elif not self.neutral:
                     domainNumChar1 = domainNum[i]

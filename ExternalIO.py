@@ -299,7 +299,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     ax.imshow(array, origin='lower', cmap=cmap, aspect='auto')
 
     for i in range(len(colors)):
-        plt.plot(0, 0, "-", color=colors[i], label=labels[i])
+        plt.plot(0, 0, ".", color=colors[i], label=labels[i])
 
     ax.legend(loc="upper right", bbox_to_anchor=(1.25, 1.0))
     # proxy = [plt.Rectangle((1, 1), 2, 2, fc=pc.get_facecolor()[0]) for pc in
@@ -536,6 +536,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
             maximum = max(max1 + max2 + max3)
 
             # initialize colors and labels
+            # colors = [(-1/maximum, 'red'), (0/maximum, 'green'), (1/maximum, 'blue')]
             colors = ['red', 'green', 'blue']
             labels = ["negative", "neutral", "positive"]
             levels = np.linspace(-2, 2, 5)
@@ -544,45 +545,45 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
             # separate the cases into 3
             # if no negative is present
             if len(neg[0]) == 0:
-                colors.remove('red')
-                labels.remove('negative')
+                # colors.remove((-1/maximum, 'red'))
+                # labels.remove('negative')
                 levels = np.delete(levels, 1)
                 showMessage('removed negative')
 
             # if no neutral is present
             if len(neu[0]) == 0:
-                colors.remove('green')
-                labels.remove('neutral')
+                # colors.remove((0/maximum, 'green'))
+                # labels.remove('neutral')
                 levels = np.delete(levels, 2)
                 showMessage('removed neutral')
 
             # if no positive is present
             if len(pos[0]) == 0:
-                colors.remove('blue')
-                labels.remove('positive')
+                # colors.remove((1/maximum, 'blue'))
+                # labels.remove('positive')
                 levels = np.delete(levels, 3)
                 showMessage('removed positive')
 
-            # # create the color map
-            # n_bins = len(colors)
-            # cmap_name = 'my_list'
-            # cmap = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bins)
-            #
-            # ax.imshow(array, origin='lower', cmap=cmap)
-            #
-            # for i in range(len(colors)):
-            #     plt.plot(0, 0, "-", color=colors[i], label=labels[i])
-            #
-            # ax.legend(loc="upper right", bbox_to_anchor=(1.25, 1.0))
+            # create the color map
+            n_bins = len(colors)
+            cmap_name = 'my_list'
+            cmap = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bins)
 
-            # x, y = np.indices((len(array[0]), len(array)))
-            surface = ax.contourf(array, levels=levels, colors=colors, vmin=-1, vmax=1, origin='lower')
-            # surface = ax.contourf(x, y, array, levels=levels, cmap=cmap, vmin=-1, vmax=1)
+            ax.imshow(array, origin='lower', cmap=cmap)
 
-            proxy = [plt.Rectangle((1, 1), 2, 2, fc=pc.get_facecolor()[0]) for pc in
-                     surface.collections]
+            for j in range(len(colors)):
+                plt.plot(0, 0, ".", color=colors[j], label=labels[j])
 
-            ax.legend(proxy, labels)
+            ax.legend(loc="upper right", bbox_to_anchor=(1.25, 1.0))
+
+            # # x, y = np.indices((len(array[0]), len(array)))
+            # surface = ax.contourf(array, levels=levels, colors=colors, vmin=-1, vmax=1, origin='lower')
+            # # surface = ax.contourf(x, y, array, levels=levels, cmap=cmap, vmin=-1, vmax=1)
+            #
+            # proxy = [plt.Rectangle((1, 1), 2, 2, fc=pc.get_facecolor()[0]) for pc in
+            #          surface.collections]
+            #
+            # ax.legend(proxy, labels)
 
             # set x limit and y limit
             ax.set_xlim(0, maximum)
@@ -599,6 +600,8 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
             plt.title(title[i])
 
             plt.savefig('{}/From_{}_of_Bacteria.png'.format(picFolderEach, title[i]), dpi=300, bbox_inches='tight')
+
+        # plt.savefig('{}/Bacteria_from_each_side.png'.format(picFolderEach, title[i]), dpi=300, bbox_inches='tight')
 
 
     endTime = time.time()
