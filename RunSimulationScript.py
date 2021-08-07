@@ -27,7 +27,7 @@ def runSimulation():
     # simulator info
     simulationType = 1
     trail = 103
-    dimension = 3
+    dimension = 2
     simulatorType = 1
     interactType = "DOT"
     # interactType = "CUTOFF"
