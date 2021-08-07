@@ -292,26 +292,26 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
         levels = np.delete(levels, 3)
         showMessage('removed positive')
 
-    # # initialize colors
-    # n_bins = len(colors)
-    # cmap_name = 'my_list'
-    # cmap = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bins)
-    #
-    # ax.imshow(array, origin='lower', cmap=cmap, aspect='auto')
-    #
-    # for i in range(len(colors)):
-    #     plt.plot(0, 0, ".", color=colors[i], label=labels[i])
-    #
-    # ax.legend(loc="upper right", bbox_to_anchor=(1.25, 1.0))
+    # initialize colors
+    n_bins = len(colors)
+    cmap_name = 'my_list'
+    cmap = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bins)
 
-    # x, y = np.indices((len(array[0]), len(array)))
-    surface = ax.contourf(array, levels=levels, colors=colors, vmin=-1, vmax=1, origin='lower')
-    # surface = ax.contourf(x, y, array, levels=levels, cmap=cmap, vmin=-1, vmax=1)
+    ax.imshow(array, origin='lower', cmap=cmap, aspect='auto')
 
-    proxy = [plt.Rectangle((1, 1), 2, 2, fc=pc.get_facecolor()[0]) for pc in
-             surface.collections]
+    for i in range(len(colors)):
+        plt.plot(0, 0, ".", color=colors[i], label=labels[i])
 
-    ax.legend(proxy, labels)
+    ax.legend(loc="upper right", bbox_to_anchor=(1.25, 1.0))
+
+    # # x, y = np.indices((len(array[0]), len(array)))
+    # surface = ax.contourf(array, levels=levels, colors=colors, vmin=-1, vmax=1, origin='lower')
+    # # surface = ax.contourf(x, y, array, levels=levels, cmap=cmap, vmin=-1, vmax=1)
+    #
+    # proxy = [plt.Rectangle((1, 1), 2, 2, fc=pc.get_facecolor()[0]) for pc in
+    #          surface.collections]
+    #
+    # ax.legend(proxy, labels)
 
     # lgnd = ax.legend(loc="upper right")
     # for handle in lgnd.legendHandles:
@@ -367,247 +367,366 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     now = datetime.now()
     day = now.strftime("%m_%d")
     current_time = now.strftime("%H_%M_%S")
+    # position of positive
+    pos = np.where(array == 1)
+    pos_z = pos[0]
+    pos_y = pos[1]
+    pos_x = pos[2]
 
-    # create a folder to store all the images
-    global picFolder
-    if "picFolder" not in globals():
-        # save the image
-        if not os.path.exists("Image"):
-            os.mkdir("Image")
+    # position of neutral
+    neu = np.where(array == 0)
+    neu_z = neu[0]
+    neu_y = neu[1]
+    neu_x = neu[2]
 
-        picFolder = "Image/{}_{}".format(day, current_time)
-        if not os.path.exists(picFolder):
-            os.mkdir(picFolder)
+    # position of negative
+    neg = np.where(array == -1)
+    neg_z = neg[0]
+    neg_y = neg[1]
+    neg_x = neg[2]
 
-    # separate the way to generate images into 2 cases
-    # if the surface is a film, we only need to see the top
-    if "film" in picName:
-        # we will only look at the x-y plane
-        array = array[0]
+    # set axis limit
 
-        # locate where the positive, negative, and neutral charges are
-        pos = np.where(array == 1)
-        neu = np.where(array == 0)
-        neg = np.where(array == -1)
+    # get the largest number in all x,y,z scales
+    max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i]) != 0]
+    max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i]) != 0]
+    max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i]) != 0]
+    maximum = max(max1 + max2 + max3)
+    ax.set_xlim3d(0, maximum)
+    ax.set_ylim3d(0, maximum)
+    ax.set_zlim3d(0, maximum)
 
-        # digits
-        cL = -len(str(len(array[0]))) + 1
-        cW = -len(str(len(array))) + 1
+    # position_pos = np.zeros((len(pos_z), 3))
+    # for i in range(len(pos_z)):
+    #     x = pos_x[i]
+    #     y = pos_y[i]
+    #     z = pos_z[i]
+    #     position_pos[i] = x, y, z
+    #
+    # position_neg = np.zeros((len(neg_z), 3))
+    # for i in range(len(neg_z)):
+    #     x = neg_x[i]
+    #     y = neg_y[i]
+    #     z = neg_z[i]
+    #     position_neg[i] = x, y, z
+    #
+    # position_neu = np.zeros((len(neu_z), 3))
+    # for i in range(len(neu_z)):
+    #     x = neu_x[i]
+    #     y = neu_y[i]
+    #     z = neu_z[i]
+    #     position_neu[i] = x, y, z
+    # showMessage(position_neg)
 
-        # dividor
-        dividorL = int(round(len(array[0]), cL) / int(str(round(len(array[0]), cL))[0] + str(round(len(array[0]), cL))[1]))
-        dividorW = int(round(len(array), cW) / int(str(round(len(array), cW))[0] + str(round(len(array), cW))[1]))
+    ax.set_aspect('auto')
+    fig.canvas.draw()
 
-        # calculate length and width of image
-        img_length = len(array[0]) // dividorL
-        img_width = len(array) // dividorW
+    extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width * fig.dpi,
+                 ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height * fig.dpi)
 
-        # initialize the figure and subplots
-        # fig = plt.figure(figsize=(img_length, img_width))
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        showMessage(f"Length of image is {img_length}, width of image is {img_width}")
+    dimension = ax.get_tightbbox(fig.canvas.get_renderer(),
+                                 call_axes_locator=True,
+                                 bbox_extra_artists=None)
 
-        # Calculate maximum
-        max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i]) != 0]
-        max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i]) != 0]
-        max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i]) != 0]
-        maximum = max(max1 + max2 + max3)
+    showMessage(f"x is {dimension.width - dimension.x0}, y is {dimension.height - dimension.y0}")
 
-        # initialize colors and labels
-        colors = ['red', 'green', 'blue']
-        labels = ["negative", "neutral", "positive"]
-        levels = np.linspace(-2,2,5)
+    # size = ((dimension.width - dimension.x0)/(maximum)) * ((dimension.height - dimension.y0)/(maximum))
+    # size = (((extent / (maximum * (fig.dpi / 72.)))) ** 2)
+    size = ((ax.transData.transform([(1, 0, 0)]) - ax.transData.transform([(0, 0, 0)]))[0, 0, 0]) ** 2
+    showMessage(f"size of marker is {size}")
 
-        # remove colors and labels for charge that is not present
-        # separate the cases into 3
-        # if no negative is present
-        if len(neg[0]) == 0:
-            colors.remove('red')
-            labels.remove('negative')
-            levels = np.delete(levels, 1)
-            showMessage('removed negative')
-        # if no neutral is present
-        if len(neu[0]) == 0:
-            colors.remove('green')
-            labels.remove('neutral')
-            levels = np.delete(levels, 2)
-            showMessage('removed neutral')
+    # size = ((ax.get_window_extent().width / (max(array.shape[0], array.shape[1]) + 1.) * 72. / fig.dpi) ** 2)
+    # order which we plot the points matter
+    nPos = len(pos_x)
+    nNeu = len(neu_x)
+    nNeg = len(neg_x)
+    # showMessage(f"number of positive is {nPos}")
+    # showMessage(f"number of neutral is {nNeu}")
+    # showMessage(f"number of negative is {nNeg}")
 
-        # if no positive is present
-        if len(pos[0]) == 0:
-            colors.remove('blue')
-            labels.remove('positive')
-            levels = np.delete(levels, 3)
-            showMessage('removed positive')
+    marker = 's'
+    depthshade = True
 
-        # create the color map
-        n_bins = len(colors)
-        cmap_name = 'my_list'
-        cmap = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bins)
+    # if positive is the charge of surface, we plot positive first
+    if nPos == max(nPos, nNeu, nNeg):
+        ax.scatter3D(neu_x, neu_y, neu_z, marker=marker, label='neutral', color='green', depthshade=depthshade, s=size,
+                     linewidths=0)
+        ax.scatter3D(neg_x, neg_y, neg_z, marker=marker, label='negative', color='red', depthshade=depthshade, s=size,
+                     linewidths=0)
+        ax.scatter3D(pos_x, pos_y, pos_z, marker=marker, label='positive', color='blue', depthshade=depthshade, s=size,
+                     linewidths=0)
 
-        ax.imshow(array, origin='lower', cmap=cmap)
+    elif nNeg == max(nPos, nNeu, nNeg):
+        ax.scatter3D(neu_x, neu_y, neu_z, marker=marker, label='neutral', color='green', depthshade=depthshade, s=size,
+                     linewidths=0)
+        ax.scatter3D(pos_x, pos_y, pos_z, marker=marker, label='positive', color='blue', depthshade=depthshade, s=size,
+                     linewidths=0)
+        ax.scatter3D(neg_x, neg_y, neg_z, marker=marker, label='negative', color='red', depthshade=depthshade, s=size,
+                     linewidths=0)
 
-        for i in range(len(colors)):
-            plt.plot(0, 0, ".", color=colors[i], label=labels[i])
+    elif nNeu == max(nPos, nNeu, nNeg):
+        ax.scatter3D(pos_x, pos_y, pos_z, marker=marker, label='positive', color='blue', depthshade=depthshade, s=size,
+                     linewidths=0)
+        ax.scatter3D(neg_x, neg_y, neg_z, marker=marker, label='negative', color='red', depthshade=depthshade, s=size,
+                     linewidths=0)
+        ax.scatter3D(neu_x, neu_y, neu_z, marker=marker, label='neutral', color='green', depthshade=depthshade, s=size,
+                     linewidths=0)
 
-        ax.legend(loc="upper right", bbox_to_anchor=(1.25, 1.0))
 
-        # # x, y = np.indices((len(array[0]), len(array)))
-        # surface = ax.contourf(array, levels=levels, colors=colors, vmin=-1, vmax=1, origin='lower')
-        # # surface = ax.contourf(x, y, array, levels=levels, cmap=cmap, vmin=-1, vmax=1)
-        #
-        #
-        # proxy = [plt.Rectangle((1, 1), 2, 2, fc=pc.get_facecolor()[0]) for pc in
-        #          surface.collections]
-        #
-        # ax.legend(proxy, labels)
 
-        # set x limit and y limit
-        ax.set_xlim(0, maximum)
-        ax.set_ylim(0, maximum)
 
-        # set x and y labels
-        ax.set_xlabel("X")
-        ax.set_ylabel("Y")
 
-        # set label and tick position
-        ax.xaxis.set_ticks_position('top')
-        ax.xaxis.set_label_position('top')
 
-        plt.title("Above the film")
 
-        # save file
-        plt.savefig('{}/{}'.format(picFolder, picName), dpi=300, bbox_inches='tight')
 
-    elif "bacteria" in picName:
 
-        # make a subfolder containing the 6 sides of the surface
-        global picFolderEach
-        picFolderEach = "{}/{}".format(picFolder, picName)
-        if not os.path.exists(picFolderEach):
-            os.mkdir(picFolderEach)
 
-        # initialize the 6 sides
-        # [z0,z1,y0,y1,x0,x1]
-        title = ['Above','Below','Front','Behind','Left','Right']
-        changer = [1,array.shape[0]-1,1,array.shape[1]-1,1,array.shape[2]-1]
-        axesLabels = [['X','Y'], ['X','Y'], ['X','Z'], ['X','Z'], ['Y','Z'], ['Y','Z']]
-        ind = [0,0,1,1,2,2]
 
-        # define original array
-        originalArray = array
 
-        for i in range(len(title)):
-            # initialize the range
-            index = [int(originalArray.shape[0]),0,int(originalArray.shape[1]),0,int(originalArray.shape[2]),0]
-            # change the array from 3d to 2d
-            index[i] = changer[i]
-            array = originalArray[index[1]:index[0],index[3]:index[2],index[5]:index[4]]
-            if ind[i] == 0:
-                array = array[0,:,:]
-            elif ind[i] == 1:
-                array = array[:,0,:]
-            elif ind[i] == 2:
-                array = array[:,:,0]
-            showMessage(array.shape)
 
-            # locate where the positive, negative, and neutral charges are
-            pos = np.where(array == 1)
-            neu = np.where(array == 0)
-            neg = np.where(array == -1)
 
-            # digits
-            cL = -len(str(len(array[0]))) + 1
-            cW = -len(str(len(array))) + 1
+    "/////////////////////////////////////////"
 
-            # dividor
-            dividorL = math.ceil(round(len(array[0]), cL) / int(str(round(len(array[0]), cL))[0] + str(0)))
-            dividorW = math.ceil(round(len(array), cW) / int(str(round(len(array), cW))[0] + str(0)))
-
-            # calculate length and width of image
-            img_length = len(array[0]) // dividorL
-            img_width = len(array) // dividorW
-
-            # initialize the figure and subplots
-            # fig = plt.figure(figsize=(img_length, img_width))
-            fig = plt.figure()
-            ax = fig.add_subplot(111)
-            showMessage(f"Length of image is {img_length}, width of image is {img_width}")
-
-            # Calculate maximum
-            max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i]) != 0]
-            max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i]) != 0]
-            max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i]) != 0]
-            maximum = max(max1 + max2 + max3)
-
-            # initialize colors and labels
-            # colors = [(-1/maximum, 'red'), (0/maximum, 'green'), (1/maximum, 'blue')]
-            colors = ['red', 'green', 'blue']
-            labels = ["negative", "neutral", "positive"]
-            levels = np.linspace(-2, 2, 5)
-
-            # remove colors and labels for charge that is not present
-            # separate the cases into 3
-            # if no negative is present
-            if len(neg[0]) == 0:
-                # colors.remove((-1/maximum, 'red'))
-                # labels.remove('negative')
-                levels = np.delete(levels, 1)
-                showMessage('removed negative')
-
-            # if no neutral is present
-            if len(neu[0]) == 0:
-                # colors.remove((0/maximum, 'green'))
-                # labels.remove('neutral')
-                levels = np.delete(levels, 2)
-                showMessage('removed neutral')
-
-            # if no positive is present
-            if len(pos[0]) == 0:
-                # colors.remove((1/maximum, 'blue'))
-                # labels.remove('positive')
-                levels = np.delete(levels, 3)
-                showMessage('removed positive')
-
-            # create the color map
-            n_bins = len(colors)
-            cmap_name = 'my_list'
-            cmap = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bins)
-
-            ax.imshow(array, origin='lower', cmap=cmap)
-
-            for j in range(len(colors)):
-                plt.plot(0, 0, ".", color=colors[j], label=labels[j])
-
-            ax.legend(loc="upper right", bbox_to_anchor=(1.25, 1.0))
-
-            # # x, y = np.indices((len(array[0]), len(array)))
-            # surface = ax.contourf(array, levels=levels, colors=colors, vmin=-1, vmax=1, origin='lower')
-            # # surface = ax.contourf(x, y, array, levels=levels, cmap=cmap, vmin=-1, vmax=1)
-            #
-            # proxy = [plt.Rectangle((1, 1), 2, 2, fc=pc.get_facecolor()[0]) for pc in
-            #          surface.collections]
-            #
-            # ax.legend(proxy, labels)
-
-            # set x limit and y limit
-            ax.set_xlim(0, maximum)
-            ax.set_ylim(0, maximum)
-
-            # set x and y labels
-            ax.set_xlabel(axesLabels[i][0])
-            ax.set_ylabel(axesLabels[i][1])
-
-            # set label and tick position
-            ax.xaxis.set_ticks_position('top')
-            ax.xaxis.set_label_position('top')
-
-            plt.title(f"From {title[i]} of Bacteria")
-
-            plt.savefig('{}/From_{}_of_Bacteria.png'.format(picFolderEach, title[i]), dpi=300, bbox_inches='tight')
-
-        # plt.savefig('{}/Bacteria_from_each_side.png'.format(picFolderEach, title[i]), dpi=300, bbox_inches='tight')
+    # # create a folder to store all the images
+    # global picFolder
+    # if "picFolder" not in globals():
+    #     # save the image
+    #     if not os.path.exists("Image"):
+    #         os.mkdir("Image")
+    #
+    #     picFolder = "Image/{}_{}".format(day, current_time)
+    #     if not os.path.exists(picFolder):
+    #         os.mkdir(picFolder)
+    #
+    # # separate the way to generate images into 2 cases
+    # # if the surface is a film, we only need to see the top
+    # if "film" in picName:
+    #     # we will only look at the x-y plane
+    #     array = array[0]
+    #
+    #     # locate where the positive, negative, and neutral charges are
+    #     pos = np.where(array == 1)
+    #     neu = np.where(array == 0)
+    #     neg = np.where(array == -1)
+    #
+    #     # digits
+    #     cL = -len(str(len(array[0]))) + 1
+    #     cW = -len(str(len(array))) + 1
+    #
+    #     # dividor
+    #     dividorL = int(round(len(array[0]), cL) / int(str(round(len(array[0]), cL))[0] + str(round(len(array[0]), cL))[1]))
+    #     dividorW = int(round(len(array), cW) / int(str(round(len(array), cW))[0] + str(round(len(array), cW))[1]))
+    #
+    #     # calculate length and width of image
+    #     img_length = len(array[0]) // dividorL
+    #     img_width = len(array) // dividorW
+    #
+    #     # initialize the figure and subplots
+    #     # fig = plt.figure(figsize=(img_length, img_width))
+    #     fig = plt.figure()
+    #     ax = fig.add_subplot(111)
+    #     showMessage(f"Length of image is {img_length}, width of image is {img_width}")
+    #
+    #     # Calculate maximum
+    #     max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i]) != 0]
+    #     max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i]) != 0]
+    #     max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i]) != 0]
+    #     maximum = max(max1 + max2 + max3)
+    #
+    #     # initialize colors and labels
+    #     colors = ['red', 'green', 'blue']
+    #     labels = ["negative", "neutral", "positive"]
+    #     levels = np.linspace(-2,2,5)
+    #
+    #     # remove colors and labels for charge that is not present
+    #     # separate the cases into 3
+    #     # if no negative is present
+    #     if len(neg[0]) == 0:
+    #         colors.remove('red')
+    #         labels.remove('negative')
+    #         levels = np.delete(levels, 1)
+    #         showMessage('removed negative')
+    #     # if no neutral is present
+    #     if len(neu[0]) == 0:
+    #         colors.remove('green')
+    #         labels.remove('neutral')
+    #         levels = np.delete(levels, 2)
+    #         showMessage('removed neutral')
+    #
+    #     # if no positive is present
+    #     if len(pos[0]) == 0:
+    #         colors.remove('blue')
+    #         labels.remove('positive')
+    #         levels = np.delete(levels, 3)
+    #         showMessage('removed positive')
+    #
+    #     # create the color map
+    #     n_bins = len(colors)
+    #     cmap_name = 'my_list'
+    #     cmap = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bins)
+    #
+    #     ax.imshow(array, origin='lower', cmap=cmap)
+    #
+    #     for i in range(len(colors)):
+    #         plt.plot(0, 0, ".", color=colors[i], label=labels[i])
+    #
+    #     ax.legend(loc="upper right", bbox_to_anchor=(1.25, 1.0))
+    #
+    #     # # x, y = np.indices((len(array[0]), len(array)))
+    #     # surface = ax.contourf(array, levels=levels, colors=colors, vmin=-1, vmax=1, origin='lower')
+    #     # # surface = ax.contourf(x, y, array, levels=levels, cmap=cmap, vmin=-1, vmax=1)
+    #     #
+    #     #
+    #     # proxy = [plt.Rectangle((1, 1), 2, 2, fc=pc.get_facecolor()[0]) for pc in
+    #     #          surface.collections]
+    #     #
+    #     # ax.legend(proxy, labels)
+    #
+    #     # set x limit and y limit
+    #     ax.set_xlim(0, maximum)
+    #     ax.set_ylim(0, maximum)
+    #
+    #     # set x and y labels
+    #     ax.set_xlabel("X")
+    #     ax.set_ylabel("Y")
+    #
+    #     # set label and tick position
+    #     ax.xaxis.set_ticks_position('top')
+    #     ax.xaxis.set_label_position('top')
+    #
+    #     plt.title("Above the film")
+    #
+    #     # save file
+    #     plt.savefig('{}/{}'.format(picFolder, picName), dpi=300, bbox_inches='tight')
+    #
+    # elif "bacteria" in picName:
+    #
+    #     # make a subfolder containing the 6 sides of the surface
+    #     global picFolderEach
+    #     picFolderEach = "{}/{}".format(picFolder, picName)
+    #     if not os.path.exists(picFolderEach):
+    #         os.mkdir(picFolderEach)
+    #
+    #     # initialize the 6 sides
+    #     # [z0,z1,y0,y1,x0,x1]
+    #     title = ['Above','Below','Front','Behind','Left','Right']
+    #     changer = [1,array.shape[0]-1,1,array.shape[1]-1,1,array.shape[2]-1]
+    #     axesLabels = [['X','Y'], ['X','Y'], ['X','Z'], ['X','Z'], ['Y','Z'], ['Y','Z']]
+    #     ind = [0,0,1,1,2,2]
+    #
+    #     # define original array
+    #     originalArray = array
+    #
+    #     for i in range(len(title)):
+    #         # initialize the range
+    #         index = [int(originalArray.shape[0]),0,int(originalArray.shape[1]),0,int(originalArray.shape[2]),0]
+    #         # change the array from 3d to 2d
+    #         index[i] = changer[i]
+    #         array = originalArray[index[1]:index[0],index[3]:index[2],index[5]:index[4]]
+    #         if ind[i] == 0:
+    #             array = array[0,:,:]
+    #         elif ind[i] == 1:
+    #             array = array[:,0,:]
+    #         elif ind[i] == 2:
+    #             array = array[:,:,0]
+    #         showMessage(array.shape)
+    #
+    #         # locate where the positive, negative, and neutral charges are
+    #         pos = np.where(array == 1)
+    #         neu = np.where(array == 0)
+    #         neg = np.where(array == -1)
+    #
+    #         # digits
+    #         cL = -len(str(len(array[0]))) + 1
+    #         cW = -len(str(len(array))) + 1
+    #
+    #         # dividor
+    #         dividorL = math.ceil(round(len(array[0]), cL) / int(str(round(len(array[0]), cL))[0] + str(0)))
+    #         dividorW = math.ceil(round(len(array), cW) / int(str(round(len(array), cW))[0] + str(0)))
+    #
+    #         # calculate length and width of image
+    #         img_length = len(array[0]) // dividorL
+    #         img_width = len(array) // dividorW
+    #
+    #         # initialize the figure and subplots
+    #         # fig = plt.figure(figsize=(img_length, img_width))
+    #         fig = plt.figure()
+    #         ax = fig.add_subplot(111)
+    #         showMessage(f"Length of image is {img_length}, width of image is {img_width}")
+    #
+    #         # Calculate maximum
+    #         max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i]) != 0]
+    #         max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i]) != 0]
+    #         max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i]) != 0]
+    #         maximum = max(max1 + max2 + max3)
+    #
+    #         # initialize colors and labels
+    #         # colors = [(-1/maximum, 'red'), (0/maximum, 'green'), (1/maximum, 'blue')]
+    #         colors = ['red', 'green', 'blue', 'white']
+    #         labels = ["negative", "neutral", "positive", "spaces"]
+    #         levels = np.linspace(-2, 3, 6)
+    #
+    #         # remove colors and labels for charge that is not present
+    #         # separate the cases into 3
+    #         # if no negative is present
+    #         if len(neg[0]) == 0:
+    #             # colors.remove((-1/maximum, 'red'))
+    #             # labels.remove('negative')
+    #             levels = np.delete(levels, 1)
+    #             showMessage('removed negative')
+    #
+    #         # if no neutral is present
+    #         if len(neu[0]) == 0:
+    #             # colors.remove((0/maximum, 'green'))
+    #             # labels.remove('neutral')
+    #             levels = np.delete(levels, 2)
+    #             showMessage('removed neutral')
+    #
+    #         # if no positive is present
+    #         if len(pos[0]) == 0:
+    #             # colors.remove((1/maximum, 'blue'))
+    #             # labels.remove('positive')
+    #             levels = np.delete(levels, 3)
+    #             showMessage('removed positive')
+    #
+    #         # create the color map
+    #         n_bins = len(colors)
+    #         cmap_name = 'my_list'
+    #         cmap = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bins)
+    #
+    #         ax.imshow(array, origin='lower', cmap=cmap)
+    #
+    #         for j in range(len(colors)):
+    #             plt.plot(0, 0, ".", color=colors[j], label=labels[j])
+    #
+    #         ax.legend(loc="upper right", bbox_to_anchor=(1.25, 1.0))
+    #
+    #         # # x, y = np.indices((len(array[0]), len(array)))
+    #         # surface = ax.contourf(array, levels=levels, colors=colors, vmin=-1, vmax=1, origin='lower')
+    #         # # surface = ax.contourf(x, y, array, levels=levels, cmap=cmap, vmin=-1, vmax=1)
+    #         #
+    #         # proxy = [plt.Rectangle((1, 1), 2, 2, fc=pc.get_facecolor()[0]) for pc in
+    #         #          surface.collections]
+    #         #
+    #         # ax.legend(proxy, labels)
+    #
+    #         # set x limit and y limit
+    #         ax.set_xlim(0, maximum)
+    #         ax.set_ylim(0, maximum)
+    #
+    #         # set x and y labels
+    #         ax.set_xlabel(axesLabels[i][0])
+    #         ax.set_ylabel(axesLabels[i][1])
+    #
+    #         # set label and tick position
+    #         ax.xaxis.set_ticks_position('top')
+    #         ax.xaxis.set_label_position('top')
+    #
+    #         plt.title(f"From {title[i]} of Bacteria")
+    #
+    #         plt.savefig('{}/From_{}_of_Bacteria.png'.format(picFolderEach, title[i]), dpi=300, bbox_inches='tight')
+    #
+    #     # plt.savefig('{}/Bacteria_from_each_side.png'.format(picFolderEach, title[i]), dpi=300, bbox_inches='tight')
 
 
     endTime = time.time()
