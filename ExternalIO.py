@@ -249,8 +249,8 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i]) != 0]
     maximum = max(max1 + max2 + max3)
 
-    fig = plt.figure(figsize=(img_length, img_width))
-    # fig = plt.figure()
+    # fig = plt.figure(figsize=(img_length, img_width))
+    fig = plt.figure()
     ax = fig.add_subplot(111)
 
 
@@ -296,7 +296,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     cmap_name = 'my_list'
     cmap = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bins)
 
-    ax.imshow(array, origin='lower', cmap=cmap)
+    ax.imshow(array, origin='lower', cmap=cmap, aspect='auto')
 
     for i in range(len(colors)):
         plt.plot(0, 0, "-", color=colors[i], label=labels[i])
@@ -341,7 +341,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
         if not os.path.exists(picFolder):
             os.mkdir(picFolder)
 
-    picPath = "{}/{}".format(picFolder, picName)
+    picPath = "{}/{}.png".format(picFolder, picName)
 
     plt.savefig(picPath, dpi=300, bbox_inches='tight')
     endTime = time.time()
@@ -356,7 +356,6 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     """
     showMessage("Start to generate image")
 
-    showMessage(array)
     startTime = time.time()
 
     now = datetime.now()
@@ -398,8 +397,8 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         img_width = len(array) // dividorW
 
         # initialize the figure and subplots
-        fig = plt.figure(figsize=(img_length, img_width))
-        # fig = plt.figure()
+        # fig = plt.figure(figsize=(img_length, img_width))
+        fig = plt.figure()
         ax = fig.add_subplot(111)
         showMessage(f"Length of image is {img_length}, width of image is {img_width}")
 
@@ -412,6 +411,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         # initialize colors and labels
         colors = ['red', 'green', 'blue']
         labels = ["negative", "neutral", "positive"]
+        levels = np.linspace(-2,2,5)
 
         # remove colors and labels for charge that is not present
         # separate the cases into 3
@@ -419,17 +419,20 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         if len(neg[0]) == 0:
             colors.remove('red')
             labels.remove('negative')
+            levels = np.delete(levels, 1)
             showMessage('removed negative')
         # if no neutral is present
         if len(neu[0]) == 0:
             colors.remove('green')
             labels.remove('neutral')
+            levels = np.delete(levels, 2)
             showMessage('removed neutral')
 
         # if no positive is present
         if len(pos[0]) == 0:
             colors.remove('blue')
             labels.remove('positive')
+            levels = np.delete(levels, 3)
             showMessage('removed positive')
 
         # create the color map
@@ -443,6 +446,16 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
             plt.plot(0, 0, "-", color=colors[i], label=labels[i])
 
         ax.legend(loc="upper right", bbox_to_anchor=(1.25, 1.0))
+
+        # # x, y = np.indices((len(array[0]), len(array)))
+        # surface = ax.contourf(array, levels=levels, colors=colors, vmin=-1, vmax=1, origin='lower')
+        # # surface = ax.contourf(x, y, array, levels=levels, cmap=cmap, vmin=-1, vmax=1)
+        #
+        #
+        # proxy = [plt.Rectangle((1, 1), 2, 2, fc=pc.get_facecolor()[0]) for pc in
+        #          surface.collections]
+        #
+        # ax.legend(proxy, labels)
 
         # set x limit and y limit
         ax.set_xlim(0, maximum)
@@ -472,15 +485,26 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         # initialize the 6 sides
         # [z0,z1,y0,y1,x0,x1]
         title = ['Above','Below','Front','Behind','Left','Right']
-        changer = [1,array.shape[0]-1,1,array.shape[1],1,array.shape[2]]
+        changer = [1,array.shape[0]-1,1,array.shape[1]-1,1,array.shape[2]-1]
         axesLabels = [['X','Y'], ['X','Y'], ['X','Z'], ['X','Z'], ['Y','Z'], ['Y','Z']]
+        ind = [0,0,1,1,2,2]
+
+        # define original array
+        originalArray = array
 
         for i in range(len(title)):
             # initialize the range
-            range = [array.shape[0],0,array.shape[1],0,array.shape[2],0]
-            # change the array
-            range[i] = changer[i]
-            array = array[range[1]:range[0],range[3]:range[2],range[5]:range[4]]
+            index = [int(originalArray.shape[0]),0,int(originalArray.shape[1]),0,int(originalArray.shape[2]),0]
+            # change the array from 3d to 2d
+            index[i] = changer[i]
+            array = originalArray[index[1]:index[0],index[3]:index[2],index[5]:index[4]]
+            if ind[i] == 0:
+                array = array[0,:,:]
+            elif ind[i] == 1:
+                array = array[:,0,:]
+            elif ind[i] == 2:
+                array = array[:,:,0]
+            showMessage(array.shape)
 
             # locate where the positive, negative, and neutral charges are
             pos = np.where(array == 1)
@@ -492,16 +516,16 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
             cW = -len(str(len(array))) + 1
 
             # dividor
-            dividorL = int(round(len(array[0]), cL) / int(str(round(len(array[0]), cL))[0] + str(round(len(array[0]), cL))[1]))
-            dividorW = int(round(len(array), cW) / int(str(round(len(array), cW))[0] + str(round(len(array), cW))[1]))
+            dividorL = math.ceil(round(len(array[0]), cL) / int(str(round(len(array[0]), cL))[0] + str(0)))
+            dividorW = math.ceil(round(len(array), cW) / int(str(round(len(array), cW))[0] + str(0)))
 
             # calculate length and width of image
             img_length = len(array[0]) // dividorL
             img_width = len(array) // dividorW
 
             # initialize the figure and subplots
-            fig = plt.figure(figsize=(img_length, img_width))
-            # fig = plt.figure()
+            # fig = plt.figure(figsize=(img_length, img_width))
+            fig = plt.figure()
             ax = fig.add_subplot(111)
             showMessage(f"Length of image is {img_length}, width of image is {img_width}")
 
@@ -514,6 +538,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
             # initialize colors and labels
             colors = ['red', 'green', 'blue']
             labels = ["negative", "neutral", "positive"]
+            levels = np.linspace(-2, 2, 5)
 
             # remove colors and labels for charge that is not present
             # separate the cases into 3
@@ -521,30 +546,43 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
             if len(neg[0]) == 0:
                 colors.remove('red')
                 labels.remove('negative')
+                levels = np.delete(levels, 1)
                 showMessage('removed negative')
+
             # if no neutral is present
             if len(neu[0]) == 0:
                 colors.remove('green')
                 labels.remove('neutral')
+                levels = np.delete(levels, 2)
                 showMessage('removed neutral')
 
             # if no positive is present
             if len(pos[0]) == 0:
                 colors.remove('blue')
                 labels.remove('positive')
+                levels = np.delete(levels, 3)
                 showMessage('removed positive')
 
-            # create the color map
-            n_bins = len(colors)
-            cmap_name = 'my_list'
-            cmap = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bins)
+            # # create the color map
+            # n_bins = len(colors)
+            # cmap_name = 'my_list'
+            # cmap = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bins)
+            #
+            # ax.imshow(array, origin='lower', cmap=cmap)
+            #
+            # for i in range(len(colors)):
+            #     plt.plot(0, 0, "-", color=colors[i], label=labels[i])
+            #
+            # ax.legend(loc="upper right", bbox_to_anchor=(1.25, 1.0))
 
-            ax.imshow(array, origin='lower', cmap=cmap)
+            # x, y = np.indices((len(array[0]), len(array)))
+            surface = ax.contourf(array, levels=levels, colors=colors, vmin=-1, vmax=1, origin='lower')
+            # surface = ax.contourf(x, y, array, levels=levels, cmap=cmap, vmin=-1, vmax=1)
 
-            for i in range(len(colors)):
-                plt.plot(0, 0, "-", color=colors[i], label=labels[i])
+            proxy = [plt.Rectangle((1, 1), 2, 2, fc=pc.get_facecolor()[0]) for pc in
+                     surface.collections]
 
-            ax.legend(loc="upper right", bbox_to_anchor=(1.25, 1.0))
+            ax.legend(proxy, labels)
 
             # set x limit and y limit
             ax.set_xlim(0, maximum)
@@ -560,7 +598,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
 
             plt.title(title[i])
 
-            plt.savefig('{}/From_{}_of_Bacteria.png'.format(picFolderEach, title), dpi=300, bbox_inches='tight')
+            plt.savefig('{}/From_{}_of_Bacteria.png'.format(picFolderEach, title[i]), dpi=300, bbox_inches='tight')
 
 
     endTime = time.time()

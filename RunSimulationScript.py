@@ -48,7 +48,7 @@ def runSimulation():
     filmSurfaceCharge = +1
     filmDomainSize = (6, 6)
     filmDomainShape = "diamond"
-    filmNeutralDomain = False
+    filmNeutralDomain = True
     filmDomainCon = 0.2  # if need to change charge ratio, change this
     filmDomainChargeConcentration = 0.5  # ignore
 
@@ -68,7 +68,7 @@ def runSimulation():
     bacteriaDomainShape = "diamond"
     bacteriaDomainCon = 0.1
     bacteriaDomainChargeConcentration = 0.5  # ignore
-    bacteriaNeutralDomain = False
+    bacteriaNeutralDomain = True
 
     # below are for dynamic simulation
     probabilityType = "SIMPLE"
