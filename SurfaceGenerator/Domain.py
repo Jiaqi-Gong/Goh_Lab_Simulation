@@ -167,7 +167,7 @@ class DomainGenerator:
             # calculate how many domains each cpu will handle
             # however, if the domain number is less than the cpu number, that is not good
             # therefore, since the domain concentration is small, we will set cpu number to 1
-            if cpu_number > domainNum:
+            if cpu_number < domainNum:
                 domainNumEach = int(domainNum / cpu_number)
             else:
                 cpu_number = 1
