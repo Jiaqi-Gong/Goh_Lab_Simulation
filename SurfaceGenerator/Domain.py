@@ -32,6 +32,8 @@ class DomainGenerator:
         """
         self.seed = seed
         self.neutral = neutral
+        # set the seed for random
+        np.random.seed(self.seed)
 
     def generateDomain(self, surface: Surface, shape: str, size: Tuple[int, int], concentration: float,
                        charge_concentration: float) -> [ndarray, float, float]:
@@ -133,9 +135,6 @@ class DomainGenerator:
         writeLog("Charge of the surface is {}".format(surfaceCharge))
         writeLog("Charge of domain is {} and {}".format(possible_charge[0], possible_charge[1]))
 
-        # set the seed for random
-        np.random.seed(self.seed)
-
         # Determine all the possible points allowed to be chosen as the start point to begin generating the domain
         possiblePoint = self._allPossiblePoint(newSurface, surface, surface.length, surface.width, surface.height, domainLength,
                                                domainWidth, shape)
@@ -155,7 +154,9 @@ class DomainGenerator:
             # minus 2 in case of other possible process is running
 
             ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)) - 2, 1)
-            # ncpus = cpu_count()
+            if ncpus == 1:
+                ncpus = cpu_count()
+
             if ncpus <= 16:
                 cpu_number = ncpus
             else:
@@ -163,7 +164,15 @@ class DomainGenerator:
 
             showMessage(f"number of CPUs is {ncpus} but we will use {cpu_number}")
 
-            domainNumEach = int(domainNum / cpu_number)
+            # calculate how many domains each cpu will handle
+            # however, if the domain number is less than the cpu number, that is not good
+            # therefore, since the domain concentration is small, we will set cpu number to 1
+            if cpu_number > domainNum:
+                domainNumEach = int(domainNum / cpu_number)
+            else:
+                cpu_number = 1
+                domainNumEach = int(domainNum / cpu_number)
+
 
             # if we want neutral charges on the surface, we can define domainNumChar2, otherwise, it will be zero
             if self.neutral:
@@ -210,48 +219,6 @@ class DomainGenerator:
                               and tup[1] > int(surface.width*dividor[j][0][1] + restriction)
                               and tup[1] < int(surface.width*dividor[j+1][0][1] - restriction)]
                     possiblePointNested.append(points)
-
-        # for 3D, separate each side of the surface into 2 parts
-        # elif surface.dimension == 3:
-        #     # initialize nested list
-        #     possiblePointNested = []
-        #
-        #     # first separate conditions into 2 parts
-        #     # if the cpu_number is less than or equal to 6, divide surface by each side
-        #     if cpu_number<=6:
-        #         # the variable separate will tell how many separations we do on x,y,z faces
-        #
-        #         # separate -> [[x0, x1],[y0, y1],[z0, z1]]
-        #         separator = [[False, False], [False, False], [False, False]]
-        #         separate = [[1, 1], [1, 1], [1, 1]]
-        #         for i in range(cpu_number - 1):
-        #             v = int(i / 2)
-        #             a = i % 2
-        #             separator[v][a] = True
-        #
-        #             # by default, if there are 6 cpus, then the last surface will also be separated
-        #             if separator[2][0] == True:
-        #                 separator[2][1] = True
-        #
-        #         # now separate the points into the surfaces
-        #         for axis in range(len(separator)):
-        #             for i in range(len(separator[axis])):
-        #                 # if we wish to separate the axis, execute the following
-        #                 if separator[axis][i] == True:
-        #                     # if the constant axis is on 0:
-        #                     if i == 0:
-        #                         points = [tup for tup in possiblePoint if tup[axis] == i]
-        #                     # if the constant axis is on edge:
-        #                     elif i == 1:
-        #                         points = [tup for tup in possiblePoint if tup[axis] != 0]
-        #
-        #                     possiblePoint = list(set(possiblePoint) - set(points))
-        #
-        #                     # append the points to the possiblePointNested list
-        #                     possiblePointNested.append(points)
-        #
-        #         # lastly, append the remaining possiblePoint into possiblePointNested list
-        #         possiblePointNested.append(possiblePoint)
 
 
             # use partial to set all the constant variables
@@ -340,14 +307,11 @@ class DomainGenerator:
                     possiblePointz1.append(tup)
             possiblePointSide = [possiblePointx0, possiblePointx1, possiblePointy0, possiblePointy1, possiblePointz0, possiblePointz1]
 
-            # possiblePointSide = [[tup if tup[0] == 0], [tup if tup[0] == surface.length-1],
-            #                      [tup if tup[1] == 0], [tup if tup[1] == surface.width-1],
-            #                      [tup if tup[2] == 0], [tup if tup[2] == surface.height-1]for tup in possiblePoint]
             for i in range(len(possiblePointSide)):
                 # determine how many neutral or charged domains for the surface
                 if self.neutral:
                     domainNumChar1 = math.ceil(
-                        domainNum * charge_concentration)  # this will have the first charge from the possible_charge list
+                        domainNum[i] * charge_concentration)  # this will have the first charge from the possible_charge list
                     domainNumChar2 = domainNum[i] - domainNumChar1  # this will have the second charge from the possible_charge list
                 elif not self.neutral:
                     domainNumChar1 = domainNum[i]
@@ -361,8 +325,15 @@ class DomainGenerator:
                 newSurface = newSurfaceGenerated[0]
 
         # now, we will determine where
-        concentration_charge = (len(np.where(newSurface == possible_charge[0])[0])) / (surface.length * surface.width)
-        concentration_neutral = (len(np.where(newSurface == possible_charge[1])[0])) / (surface.length * surface.width)
+        totalSize = len(np.where(newSurface!=2)[0])
+        concentration_charge = (len(np.where(newSurface == possible_charge[0])[0])) / totalSize
+        concentration_neutral = (len(np.where(newSurface == possible_charge[1])[0])) / totalSize
+        # if surface.height < 4:
+        #     concentration_charge = (len(np.where(newSurface == possible_charge[0])[0])) / (surface.length * surface.width)
+        #     concentration_neutral = (len(np.where(newSurface == possible_charge[1])[0])) / (surface.length * surface.width)
+        # elif surface.height >= 4:
+        #     concentration_charge = (len(np.where(newSurface == possible_charge[0])[0])) / totalSize
+        #     concentration_neutral = (len(np.where(newSurface == possible_charge[1])[0])) / totalSize
 
         endTime = time.time()
         totalTime = endTime - startTime
@@ -387,6 +358,8 @@ class DomainGenerator:
 
         # initialize generated
         generated = 0
+
+        # time.sleep(1)
 
         # start to generate the domain on surface
         # to generate the domains on the surface, we will be using multiprocessing to take advantage of all 4 CPUS

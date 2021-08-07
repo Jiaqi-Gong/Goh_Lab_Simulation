@@ -15,7 +15,7 @@ import math
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
-from matplotlib import collections
+from matplotlib.colors import LinearSegmentedColormap
 
 LOG_CACH = []
 
@@ -223,53 +223,40 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     day = now.strftime("%m_%d")
     current_time = now.strftime("%H_%M_%S")
 
-
+    # locate where the positive, negative, and neutral charges are
     pos = np.where(array == 1)
     neu = np.where(array == 0)
     neg = np.where(array == -1)
 
-    pos_x = pos[0]
-    pos_y = pos[1]
-    neu_x = neu[0]
-    neu_y = neu[1]
-    neg_x = neg[0]
-    neg_y = neg[1]
-    fig, ax = plt.subplots(dpi=141)
+    # showMessage(array)
 
-    # fig = plt.figure()
-    # ax = fig.add_subplot(111)
+    # digits
+    cL = -len(str(len(array[0]))) + 1
+    cW = -len(str(len(array))) + 1
 
-    # colors_pos = np.repeat(np.array([[0,0,1,1]]),len(pos_x),axis=0)
-    # colors_neu = np.repeat(np.array([[0,1,0,1]]),len(neu_x),axis=0)
-    # colors_neg = np.repeat(np.array([[1,0,0,1]]),len(neg_x),axis=0)
+    # dividor
+    dividorL = int(round(len(array[0]), cL) / int(str(round(len(array[0]), cL))[0]+str(round(len(array[0]), cL))[1]))
+    dividorW = int(round(len(array), cW) / int(str(round(len(array), cW))[0]+str(round(len(array), cW))[1]))
 
-    vmin = 1
-    vmax = max(array.shape[0], array.shape[1]) - 1
+    # calculate length and width of image
+    img_length = len(array[0]) // dividorL
+    img_width = len(array) // dividorW
 
-    # for v in np.arange(0, max(array.shape[0], array.shape[1])):
-    #     ax.axvline(v - 0.5)
-    #     ax.axvline(v + 0.5)
-    #     ax.axhline(v - 0.5)
-    #     ax.axhline(v + 0.5)
+    showMessage(f"Length of image is {img_length}, width of image is {img_width}")
 
-    # # define factor
-    # factor = (int(max(array.shape[0], array.shape[1])))
-
-    # set x limit and y limit
+    # Calculate maximum
     max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i]) != 0]
     max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i]) != 0]
     max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i]) != 0]
     maximum = max(max1 + max2 + max3)
-    # ax.set_xlim(vmin - 0.5, vmax + 0.5)
-    # ax.set_ylim(vmin - 0.5, vmax + 0.5)
-    ax.set_xlim(0, maximum)
-    ax.set_ylim(0, maximum)
 
-    ax.set_aspect(1)
-    fig.canvas.draw()
-    # size = ((ax.get_window_extent().width / (vmax-vmin + 1.) * 72. / fig.dpi) ** 2)
-    # size = (((ax.get_window_extent().width / (maximum + 1.)) * (72. / fig.dpi)) ** 2)
-    # size = (ax.get_window_extent().width / ((maximum + 1.) * (72. / fig.dpi))) ** 2
+    # fig = plt.figure(figsize=(img_length, img_width))
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+
+    # ax.set_aspect(1)
+    # fig.canvas.draw()
 
     if 'film' in picName:
         # set title
@@ -278,178 +265,77 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     else:
         # set title
         name = 'Surface of Bacteria'
-    extent = max(ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width,
-                 ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height)
 
-    if maximum < 500:
-        width = 1
-        size = ((extent / (maximum + 1.) * 72. / fig.dpi) ** 2)
-    elif maximum < 10000 and maximum > 500:
-        width = 0
-        size = ((extent / (maximum + 1.) * 72. / fig.dpi) ** 2)
-    else:
-        width = 1
-        size = ((extent / (maximum + 1.) * 72. / fig.dpi) ** 2)
+    # initialize colors and labels
+    colors = ['red','green','blue']
+    labels = ["negative", "neutral", "positive"]
+    levels = np.linspace(-2,2,5)
 
-    showMessage(f"width of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).width}")
-    showMessage(f"height of window is {ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted()).height}")
+    # separate the cases into 3
+    # if no negative is present
+    if len(neg[0]) == 0:
+        colors.remove('red')
+        labels.remove('negative')
+        levels = np.delete(levels, 1)
+        showMessage('removed negative')
+    # if no neutral is present
+    if len(neu[0]) == 0:
+        colors.remove('green')
+        labels.remove('neutral')
+        levels = np.delete(levels, 2)
+        showMessage('removed neutral')
 
-    ax.scatter(pos_x, pos_y, marker='s', c='blue', label='pos', s=size, linewidth=width)
-    ax.scatter(neu_x, neu_y, marker='s', c='green', label='neu', s=size, linewidth=width)
-    ax.scatter(neg_x, neg_y, marker='s', c='red', label='neg', s=size, linewidth=width)
+    # if no positive is present
+    if len(pos[0]) == 0:
+        colors.remove('blue')
+        labels.remove('positive')
+        levels = np.delete(levels, 3)
+        showMessage('removed positive')
 
-    # # get the total number of CPUs
-    # ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)) - 2, 1)
-    # # ncpus = cpu_count()
-    # if ncpus <= 18:
-    #     cpu_number = ncpus
-    # else:
-    #     cpu_number = 18
+    # # initialize colors
+    # n_bins = len(colors)
+    # cmap_name = 'my_list'
+    # cmap = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bins)
     #
-    # # initialize nested list
-    # nested = []
-    # # if there are neutral domains, we will divide the cpu by 3. Else, we will divide the cpu into 2
-    # if len(neu_x) == 0:
-    #     divide = 2
-    #     remainder_pos = int(cpu_number / divide)
-    #     remainder_neg = cpu_number - remainder_pos
+    # ax.imshow(array, origin='lower', cmap=cmap, aspect='auto')
     #
-    #     # now divide up the surface into parts based on the number of cpus for positive and negative
-    #     # positive
-    #     dividor_pos = [int((len(pos_x)-1)*i/remainder_pos) for i in range(remainder_pos+1)]
-    #     for i in range(len(dividor_pos)-1):
-    #         pos_x_new = pos_x[dividor_pos[i]:dividor_pos[i+1]]
-    #         pos_y_new = pos_y[dividor_pos[i]:dividor_pos[i+1]]
-    #         pos_colors_new = colors_pos[dividor_pos[i]:dividor_pos[i+1]]
-    #         positive_new = [pos_x_new, pos_y_new, pos_colors_new]
+    # for i in range(len(colors)):
+    #     plt.plot(0, 0, ".", color=colors[i], label=labels[i])
     #
-    #         # append it to nested
-    #         nested.append(positive_new)
-    #
-    #     # negative
-    #     dividor_neg = [int(len(neg_x) * i / remainder_neg) for i in range(remainder_neg+1)]
-    #     for i in range(len(dividor_neg) - 1):
-    #         neg_x_new = neg_x[dividor_neg[i]:dividor_neg[i + 1]]
-    #         neg_y_new = neg_y[dividor_neg[i]:dividor_neg[i + 1]]
-    #         neg_colors_new = colors_neg[dividor_neg[i]:dividor_neg[i + 1]]
-    #         negative_new = [neg_x_new, neg_y_new, neg_colors_new]
-    #
-    #         # append it to nested
-    #         nested.append(negative_new)
-    #
-    #
-    # else:
-    #     divide = 3
-    #     remainder_pos = int(cpu_number / divide)
-    #     remainder_neu = int(cpu_number / divide)
-    #     remainder_neg = cpu_number - remainder_pos - remainder_neu
-    #
-    #     # now divide up the surface into parts based on the number of cpus for positive and negative
-    #     # positive
-    #     dividor_pos = [int((len(pos_x) - 1) * i / remainder_pos) for i in range(remainder_pos + 1)]
-    #     for i in range(len(dividor_pos) - 1):
-    #         pos_x_new = pos_x[dividor_pos[i]:dividor_pos[i + 1]]
-    #         pos_y_new = pos_y[dividor_pos[i]:dividor_pos[i + 1]]
-    #         pos_colors_new = colors_pos[dividor_pos[i]:dividor_pos[i + 1]]
-    #         positive_new = [pos_x_new, pos_y_new, pos_colors_new]
-    #
-    #         # append it to nested
-    #         nested.append(positive_new)
-    #
-    #     # neutral
-    #     dividor_neu = [int((len(neu_x) - 1) * i / remainder_neu) for i in range(remainder_neu + 1)]
-    #     for i in range(len(dividor_neu) - 1):
-    #         neu_x_new = neu_x[dividor_neu[i]:dividor_neu[i + 1]]
-    #         neu_y_new = neu_y[dividor_neu[i]:dividor_neu[i + 1]]
-    #         neu_colors_new = colors_neu[dividor_neu[i]:dividor_neu[i + 1]]
-    #         neutral_new = [neu_x_new, neu_y_new, neu_colors_new]
-    #
-    #         # append it to nested
-    #         nested.append(neutral_new)
-    #
-    #     # negative
-    #     dividor_neg = [int(len(neg_x) * i / remainder_neg) for i in range(remainder_neg + 1)]
-    #     for i in range(len(dividor_neg) - 1):
-    #         neg_x_new = neg_x[dividor_neg[i]:dividor_neg[i + 1]]
-    #         neg_y_new = neg_y[dividor_neg[i]:dividor_neg[i + 1]]
-    #         neg_colors_new = colors_neg[dividor_neg[i]:dividor_neg[i + 1]]
-    #         negative_new = [neg_x_new, neg_y_new, neg_colors_new]
-    #
-    #         # append it to nested
-    #         nested.append(negative_new)
-    #
-    # # use multiprocessing to speed up visualization
-    # pool = Pool(cpu_number)
-    # c = pool.starmap(_circleAdder, nested)
-    # # extract the PathCollection for each
-    # for i in c:
-    #     ax.add_collection(i)
+    # ax.legend(loc="upper right", bbox_to_anchor=(1.25, 1.0))
+
+    # x, y = np.indices((len(array[0]), len(array)))
+    surface = ax.contourf(array, levels=levels, colors=colors, vmin=-1, vmax=1, origin='lower')
+    # surface = ax.contourf(x, y, array, levels=levels, cmap=cmap, vmin=-1, vmax=1)
+
+    proxy = [plt.Rectangle((1, 1), 2, 2, fc=pc.get_facecolor()[0]) for pc in
+             surface.collections]
+
+    ax.legend(proxy, labels)
+
+    # lgnd = ax.legend(loc="upper right")
+    # for handle in lgnd.legendHandles:
+    #     handle.set_sizes([10.0])
 
 
+    # set x limit and y limit
+    ax.set_xlim(0, maximum)
+    ax.set_ylim(0, maximum)
 
-    # create a nested list containing position [positive, neutral, negative]
-    # positive = [pos_x, pos_y, colors_pos]
-    # neutral = [neu_x, neu_y, colors_neu]
-    # negative = [neg_x, neg_y, colors_neg]
-    # nested = [positive, neutral, negative]
-    # x_pos = [pos_x, neu_x, neg_x]
-    # y_pos = [pos_y, neu_y, neg_y]
-    # colors = [colors_pos, colors_neu, colors_neg]
-
-
-
-    # # positive
-    # circlesPos = [plt.Rectangle((xi, yi), width=1, height=1, linewidth=0) for xi, yi in zip(pos_x, pos_y)]
-    # cPos = collections.PatchCollection(circlesPos)
-    # cPos.set_facecolor(colors_pos)
-    # ax.add_collection(cPos)
-    #
-    # # neutral
-    # circlesNeu = [plt.Rectangle((xi, yi), width=1, height=1, linewidth=0) for xi, yi in zip(neu_x, neu_y)]
-    # cNeu = collections.PatchCollection(circlesNeu)
-    # cNeu.set_facecolor(colors_neu)
-    # ax.add_collection(cNeu)
-    #
-    # # negative
-    # circlesNeg = [plt.Rectangle((xi, yi), width=1, height=1, linewidth=0) for xi, yi in zip(neg_x, neg_y)]
-    # cNeg = collections.PatchCollection(circlesNeg)
-    # cNeg.set_facecolor(colors_neg)
-    # ax.add_collection(cNeg)
-
-
-    # # positive
-    # circlesPos = [plt.Circle((xi, yi), radius=0.5, linewidth=0, color='blue') for xi, yi in zip(pos_x, pos_y)]
-    # cPos = collections.PatchCollection(circlesPos)
-    # cPos.set_facecolor(colors_pos)
-    # ax.add_collection(cPos)
-    #
-    # # neutral
-    # circlesNeu = [plt.Circle((xi, yi), radius=0.5, linewidth=0, color='green') for xi, yi in zip(neu_x, neu_y)]
-    # cNeu = collections.PatchCollection(circlesNeu)
-    # cNeu.set_facecolor(colors_neu)
-    # ax.add_collection(cNeu)
-    #
-    # # negative
-    # circlesNeg = [plt.Circle((xi, yi), radius=0.5, linewidth=0, color='red') for xi, yi in zip(neg_x, neg_y)]
-    # cNeg = collections.PatchCollection(circlesNeg)
-    # cNeg.set_facecolor(colors_neg)
-    # ax.add_collection(cNeg)
-
-    lgnd = ax.legend(loc="upper right")
-    for handle in lgnd.legendHandles:
-        handle.set_sizes([10.0])
-
+    # set x and y labels
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
+
+    # set label and tick position
     ax.xaxis.set_ticks_position('top')
     ax.xaxis.set_label_position('top')
 
 
     # plt.xlim(0,maximum)
     # plt.ylim(0,maximum)
+    # plt.xlabel('X')
+    # plt.ylabel('Y')
     plt.title(name)
-
-    plt.imshow(array, interpolation='nearest')
 
     global picFolder
     if "picFolder" not in globals():
@@ -461,25 +347,14 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
         if not os.path.exists(picFolder):
             os.mkdir(picFolder)
 
-    picPath = "{}/{}".format(picFolder, picName)
+    picPath = "{}/{}.png".format(picFolder, picName)
 
-    plt.savefig(picPath, dpi=400, bbox_inches='tight')
-    # plt.savefig(picPath)
+    plt.savefig(picPath, dpi=300, bbox_inches='tight')
     endTime = time.time()
     totalTime = endTime - startTime
 
     showMessage(f"Total time it took to generate 2D image is {totalTime} seconds")
     showMessage("Image generate done")
-
-def _circleAdder(x: ndarray, y:ndarray, color:ndarray) -> None:
-    # extract the nested list
-    # color = nested[2]
-    # x = nested[0]
-    # y = nested[1]
-    rectangle = [plt.Rectangle((xi, yi), width=1, height=1, linewidth=0) for xi, yi in zip(x, y)]
-    c = collections.PatchCollection(rectangle)
-    c.set_facecolor(color)
-    return c
 
 def _visPlot3D(array: ndarray, picName: str) -> None:
     """
@@ -492,85 +367,6 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     now = datetime.now()
     day = now.strftime("%m_%d")
     current_time = now.strftime("%H_%M_%S")
-    # graph the 3D visualization
-    # if the array is small, we don't
-    fig = plt.figure(dpi=141)
-    ax = fig.add_subplot(111, projection='3d')
-
-    # define factor
-    factor = (int(max(array.shape[0], array.shape[1])))
-
-    if 'film' in picName:
-        # set title
-        name = "Surface of Film"
-        # size = 40 * ((100 / factor) ** 4)
-
-    else:
-        # set title
-        name = 'Surface of Bacteria'
-        # size = 40 * ((100 / factor) ** 4)
-
-    size = ((ax.get_window_extent().width / (max(array.shape[0], array.shape[1]) + 1.) * 72. / fig.dpi) ** 2)
-    ax.set_aspect('auto')
-    fig.canvas.draw()
-    # position of positive
-    pos = np.where(array == 1)
-    pos_z = pos[0]
-    pos_y = pos[1]
-    pos_x = pos[2]
-    # color of positive
-    # colors_pos = np.repeat(np.array([[0,0,1,0.8]]),len(pos_z),axis=0)
-    ax.scatter3D(pos_x, pos_y, pos_z, marker="s", label='positive', color='blue', depthshade=True, s=size, linewidths=0)
-
-    # position of neutral
-    neu = np.where(array == 0)
-    neu_z = neu[0]
-    neu_y = neu[1]
-    neu_x = neu[2]
-    colors_neu = np.repeat(np.array([[0,1,0,0.8]]),len(neu_z),axis=0)
-    ax.scatter3D(neu_x, neu_y, neu_z, marker="s", label='neutral', color='green', depthshade=True, s=size, linewidths=0)
-
-    # position of negative
-    neg = np.where(array == -1)
-    neg_z = neg[0]
-    neg_y = neg[1]
-    neg_x = neg[2]
-    colors_neg = np.repeat(np.array([[1,0,0,0.8]]),len(neg_z),axis=0)
-    ax.scatter3D(neg_x, neg_y, neg_z, marker="s", label='negative', color='red', depthshade=True, s=size, linewidths=0)
-
-    # position_neg = np.zeros((len(neg_z), 3))
-    # for i in range(len(neg_z)):
-    #     x = neg_x[i]
-    #     y = neg_y[i]
-    #     z = neg_z[i]
-    #     position_neg[i] = x, y, z
-
-    # position_x = np.concatenate((pos_x, neu_x, neg_x))
-    # position_y = np.concatenate((pos_y, neu_y, neg_y))
-    # position_z = np.concatenate((pos_z, neu_z, neg_z))
-    # colors = np.concatenate((colors_pos, colors_neu, colors_neg))
-    # ax.scatter3D(position_x, position_y, position_z, marker="o", label=['neutral','positive','negative'], color=colors, depthshade=False)
-
-
-
-    lgnd = ax.legend(loc="upper right")
-    for handle in lgnd.legendHandles:
-        handle.set_sizes([10.0])
-
-    ax.set_xlabel("X")
-    ax.set_ylabel("Y")
-    ax.set_zlabel("Z")
-
-    # set axis limit
-
-    # get the largest number in all x,y,z scales
-    max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i])!=0]
-    max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i])!=0]
-    max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i])!=0]
-    maximum = max(max1+max2+max3)
-    ax.set_xlim3d(0, maximum)
-    ax.set_ylim3d(0, maximum)
-    ax.set_zlim3d(0, maximum)
 
     # create a folder to store all the images
     global picFolder
@@ -583,59 +379,241 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         if not os.path.exists(picFolder):
             os.mkdir(picFolder)
 
+    # separate the way to generate images into 2 cases
     # if the surface is a film, we only need to see the top
     if "film" in picName:
-        # set camera angle
-        elev = 90
-        azim = 0
-        ax.view_init(elev=elev, azim=azim)
-        # ax.dist = 7
-        plt.title("X-Y plane")
+        # we will only look at the x-y plane
+        array = array[0]
+
+        # locate where the positive, negative, and neutral charges are
+        pos = np.where(array == 1)
+        neu = np.where(array == 0)
+        neg = np.where(array == -1)
+
+        # digits
+        cL = -len(str(len(array[0]))) + 1
+        cW = -len(str(len(array))) + 1
+
+        # dividor
+        dividorL = int(round(len(array[0]), cL) / int(str(round(len(array[0]), cL))[0] + str(round(len(array[0]), cL))[1]))
+        dividorW = int(round(len(array), cW) / int(str(round(len(array), cW))[0] + str(round(len(array), cW))[1]))
+
+        # calculate length and width of image
+        img_length = len(array[0]) // dividorL
+        img_width = len(array) // dividorW
+
+        # initialize the figure and subplots
+        # fig = plt.figure(figsize=(img_length, img_width))
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        showMessage(f"Length of image is {img_length}, width of image is {img_width}")
+
+        # Calculate maximum
+        max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i]) != 0]
+        max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i]) != 0]
+        max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i]) != 0]
+        maximum = max(max1 + max2 + max3)
+
+        # initialize colors and labels
+        colors = ['red', 'green', 'blue']
+        labels = ["negative", "neutral", "positive"]
+        levels = np.linspace(-2,2,5)
+
+        # remove colors and labels for charge that is not present
+        # separate the cases into 3
+        # if no negative is present
+        if len(neg[0]) == 0:
+            colors.remove('red')
+            labels.remove('negative')
+            levels = np.delete(levels, 1)
+            showMessage('removed negative')
+        # if no neutral is present
+        if len(neu[0]) == 0:
+            colors.remove('green')
+            labels.remove('neutral')
+            levels = np.delete(levels, 2)
+            showMessage('removed neutral')
+
+        # if no positive is present
+        if len(pos[0]) == 0:
+            colors.remove('blue')
+            labels.remove('positive')
+            levels = np.delete(levels, 3)
+            showMessage('removed positive')
+
+        # create the color map
+        n_bins = len(colors)
+        cmap_name = 'my_list'
+        cmap = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bins)
+
+        ax.imshow(array, origin='lower', cmap=cmap)
+
+        for i in range(len(colors)):
+            plt.plot(0, 0, ".", color=colors[i], label=labels[i])
+
+        ax.legend(loc="upper right", bbox_to_anchor=(1.25, 1.0))
+
+        # # x, y = np.indices((len(array[0]), len(array)))
+        # surface = ax.contourf(array, levels=levels, colors=colors, vmin=-1, vmax=1, origin='lower')
+        # # surface = ax.contourf(x, y, array, levels=levels, cmap=cmap, vmin=-1, vmax=1)
+        #
+        #
+        # proxy = [plt.Rectangle((1, 1), 2, 2, fc=pc.get_facecolor()[0]) for pc in
+        #          surface.collections]
+        #
+        # ax.legend(proxy, labels)
+
+        # set x limit and y limit
+        ax.set_xlim(0, maximum)
+        ax.set_ylim(0, maximum)
+
+        # set x and y labels
+        ax.set_xlabel("X")
+        ax.set_ylabel("Y")
+
+        # set label and tick position
+        ax.xaxis.set_ticks_position('top')
+        ax.xaxis.set_label_position('top')
+
+        plt.title("Above the film")
 
         # save file
         plt.savefig('{}/{}'.format(picFolder, picName), dpi=300, bbox_inches='tight')
 
     elif "bacteria" in picName:
 
+        # make a subfolder containing the 6 sides of the surface
         global picFolderEach
         picFolderEach = "{}/{}".format(picFolder, picName)
         if not os.path.exists(picFolderEach):
             os.mkdir(picFolderEach)
-        # save each side of the picture
-        elevation = [0, 90, -90]
-        azimuth = [0, 90, -90, 180]
-        # if the sides are really small, we don't need to output the sides
-        # first 4 sides
-        for i in range(len(azimuth)):
-            elev = elevation[0]
-            azim = azimuth[i]
-            ax.view_init(elev=elev, azim=azim)
-            # ax.dist = 6
 
-            # name the title
-            if azim == 90 or azim == -90:
-                plt.title('X-Z plane')
-            elif azim == 0 or azim == 180:
-                plt.title('Y-Z plane')
+        # initialize the 6 sides
+        # [z0,z1,y0,y1,x0,x1]
+        title = ['Above','Below','Front','Behind','Left','Right']
+        changer = [1,array.shape[0]-1,1,array.shape[1]-1,1,array.shape[2]-1]
+        axesLabels = [['X','Y'], ['X','Y'], ['X','Z'], ['X','Z'], ['Y','Z'], ['Y','Z']]
+        ind = [0,0,1,1,2,2]
 
-            # save file
-            plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[0], azimuth[i]), dpi=300, bbox_inches='tight')
+        # define original array
+        originalArray = array
 
-        # last 2 sides
-        for i in range(len(elevation) - 1):
-            elev = elevation[i + 1]
-            azim = azimuth[0]
-            ax.view_init(elev=elev, azim=azim)
-            # ax.dist = 6
+        for i in range(len(title)):
+            # initialize the range
+            index = [int(originalArray.shape[0]),0,int(originalArray.shape[1]),0,int(originalArray.shape[2]),0]
+            # change the array from 3d to 2d
+            index[i] = changer[i]
+            array = originalArray[index[1]:index[0],index[3]:index[2],index[5]:index[4]]
+            if ind[i] == 0:
+                array = array[0,:,:]
+            elif ind[i] == 1:
+                array = array[:,0,:]
+            elif ind[i] == 2:
+                array = array[:,:,0]
+            showMessage(array.shape)
 
-            # name the title
-            plt.title('X-Y plane')
+            # locate where the positive, negative, and neutral charges are
+            pos = np.where(array == 1)
+            neu = np.where(array == 0)
+            neg = np.where(array == -1)
 
-            # save file
-            plt.savefig('{}/Position_at_elevation={}_azimuth={}.png'.format(picFolderEach, elevation[i + 1], azimuth[0]), dpi=300, bbox_inches='tight')
+            # digits
+            cL = -len(str(len(array[0]))) + 1
+            cW = -len(str(len(array))) + 1
+
+            # dividor
+            dividorL = math.ceil(round(len(array[0]), cL) / int(str(round(len(array[0]), cL))[0] + str(0)))
+            dividorW = math.ceil(round(len(array), cW) / int(str(round(len(array), cW))[0] + str(0)))
+
+            # calculate length and width of image
+            img_length = len(array[0]) // dividorL
+            img_width = len(array) // dividorW
+
+            # initialize the figure and subplots
+            # fig = plt.figure(figsize=(img_length, img_width))
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            showMessage(f"Length of image is {img_length}, width of image is {img_width}")
+
+            # Calculate maximum
+            max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i]) != 0]
+            max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i]) != 0]
+            max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i]) != 0]
+            maximum = max(max1 + max2 + max3)
+
+            # initialize colors and labels
+            # colors = [(-1/maximum, 'red'), (0/maximum, 'green'), (1/maximum, 'blue')]
+            colors = ['red', 'green', 'blue']
+            labels = ["negative", "neutral", "positive"]
+            levels = np.linspace(-2, 2, 5)
+
+            # remove colors and labels for charge that is not present
+            # separate the cases into 3
+            # if no negative is present
+            if len(neg[0]) == 0:
+                # colors.remove((-1/maximum, 'red'))
+                # labels.remove('negative')
+                levels = np.delete(levels, 1)
+                showMessage('removed negative')
+
+            # if no neutral is present
+            if len(neu[0]) == 0:
+                # colors.remove((0/maximum, 'green'))
+                # labels.remove('neutral')
+                levels = np.delete(levels, 2)
+                showMessage('removed neutral')
+
+            # if no positive is present
+            if len(pos[0]) == 0:
+                # colors.remove((1/maximum, 'blue'))
+                # labels.remove('positive')
+                levels = np.delete(levels, 3)
+                showMessage('removed positive')
+
+            # create the color map
+            n_bins = len(colors)
+            cmap_name = 'my_list'
+            cmap = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bins)
+
+            ax.imshow(array, origin='lower', cmap=cmap)
+
+            for j in range(len(colors)):
+                plt.plot(0, 0, ".", color=colors[j], label=labels[j])
+
+            ax.legend(loc="upper right", bbox_to_anchor=(1.25, 1.0))
+
+            # # x, y = np.indices((len(array[0]), len(array)))
+            # surface = ax.contourf(array, levels=levels, colors=colors, vmin=-1, vmax=1, origin='lower')
+            # # surface = ax.contourf(x, y, array, levels=levels, cmap=cmap, vmin=-1, vmax=1)
+            #
+            # proxy = [plt.Rectangle((1, 1), 2, 2, fc=pc.get_facecolor()[0]) for pc in
+            #          surface.collections]
+            #
+            # ax.legend(proxy, labels)
+
+            # set x limit and y limit
+            ax.set_xlim(0, maximum)
+            ax.set_ylim(0, maximum)
+
+            # set x and y labels
+            ax.set_xlabel(axesLabels[i][0])
+            ax.set_ylabel(axesLabels[i][1])
+
+            # set label and tick position
+            ax.xaxis.set_ticks_position('top')
+            ax.xaxis.set_label_position('top')
+
+            plt.title(f"From {title[i]} of Bacteria")
+
+            plt.savefig('{}/From_{}_of_Bacteria.png'.format(picFolderEach, title[i]), dpi=300, bbox_inches='tight')
+
+        # plt.savefig('{}/Bacteria_from_each_side.png'.format(picFolderEach, title[i]), dpi=300, bbox_inches='tight')
+
 
     endTime = time.time()
     totalTime = endTime - startTime
 
     showMessage(f"Total time it took to generate image is {totalTime} seconds")
     showMessage("Image generate done")
+
+# def _generateImage
