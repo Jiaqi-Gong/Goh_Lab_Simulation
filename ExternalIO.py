@@ -602,7 +602,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
             ax.xaxis.set_ticks_position('top')
             ax.xaxis.set_label_position('top')
 
-            plt.title(title[i])
+            plt.title(f"From {title[i]} of Bacteria")
 
             plt.savefig('{}/From_{}_of_Bacteria.png'.format(picFolderEach, title[i]), dpi=300, bbox_inches='tight')
 
