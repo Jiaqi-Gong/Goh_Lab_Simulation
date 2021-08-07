@@ -1,6 +1,6 @@
 Head: Record the special requirement for some user input parameter : Here is string for checking code will be exec
 Simulator: Only can be 1 or 2 for now \n1 for energy scan simulation, 2 for dynamic simulation: simulatorType=="1" or simulatorType == "2"
-Type: Only can be 1 or 2 or 3 for now \n1 for one surface react with one bacteria once \n2 for One surface, multiple different bacteria, every bacteria scan the surface once \n3 for Multiple different surface, one bacteria, bacteria scan every surface once \nDifferent bacteria/surface means the domain generation seed is different, not the size different : simulationType in ["1", "2", "3"]
+Simulation: Only can be 1 or 2 or 3 for now \n1 for one surface react with one bacteria once \n2 for One surface, multiple different bacteria, every bacteria scan the surface once \n3 for Multiple different surface, one bacteria, bacteria scan every surface once \nDifferent bacteria/surface means the domain generation seed is different, not the size different : simulationType in ["1", "2", "3"]
 Trail: Trail number must be a positive int number : trail > "0"
 Dimension: Dimension only can be 2 or 3 : dimension=="2" or dimension=="3"
 Seed: Positive number: seed > "0"
