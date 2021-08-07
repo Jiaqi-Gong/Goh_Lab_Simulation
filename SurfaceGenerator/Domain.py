@@ -147,7 +147,7 @@ class DomainGenerator:
         # now for the multiprocessing, separate the surface by the number of CPUs in the computer
         # realistically, we only need multiprocessing for the film
         # since the film ALWAYS has a height of 1, we will use this multiprocessing method when the height of surface is 1
-        if surface.height < 4:
+        if surface.height < 2:
             # set how many domains we should make for each CPU
             # find the number of CPUs on the computer
             # therefore if the cpu_number is greater than 12, we will just return 12
@@ -275,7 +275,36 @@ class DomainGenerator:
                 [newSurface, generated] = _generateDomainMultiprocessingConstant(possiblePoint)
                 generatedList.append(generated)
 
-        # if the surface is a bacteria, we don't need multiprocessing since bacterias are small
+        # if the surface is a bacteria 2d, we don't need multiprocessing since bacterias are small
+        elif surface.height == 3:
+            # determine how many neutral or charged domains for the surface
+            if self.neutral:
+                domainNumChar1 = math.ceil(domainNum * charge_concentration)  # this will have the first charge from the possible_charge list
+                domainNumChar2 = domainNum - domainNumChar1  # this will have the second charge from the possible_charge list
+            elif not self.neutral:
+                domainNumChar1 = domainNum
+                domainNumChar2 = 0
+
+            showMessage(f"domainNumChar1 is {domainNumChar1}")
+            showMessage(f"domainNumChar2 is {domainNumChar2}")
+
+
+            newSurfaceGenerated = self._generateDomainMultiprocessing(possiblePoint=possiblePoint,
+                                                                      newSurface=newSurface,
+                                                                      domainWidth=domainWidth,
+                                                                      domainLength=domainLength,
+                                                                      possible_charge=possible_charge,
+                                                                      domainNumEach=domainNum,
+                                                                      generateShape=generateShape,
+                                                                      checkEmpty=checkEmpty,
+                                                                      domainNumChar1=domainNumChar1,
+                                                                      domainNumChar2=domainNumChar2)
+            newSurface = newSurfaceGenerated[0]
+
+
+
+
+        # if the surface is a bacteria 3d, we don't need multiprocessing since bacterias are small
         elif surface.height >= 4:
             # initialize all lists
             possiblePointx0 = []
@@ -334,6 +363,9 @@ class DomainGenerator:
         # elif surface.height >= 4:
         #     concentration_charge = (len(np.where(newSurface == possible_charge[0])[0])) / totalSize
         #     concentration_neutral = (len(np.where(newSurface == possible_charge[1])[0])) / totalSize
+
+        showMessage(f"concentration_charge is {concentration_charge}")
+        showMessage(f"concentration_neutral is {concentration_neutral}")
 
         endTime = time.time()
         totalTime = endTime - startTime
