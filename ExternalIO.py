@@ -15,7 +15,7 @@ import math
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
-from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.colors import LinearSegmentedColormap, BoundaryNorm
 
 LOG_CACH = []
 
@@ -230,19 +230,19 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
 
     # showMessage(array)
 
-    # digits
-    cL = -len(str(len(array[0]))) + 1
-    cW = -len(str(len(array))) + 1
-
-    # dividor
-    dividorL = int(round(len(array[0]), cL) / int(str(round(len(array[0]), cL))[0]+str(round(len(array[0]), cL))[1]))
-    dividorW = int(round(len(array), cW) / int(str(round(len(array), cW))[0]+str(round(len(array), cW))[1]))
-
-    # calculate length and width of image
-    img_length = len(array[0]) // dividorL
-    img_width = len(array) // dividorW
-
-    showMessage(f"Length of image is {img_length}, width of image is {img_width}")
+    # # digits
+    # cL = -len(str(len(array[0]))) + 1
+    # cW = -len(str(len(array))) + 1
+    #
+    # # dividor
+    # dividorL = int(round(len(array[0]), cL) / int(str(round(len(array[0]), cL))[0]+str(round(len(array[0]), cL))[1]))
+    # dividorW = int(round(len(array), cW) / int(str(round(len(array), cW))[0]+str(round(len(array), cW))[1]))
+    #
+    # # calculate length and width of image
+    # img_length = len(array[0]) // dividorL
+    # img_width = len(array) // dividorW
+    #
+    # showMessage(f"Length of image is {img_length}, width of image is {img_width}")
 
     # Calculate maximum
     max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i]) != 0]
@@ -269,38 +269,41 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     # initialize colors and labels
     colors = ['red','green','blue']
     labels = ["negative", "neutral", "positive"]
-    levels = np.linspace(-2,2,5)
+    levels = np.linspace(-1,1,3)
 
-    # separate the cases into 3
-    # if no negative is present
-    if len(neg[0]) == 0:
-        colors.remove('red')
-        labels.remove('negative')
-        levels = np.delete(levels, 1)
-        showMessage('removed negative')
-    # if no neutral is present
-    if len(neu[0]) == 0:
-        colors.remove('green')
-        labels.remove('neutral')
-        levels = np.delete(levels, 2)
-        showMessage('removed neutral')
-
-    # if no positive is present
-    if len(pos[0]) == 0:
-        colors.remove('blue')
-        labels.remove('positive')
-        levels = np.delete(levels, 3)
-        showMessage('removed positive')
+    # # separate the cases into 3
+    # # if no negative is present
+    # if len(neg[0]) == 0:
+    #     colors.remove('red')
+    #     labels.remove('negative')
+    #     levels = np.delete(levels, 1)
+    #     showMessage('removed negative')
+    # # if no neutral is present
+    # if len(neu[0]) == 0:
+    #     colors.remove('green')
+    #     labels.remove('neutral')
+    #     levels = np.delete(levels, 2)
+    #     showMessage('removed neutral')
+    #
+    # # if no positive is present
+    # if len(pos[0]) == 0:
+    #     colors.remove('blue')
+    #     labels.remove('positive')
+    #     levels = np.delete(levels, 3)
+    #     showMessage('removed positive')
 
     # initialize colors
     n_bins = len(colors)
     cmap_name = 'my_list'
     cmap = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bins)
+    # # this part assigns the color to a specific value
+    # bounds=[-1,0,1]
+    # norm = BoundaryNorm(bounds,cmap.N)
 
     ax.imshow(array, origin='lower', cmap=cmap, aspect='auto')
 
     for i in range(len(colors)):
-        plt.plot(0, 0, ".", color=colors[i], label=labels[i])
+        plt.plot(0, 0, "s", color=colors[i], label=labels[i])
 
     ax.legend(loc="upper right", bbox_to_anchor=(1.25, 1.0))
 
