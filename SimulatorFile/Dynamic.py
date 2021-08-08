@@ -43,7 +43,7 @@ class DynamicSimulator(Simulator):
         if parameters["unstuck"]:
             self.unstuckProbability = None
 
-        # simulation type is not applicable for dynamic simulator
+        # simulation type is not applicable for dynamic simulator for now, maybe in the future this can be use to do sth
         simulationType = -1
 
         # based on type, set parameter
@@ -116,7 +116,7 @@ class DynamicSimulator(Simulator):
 
         # save the last simulate, if it is not saved in the loop
         if (self.timeStep - 1) % self.dumpStep != 0:
-            self._output(result, currIter, end)
+            self._output(result, self.timeStep - 1, end)
 
         showMessage("Simulation done")
 

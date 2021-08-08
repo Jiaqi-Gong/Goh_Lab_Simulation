@@ -25,8 +25,8 @@ class EnergySimulator(Simulator):
                  filmSeed: int, filmSurfaceSize: Union[Tuple[int, int], Tuple[int, int, int]], filmSurfaceShape: str,
                  filmSurfaceCharge: int, filmDomainSize: Tuple[int, int], filmDomainShape: str,
                  filmDomainConcentration: float, filmDomainChargeConcentration: float,
-                 bacteriaSeed: int, bacteriaSize: Union[Tuple[int, int], Tuple[int, int, int]], bacteriaSurfaceShape: str,
-                 bacteriaSurfaceCharge: int,
+                 bacteriaSeed: int, bacteriaSize: Union[Tuple[int, int], Tuple[int, int, int]],
+                 bacteriaSurfaceShape: str, bacteriaSurfaceCharge: int,
                  bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float,
                  bacteriaDomainChargeConcentration: float,
                  filmNum: int, bacteriaNum: int, intervalX: int, intervalY: int, filmNeutralDomain: bool,
@@ -58,7 +58,8 @@ class EnergySimulator(Simulator):
                            bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
                            bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainConcentration,
                            bacteriaDomainChargeConcentration,
-                           filmNum, bacteriaNum, intervalX, intervalY, filmNeutralDomain, bacteriaNeutralDomain, parameters)
+                           filmNum, bacteriaNum, intervalX, intervalY, filmNeutralDomain, bacteriaNeutralDomain,
+                           parameters)
 
     def runSimulate(self) -> None:
         """
@@ -135,7 +136,8 @@ class EnergySimulator(Simulator):
             cutoff = 0
 
         # call simulation
-        result = interact(self.interactType, self.intervalX, self.intervalY, film, bacteria, currIter, cutoff, self.dimension)
+        result = interact(self.interactType, self.intervalX, self.intervalY, film, bacteria, currIter, cutoff,
+                          self.dimension)
 
         showMessage("Interact done")
 
@@ -265,7 +267,6 @@ class EnergySimulator(Simulator):
         date = datetime.now().strftime("%m_%d")
         time = datetime.now().strftime("%H-%M-%S")
 
-
         # special count for simulation type 2
         # count number of min_energy locations at each gradient strip, also record all energy
         all_energy = []
@@ -296,4 +297,3 @@ class EnergySimulator(Simulator):
 
         # call function in ExternalIO to save workbook
         saveResult(wb, file_path)
-
