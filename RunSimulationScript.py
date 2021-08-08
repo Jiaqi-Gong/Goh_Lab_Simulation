@@ -46,7 +46,7 @@ def runSimulation():
     interval_x = 10
     interval_y = 10
     filmSurfaceCharge = +1
-    filmDomainSize = (27, 27)
+    filmDomainSize = (31, 31)
     filmDomainShape = "diamond"
     filmNeutralDomain = False
     filmDomainCon = 0.4  # if need to change charge ratio, change this
@@ -58,7 +58,7 @@ def runSimulation():
         bacteriaSize = (100, 100)
         bacteriaSurfaceShape = 'rectangle'
     elif dimension == 3:
-        bacteriaSize = (50, 50, 50)  # For bacteria, z value is the height of bacteria, can be any number
+        bacteriaSize = (100, 100, 100)  # For bacteria, z value is the height of bacteria, can be any number
         bacteriaSurfaceShape = 'cylinder'
     else:
         raise RuntimeError("Unknown dimension: {}".format(dimension))

@@ -95,6 +95,7 @@ class DomainGenerator:
         else:
             raise RuntimeError("Unknown shape")
 
+        # if the surface is a bacteria, we will redefine the domainNum variable
         if surface.height >= 4:
             # calculate total number of available points on each side of bacteria
             # the domain number will be formatted as a list
@@ -109,6 +110,7 @@ class DomainGenerator:
             # lastly, find the length of the lists for each plane
             allPointsLength = [len(allPointsSeparated[i]) for i in range(len(allPointsSeparated))]
 
+            # find the number of domains for each side of the bacteria
             if shape.upper() == "DIAMOND":
                 domainNum = [int((number*concentration)/int(4*((1+domainWidth)/2)*domainWidth+1))
                              for number in allPointsLength]
@@ -156,25 +158,30 @@ class DomainGenerator:
         # now for the multiprocessing, separate the surface by the number of CPUs in the computer
         # realistically, we only need multiprocessing for the film
         # since the film ALWAYS has a height of 1, we will use this multiprocessing method when the height of surface is 1
-        if surface.height < 2:
+        if surface.height <= 2:
             # set how many domains we should make for each CPU
             # find the number of CPUs on the computer
-            # therefore if the cpu_number is greater than 12, we will just return 12
             # minus 2 in case of other possible process is running
-
             ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)) - 2, 1)
+
+            # if the ncpus is 1, that means we are running this on our local computer and thus, we will recalculate the
+            # ncpus to the number of cpus on the computer
             if ncpus == 1:
                 ncpus = cpu_count()
 
+            # when the cpu number is less than 16, we will set the number of usable cpu to that number
             if ncpus <= 16:
                 cpu_number = ncpus
+
+            # if the cpu number is greater than 16, we will just use 16 cpus to make things simple
             else:
                 cpu_number = 16
 
             showMessage(f"number of CPUs is {ncpus} but we will use {cpu_number}")
 
             # calculate how many domains each cpu will handle
-            # however, if the domain number is less than the cpu number, that is not good
+            # however, if the domain number is less than the cpu number, that is not good since each cpu would not generate
+            # any domains
             # therefore, since the domain concentration is small, we will set cpu number to 1
             if cpu_number < domainNum:
                 domainNumEach = int(domainNum / cpu_number)
@@ -262,8 +269,10 @@ class DomainGenerator:
                     k += 1
 
             # current number of domains that have been generated
-            # showMessage(generatedList)
             currentdomainNum = sum(generatedList)
+
+            # if the total number of domains does not equal the current number of domains, we will continue generating
+            # domains until the total domain number equals the required number of domains on the surface
             if domainNum > currentdomainNum:
                 domainRemaining = domainNum - currentdomainNum
                 if self.neutral:
@@ -307,40 +316,10 @@ class DomainGenerator:
                                                                       domainNumChar2=domainNumChar2)
             newSurface = newSurfaceGenerated[0]
 
-
-
-
         # if the surface is a bacteria 3d, we don't need multiprocessing since bacterias are small
         elif surface.height >= 4:
-            # initialize all lists
-            possiblePointx0 = []
-            possiblePointx1 = []
-            possiblePointy0 = []
-            possiblePointy1 = []
-            possiblePointz0 = []
-            possiblePointz1 = []
-
-            # create all possible point into a nested list
-            for tup in possiblePoint:
-                # x0
-                if tup[0] == 0:
-                    possiblePointx0.append(tup)
-                # x1
-                elif tup[0] == int(surface.length-1):
-                    possiblePointx1.append(tup)
-                # y0
-                elif tup[1] == 0:
-                    possiblePointy0.append(tup)
-                # y1
-                elif tup[1] == int(surface.width-1):
-                    possiblePointy1.append(tup)
-                # z0
-                elif tup[2] == 0:
-                    possiblePointz0.append(tup)
-                # z1
-                elif tup[2] == int(surface.height - 1):
-                    possiblePointz1.append(tup)
-            possiblePointSide = [possiblePointx0, possiblePointx1, possiblePointy0, possiblePointy1, possiblePointz0, possiblePointz1]
+            # separate the coordinates to their respective planes
+            possiblePointSide = self._allPoints(surface, possiblePoint)
 
             # calculate the total number of domains necessairy for both neutral and charge
             # this will dictate the number of neutral and
@@ -354,9 +333,7 @@ class DomainGenerator:
             # initialize the total number of domains for each charge generated
             domainNumCharTot = [0,0]
 
-            # showMessage(f"domainNumChar1Tot is {domainNumChar1Tot}")
-            # showMessage(f"domainNumChar2Tot is {domainNumChar2Tot}")
-
+            # now generate the domains on each side of the bacteria
             for i in range(len(possiblePointSide)):
                 # determine how many neutral or charged domains for the surface
                 if self.neutral:
@@ -386,8 +363,6 @@ class DomainGenerator:
                     domainNumChar1 += 1
                     domainNumCharTot[0] += 1
 
-                # showMessage(f"domainNumChar1 is {domainNumChar1}")
-                # showMessage(f"domainNumChar2 is {domainNumChar2}")
                 # generate the domains onto the surface
                 newSurfaceGenerated = self._generateDomainMultiprocessing(possiblePoint=possiblePointSide[i], newSurface=newSurface,
                                                                  domainWidth=domainWidth, domainLength=domainLength,
@@ -396,16 +371,10 @@ class DomainGenerator:
                                                                  domainNumChar1=domainNumChar1, domainNumChar2=domainNumChar2)
                 newSurface = newSurfaceGenerated[0]
 
-        # now, we will determine where
+        # now, we will determine the actual concentration of charged and neutral
         totalSize = len(np.where(newSurface!=2)[0])
         concentration_charge = (len(np.where(newSurface == possible_charge[0])[0])) / totalSize
         concentration_neutral = (len(np.where(newSurface == possible_charge[1])[0])) / totalSize
-        # if surface.height < 4:
-        #     concentration_charge = (len(np.where(newSurface == possible_charge[0])[0])) / (surface.length * surface.width)
-        #     concentration_neutral = (len(np.where(newSurface == possible_charge[1])[0])) / (surface.length * surface.width)
-        # elif surface.height >= 4:
-        #     concentration_charge = (len(np.where(newSurface == possible_charge[0])[0])) / totalSize
-        #     concentration_neutral = (len(np.where(newSurface == possible_charge[1])[0])) / totalSize
 
         showMessage(f"concentration_charge is {concentration_charge}")
         showMessage(f"concentration_neutral is {concentration_neutral}")
@@ -434,6 +403,7 @@ class DomainGenerator:
         # initialize generated
         generated = 0
 
+        'if running on the computer, uncomment time.sleep to not make computer laggy (optional)'
         # time.sleep(1)
 
         # start to generate the domain on surface
@@ -491,6 +461,7 @@ class DomainGenerator:
         possiblePointz0 = []
         possiblePointz1 = []
 
+        # traverse through all points and add each point to 1 of the 6 lists depending on their location
         for tup in possiblePoint:
             # x0
             if tup[0] == 0:
@@ -510,6 +481,8 @@ class DomainGenerator:
             # z1
             elif tup[2] == int(surface.height - 1):
                 possiblePointz1.append(tup)
+
+        # combine the 6 lists into 1 nested list
         possiblePointSide = [possiblePointx0, possiblePointx1, possiblePointy0, possiblePointy1, possiblePointz0,
                              possiblePointz1]
 
@@ -994,12 +967,7 @@ class DomainGenerator:
         # return the coordinate
         coordinate = possiblePoint[index]
         # remove the chosen coordinate from all possiblepoints
-        try:
-            possiblePoint.pop(index)
-        except AttributeError:
-            print(len(possiblePoint))
-
-        # writeLog("Point picked is: {}".format(coordinate))
+        possiblePoint.pop(index)
 
         # return the result as tuple
         return coordinate, possiblePoint
@@ -1010,7 +978,6 @@ class DomainGenerator:
         NOTE: the function takes in point differently than other functions
         point = Tuple[z,y,x]
         nearestPoint = Tuple[z,y,x]
-        charge = charge of domain
         """
 
         # for a 2D surface, return the point since we don't need to traverse through the z-axis
