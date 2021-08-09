@@ -26,7 +26,7 @@ def runSimulation():
 
     # simulator info
     simulationType = 2
-    trail = 310
+    trail = 311
     dimension = 2
     simulatorType = 1
     interactType = "DOT"
@@ -64,8 +64,8 @@ def runSimulation():
         raise RuntimeError("Unknown dimension: {}".format(dimension))
     # bacteriaSurfaceShape = "rectangle"
     bacteriaSurfaceCharge = -1
-    bacteriaDomainSize = (15, 15)
-    bacteriaDomainShape = "diamond"
+    bacteriaDomainSize = (8, 8)
+    bacteriaDomainShape = "octagon"
     bacteriaDomainCon = 0.1
     bacteriaDomainChargeConcentration = 0.1  # ignore
     bacteriaNeutralDomain = False
