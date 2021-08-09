@@ -249,6 +249,8 @@ class DomainGenerator:
                 newSurfaceMP_generated = pool.map(_generateDomainMultiprocessingConstant, possiblePointNested)
                 # extract the new surface and the number of generated domains for that surface
                 for i in range(cpu_number):
+                    # set the seed for random
+                    np.random.seed(self.seed + i)
                     newSurfaceMP = newSurfaceMP_generated[i][0]
                     generated = newSurfaceMP_generated[i][1]
 
