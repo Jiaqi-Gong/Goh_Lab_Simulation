@@ -67,7 +67,7 @@ def runSimulation():
     bacteriaDomainSize = (7, 7)
     bacteriaDomainShape = "diamond"
     bacteriaDomainCon = 0.2
-    bacteriaDomainChargeConcentration = 0.2  # ignore
+    bacteriaDomainChargeConcentration = 0.5  # ignore
     bacteriaNeutralDomain = True
 
     cutoff = 3
