@@ -26,7 +26,7 @@ def runSimulation():
 
     # simulator info
     simulationType = 2
-    trail = 301
+    trail = 310
     dimension = 2
     simulatorType = 1
     interactType = "DOT"
@@ -49,7 +49,7 @@ def runSimulation():
     filmDomainSize = (7, 7)
     filmDomainShape = "diamond"
     filmNeutralDomain = False
-    filmDomainCon = 0.2  # if need to change charge ratio, change this
+    filmDomainCon = 0.1  # if need to change charge ratio, change this
     filmDomainChargeConcentration = 0.1  # ignore
 
     # bacteria info
@@ -66,7 +66,7 @@ def runSimulation():
     bacteriaSurfaceCharge = -1
     bacteriaDomainSize = (7, 7)
     bacteriaDomainShape = "diamond"
-    bacteriaDomainCon = 0.2
+    bacteriaDomainCon = 0.1
     bacteriaDomainChargeConcentration = 0.1  # ignore
     bacteriaNeutralDomain = False
 
