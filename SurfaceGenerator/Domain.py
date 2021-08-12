@@ -32,6 +32,8 @@ class DomainGenerator:
         """
         self.seed = seed
         self.neutral = neutral
+        # set the seed for random
+        np.random.seed(self.seed)
 
     def generateDomain(self, surface: Surface, shape: str, size: Tuple[int, int], concentration: float,
                        charge_concentration: float) -> [ndarray, float, float]:
@@ -59,13 +61,16 @@ class DomainGenerator:
         # set corresponding check and generate function
         # generate the corresponding domain shape
 
-        # more shape coming soon, leave for more extension
+        # generate the surface
+        newSurface = surface.originalSurface
 
+        # more shape coming soon, leave for more extension
         if shape.upper() == "DIAMOND":
             generateShape = self._generateDiamond
             checkEmpty = self._diamondEmpty
             # Number of domains
-            domainNum = int((surface.length * surface.width * concentration) / int(4*((1+domainWidth)/2)*domainWidth + 1))
+            # if the surface is 2d, only 1 domain number should be present
+            domainNum = int((surface.length * surface.width * concentration) / int(4*((1+domainWidth)/2)*domainWidth+1))
             restriction = domainWidth + 1
             # showMessage("concentration = {}".format(concentration))
         elif shape.upper() == "CROSS":
@@ -90,13 +95,37 @@ class DomainGenerator:
         else:
             raise RuntimeError("Unknown shape")
 
-        showMessage("Total Domain is: {}".format(domainNum))
-        newSurface = surface.originalSurface
+        # if the surface is a bacteria, we will redefine the domainNum variable
+        if surface.height >= 4:
+            # calculate total number of available points on each side of bacteria
+            # the domain number will be formatted as a list
+            # domainNum will contain number of domains on each side
+            # domainNum = [x0, x1, y0, y1, z0, z1]
 
+            # define total number of points of 3d shape
+            # first get all location of possible points using _allPossiblePoint function
+            allPoints = self._allPossiblePoint(newSurface, surface, surface.length, surface.width, surface.height, 0, 0, 'SINGLE')
+            # then, separate them into each plane
+            allPointsSeparated = self._allPoints(surface, allPoints)
+            # lastly, find the length of the lists for each plane
+            allPointsLength = [len(allPointsSeparated[i]) for i in range(len(allPointsSeparated))]
+
+            # find the number of domains for each side of the bacteria
+            if shape.upper() == "DIAMOND":
+                domainNum = [int((number*concentration)/int(4*((1+domainWidth)/2)*domainWidth+1))
+                             for number in allPointsLength]
+            elif shape.upper() == "CROSS":
+                domainNum = [int((number*concentration)/int(domainWidth*2+domainLength*2+1))
+                             for number in allPointsLength]
+            elif shape.upper() == "OCTAGON":
+                domainNum = [int((number*concentration)/int((domainWidth+1+domainWidth*2)**2-4*((1+domainWidth)/2)*domainWidth))
+                             for number in allPointsLength]
+            elif shape.upper() == "SINGLE":
+                domainNum = [int((number*concentration)) for number in allPointsLength]
+
+        showMessage("Total Domain is: {}".format(domainNum))
 
         np.set_printoptions(threshold=np.inf)
-        # showMessage(newSurface)
-        # raise NotImplementedError
 
         # initalize the charge of the surface
         surfaceCharge = surface.surfaceCharge
@@ -117,9 +146,6 @@ class DomainGenerator:
         writeLog("Charge of the surface is {}".format(surfaceCharge))
         writeLog("Charge of domain is {} and {}".format(possible_charge[0], possible_charge[1]))
 
-        # set the seed for random
-        np.random.seed(self.seed)
-
         # Determine all the possible points allowed to be chosen as the start point to begin generating the domain
         possiblePoint = self._allPossiblePoint(newSurface, surface, surface.length, surface.width, surface.height, domainLength,
                                                domainWidth, shape)
@@ -128,34 +154,51 @@ class DomainGenerator:
         if len(possiblePoint) == 0:
             raise RuntimeError("Either Domain is too large or Surface is too small")
 
-        # for the multiprocessing domain generator, because there is 4 CPU (on my computer), divide the domainNum by 4
-        # we can change the domainNum for each multiprocessor depending on the number of CPU later
-
-        # set how many domains we should make for each CPU
-        # find the number of CPUs on the computer
-        # therefore if the cpu_number is greater than 12, we will just return 12
-        # minus 2 in case of other possible process is running
-        ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)) - 2, 1)
-        if ncpus <= 16:
-            cpu_number = ncpus
-        else:
-            cpu_number = 16
-
-        showMessage(f"number of CPUs is {ncpus} but we will use {cpu_number}")
-
-        domainNumEach = int(domainNum / cpu_number)
-
-        # if we want neutral charges on the surface, we can define domainNumChar2, otherwise, it will be zero
-        if self.neutral:
-            domainNumChar1 = math.ceil(domainNumEach * charge_concentration)  # this will have the first charge from the possible_charge list
-            domainNumChar2 = domainNumEach - domainNumChar1  # this will have the second charge from the possible_charge list
-        elif not self.neutral:
-            domainNumChar1 = domainNumEach
-            domainNumChar2 = 0
 
         # now for the multiprocessing, separate the surface by the number of CPUs in the computer
-        # for 2D
-        if surface.dimension == 2:
+        # realistically, we only need multiprocessing for the film
+        # since the film ALWAYS has a height of 1, we will use this multiprocessing method when the height of surface is 1
+        if surface.height <= 2:
+            # set how many domains we should make for each CPU
+            # find the number of CPUs on the computer
+            # minus 2 in case of other possible process is running
+            ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)) - 2, 1)
+
+            # if the ncpus is 1, that means we are running this on our local computer and thus, we will recalculate the
+            # ncpus to the number of cpus on the computer
+            if ncpus == 1:
+                ncpus = cpu_count()
+
+            # when the cpu number is less than 16, we will set the number of usable cpu to that number
+            if ncpus <= 16:
+                cpu_number = ncpus
+
+            # if the cpu number is greater than 16, we will just use 16 cpus to make things simple
+            else:
+                cpu_number = 16
+
+            showMessage(f"number of CPUs is {ncpus} but we will use {cpu_number}")
+
+            # calculate how many domains each cpu will handle
+            # however, if the domain number is less than the cpu number, that is not good since each cpu would not generate
+            # any domains
+            # therefore, since the domain concentration is small, we will set cpu number to 1
+            if cpu_number < domainNum:
+                domainNumEach = int(domainNum / cpu_number)
+            else:
+                cpu_number = 1
+                domainNumEach = int(domainNum / cpu_number)
+
+
+            # if we want neutral charges on the surface, we can define domainNumChar2, otherwise, it will be zero
+            if self.neutral:
+                domainNumChar1 = math.ceil(
+                    domainNumEach * charge_concentration)  # this will have the first charge from the possible_charge list
+                domainNumChar2 = domainNumEach - domainNumChar1  # this will have the second charge from the possible_charge list
+            elif not self.neutral:
+                domainNumChar1 = domainNumEach
+                domainNumChar2 = 0
+
             # we will find 2 numbers that are closest to each other that multiply to the number of CPUs
             # first, find the square root of that number
             squareRoot = math.sqrt(cpu_number)
@@ -193,95 +236,148 @@ class DomainGenerator:
                               and tup[1] < int(surface.width*dividor[j+1][0][1] - restriction)]
                     possiblePointNested.append(points)
 
-            # possiblePointNested = [[tup for tup in possiblePoint if tup[0] < int(surface.length/2) - restriction
-            #                         and tup[1] > int(surface.width/2) + restriction],
-            #                  [tup for tup in possiblePoint if tup[0] > int(surface.length/2) + restriction
-            #                   and tup[1] > int(surface.width/2) + restriction],
-            #                  [tup for tup in possiblePoint if tup[0] < int(surface.length/2) - restriction
-            #                   and tup[1] < int(surface.width/2) - restriction],
-            #                  [tup for tup in possiblePoint if tup[0] > int(surface.length/2) + restriction
-            #                   and tup[1] < int(surface.width/2) - restriction]]
 
-        # for 3D, separate the surface into 4 surfaces
-        # Just simple implement for dynamic simulation, change later
-        if surface.dimension == 3:
-            return newSurface, (0, 0)
-
-
-        # use partial to set all the constant variables
-        _generateDomainMultiprocessingConstant = partial(self._generateDomainMultiprocessing, newSurface=newSurface,
-                                                         domainWidth=domainWidth, domainLength=domainLength,
-                                                         possible_charge=possible_charge, domainNumEach=domainNumEach,
-                                                         generateShape=generateShape, checkEmpty=checkEmpty,
-                                                         domainNumChar1=domainNumChar1, domainNumChar2=domainNumChar2)
-        newSurfaceMPList = []
-        generatedList = []
-        with Pool(cpu_number) as pool:
-            newSurfaceMP_generated = pool.map(_generateDomainMultiprocessingConstant, possiblePointNested)
-            # extract the new surface and the number of generated domains for that surface
-            for i in range(cpu_number):
-                newSurfaceMP = newSurfaceMP_generated[i][0]
-                generated = newSurfaceMP_generated[i][1]
-
-                # append both to a list
-                newSurfaceMPList.append(newSurfaceMP)
-                generatedList.append(generated)
-
-        # now combine the arrays
-        k = 0
-        # this defines the number of columns
-        for i in range(separate[0]):
-            # this defines the number of rows
-            for j in range(separate[1]):
-                newSurface[0, int(surface.width*dividor[j][0][1]):int(surface.width*dividor[j+1][0][1]),
-                int(surface.length*dividor[0][i][0]):int(surface.length*dividor[0][i+1][0])] = \
-                    newSurfaceMPList[k][0, int(surface.width*dividor[j][0][1]):int(surface.width*dividor[j+1][0][1]),
-                int(surface.length*dividor[0][i][0]):int(surface.length*dividor[0][i+1][0])]
-                k += 1
-
-        # # need to think of a better way to combine the arrays, but this method works for now
-        # # to combine the arrays, we will replace the specified section of the array with the developed domains
-        # newSurface[0,int(surface.width/2):, :int(surface.length/2+1)] = newSurfaceMPList[0][0, int(surface.width/2):, :int(surface.length/2+1)]
-        # newSurface[0,int(surface.width/2):, int(surface.length/2):] = newSurfaceMPList[1][0, int(surface.width/2):, int(surface.length/2):]
-        # newSurface[0,:int(surface.width/2+1), :int(surface.length/2+1)] = newSurfaceMPList[2][0, :int(surface.width/2+1), :int(surface.length/2+1)]
-        # newSurface[0,:int(surface.width/2+1), int(surface.length/2):] = newSurfaceMPList[3][0, :int(surface.width/2+1), int(surface.length/2):]
-
-        # current number of domains that have been generated
-        # showMessage(generatedList)
-        currentdomainNum = sum(generatedList)
-        if domainNum > currentdomainNum:
-            domainRemaining = domainNum - currentdomainNum
-            if self.neutral:
-                domainNumChar1 = math.ceil(domainRemaining * charge_concentration)  # this will have the first charge from the possible_charge list
-                domainNumChar2 = domainRemaining - domainNumChar1  # this will have the second charge from the possible_charge list
-            elif not self.neutral:
-                domainNumChar1 = domainRemaining
-                domainNumChar2 = 0
+            # use partial to set all the constant variables
             _generateDomainMultiprocessingConstant = partial(self._generateDomainMultiprocessing, newSurface=newSurface,
                                                              domainWidth=domainWidth, domainLength=domainLength,
-                                                             possible_charge=possible_charge,
-                                                             domainNumEach=domainRemaining,
+                                                             possible_charge=possible_charge, domainNumEach=domainNumEach,
                                                              generateShape=generateShape, checkEmpty=checkEmpty,
-                                                             domainNumChar1=domainNumChar1,
-                                                             domainNumChar2=domainNumChar2)
-            [newSurface, generated] = _generateDomainMultiprocessingConstant(possiblePoint)
-            generatedList.append(generated)
+                                                             domainNumChar1=domainNumChar1, domainNumChar2=domainNumChar2)
+            newSurfaceMPList = []
+            generatedList = []
+            with Pool(cpu_number) as pool:
+                newSurfaceMP_generated = pool.map(_generateDomainMultiprocessingConstant, possiblePointNested)
+                # extract the new surface and the number of generated domains for that surface
+                for i in range(cpu_number):
+                    newSurfaceMP = newSurfaceMP_generated[i][0]
+                    generated = newSurfaceMP_generated[i][1]
 
-        # if the total domain number is less than current domain number, we generated too much and there is an error
-        # in the code
-        elif domainNum < currentdomainNum:
-            raise RuntimeError("Generated too many domains during multiprocessing")
+                    # append both to a list
+                    newSurfaceMPList.append(newSurfaceMP)
+                    generatedList.append(generated)
 
-        # determine the number of actual number of domains that generated onto the surface
-        actualDomainNum = sum(generatedList)
+            # now combine the arrays
+            k = 0
+            # this defines the number of columns
+            for i in range(separate[0]):
+                # this defines the number of rows
+                for j in range(separate[1]):
+                    newSurface[0, int(surface.width*dividor[j][0][1]):int(surface.width*dividor[j+1][0][1]),
+                    int(surface.length*dividor[0][i][0]):int(surface.length*dividor[0][i+1][0])] = \
+                        newSurfaceMPList[k][0, int(surface.width*dividor[j][0][1]):int(surface.width*dividor[j+1][0][1]),
+                    int(surface.length*dividor[0][i][0]):int(surface.length*dividor[0][i+1][0])]
+                    k += 1
 
-        # if the intended domain number is not equal to the actual domain number, there is something wrong in the code
-        # if domainNum != actualDomainNum:
-        #     raise RuntimeError("Actual domain number does not equal the intended number of domains")
+            # current number of domains that have been generated
+            currentdomainNum = sum(generatedList)
 
-        # now, we will determine where
-        concentration_charge = (len(np.where(newSurface == possible_charge[0])[0])) / (surface.length * surface.width)
-        concentration_neutral = (len(np.where(newSurface == possible_charge[1])[0])) / (surface.length * surface.width)
+            # if the total number of domains does not equal the current number of domains, we will continue generating
+            # domains until the total domain number equals the required number of domains on the surface
+            if domainNum > currentdomainNum:
+                domainRemaining = domainNum - currentdomainNum
+                if self.neutral:
+                    domainNumChar1 = math.ceil(
+                        domainRemaining * charge_concentration)  # this will have the first charge from the possible_charge list
+                    domainNumChar2 = domainRemaining - domainNumChar1  # this will have the second charge from the possible_charge list
+                elif not self.neutral:
+                    domainNumChar1 = domainRemaining
+                    domainNumChar2 = 0
+                _generateDomainMultiprocessingConstant = partial(self._generateDomainMultiprocessing,
+                                                                 newSurface=newSurface,
+                                                                 domainWidth=domainWidth, domainLength=domainLength,
+                                                                 possible_charge=possible_charge,
+                                                                 domainNumEach=domainRemaining,
+                                                                 generateShape=generateShape, checkEmpty=checkEmpty,
+                                                                 domainNumChar1=domainNumChar1,
+                                                                 domainNumChar2=domainNumChar2)
+                [newSurface, generated] = _generateDomainMultiprocessingConstant(possiblePoint)
+                generatedList.append(generated)
+
+        # if the surface is a bacteria 2d, we don't need multiprocessing since bacterias are small
+        elif surface.height == 3:
+            # determine how many neutral or charged domains for the surface
+            if self.neutral:
+                domainNumChar1 = math.ceil(domainNum * charge_concentration)  # this will have the first charge from the possible_charge list
+                domainNumChar2 = domainNum - domainNumChar1  # this will have the second charge from the possible_charge list
+            elif not self.neutral:
+                domainNumChar1 = domainNum
+                domainNumChar2 = 0
+
+
+            newSurfaceGenerated = self._generateDomainMultiprocessing(possiblePoint=possiblePoint,
+                                                                      newSurface=newSurface,
+                                                                      domainWidth=domainWidth,
+                                                                      domainLength=domainLength,
+                                                                      possible_charge=possible_charge,
+                                                                      domainNumEach=domainNum,
+                                                                      generateShape=generateShape,
+                                                                      checkEmpty=checkEmpty,
+                                                                      domainNumChar1=domainNumChar1,
+                                                                      domainNumChar2=domainNumChar2)
+            newSurface = newSurfaceGenerated[0]
+
+        # if the surface is a bacteria 3d, we don't need multiprocessing since bacterias are small
+        elif surface.height >= 4:
+            # separate the coordinates to their respective planes
+            possiblePointSide = self._allPoints(surface, possiblePoint)
+
+            # calculate the total number of domains necessairy for both neutral and charge
+            # this will dictate the number of neutral and
+            if self.neutral:
+                domainNumChar1Tot = math.ceil(sum(domainNum) * charge_concentration)  # this will have the first charge from the possible_charge list
+                domainNumChar2Tot = sum(domainNum) - domainNumChar1Tot  # this will have the second charge from the possible_charge list
+            elif not self.neutral:
+                domainNumChar1Tot = sum(domainNum)
+                domainNumChar2Tot = 0
+
+            # initialize the total number of domains for each charge generated
+            domainNumCharTot = [0,0]
+
+            # now generate the domains on each side of the bacteria
+            for i in range(len(possiblePointSide)):
+                # determine how many neutral or charged domains for the surface
+                if self.neutral:
+                    domainNumChar1 = math.ceil(
+                        domainNum[i] * charge_concentration)  # this will have the first charge from the possible_charge list
+                    domainNumChar2 = domainNum[i] - domainNumChar1  # this will have the second charge from the possible_charge list
+
+                elif not self.neutral:
+                    domainNumChar1 = domainNum[i]
+                    domainNumChar2 = 0
+
+                # append to domainNumCharTot
+                domainNumCharTot[0] += domainNumChar1
+                domainNumCharTot[1] += domainNumChar2
+                # if the total number of domains for either charge exceeds, we will set the first domainNumChar
+                if domainNumCharTot[0] > domainNumChar1Tot:
+                    # convert one domain from charge 1 to charge 2
+                    domainNumChar1 -= 1
+                    domainNumCharTot[0] -= 1
+                    domainNumChar2 += 1
+                    domainNumCharTot[1] += 1
+
+                if domainNumCharTot[1] > domainNumChar2Tot:
+                    # convert one domain from charge 2 to charge 1
+                    domainNumChar2 -= 1
+                    domainNumCharTot[1] -= 1
+                    domainNumChar1 += 1
+                    domainNumCharTot[0] += 1
+
+                # generate the domains onto the surface
+                newSurfaceGenerated = self._generateDomainMultiprocessing(possiblePoint=possiblePointSide[i], newSurface=newSurface,
+                                                                 domainWidth=domainWidth, domainLength=domainLength,
+                                                                 possible_charge=possible_charge, domainNumEach=domainNum[i],
+                                                                 generateShape=generateShape, checkEmpty=checkEmpty,
+                                                                 domainNumChar1=domainNumChar1, domainNumChar2=domainNumChar2)
+                newSurface = newSurfaceGenerated[0]
+
+        # now, we will determine the actual concentration of charged and neutral
+        totalSize = len(np.where(newSurface!=2)[0])
+        concentration_charge = (len(np.where(newSurface == possible_charge[0])[0])) / totalSize
+        concentration_neutral = (len(np.where(newSurface == possible_charge[1])[0])) / totalSize
+
+        showMessage(f"concentration_charge is {concentration_charge}")
+        showMessage(f"concentration_neutral is {concentration_neutral}")
 
         endTime = time.time()
         totalTime = endTime - startTime
@@ -306,6 +402,9 @@ class DomainGenerator:
 
         # initialize generated
         generated = 0
+
+        'if running on the computer, uncomment time.sleep to not make computer laggy (optional)'
+        # time.sleep(1)
 
         # start to generate the domain on surface
         # to generate the domains on the surface, we will be using multiprocessing to take advantage of all 4 CPUS
@@ -347,6 +446,47 @@ class DomainGenerator:
         # combine the new surface and total number of domains generated into a list
         surface_generated = [newSurface, generated]
         return surface_generated
+
+    def _allPoints(self, surface: Surface, possiblePoint: List[Tuple[int,int,int]]) -> List[int]:
+        """
+        This function calculates all points on the surface on each plane
+        _allPoints -> [x0, x1, y0, y1, z0, z1]
+        """
+        # define all possible location
+        # initialize all lists
+        possiblePointx0 = []
+        possiblePointx1 = []
+        possiblePointy0 = []
+        possiblePointy1 = []
+        possiblePointz0 = []
+        possiblePointz1 = []
+
+        # traverse through all points and add each point to 1 of the 6 lists depending on their location
+        for tup in possiblePoint:
+            # x0
+            if tup[0] == 0:
+                possiblePointx0.append(tup)
+            # x1
+            elif tup[0] == int(surface.length - 1):
+                possiblePointx1.append(tup)
+            # y0
+            elif tup[1] == 0:
+                possiblePointy0.append(tup)
+            # y1
+            elif tup[1] == int(surface.width - 1):
+                possiblePointy1.append(tup)
+            # z0
+            elif tup[2] == 0:
+                possiblePointz0.append(tup)
+            # z1
+            elif tup[2] == int(surface.height - 1):
+                possiblePointz1.append(tup)
+
+        # combine the 6 lists into 1 nested list
+        possiblePointSide = [possiblePointx0, possiblePointx1, possiblePointy0, possiblePointy1, possiblePointz0,
+                             possiblePointz1]
+
+        return possiblePointSide
 
     def _allPossiblePoint(self, newSurface: ndarray, surface: Surface, surfaceLength: int, surfaceWidth: int, surfaceHeight: int,
                           domainLength: int, domainWidth: int, shape: str) -> List[Tuple[int, int, int]]:
@@ -827,12 +967,7 @@ class DomainGenerator:
         # return the coordinate
         coordinate = possiblePoint[index]
         # remove the chosen coordinate from all possiblepoints
-        try:
-            possiblePoint.pop(index)
-        except AttributeError:
-            print(len(possiblePoint))
-
-        # writeLog("Point picked is: {}".format(coordinate))
+        possiblePoint.pop(index)
 
         # return the result as tuple
         return coordinate, possiblePoint
@@ -843,7 +978,6 @@ class DomainGenerator:
         NOTE: the function takes in point differently than other functions
         point = Tuple[z,y,x]
         nearestPoint = Tuple[z,y,x]
-        charge = charge of domain
         """
 
         # for a 2D surface, return the point since we don't need to traverse through the z-axis
