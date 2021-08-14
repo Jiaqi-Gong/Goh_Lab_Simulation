@@ -4,10 +4,14 @@ Simulation: Only can be 1 or 2 or 3 for now \n1 for one surface react with one b
 Trail: Trail number must be a positive int number : trail > "0"
 Dimension: Dimension only can be 2 or 3 : dimension=="2" or dimension=="3"
 Seed: Positive number: seed > "0"
-SurfaceShape: Only can be rectangle for now: shape.upper() in ["RECTANGLE"]
+SurfaceShape: Only can be rectangle for now in 2D \nRectangle/Cuboid, Sphere, Cylinder, Rod in 3D: shape.upper() in ["RECTANGLE", "CUBOID", "SPHERE", "CYLINDER", "ROD"]
 DomainShape: Only can be single, cross, circle, diamond, octagon : shape.upper() in ["SINGLE", "CROSS", "CIRCLE", "DIAMOND", "OCTAGON"]
 Diamond: Length and width of the diamond should be same : length==width
 Rectangle: No restrictions : True
+Cuboid: No restrictions : True
+Sphere: No restrictions : True
+Cylinder: No restrictions : True
+Rod: No restrictions : True
 Cross: No restrictions : True
 Octagon: Length and width of the octagon must be the same : length==width
 Single: No restrictions : True
