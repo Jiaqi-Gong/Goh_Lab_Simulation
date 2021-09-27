@@ -1,5 +1,6 @@
 """
-This is energy scan simulator
+This program:
+- Runs the energy scan simulator.
 """
 from datetime import datetime
 from typing import Tuple, Union, List, Dict

@@ -1,6 +1,7 @@
 """
-This program is generating the domain with some charge on it
-Can be used for 2D, 3D and for testing surface, bacteria surface
+This program:
+- Generates a domain with charge (positive/negative/neutral)
+- Can be used for 2D/3D, or for testing surface & bacteria surface
 """
 from numpy import ndarray
 import numpy as np

@@ -1,17 +1,14 @@
 """
-This program is used to:
-- Generate 2D and 3D bacteria
-- Generate the bacteria's surface
+This program:
+- Sets the bacteria's dimension (2D or 3D)
+- Generates the bacteria's surface & shape
 """
 import abc
 from abc import ABC
 from typing import Tuple, Union
 from ExternalIO import showMessage, writeLog
-
-
 import numpy as np
 from numpy import ndarray
-
 from SurfaceGenerator.Surface import Surface
 
 
