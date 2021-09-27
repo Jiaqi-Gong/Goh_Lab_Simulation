@@ -1,5 +1,7 @@
 """
-This file contains several function to generate next move of bacteria
+This programs:
+- Generates the movement of bacterium.
+- Calculates stick/unstick probability.
 """
 from typing import Tuple, Union
 
@@ -8,12 +10,12 @@ import math
 from fractions import Fraction
 
 
-# define an abstract class which will be used for the 2D and 3D bacteria class to inherit
+# Defines an abstract class which will be used for the 2D and 3D bacteria class to inherit
 class BacteriaMovementGenerator:
     """
-    This class is a generator generate next move of bacteria
+    This class generates the bacterium's next movement
     """
-    # Type declaration
+    # Declares Types
     z_restriction: int
     seed: int
     shape: str
@@ -23,7 +25,7 @@ class BacteriaMovementGenerator:
     def __init__(self, z_restriction: int, seed: int, bacteriaShape: str, filmSize: Tuple[int, int, int],
                  bacteriaSize: Tuple[int, int, int]):
         """
-        The size of film and bacteria pass in is in format [length, width, height]
+        The size of the film/bacteria pass is in the format [length, width, height]
         """
         self.z_restriction = z_restriction
         self.seed = seed
@@ -31,7 +33,7 @@ class BacteriaMovementGenerator:
         self.filmSize = filmSize
         self.bacteriaSize = bacteriaSize
 
-        # set seed for random
+        # Sets a random seed
         np.random.seed(self.seed)
 
     # try with number 0.1 ... first then poisson
@@ -39,7 +41,7 @@ class BacteriaMovementGenerator:
     def _simple(self, probability: float) -> bool:
         # check does probability set
         if probability is None:
-            raise RuntimeError("Probability is not given")
+            raise RuntimeError("The Probability variable has not been set.")
 
         stick = np.random.choice([1, 0], 1, p=[probability, 1 - probability])
 
@@ -48,17 +50,18 @@ class BacteriaMovementGenerator:
     def _poisson(self, Lambda: float) -> bool:
         # Consider change to binomial
         """
-        This function uses Poisson distribution to decide stuck or not
-        return True for stuck
-        :param: Lambda -> average number of events sticking
-        """
+        This function uses a Poisson distribution to decide if the bacterium becomes stuck or not
+            True = Stuck
+            False = Does not become stuck
 
-        # lambda will depend on condition of surface and bacteria -> user will probably have to calculate it or take
-        # a guess. Could also write a code to calculate this?
+        The parameter Lambda -> average number of sticking events (how many bacterium become stuck)
+            This depends on the condition of the surface and bacterium.
+            Currently needs to be calculated manually; Could implement automatic calculation in code.
+        """
 
         # check does Lambda set
         if Lambda is None:
-            raise RuntimeError("Lambda is not given")
+            raise RuntimeError("The Lambda variable has not been set.")
 
         # since we want to determine the probability for sticking on the surface once, the random variable X will be 1
         X = 1
@@ -72,12 +75,12 @@ class BacteriaMovementGenerator:
 
     def _boltzmann(self, temperature: float, energy: float) -> bool:
         """
-        This function uses Boltzmann distribution to decide stuck or not
-        return True for stuck
+        This function uses a Boltzmann distribution to decide if the bacterium becomes stuck or not
+            True = Stuck
+            False = Does not become stuck
         """
-        # energy
 
-        # Look at the boltzmann distribution first and decide how to relate it to the probability of bacteria stuck
+        # Look at the Boltzmann distribution first and decide how to relate it to the probability of bacteria stuck
         # or not
 
         # values needed: Temperature, Energy,
