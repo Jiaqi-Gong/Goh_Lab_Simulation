@@ -1,5 +1,7 @@
 """
-This program is used to save the FilmFile and manage all films
+This program:
+- Saves the FilmFile.
+- Manages all films.
 """
 from typing import Tuple, Union
 
@@ -75,14 +77,14 @@ class FilmManager:
 
     def _generate2DFilm(self, domainGenerator: DomainGenerator) -> None:
         """
-        Generate 2D film
+        Generates 2D film
         """
-        showMessage("Generate 2D film")
+        showMessage("Generating 2D film...")
         # generate 2D Film Surface
         film = FilmSurface2D(self.trail, self.filmSurfaceShape, self.filmSurfaceSize, self.filmSurfaceCharge,
                              domainGenerator.seed)
 
-        showMessage("Generate 2D film with domain")
+        showMessage("Generating 2D film with domain...")
         film.surfaceWithDomain, film.realDomainConc = domainGenerator.generateDomain(film, self.filmDomainShape,
                                                                                      self.filmDomainSize,
                                                                                      self.filmDomainConcentration,
@@ -92,19 +94,19 @@ class FilmManager:
         self.film.append(film)
 
         # write into log
-        showMessage("2D film generate done")
+        showMessage("2D film generation: Complete.")
         writeLog(self.film)
 
     def _generate3DFilm(self, domainGenerator: DomainGenerator) -> None:
         """
-        Generate 3D film
+        Generates 3D film
         """
-        showMessage("Generate 3D film")
+        showMessage("Generating 3D film...")
         # generate 3D Film Surface
         film = FilmSurface3D(self.trail, self.filmSurfaceShape, self.filmSurfaceSize, self.filmSurfaceCharge,
                              domainGenerator.seed)
 
-        showMessage("Generate 3D film with domain")
+        showMessage("Generating 3D film with domain...")
         film.surfaceWithDomain, film.realDomainConc = domainGenerator.generateDomain(film, self.filmDomainShape,
                                                                                      self.filmDomainSize,
                                                                                      self.filmDomainConcentration,
@@ -114,5 +116,5 @@ class FilmManager:
         self.film.append(film)
 
         # write into log
-        showMessage("3D film generate done")
+        showMessage("3D film generation: Complete.")
         writeLog(self.film)

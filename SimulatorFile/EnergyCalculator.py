@@ -1,5 +1,6 @@
 """
-This file contains method to calculate the energy of the surface
+This program:
+- Calculates the energy of the surface
 """
 from copy import deepcopy
 from functools import partial

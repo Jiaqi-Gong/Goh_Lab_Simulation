@@ -1,7 +1,7 @@
 """
 This programs:
-- Generates the movement of bacterium.
-- Calculates stick/unstick probability.
+- Generates the movement of bacterium
+- Calculates stick/unstick probability
 """
 from typing import Tuple, Union
 
@@ -52,7 +52,6 @@ class BacteriaMovementGenerator:
         """
         This function uses a Poisson distribution to decide if the bacterium becomes stuck or not
             True = Stuck
-            False = Does not become stuck
 
         The parameter Lambda -> average number of sticking events (how many bacterium become stuck)
             This depends on the condition of the surface and bacterium.
@@ -77,7 +76,6 @@ class BacteriaMovementGenerator:
         """
         This function uses a Boltzmann distribution to decide if the bacterium becomes stuck or not
             True = Stuck
-            False = Does not become stuck
         """
 
         # Look at the Boltzmann distribution first and decide how to relate it to the probability of bacteria stuck
@@ -85,7 +83,7 @@ class BacteriaMovementGenerator:
 
         # values needed: Temperature, Energy,
         if temperature is None or energy is None:
-            raise RuntimeError("Temperature or energy is not set")
+            raise RuntimeError("The Temperature or Energy variable has not been set.")
 
         raise NotImplementedError
 
@@ -119,7 +117,7 @@ class BacteriaMovementGenerator:
             z_possibility = range(int(0 + self.bacteriaSize[2] / 2),
                                   int(self.z_restriction - self.bacteriaSize[2] / 2))
         else:
-            raise RuntimeError("Unknown bacteria shape")
+            raise RuntimeError("Unknown bacteria shape.")
 
         # choose a random coordinate for the bacteria to start its position in
         x = np.random.choice(x_possibility, 1, replace=False)
@@ -133,8 +131,8 @@ class BacteriaMovementGenerator:
             -> Union[bool, Tuple[int, int, int]]:
         """
         This function take in probability type, position
-        return False if this bacteria is stuck
-        return a tuple contain new position if not stuck
+            False = stuck
+            Return a tuple containing the new position = not stuck
         """
 
         # call appropriate probability function to decide stuck or not
@@ -145,7 +143,7 @@ class BacteriaMovementGenerator:
         elif probabilityType == "BOLTZMANN":
             result = self._boltzmann(temperature, energy)
         else:
-            raise RuntimeError("Unknown probability type")
+            raise RuntimeError("Unknown probability type.")
 
         # check stuck or not
         # if stuck, result == 1, return false
@@ -156,15 +154,15 @@ class BacteriaMovementGenerator:
 
     def unstuckBacteria(self, probabilityType: str, probability: float) -> bool:
         """
-        This function is used to decide stuck bacteria free or not
-        If free, return True
+        This function decides if a stuck bacteria unsticks.
+            True = unstuck (no longer stuck)
         """
 
         # call appropriate probability function to decide free or not
         if probabilityType == "SIMPLE":
             result = self._simple(probability)
         else:
-            raise RuntimeError("Unknown probability type")
+            raise RuntimeError("Unknown probability type.")
 
         # check free or not
         # if free, result == 1, return True
@@ -178,7 +176,7 @@ class BacteriaMovementGenerator:
     def _nextPositionHelper(self, position: Tuple[int, int, int]) -> Tuple[int, int, int]:
         """
         This function return new position for 3D bacteria (next position is based on random movement of bacteria)
-        position points at the center of the bacteria
+        The position points at the center of the bacteri
         """
         # since we want the movement of the bacteria to be biased to move forward
         # probability to move forward

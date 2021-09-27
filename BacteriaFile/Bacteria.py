@@ -1,7 +1,7 @@
 """
 This program:
-- Generates the bacteria's dimension.
-- Generates the bacteria's surface.
+- Sets the bacteria's dimension (2D or 3D)
+- Generates the bacteria's surface & shape
 """
 import abc
 from abc import ABC

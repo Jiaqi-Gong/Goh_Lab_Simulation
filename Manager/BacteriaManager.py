@@ -1,5 +1,6 @@
 """
-This program is used to save and manage all bacteria
+This program:
+- Saves and manages all bacteria
 """
 from typing import Tuple, Union
 
@@ -11,7 +12,7 @@ from ExternalIO import showMessage, writeLog
 
 class BacteriaManager:
     """
-    This class saves all bacteria used in this simulation and generate all corresponding film
+    This class saves all bacteria used in this simulation, and generates all corresponding films
     """
 
     # Declare the type of all variable
@@ -37,7 +38,7 @@ class BacteriaManager:
                  bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float,
                  bacteriaDomainChargeConcentration: float, bacteriaNum: int, neutralDomain: bool):
         """
-        Init the film manager, take in the
+        Initializes the film manager
         """
         self.trail = trail
         self.dimension = dimension
@@ -66,12 +67,12 @@ class BacteriaManager:
         self.freeBacteria = self.bacteria
 
         # show message
-        showMessage("Bacteria manager init done")
+        showMessage("Bacteria manager initialization: Complete.")
         # writeLog(self.__dict__)
 
     def generateBacteria(self) -> None:
         """
-        This function generate corresponding bacteria need based on the number wanted
+        This function generates corresponding bacteria need based on the desired dimension.
         """
 
         for i in range(self.bacteriaNum):
@@ -87,18 +88,18 @@ class BacteriaManager:
                 self._generate3DBacteria(bacteriaDomainGenerator)
 
             else:
-                raise RuntimeError("Unknown dimension of bacteria")
+                raise RuntimeError("This is not a valid bacteria dimension.")
 
     def _generate2DBacteria(self, domainGenerator: DomainGenerator) -> None:
         """
-        Generate 2D bacteria
+        Generates 2D bacteria
         """
-        showMessage("Generate 2D bacteria")
+        showMessage("Generating 2D bacteria...")
         # generate 2D bacteria Surface
         bacteria = Bacteria2D(self.trail, self.bacteriaSurfaceShape, self.bacteriaSize, self.bacteriaSurfaceCharge,
                               domainGenerator.seed)
 
-        showMessage("Generate 2D bacteria with domain")
+        showMessage("Generating 2D bacteria with domain...")
         bacteria.surfaceWithDomain, bacteria.realDomainConc = domainGenerator.generateDomain(bacteria,
                                                                                              self.bacteriaDomainShape,
                                                                                              self.bacteriaDomainSize,
@@ -109,14 +110,14 @@ class BacteriaManager:
         self.bacteria.append(bacteria)
 
         # write into log
-        showMessage("2D bacteria generate done")
+        showMessage("2D bacteria generation: Complete.")
         writeLog(self.bacteria)
 
     def _generate3DBacteria(self, domainGenerator: DomainGenerator) -> None:
         """
         Generate 3D bacteria
         """
-        showMessage("Generate 3D bacteria")
+        showMessage("Generating 3D bacteria...")
 
         # depends on the simulator type, generate position for bacteria
         # if self.simulatorType == 1:
@@ -130,7 +131,7 @@ class BacteriaManager:
         bacteria = Bacteria3D(self.trail, self.bacteriaSurfaceShape, self.bacteriaSize, self.bacteriaSurfaceCharge,
                               domainGenerator.seed)
 
-        showMessage("Generate 3D bacteria with domain")
+        showMessage("Generating 3D bacteria with domain...")
         bacteria.surfaceWithDomain, bacteria.realDomainConc = domainGenerator.generateDomain(bacteria, self.bacteriaDomainShape,
                                                                     self.bacteriaDomainSize,
                                                                     self.bacteriaDomainConcentration,
@@ -140,5 +141,5 @@ class BacteriaManager:
         self.bacteria.append(bacteria)
 
         # write into log
-        showMessage("3D bacteria generate done")
+        showMessage("3D bacteria generation: Complete.")
         writeLog(self.bacteria)

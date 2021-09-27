@@ -1,5 +1,5 @@
 """
-This is an abstract file for simulator
+This is an abstract file for Simulator.
 """
 import abc
 from abc import ABC

@@ -1,13 +1,17 @@
 """
-This file is used for generate Graph: number of stuck bacteria at certain time vs total bacteria number
-Get several dynamic result files with same time step and convert it to
-time is independent variable, dependent variable is stuck bacteria number over time
+This file:
+- Generates the graph of "Number of stuck bacteria at certain time VS Total number of bacteria"
+- Gets several dynamic result files with same time step and combines them
+
+* "Time" is an independent variable
+* "Stuck bacteria number over time" is a dependent variable
 """
 
 """
 Procedure for using this:
-1. Put all dynamic result want to combine in a folder called DynamicResult, make sure this folder under same root as this file
-2. Run this file and you can get combined result in the folder DynamicResult.
+1. Put all dynamic results you want to combine in a folder called DynamicResult, 
+2. Make sure this folder is under same root as this file,
+3. Run this file to output your combined results in the folder DynamicResult.
 """
 
 import os
