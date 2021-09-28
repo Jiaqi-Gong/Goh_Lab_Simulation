@@ -1,10 +1,10 @@
 """
 This program is used to run the simulation, but do not check the validity of parameter
 """
+import sys
 import time
 import traceback
 
-import sys
 from SimulatorFile.Dynamic import DynamicSimulator
 from SimulatorFile.EnergyScan import EnergySimulator
 from ExternalIO import *
@@ -22,12 +22,12 @@ def runSimulation():
     showMessage("WARNING: validity of parameter uses is not check, use runSimulationCmd to check the validity of "
                 "parameter uses")
 
-    time.sleep(3)
+    time.sleep(1)
 
     # simulator info
     simulationType = 2
-    trail = 311
-    dimension = 2
+    trail = 999
+    dimension = 3
     simulatorType = 1
     interactType = "DOT"
     # interactType = "CUTOFF"
@@ -35,40 +35,42 @@ def runSimulation():
     # film info
     filmSeed = 1
     if dimension == 2:
-        filmSurfaceSize = (10000, 10000)
+        filmSurfaceSize = (1000, 1000)
     elif dimension == 3:
-        filmSurfaceSize = (800, 800, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
+        filmSurfaceSize = (1000, 1000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
     else:
         raise RuntimeError("Unknown dimension: {}".format(dimension))
     filmSurfaceShape = "rectangle"
     filmNum = 1
-    bacteriaNum = 7
+    bacteriaNum = 5
     interval_x = 10
     interval_y = 10
     filmSurfaceCharge = +1
-    filmDomainSize = (15, 15)
+    filmDomainSize = (6, 6)
     filmDomainShape = "diamond"
-    filmNeutralDomain = False
-    filmDomainCon = 0.1  # if need to change charge ratio, change this
-    filmDomainChargeConcentration = 0.1  # ignore
+    filmNeutralDomain = True
+    filmDomainCon = 0.2  # if need to change charge ratio, change this
+    filmDomainChargeConcentration = 0.5  # ignore
 
     # bacteria info
     bacteriaSeed = 10
     if dimension == 2:
         bacteriaSize = (100, 100)
-        bacteriaSurfaceShape = 'rectangle'
+        bacteriaSurfaceShape = "rectangle"
     elif dimension == 3:
-        bacteriaSize = (100, 100, 100)  # For bacteria, z value is the height of bacteria, can be any number
-        bacteriaSurfaceShape = 'cylinder'
+        bacteriaSize = (100, 100, 5)  # For bacteria, z value is the height of bacteria, can be any number
+        bacteriaSurfaceShape = "cuboid"
     else:
         raise RuntimeError("Unknown dimension: {}".format(dimension))
-    # bacteriaSurfaceShape = "rectangle"
+
     bacteriaSurfaceCharge = -1
-    bacteriaDomainSize = (8, 8)
-    bacteriaDomainShape = "octagon"
-    bacteriaDomainCon = 0.1
-    bacteriaDomainChargeConcentration = 0.1  # ignore
-    bacteriaNeutralDomain = False
+    bacteriaDomainSize = (10, 10)
+    bacteriaDomainShape = "diamond"
+    bacteriaDomainCon = 0.2
+    bacteriaDomainChargeConcentration = 0.5  # ignore
+    bacteriaNeutralDomain = True
+
+    cutoff = 3
 
     # below are for dynamic simulation
     probabilityType = "SIMPLE"
@@ -83,7 +85,7 @@ def runSimulation():
     if simulatorType == 1:
         simulator = EnergySimulator
         # taking info for energy scan simulation
-        parameter = {"interactType": interactType, "simulationType": simulationType, "cutoff": 6}
+        parameter = {"interactType": interactType, "simulationType": simulationType, "cutoff": cutoff}
 
     elif simulatorType == 2:
         simulator = DynamicSimulator

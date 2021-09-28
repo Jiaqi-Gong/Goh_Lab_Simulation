@@ -1,5 +1,6 @@
 """
-This file contains method to calculate the energy of the surface
+This program:
+- Calculates the energy of the surface
 """
 from copy import deepcopy
 from functools import partial
@@ -135,97 +136,6 @@ def interact(interactType: str, intervalX: int, intervalY: int, film: ndarray, b
     showMessage(f"Total time it took for calculating energy is {totalTime} seconds")
 
     return result
-
-
-# def interact3D(interactType: str, intervalX: int, intervalY: int, film: ndarray, bacteria: ndarray, currIter: int,
-#                cutoff: int) -> Tuple[Union[float, int], int, int, Union[float, int], Union[float, int], int, int]:
-#     """
-#     Do the simulation, scan whole film surface with bacteria for 3D
-#     the format of ndarray pass to simulator is in format (z,y,x), when make np.ones(1,2,3)
-#     which means 1 z layer, 2 y layer and 3 x layer.
-#     """
-#     writeLog("This is interact3D in Simulation")
-#     showMessage("Start to interact ......")
-#     # writeLog("intervalX is: {}, intervalY is: {}, film is: {}, bacteria is: {}".format(
-#     #     intervalX, intervalY, film, bacteria))
-#
-#     startTime = time.time()
-#
-#     # show image of whole film and bacteria
-#     visPlot(film, "whole_film_3D_{}".format(currIter), 3)
-#     visPlot(bacteria, "whole_bacteria_3D_{}".format(currIter), 3)
-#
-#     # shape of the film
-#     film_shape = film.shape
-#
-#     # shape of bacteria in 2D
-#     bact_shape = bacteria.shape[1:]
-#
-#     # currently, all film uses will be convert to 2D, in the future may change
-#     film = film[0]
-#
-#     # set the range
-#     range_x = np.arange(0, film_shape[2], intervalX)
-#     range_y = np.arange(0, film_shape[1], intervalY)
-#
-#     writeLog("shape is : {}, range_x is: {}, range_y is: {}".format(film_shape, range_x, range_y))
-#
-#     # using partial to set all the constant variables
-#     _calculateEnergyConstant = partial(_calculateEnergy, cutoff=cutoff, interactType=interactType,
-#                                        bacteriaShape=bact_shape)
-#
-#     # init parameter for multiprocess
-#     # minus 2 in case of other possible process is running
-#     ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)), 1)
-#
-#     # depends on the interact type, using different methods to set paters
-#     # this step is caused by numpy is a parallel package, when doing DOT, using np.dot so need to give some cpu for it
-#
-#     # based on test on Compute Canada beluga server, this method is fastest
-#     part = len(range_x) // int(np.floor(np.sqrt(ncpus)))
-#     processNum = part
-#
-#     showMessage("Process number is: {}, ncpu number is: {}, part is: {}".format(processNum, ncpus, part))
-#
-#     pool = mp.Pool(processes=processNum)
-#
-#     # change the bacteria surface into 1D
-#     bacteria_1D = _trans3DTo1D(bacteria)
-#
-#     # prepare data for multiprocess, data is divided range into various parts, not exceed sqrt of ncpus can use
-#     data = []
-#
-#     # double loop to prepare range x and range y
-#     range_x_list = [range_x[i:i + part] for i in range(0, len(range_x), part)]
-#     range_y_list = [range_y[i:i + part] for i in range(0, len(range_y), part)]
-#
-#     # put combination into data
-#     for x in range_x_list:
-#         for y in range_y_list:
-#             data.append((x, y, deepcopy(film), deepcopy(bacteria_1D)))
-#
-#     # run interact
-#     result = pool.map(_calculateEnergyConstant, data)
-#
-#     # get the minimum result
-#     result.sort()
-#     result = result.pop(0)
-#     result, min_film = result[0], result[1]
-#
-#     writeLog("Result in interact 3D is: {}".format(result))
-#
-#     # print the min_film
-#     visPlot(min_film, "film_at_minimum_{}".format(currIter), 2)
-#
-#     showMessage("Interact done")
-#     writeLog(result)
-#
-#     # record time uses
-#     endTime = time.time()
-#     totalTime = endTime - startTime
-#     showMessage(f"Total time it took for calculating energy is {totalTime} seconds")
-#
-#     return result
 
 
 def _calculateEnergy(data: Tuple[ndarray, ndarray, ndarray, ndarray], interactType: str, bacteriaShape: Tuple,

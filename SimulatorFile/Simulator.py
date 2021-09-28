@@ -1,5 +1,5 @@
 """
-This is an abstract file for simulator
+This is an abstract file for Simulator.
 """
 import abc
 from abc import ABC
@@ -13,6 +13,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 from ExternalIO import writeLog, showMessage
 from Manager.FilmManager import FilmManager
 from Manager.BacteriaManager import BacteriaManager
+
 
 class Simulator(ABC):
     """
@@ -86,14 +87,10 @@ class Simulator(ABC):
         # write to log
         writeLog(self.__dict__)
 
-
         # generate corresponding variable
         self.filmManager.generateFilm()
 
-
         self.bacteriaManager.generateBacteria()
-
-
 
         # write two manager into the log
         writeLog(self.filmManager.__dict__)

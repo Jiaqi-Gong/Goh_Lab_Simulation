@@ -1,5 +1,6 @@
 """
-This is dynamic bacteria movement simulator
+This program:
+- Simulates 3D Dynamic bacteria movement
 """
 from datetime import datetime
 from typing import Tuple, Union, List, Dict
@@ -31,7 +32,7 @@ class DynamicSimulator(Simulator):
         """
         # check film and bacteria type
         if dimension != 3:
-            raise RuntimeError("The film and bacteria dimension should be 3D for dynamic simulation")
+            raise RuntimeError("The film and bacteria dimension should be 3D for dynamic simulation.")
 
         # set some variable
         self.probabilityType = None
@@ -43,7 +44,7 @@ class DynamicSimulator(Simulator):
         if parameters["unstuck"]:
             self.unstuckProbability = None
 
-        # simulation type is not applicable for dynamic simulator
+        # simulation type is not applicable for dynamic simulator for now, maybe in the future this can be use to do sth
         simulationType = -1
 
         # based on type, set parameter
@@ -97,7 +98,7 @@ class DynamicSimulator(Simulator):
         result = [len(self.bacteriaManager.freeBacteria), len(self.bacteriaManager.stuckBacteria)]
         self._output(result, 0, False)
 
-        showMessage("Start simulation in dynamic simulator")
+        showMessage("Beginning Dynamic simulator...")
 
         # do the simulation
         end = False
@@ -116,17 +117,17 @@ class DynamicSimulator(Simulator):
 
         # save the last simulate, if it is not saved in the loop
         if (self.timeStep - 1) % self.dumpStep != 0:
-            self._output(result, currIter, end)
+            self._output(result, self.timeStep - 1, end)
 
-        showMessage("Simulation done")
+        showMessage("Dynamic Simulation: Complete.")
 
     def _initOutput(self) -> Tuple[Workbook, Union[WriteOnlyWorksheet, Worksheet]]:
         """
         This function init the format and content need to out put
         Implement in the super class abstract method
         """
-        writeLog("This is _initOutput in Simulation")
-        showMessage("Init the output")
+        writeLog("This is _initOutput in Dynamic simulator.")
+        showMessage("Initializing Dynamic Simulation output...")
         writeLog(self.__dict__)
 
         # creates excel file
@@ -178,7 +179,7 @@ class DynamicSimulator(Simulator):
         This function generate the info need to output
         Implement in the super class abstract method
         """
-        writeLog("This is _output in dynamic simulator")
+        writeLog("This is _output in Dynamic simulator.")
         writeLog("self is: {}, result is: {}, currIter is: {}, end is: {}".format(
             self.__dict__, result, currIter, end))
 
