@@ -1,0 +1,13 @@
+.DS_Store
+.idea/
+BacteriaFile/__pycache__/
+DynamicResult/
+FilmFile/__pycache__/
+Image/
+Manager/__pycache__/
+Result/
+SimulatorFile/__pycache__/
+SurfaceGenerator/__pycache__/
+__pycache__/
+Log/
+
