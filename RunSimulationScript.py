@@ -25,7 +25,7 @@ def runSimulation():
     time.sleep(1)
 
     # simulator info
-    simulationType = 2
+    simulationType = 1
     trail = 999
     dimension = 2
     simulatorType = 1
@@ -46,9 +46,9 @@ def runSimulation():
     interval_x = 10
     interval_y = 10
     filmSurfaceCharge = +1
-    filmDomainSize = (6, 6)
+    filmDomainSize = (8, 8)
     filmDomainShape = "diamond"
-    filmNeutralDomain = True
+    filmNeutralDomain = False
     filmDomainCon = 0.2  # if need to change charge ratio, change this
     filmDomainChargeConcentration = 0.5  # ignore
 
