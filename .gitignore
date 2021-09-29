@@ -10,4 +10,5 @@ SimulatorFile/__pycache__/
 SurfaceGenerator/__pycache__/
 __pycache__/
 Log/
+.ExternalIO.py.swp
 
