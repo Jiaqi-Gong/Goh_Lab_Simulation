@@ -250,8 +250,8 @@ class DomainGenerator:
                 newSurfaceMP_generated = pool.map(_generateDomainMultiprocessingConstant, possiblePointNested)
                 # extract the new surface and the number of generated domains for that surface
                 for i in range(cpu_number):
-                    # set the seed for random
-                    np.random.seed(self.seed + i)
+                    # # set the seed for random
+                    # np.random.seed(self.seed + i)
                     newSurfaceMP = newSurfaceMP_generated[i][0]
                     generated = newSurfaceMP_generated[i][1]
 
@@ -966,7 +966,7 @@ class DomainGenerator:
         # writeLog("This is _randomPoint in Domain.py")
         # writeLog([self.__dict__, surfaceLength, surfaceWidth, domainLength, domainWidth, shape])
         # choose a random index
-        index = np.random.randint(len(possiblePoint))
+        index = np.random.RandomState().randint(len(possiblePoint))
         # return the coordinate
         coordinate = possiblePoint[index]
         # remove the chosen coordinate from all possiblepoints
