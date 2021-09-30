@@ -185,7 +185,12 @@ class DomainGenerator:
             # any domains
             # therefore, since the domain concentration is small, we will set cpu number to 1
             if cpu_number < domainNum:
-                domainNumEach = int(domainNum / cpu_number)
+                # we will only generate 90% of the domains using multiprocessing
+                # the rest will be generated using regular method to prevent grid like pattern
+
+                # domainNumEach = int(domainNum / cpu_number)
+                domainNumEach = int((domainNum*0.9) / cpu_number)
+
             else:
                 cpu_number = 1
                 domainNumEach = int(domainNum / cpu_number)
