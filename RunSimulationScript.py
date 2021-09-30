@@ -46,9 +46,9 @@ def runSimulation():
     interval_x = 10
     interval_y = 10
     filmSurfaceCharge = +1
-    filmDomainSize = (8, 8)
+    filmDomainSize = (20, 20)
     filmDomainShape = "diamond"
-    filmNeutralDomain = False
+    filmNeutralDomain = True
     filmDomainCon = 0.2  # if need to change charge ratio, change this
     filmDomainChargeConcentration = 0.5  # ignore
 
