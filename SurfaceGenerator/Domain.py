@@ -187,9 +187,7 @@ class DomainGenerator:
             if cpu_number < domainNum:
                 # we will only generate 90% of the domains using multiprocessing
                 # the rest will be generated using regular method to prevent grid like pattern
-
-                # domainNumEach = int(domainNum / cpu_number)
-                domainNumEach = int((domainNum*0.80) / cpu_number)
+                domainNumEach = int((domainNum*0.90) / cpu_number)
 
             else:
                 cpu_number = 1
@@ -255,8 +253,6 @@ class DomainGenerator:
                 newSurfaceMP_generated = pool.map(_generateDomainMultiprocessingConstant, possiblePointNested)
                 # extract the new surface and the number of generated domains for that surface
                 for i in range(cpu_number):
-                    # # set the seed for random
-                    # np.random.seed(self.seed + i)
                     newSurfaceMP = newSurfaceMP_generated[i][0]
                     generated = newSurfaceMP_generated[i][1]
 
@@ -298,7 +294,23 @@ class DomainGenerator:
                                                                  generateShape=generateShape, checkEmpty=checkEmpty,
                                                                  domainNumChar1=domainNumChar1,
                                                                  domainNumChar2=domainNumChar2)
-                [newSurface, generated] = _generateDomainMultiprocessingConstant(possiblePoint)
+
+                # now change the only possible positions to be only located on the boundaries when multiprocessing
+                # if the cpu number is only 1, then the rest of the points will be carried out with all the possible points
+                if cpu_number == 1:
+                    pointRest = possiblePoint
+                # if the cpu number is greater than 1, the rest of the points will be on the boundaries
+                else:
+                    # don't need the first and last numbers from the list
+                    boundary = [[i/separate[0] for i in range(1, separate[0])], [i/separate[1] for i in range(1, separate[1])]]
+                    # now determine which positions were rejected during multiprocessing
+                    pointRest = [tup for tup in possiblePoint for i in range(len(boundary[0])) for j in range(len(boundary[1]))
+                                 if (tup[0] > surface.length*boundary[0][i] - restriction
+                                 and tup[0] < surface.length*boundary[0][i] + restriction)
+                                 or (tup[1] > surface.width*boundary[0][j] - restriction
+                                 and tup[1] < surface.width*boundary[0][j] + restriction)]
+
+                [newSurface, generated] = _generateDomainMultiprocessingConstant(pointRest)
                 generatedList.append(generated)
 
         # if the surface is a bacteria 2d, we don't need multiprocessing since bacterias are small
