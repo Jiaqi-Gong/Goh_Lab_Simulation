@@ -189,7 +189,7 @@ class DomainGenerator:
                 # the rest will be generated using regular method to prevent grid like pattern
 
                 # domainNumEach = int(domainNum / cpu_number)
-                domainNumEach = int((domainNum*0.80) / cpu_number)
+                domainNumEach = int((domainNum*0.90) / cpu_number)
 
             else:
                 cpu_number = 1
