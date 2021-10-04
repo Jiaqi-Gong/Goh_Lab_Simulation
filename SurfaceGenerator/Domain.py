@@ -206,12 +206,11 @@ class DomainGenerator:
                          or (tup[1] > surface.width * boundary[0][j] - restriction
                              and tup[1] < surface.width * boundary[0][j] + restriction)]
 
+            # remove duplicates
+            pointsNotCovered = list(dict.fromkeys(pointsNotCovered))
+
             # determine ratio which will be used to calculate number of domains that will be generated using multiprocessing
-            ratio = 1 - len([tup for tup in possiblePoint for i in range(len(boundary[0])) for j in range(len(boundary[1]))
-                         if (tup[0] > surface.length * boundary[0][i]
-                             and tup[0] < surface.length * boundary[0][i])
-                         or (tup[1] > surface.width * boundary[0][j]
-                             and tup[1] < surface.width * boundary[0][j])])/int(surface.length*surface.width)
+            ratio = 1 - len(pointsNotCovered)/int(surface.length*surface.width)
 
             showMessage(ratio)
 
