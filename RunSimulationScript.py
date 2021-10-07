@@ -12,8 +12,8 @@ from ExternalIO import *
 
 def runSimulation():
     # get log file
-    write_at_end = True
-    write_log = True
+    write_at_end = False
+    write_log = False
     generate_image = True
 
     message = setIndicator(generate_image, write_log, write_at_end)
@@ -25,9 +25,9 @@ def runSimulation():
     time.sleep(1)
 
     # simulator info
-    simulationType = 2
+    simulationType = 1
     trail = 999
-    dimension = 3
+    dimension = 2
     simulatorType = 1
     interactType = "DOT"
     # interactType = "CUTOFF"
@@ -35,7 +35,7 @@ def runSimulation():
     # film info
     filmSeed = 1
     if dimension == 2:
-        filmSurfaceSize = (1000, 1000)
+        filmSurfaceSize = (10000, 10000)
     elif dimension == 3:
         filmSurfaceSize = (1000, 1000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
     else:
