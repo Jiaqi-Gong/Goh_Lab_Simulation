@@ -544,3 +544,11 @@ def importSurface(filepath: str) -> List[List, ndarray]:
 
     # should be implement here, but not done for now
     raise NotImplementedError
+
+
+def saveSurface(info: List) -> None:
+    """
+    Thin function save passed in surface to a file
+    """
+
+    raise NotImplementedError

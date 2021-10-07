@@ -47,7 +47,6 @@ def runSimulation():
             raise RuntimeError("Unknown dimension: {}".format(dimension))
         filmSurfaceShape = "rectangle"
         filmNum = 1
-        bacteriaNum = 5
         filmSurfaceCharge = +1
         filmDomainSize = (6, 6)
         filmDomainShape = "diamond"
@@ -55,7 +54,7 @@ def runSimulation():
         filmDomainCon = 0.2  # if need to change charge ratio, change this
         filmDomainChargeConcentration = 0.5  # ignore
     else:
-        filmSeed, filmSurfaceSize, filmSurfaceShape, filmNum, bacteriaNum, filmSurfaceCharge, filmDomainSize, \
+        filmSeed, filmSurfaceSize, filmSurfaceShape, filmNum, filmSurfaceCharge, filmDomainSize, \
         filmDomainShape, filmNeutralDomain, filmDomainCon, filmDomainChargeConcentration, preparedSurface = \
             importSurface(importSurfacePath)
 
@@ -64,6 +63,7 @@ def runSimulation():
 
     # bacteria info
     bacteriaSeed = 10
+    bacteriaNum = 5
     if dimension == 2:
         bacteriaSize = (100, 100)
         bacteriaSurfaceShape = "rectangle"

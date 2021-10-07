@@ -8,7 +8,7 @@ from typing import Tuple, Union
 from numpy import ndarray
 
 from SurfaceGenerator.Domain import DomainGenerator
-from ExternalIO import showMessage, writeLog
+from ExternalIO import showMessage, writeLog, saveSurface
 from FilmFile.Film import FilmSurface2D, FilmSurface3D
 
 
@@ -33,7 +33,8 @@ class FilmManager:
     def __init__(self, trail: int, dimension: int,
                  filmSeed: int, filmSurfaceSize: Union[Tuple[int, int], Tuple[int, int, int]], filmSurfaceShape: str,
                  filmSurfaceCharge: int, filmDomainSize: Tuple[int, int], filmDomainShape: str,
-                 filmDomainConcentration: float, filmDomainChargeConcentration: float, filmNum: int, neutralDomain: bool):
+                 filmDomainConcentration: float, filmDomainChargeConcentration: float, filmNum: int,
+                 neutralDomain: bool):
         """
         Init the film manager, take in the
         """
@@ -76,6 +77,13 @@ class FilmManager:
                 self._generate3DFilm(filmDomainGenerator)
             else:
                 raise RuntimeError("Unknown dimension in film manager")
+
+            # save this surface
+            info = [self.filmSeed, self.filmSurfaceSize, self.filmSurfaceShape, self.filmNum, self.filmSurfaceCharge,
+                    self.filmDomainSize, self.filmDomainShape, self.neutralDomain, self.filmDomainConcentration,
+                    self.filmDomainChargeConcentration, self.film[-1]]
+
+            saveSurface(info)
 
     def _generate2DFilm(self, domainGenerator: DomainGenerator) -> None:
         """
@@ -127,4 +135,3 @@ class FilmManager:
         :param surface: a pre-generated surface structure
         """
         self.film.append(surface)
-
