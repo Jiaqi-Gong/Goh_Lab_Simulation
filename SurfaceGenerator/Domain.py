@@ -267,12 +267,12 @@ class DomainGenerator:
                 ncpus = cpu_count()
 
             # when the cpu number is less than 16, we will set the number of usable cpu to that number
-            if ncpus <= 16:
+            if ncpus <= 25:
                 cpu_number = ncpus
 
             # if the cpu number is greater than 16, we will just use 16 cpus to make things simple
             else:
-                cpu_number = 16
+                cpu_number = 25
 
             showMessage(f"number of CPUs is {ncpus} but we will use {cpu_number}")
 
