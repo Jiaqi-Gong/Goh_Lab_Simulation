@@ -24,6 +24,10 @@ def runSimulation():
 
     time.sleep(1)
 
+    # read in prepared surface
+    importSurfacePath = None
+    preparedSurface = None
+
     # simulator info
     simulationType = 1
     trail = 999
@@ -32,25 +36,31 @@ def runSimulation():
     interactType = "DOT"
     # interactType = "CUTOFF"
 
-    # film info
-    filmSeed = 1
-    if dimension == 2:
-        filmSurfaceSize = (10000, 10000)
-    elif dimension == 3:
-        filmSurfaceSize = (1000, 1000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
+    if importSurfacePath is None:
+        # film info
+        filmSeed = 1
+        if dimension == 2:
+            filmSurfaceSize = (10000, 10000)
+        elif dimension == 3:
+            filmSurfaceSize = (1000, 1000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
+        else:
+            raise RuntimeError("Unknown dimension: {}".format(dimension))
+        filmSurfaceShape = "rectangle"
+        filmNum = 1
+        bacteriaNum = 5
+        filmSurfaceCharge = +1
+        filmDomainSize = (6, 6)
+        filmDomainShape = "diamond"
+        filmNeutralDomain = True
+        filmDomainCon = 0.2  # if need to change charge ratio, change this
+        filmDomainChargeConcentration = 0.5  # ignore
     else:
-        raise RuntimeError("Unknown dimension: {}".format(dimension))
-    filmSurfaceShape = "rectangle"
-    filmNum = 1
-    bacteriaNum = 5
+        filmSeed, filmSurfaceSize, filmSurfaceShape, filmNum, bacteriaNum, filmSurfaceCharge, filmDomainSize, \
+        filmDomainShape, filmNeutralDomain, filmDomainCon, filmDomainChargeConcentration, preparedSurface = \
+            importSurface(importSurfacePath)
+
     interval_x = 10
     interval_y = 10
-    filmSurfaceCharge = +1
-    filmDomainSize = (6, 6)
-    filmDomainShape = "diamond"
-    filmNeutralDomain = True
-    filmDomainCon = 0.2  # if need to change charge ratio, change this
-    filmDomainChargeConcentration = 0.5  # ignore
 
     # bacteria info
     bacteriaSeed = 10
@@ -109,7 +119,8 @@ def runSimulation():
                     filmDomainSize, filmDomainShape, filmDomainCon, filmDomainChargeConcentration,
                     bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
                     bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, bacteriaDomainChargeConcentration,
-                    filmNum, bacteriaNum, interval_x, interval_y, filmNeutralDomain, bacteriaNeutralDomain, parameter)
+                    filmNum, bacteriaNum, interval_x, interval_y, filmNeutralDomain, bacteriaNeutralDomain, parameter,
+                        preparedSurface)
 
         sim.runSimulate()
         closeLog()

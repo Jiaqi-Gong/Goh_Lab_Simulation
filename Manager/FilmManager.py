@@ -5,6 +5,8 @@ This program:
 """
 from typing import Tuple, Union
 
+from numpy import ndarray
+
 from SurfaceGenerator.Domain import DomainGenerator
 from ExternalIO import showMessage, writeLog
 from FilmFile.Film import FilmSurface2D, FilmSurface3D
@@ -118,3 +120,11 @@ class FilmManager:
         # write into log
         showMessage("3D film generation: Complete.")
         writeLog(self.film)
+
+    def setSurface(self, surface: ndarray) -> None:
+        """
+        This function read in the pre-generated surface structure
+        :param surface: a pre-generated surface structure
+        """
+        self.film.append(surface)
+
