@@ -560,7 +560,7 @@ class DomainGenerator:
 
         # determine efficiency of randomPoint
         efficiency = (rP[1] / sum(rP)) * 100
-        showMessage(f"Efficiency of _randomPoint function was {efficiency}")
+        showMessage(f"Efficiency of _randomPoint function was {efficiency}%")
 
         # combine the new surface and total number of domains generated into a list
         surface_generated = [newSurface, generated]
