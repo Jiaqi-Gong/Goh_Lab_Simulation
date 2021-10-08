@@ -12,8 +12,8 @@ from ExternalIO import *
 
 def runSimulation():
     # get log file
-    write_at_end = False
-    write_log = False
+    write_at_end = True
+    write_log = True
     generate_image = True
 
     message = setIndicator(generate_image, write_log, write_at_end)
