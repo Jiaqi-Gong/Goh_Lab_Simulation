@@ -83,7 +83,13 @@ class FilmManager:
                     self.filmDomainSize, self.filmDomainShape, self.neutralDomain, self.filmDomainConcentration,
                     self.filmDomainChargeConcentration, self.film[-1]]
 
-            saveSurface(info)
+            # create file name
+            file_name = ""
+            for i in info[:-1]:
+                file_name += str(i)
+                file_name += "_"
+
+            saveSurface(info, file_name[:-1])
 
     def _generate2DFilm(self, domainGenerator: DomainGenerator) -> None:
         """

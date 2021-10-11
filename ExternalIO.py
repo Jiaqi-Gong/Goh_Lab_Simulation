@@ -536,19 +536,18 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     showMessage("Image generate done")
 
 
-def importSurface(filepath: str) -> List[List, ndarray]:
+def importSurface(filepath: str) -> ndarray:
     """
     This function read in the pre-generated surface structure
     :param filepath: file path to the surface structure want to import
     """
-
-    # should be implement here, but not done for now
-    raise NotImplementedError
+    return np.load(filepath, allow_pickle=True)
 
 
-def saveSurface(info: List) -> None:
+def saveSurface(info: List, fileName: str) -> None:
     """
     Thin function save passed in surface to a file
     """
+    result_data = np.array(info, dtype=object)
+    np.save(fileName, result_data)
 
-    raise NotImplementedError
