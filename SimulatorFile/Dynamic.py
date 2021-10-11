@@ -1,9 +1,11 @@
 """
-This is dynamic bacteria movement simulator
+This program:
+- Simulates 3D Dynamic bacteria movement
 """
 from datetime import datetime
 from typing import Tuple, Union, List, Dict
 
+from numpy import ndarray
 from openpyxl import Workbook
 from openpyxl.worksheet._write_only import WriteOnlyWorksheet
 from openpyxl.worksheet.worksheet import Worksheet
@@ -24,14 +26,14 @@ class DynamicSimulator(Simulator):
                  bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float,
                  bacteriaDomainChargeConcentration: float,
                  filmNum: int, bacteriaNum: int, intervalX: int, intervalY: int, filmNeutralDomain: bool,
-                 bacteriaNeutralDomain: bool, parameters: Dict) -> None:
+                 bacteriaNeutralDomain: bool, parameters: Dict, preparedSurface: ndarray = None) -> None:
         """
         Init the simulation class based on the input info
         Description of input info are shown in the HelpFile.txt
         """
         # check film and bacteria type
         if dimension != 3:
-            raise RuntimeError("The film and bacteria dimension should be 3D for dynamic simulation")
+            raise RuntimeError("The film and bacteria dimension should be 3D for dynamic simulation.")
 
         # set some variable
         self.probabilityType = None
@@ -64,7 +66,7 @@ class DynamicSimulator(Simulator):
                            bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainConcentration,
                            bacteriaDomainChargeConcentration,
                            filmNum, bacteriaNum, intervalX, intervalY, filmNeutralDomain, bacteriaNeutralDomain,
-                           parameters)
+                           parameters, preparedSurface)
 
     def runSimulate(self) -> None:
         """
@@ -97,7 +99,7 @@ class DynamicSimulator(Simulator):
         result = [len(self.bacteriaManager.freeBacteria), len(self.bacteriaManager.stuckBacteria)]
         self._output(result, 0, False)
 
-        showMessage("Start simulation in dynamic simulator")
+        showMessage("Beginning Dynamic simulator...")
 
         # do the simulation
         end = False
@@ -118,15 +120,15 @@ class DynamicSimulator(Simulator):
         if (self.timeStep - 1) % self.dumpStep != 0:
             self._output(result, self.timeStep - 1, end)
 
-        showMessage("Simulation done")
+        showMessage("Dynamic Simulation: Complete.")
 
     def _initOutput(self) -> Tuple[Workbook, Union[WriteOnlyWorksheet, Worksheet]]:
         """
         This function init the format and content need to out put
         Implement in the super class abstract method
         """
-        writeLog("This is _initOutput in Simulation")
-        showMessage("Init the output")
+        writeLog("This is _initOutput in Dynamic simulator.")
+        showMessage("Initializing Dynamic Simulation output...")
         writeLog(self.__dict__)
 
         # creates excel file
@@ -178,7 +180,7 @@ class DynamicSimulator(Simulator):
         This function generate the info need to output
         Implement in the super class abstract method
         """
-        writeLog("This is _output in dynamic simulator")
+        writeLog("This is _output in Dynamic simulator.")
         writeLog("self is: {}, result is: {}, currIter is: {}, end is: {}".format(
             self.__dict__, result, currIter, end))
 

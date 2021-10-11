@@ -1,5 +1,6 @@
 """
-This program is generating the surface for test
+This program:
+- Generates the surface for tests
 """
 import abc
 from typing import Tuple, Union
@@ -80,11 +81,3 @@ class Surface:
         """
         raise NotImplementedError
 
-    def importSurface(self, filepath: str) -> ndarray:
-        """
-        This function read in the pre-generated surface structure
-        :param filepath: file path to the surface structure want to import
-        """
-
-        # should be implement here, but not done for now
-        raise NotImplementedError

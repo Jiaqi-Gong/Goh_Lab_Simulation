@@ -10,9 +10,9 @@ from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 import time
 
-from SimulatorFile.Dynamic import DynamicSimulator
-from SimulatorFile.EnergyScan import EnergySimulator
-from ExternalIO import getHelp, getRestriction
+# from SimulatorFile.Dynamic import DynamicSimulator
+# from SimulatorFile.EnergyScan import EnergySimulator
+from ExternalIO import *
 import multiprocessing as mp
 import os
 
@@ -174,6 +174,7 @@ def _output():
     file_path = "Result/" + name
     wb.save(file_path)
 
+
 def test3D():
     length = 5
     width = 5
@@ -184,10 +185,11 @@ def test3D():
     # indexes the array
     index_x, index_y, index_z = np.indices((length, width, height))
     dist = ((index_x - center[0]) ** 2 + (index_y - center[1]) ** 2 + (index_z - center[2]) ** 2) ** 0.5
-    return 1 * (dist <= radius) - 1 * (dist <= radius-1)
+    return 1 * (dist <= radius) - 1 * (dist <= radius - 1)
+
 
 def testchange():
-    arrayList = np.zeros((1,10,10))
+    arrayList = np.zeros((1, 10, 10))
     arrayList[0][1][1] = 1
     arrayList[0][0][1] = 2
     arrayList[0][1][0] = 3
@@ -220,9 +222,7 @@ def testchange():
     return tupleList
 
 
-
 def testVisible():
-
     array = np.ones((10, 10))
 
     from matplotlib import pyplot as plt
@@ -271,6 +271,7 @@ def testVisible():
     plt.savefig("test.png")
     plt.show()
 
+
 def testPic():
     from ExternalIO import visPlot
     data = np.zeros((100, 100))
@@ -286,7 +287,7 @@ def testPic():
 def testCutoff():
     from SimulatorFile.EnergyCalculator import interact2D
 
-    film = np.zeros((1,10,10))
+    film = np.zeros((1, 10, 10))
     film[0][2][2] = 1
     film[0][2][4] = 1
     film[0][1][2] = 1
@@ -295,13 +296,14 @@ def testCutoff():
     film[0][0][8] = 1
     film[0][1][7] = 1
 
-    bacteria = np.zeros((1,3,3))
+    bacteria = np.zeros((1, 3, 3))
     bacteria[0][1][1] = 1
     bacteria[0][2][2] = -1
 
     result = interact2D("CUTOFF", 2, 2, film, bacteria, 1, 6)
 
     return result
+
 
 def test_random():
     true_num = 0
@@ -317,6 +319,7 @@ def test_random():
 
     return "True is {}, False is {}".format(true_num, false_num)
 
+
 def _simple(probability: float) -> bool:
     # check does probability set
     if probability is None:
@@ -326,8 +329,8 @@ def _simple(probability: float) -> bool:
 
     return stick
 
-def test_mp1():
 
+def test_mp1():
     ncpus = int(os.environ.get('SLURM_CPUS_PER_TASK', default=1))
     pool = mp.Pool(processes=ncpus)
     data = [(11, 1), (22, 3), (41, 5, 6)]
@@ -340,8 +343,10 @@ def test_mp1():
     cubes.sort()
     print(cubes)
 
+
 def cube(x):
     return (x[0], x[0] ** 3)
+
 
 def test_mp2():
     # init parameter for multiprocess
@@ -383,6 +388,7 @@ def testCutoffFilm():
     r = _getCutoffFilm1D(film, startPoint, bacteria.shape, cutoff)
     print(r)
 
+
 def _getCutoffFilm1D(film: ndarray, startPoint: Tuple[int, int], bacteriaSize: Tuple[int, int], cutoff: int) \
         -> List[ndarray]:
     """
@@ -413,6 +419,36 @@ def _getCutoffFilm1D(film: ndarray, startPoint: Tuple[int, int], bacteriaSize: T
 
     return film_list
 
+
+def testSave():
+    arrayList = np.zeros((1, 10, 10))
+    arrayList[0][1][1] = 1
+    arrayList[0][0][1] = 2
+    arrayList[0][1][0] = 3
+
+    a = 0.1
+    b = True
+    c = "Circle"
+
+    info = [a, b, c, arrayList]
+
+    # create file name
+    file_name = ""
+    for i in info[:-1]:
+        file_name += str(i)
+        file_name += "_"
+
+    saveSurface(info, file_name[:-1])
+
+    a = importSurface("{}.npy".format(file_name[:-1]))
+    print(a)
+
+
+    # name = 0.1
+
+    # np.save("{}".format(name), np.array([name, arrayList], dtype=object))
+    #
+    # a = np.load("{}.npy".format(name), allow_pickle=True)
 
 
 if __name__ == '__main__':
@@ -449,4 +485,6 @@ if __name__ == '__main__':
 
     # test_mp2()
 
-    testCutoffFilm()
+    # testCutoffFilm()
+
+    testSave()

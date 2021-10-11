@@ -1,11 +1,12 @@
 """
-This is an abstract file for simulator
+This is an abstract file for Simulator.
 """
 import abc
 from abc import ABC
 from datetime import datetime
 from typing import Tuple, Union, List, Dict
 
+from numpy import ndarray
 from openpyxl import Workbook
 from openpyxl.worksheet._write_only import WriteOnlyWorksheet
 from openpyxl.worksheet.worksheet import Worksheet
@@ -44,7 +45,7 @@ class Simulator(ABC):
                  bacteriaSurfaceCharge: int, bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str,
                  bacteriaDomainConcentration: float, bacteriaDomainChargeConcentration: float,
                  filmNum: int, bacteriaNum: int, intervalX: int, intervalY: int, filmNeutralDomain: bool,
-                 bacteriaNeutralDomain: bool, parameters: Dict) -> None:
+                 bacteriaNeutralDomain: bool, parameters: Dict, preparedSurface: ndarray = None) -> None:
         """
         Init the simulation class based on the input info
         Description of input info are shown in the HelpFile.txt
@@ -88,7 +89,10 @@ class Simulator(ABC):
         writeLog(self.__dict__)
 
         # generate corresponding variable
-        self.filmManager.generateFilm()
+        if preparedSurface is None:
+            self.filmManager.generateFilm()
+        else:
+            self.filmManager.setSurface(preparedSurface)
 
         self.bacteriaManager.generateBacteria()
 

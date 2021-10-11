@@ -1,10 +1,14 @@
 """
-This program is used to save the FilmFile and manage all films
+This program:
+- Saves the FilmFile.
+- Manages all films.
 """
 from typing import Tuple, Union
 
+from numpy import ndarray
+
 from SurfaceGenerator.Domain import DomainGenerator
-from ExternalIO import showMessage, writeLog
+from ExternalIO import showMessage, writeLog, saveSurface
 from FilmFile.Film import FilmSurface2D, FilmSurface3D
 
 
@@ -29,7 +33,8 @@ class FilmManager:
     def __init__(self, trail: int, dimension: int,
                  filmSeed: int, filmSurfaceSize: Union[Tuple[int, int], Tuple[int, int, int]], filmSurfaceShape: str,
                  filmSurfaceCharge: int, filmDomainSize: Tuple[int, int], filmDomainShape: str,
-                 filmDomainConcentration: float, filmDomainChargeConcentration: float, filmNum: int, neutralDomain: bool):
+                 filmDomainConcentration: float, filmDomainChargeConcentration: float, filmNum: int,
+                 neutralDomain: bool):
         """
         Init the film manager, take in the
         """
@@ -73,16 +78,29 @@ class FilmManager:
             else:
                 raise RuntimeError("Unknown dimension in film manager")
 
+            # save this surface
+            info = [self.filmSeed, self.filmSurfaceSize, self.filmSurfaceShape, self.filmNum, self.filmSurfaceCharge,
+                    self.filmDomainSize, self.filmDomainShape, self.neutralDomain, self.filmDomainConcentration,
+                    self.filmDomainChargeConcentration, self.film[-1]]
+
+            # create file name
+            file_name = ""
+            for i in info[:-1]:
+                file_name += str(i)
+                file_name += "_"
+
+            saveSurface(info, file_name[:-1])
+
     def _generate2DFilm(self, domainGenerator: DomainGenerator) -> None:
         """
-        Generate 2D film
+        Generates 2D film
         """
-        showMessage("Generate 2D film")
+        showMessage("Generating 2D film...")
         # generate 2D Film Surface
         film = FilmSurface2D(self.trail, self.filmSurfaceShape, self.filmSurfaceSize, self.filmSurfaceCharge,
                              domainGenerator.seed)
 
-        showMessage("Generate 2D film with domain")
+        showMessage("Generating 2D film with domain...")
         film.surfaceWithDomain, film.realDomainConc = domainGenerator.generateDomain(film, self.filmDomainShape,
                                                                                      self.filmDomainSize,
                                                                                      self.filmDomainConcentration,
@@ -92,19 +110,19 @@ class FilmManager:
         self.film.append(film)
 
         # write into log
-        showMessage("2D film generate done")
+        showMessage("2D film generation: Complete.")
         writeLog(self.film)
 
     def _generate3DFilm(self, domainGenerator: DomainGenerator) -> None:
         """
-        Generate 3D film
+        Generates 3D film
         """
-        showMessage("Generate 3D film")
+        showMessage("Generating 3D film...")
         # generate 3D Film Surface
         film = FilmSurface3D(self.trail, self.filmSurfaceShape, self.filmSurfaceSize, self.filmSurfaceCharge,
                              domainGenerator.seed)
 
-        showMessage("Generate 3D film with domain")
+        showMessage("Generating 3D film with domain...")
         film.surfaceWithDomain, film.realDomainConc = domainGenerator.generateDomain(film, self.filmDomainShape,
                                                                                      self.filmDomainSize,
                                                                                      self.filmDomainConcentration,
@@ -114,5 +132,12 @@ class FilmManager:
         self.film.append(film)
 
         # write into log
-        showMessage("3D film generate done")
+        showMessage("3D film generation: Complete.")
         writeLog(self.film)
+
+    def setSurface(self, surface: ndarray) -> None:
+        """
+        This function read in the pre-generated surface structure
+        :param surface: a pre-generated surface structure
+        """
+        self.film.append(surface)
