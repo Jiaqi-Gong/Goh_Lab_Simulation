@@ -512,6 +512,10 @@ class DomainGenerator:
         'if running on the computer, uncomment time.sleep to not make computer laggy (optional)'
         # time.sleep(1)
 
+        # initialize of times randomPoint is called
+        # [incorrect, correct]
+        rP = [0,0]
+
         # start to generate the domain on surface
         # to generate the domains on the surface, we will be using multiprocessing to take advantage of all 4 CPUS
         while generated < domainNumEach:
@@ -523,7 +527,12 @@ class DomainGenerator:
 
             # check the position of this shape is empty, if not empty, then continue
             if not checkEmpty(newSurface, domainWidth, domainLength, start, possible_charge):
+                # add to incorrect
+                rP[0] += 1
                 continue
+
+            # add to correct
+            rP[1] += 1
 
             # we will first generate all the domainNumChar1
             if domainNumChar1 > totalDomainChar[0]:
@@ -548,6 +557,10 @@ class DomainGenerator:
             # if its running for too long, that means we most likely reached the maximum amount of domains on the surface and
             # end the while loop
             timeout = time.time() + WAIT_TIME  # 60 seconds from now
+
+        # determine efficiency of randomPoint
+        efficiency = (rP[1] / sum(rP)) * 100
+        showMessage(f"Efficiency of _randomPoint function was {efficiency}%")
 
         # combine the new surface and total number of domains generated into a list
         surface_generated = [newSurface, generated]
