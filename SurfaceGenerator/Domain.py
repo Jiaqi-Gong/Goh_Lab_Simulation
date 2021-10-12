@@ -298,8 +298,8 @@ class DomainGenerator:
             pointsNotCovered = [tup for tup in possiblePoint for i in range(len(boundary[0])) for j in range(len(boundary[1]))
                          if (tup[0] > surface.length * boundary[0][i] - restriction
                              and tup[0] < surface.length * boundary[0][i] + restriction)
-                         or (tup[1] > surface.width * boundary[0][j] - restriction
-                             and tup[1] < surface.width * boundary[0][j] + restriction)]
+                         or (tup[1] > surface.width * boundary[1][j] - restriction
+                             and tup[1] < surface.width * boundary[1][j] + restriction)]
 
             # remove duplicates
             pointsNotCovered = list(dict.fromkeys(pointsNotCovered))
