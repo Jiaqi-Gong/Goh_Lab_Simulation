@@ -13,16 +13,17 @@ import time
 import math
 
 import matplotlib as mpl
+
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap, BoundaryNorm
 
 LOG_CACH = []
 
-
 # INDICATOR record three bool
 # first is generate image or not, second is generate log or not, third is write log at last or not
 INDICATOR = [False, False, False]
+
 
 def getHelp() -> Dict[str, str]:
     """
@@ -248,7 +249,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
         name = 'Surface of Bacteria'
 
     # initialize colors and labels
-    colors = [np.array([1, 0, 0]),np.array([0, 1, 0]),np.array([0, 0, 1])]
+    colors = [np.array([1, 0, 0]), np.array([0, 1, 0]), np.array([0, 0, 1])]
     labels = ["negative", "neutral", "positive"]
 
     # define color map
@@ -303,6 +304,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
 
     showMessage(f"Total time it took to generate 2D image is {totalTime} seconds")
     showMessage("Image generate done")
+
 
 def _visPlot3D(array: ndarray, picName: str) -> None:
     """
@@ -436,7 +438,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
 
         showMessage(f"x is {dimension.width - dimension.x0}, y is {dimension.height - dimension.y0}")
 
-        size = ((dimension.width - dimension.x0)/(maximum)) * ((dimension.height - dimension.y0)/(maximum))
+        size = ((dimension.width - dimension.x0) / (maximum)) * ((dimension.height - dimension.y0) / (maximum))
         showMessage(f"size of marker is {size}")
 
         # order which we plot the points matter
@@ -533,4 +535,19 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     showMessage(f"Total time it took to generate image is {totalTime} seconds")
     showMessage("Image generate done")
 
-# def _generateImage
+
+def importSurface(filepath: str) -> ndarray:
+    """
+    This function read in the pre-generated surface structure
+    :param filepath: file path to the surface structure want to import
+    """
+    return np.load(filepath, allow_pickle=True)
+
+
+def saveSurface(info: List, fileName: str) -> None:
+    """
+    Thin function save passed in surface to a file
+    """
+    result_data = np.array(info, dtype=object)
+    np.save(fileName, result_data)
+

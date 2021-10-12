@@ -31,7 +31,7 @@ class EnergySimulator(Simulator):
                  bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str, bacteriaDomainConcentration: float,
                  bacteriaDomainChargeConcentration: float,
                  filmNum: int, bacteriaNum: int, intervalX: int, intervalY: int, filmNeutralDomain: bool,
-                 bacteriaNeutralDomain: bool, parameters: Dict) -> None:
+                 bacteriaNeutralDomain: bool, parameters: Dict, preparedSurface: ndarray = None) -> None:
         """
         Init the simulation class based on the input info
         Description of input info are shown in the HelpFile.txt
@@ -60,7 +60,7 @@ class EnergySimulator(Simulator):
                            bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainConcentration,
                            bacteriaDomainChargeConcentration,
                            filmNum, bacteriaNum, intervalX, intervalY, filmNeutralDomain, bacteriaNeutralDomain,
-                           parameters)
+                           parameters, preparedSurface)
 
     def runSimulate(self) -> None:
         """
