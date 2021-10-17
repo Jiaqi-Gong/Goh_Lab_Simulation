@@ -452,7 +452,7 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
 
         # and plot everything
         ax = plt.figure().add_subplot(projection='3d')
-        ax.voxels(voxels, facecolors=colors)
+        ax.voxels(voxels, facecolors=colors, edgecolors=colors)
 
 
         # showMessage(f"x is {dimension.width - dimension.x0}, y is {dimension.height - dimension.y0}")
