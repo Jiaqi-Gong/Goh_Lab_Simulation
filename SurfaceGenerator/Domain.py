@@ -189,37 +189,6 @@ class DomainGenerator:
         else:
             raise RuntimeError("Unknown shape")
 
-        # # if surface.height >= 4:
-        # # if the surface is a bacteria, we will redefine the domainNum variable
-        # else:
-        #     # calculate total number of available points on each side of bacteria
-        #     # the domain number will be formatted as a list
-        #     # domainNum will contain number of domains on each side
-        #     # domainNum = [x0, x1, y0, y1, z0, z1]
-        #
-        #     # define total number of points of 3d shape
-        #     # first get all location of possible points using _allPossiblePoint function
-        #     allPoints = self._allPossiblePoint(newSurface, surface, surface.length, surface.width, surface.height, 0, 0, 'SINGLE')
-        #     # then, separate them into each plane
-        #     allPointsSeparated = self._allPoints(surface, allPoints)
-        #     # lastly, find the length of the lists for each plane
-        #     allPointsLength = [len(allPointsSeparated[i]) for i in range(len(allPointsSeparated))]
-        #
-        #     # find the number of domains for each side of the bacteria
-        #     if shape.upper() == "DIAMOND":
-        #         domainNum = [int((number*concentration)/int(4*((1+domainWidth)/2)*domainWidth+1))
-        #                      for number in allPointsLength]
-        #     elif shape.upper() == "CROSS":
-        #         domainNum = [int((number*concentration)/int(domainWidth*2+domainLength*2+1))
-        #                      for number in allPointsLength]
-        #     elif shape.upper() == "OCTAGON":
-        #         domainNum = [int((number*concentration)/int((domainWidth+1+domainWidth*2)**2-4*((1+domainWidth)/2)*domainWidth))
-        #                      for number in allPointsLength]
-        #     elif shape.upper() == "SINGLE":
-        #         domainNum = [int((number*concentration)) for number in allPointsLength]
-        #     else:
-        #         raise RuntimeError("Unknown shape")
-
         showMessage("Total Domain is: {}".format(domainNum))
 
         np.set_printoptions(threshold=np.inf)
@@ -307,7 +276,7 @@ class DomainGenerator:
             # determine ratio which will be used to calculate number of domains that will be generated using multiprocessing
             ratio = 1 - len(pointsNotCovered)/int(surface.length*surface.width)
 
-            showMessage(ratio)
+            showMessage(f"ratio that will be covered by multiprocessing is {ratio}")
 
             # calculate how many domains each cpu will handle
             # however, if the domain number is less than the cpu number, that is not good since each cpu would not generate
@@ -608,7 +577,7 @@ class DomainGenerator:
 
         return possiblePointNested
 
-    def _allPoints(self, surface: Surface, possiblePoint: List[Tuple[int,int,int]]) -> List[int]:
+    def _allPoints(self, surface: Surface, possiblePoint: List[Tuple[int,int,int]]) -> List[List[Tuple[int,int,int]]]:
         """
         This function calculates all points on the surface on each plane
         _allPoints -> [x0, x1, y0, y1, z0, z1]
