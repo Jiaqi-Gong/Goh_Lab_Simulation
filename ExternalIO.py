@@ -402,21 +402,21 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
 
         # position of positive
         pos = np.where(array == 1)
-        pos_z = pos[0]
-        pos_y = pos[1]
-        pos_x = pos[2]
+        # pos_z = pos[0]
+        # pos_y = pos[1]
+        # pos_x = pos[2]
 
         # position of neutral
         neu = np.where(array == 0)
-        neu_z = neu[0]
-        neu_y = neu[1]
-        neu_x = neu[2]
+        # neu_z = neu[0]
+        # neu_y = neu[1]
+        # neu_x = neu[2]
 
         # position of negative
         neg = np.where(array == -1)
-        neg_z = neg[0]
-        neg_y = neg[1]
-        neg_x = neg[2]
+        # neg_z = neg[0]
+        # neg_y = neg[1]
+        # neg_x = neg[2]
 
         # set axis limit
 
@@ -432,9 +432,12 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         ax.set_aspect('auto')
         fig.canvas.draw()
 
-        dimension = ax.get_tightbbox(fig.canvas.get_renderer(),
-                                     call_axes_locator=True,
-                                     bbox_extra_artists=None)
+        # dimension = ax.get_tightbbox(fig.canvas.get_renderer(),
+        #                              call_axes_locator=True,
+        #                              bbox_extra_artists=None)
+
+        # rotate the array
+        array = np.rot90(array, 1, axes=(2, 0))
 
         # create a voxel to map out surface of bacteria
         pos = array == 1
@@ -443,6 +446,8 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
 
         # combine the objects into a single boolean array
         voxels = pos | neg | neu
+
+        showMessage(f"shape of voxel is {voxels.shape}")
 
         # set the colors of each object
         colors = np.empty(voxels.shape, dtype=object)
