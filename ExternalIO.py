@@ -418,19 +418,15 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         # neg_y = neg[1]
         # neg_x = neg[2]
 
-        # set axis limit
-
+        # determine axis limit
         # get the largest number in all x,y,z scales
         max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i]) != 0]
         max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i]) != 0]
         max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i]) != 0]
         maximum = max(max1 + max2 + max3)
-        ax.set_xlim3d(0, maximum)
-        ax.set_ylim3d(0, maximum)
-        ax.set_zlim3d(0, maximum)
 
-        ax.set_aspect('auto')
-        fig.canvas.draw()
+        # ax.set_aspect('auto')
+        # fig.canvas.draw()
 
         # dimension = ax.get_tightbbox(fig.canvas.get_renderer(),
         #                              call_axes_locator=True,
@@ -459,6 +455,10 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
         ax = plt.figure().add_subplot(projection='3d')
         ax.voxels(voxels, facecolors=colors, shade=False)
 
+        # set axis limits
+        ax.set_xlim3d(0, maximum)
+        ax.set_ylim3d(0, maximum)
+        ax.set_zlim3d(0, maximum)
 
         # showMessage(f"x is {dimension.width - dimension.x0}, y is {dimension.height - dimension.y0}")
         #
