@@ -14,7 +14,7 @@ def runSimulation():
     # get log file
     write_at_end = True
     write_log = True
-    generate_image = True
+    generate_image = False
 
     message = setIndicator(generate_image, write_log, write_at_end)
     showMessage(message)
@@ -25,12 +25,13 @@ def runSimulation():
     time.sleep(1)
 
     # read in prepared surface
-    importSurfacePath = None
+    # importSurfacePath = None
+    importSurfacePath = "SaveSurface/1.npy"
     preparedSurface = None
 
     # simulator info
     simulationType = 1
-    trail = 999
+    trail = 99999
     dimension = 3
     simulatorType = 1
     interactType = "DOT"

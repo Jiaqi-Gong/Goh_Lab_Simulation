@@ -565,6 +565,7 @@ def importSurface(filepath: str) -> ndarray:
     This function read in the pre-generated surface structure
     :param filepath: file path to the surface structure want to import
     """
+    showMessage("Start to import surface with filepath {}".format(filepath))
     return np.load(filepath, allow_pickle=True)
 
 
@@ -572,6 +573,12 @@ def saveSurface(info: List, fileName: str) -> None:
     """
     Thin function save passed in surface to a file
     """
+    # generate surface folder for save result
+    if not os.path.exists("SaveSurface"):
+        os.mkdir("SaveSurface")
+
+    showMessage("Start to save surface generated with name {}".format(fileName))
+    output_path = "SaveSurface/{}".format(fileName)
     result_data = np.array(info, dtype=object)
-    np.save(fileName, result_data)
+    np.save(output_path, result_data)
 
