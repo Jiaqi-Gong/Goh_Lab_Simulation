@@ -14,7 +14,7 @@ import math
 
 import matplotlib as mpl
 
-mpl.use('Agg')
+# mpl.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap, BoundaryNorm
 
@@ -402,86 +402,110 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
 
         # position of positive
         pos = np.where(array == 1)
-        pos_z = pos[0]
-        pos_y = pos[1]
-        pos_x = pos[2]
+        # pos_z = pos[0]
+        # pos_y = pos[1]
+        # pos_x = pos[2]
 
         # position of neutral
         neu = np.where(array == 0)
-        neu_z = neu[0]
-        neu_y = neu[1]
-        neu_x = neu[2]
+        # neu_z = neu[0]
+        # neu_y = neu[1]
+        # neu_x = neu[2]
 
         # position of negative
         neg = np.where(array == -1)
-        neg_z = neg[0]
-        neg_y = neg[1]
-        neg_x = neg[2]
+        # neg_z = neg[0]
+        # neg_y = neg[1]
+        # neg_x = neg[2]
 
-        # set axis limit
-
+        # determine axis limit
         # get the largest number in all x,y,z scales
         max1 = [max(pos[i]) for i in range(len(pos)) if len(pos[i]) != 0]
         max2 = [max(neu[i]) for i in range(len(neu)) if len(neu[i]) != 0]
         max3 = [max(neg[i]) for i in range(len(neg)) if len(neg[i]) != 0]
         maximum = max(max1 + max2 + max3)
+
+        # ax.set_aspect('auto')
+        # fig.canvas.draw()
+
+        # dimension = ax.get_tightbbox(fig.canvas.get_renderer(),
+        #                              call_axes_locator=True,
+        #                              bbox_extra_artists=None)
+
+        # rotate the array
+        array = np.rot90(array, 1, axes=(2, 0))
+
+        # create a voxel to map out surface of bacteria
+        pos = array == 1
+        neg = array == -1
+        neu = array == 0
+
+        # combine the objects into a single boolean array
+        voxels = pos | neg | neu
+
+        showMessage(f"shape of voxel is {voxels.shape}")
+
+        # set the colors of each object
+        colors = np.empty(voxels.shape, dtype=object)
+        colors[pos] = 'blue'
+        colors[neg] = 'red'
+        colors[neu] = 'green'
+
+        # and plot everything
+        ax = plt.figure().add_subplot(projection='3d')
+        ax.voxels(voxels, facecolors=colors, shade=False)
+
+        # set axis limits
         ax.set_xlim3d(0, maximum)
         ax.set_ylim3d(0, maximum)
         ax.set_zlim3d(0, maximum)
 
-        ax.set_aspect('auto')
-        fig.canvas.draw()
-
-        dimension = ax.get_tightbbox(fig.canvas.get_renderer(),
-                                     call_axes_locator=True,
-                                     bbox_extra_artists=None)
-
-        showMessage(f"x is {dimension.width - dimension.x0}, y is {dimension.height - dimension.y0}")
-
-        size = ((dimension.width - dimension.x0) / (maximum)) * ((dimension.height - dimension.y0) / (maximum))
-        showMessage(f"size of marker is {size}")
-
-        # order which we plot the points matter
-        nPos = len(pos_x)
-        nNeu = len(neu_x)
-        nNeg = len(neg_x)
-
-        # initialize shape and depthshade of the marker
-        marker = 's'
-        depthshade = True
-        colors = [np.array([1, 0, 0]), np.array([0, 1, 0]), np.array([0, 0, 1])]
-
-        # if positive is the charge of surface, we plot positive first
-        if nPos == max(nPos, nNeu, nNeg):
-            ax.scatter3D(neu_x, neu_y, neu_z, marker=marker, label='neutral', color=colors[1], depthshade=depthshade,
-                         s=size, linewidths=0)
-            ax.scatter3D(neg_x, neg_y, neg_z, marker=marker, label='negative', color=colors[0], depthshade=depthshade,
-                         s=size, linewidths=0)
-            ax.scatter3D(pos_x, pos_y, pos_z, marker=marker, label='positive', color=colors[2], depthshade=depthshade,
-                         s=size, linewidths=0)
-
-        # if negative is the charge of surface, we plot negative first
-        elif nNeg == max(nPos, nNeu, nNeg):
-            ax.scatter3D(neu_x, neu_y, neu_z, marker=marker, label='neutral', color=colors[1], depthshade=depthshade,
-                         s=size, linewidths=0)
-            ax.scatter3D(pos_x, pos_y, pos_z, marker=marker, label='positive', color=colors[2], depthshade=depthshade,
-                         s=size, linewidths=0)
-            ax.scatter3D(neg_x, neg_y, neg_z, marker=marker, label='negative', color=colors[0], depthshade=depthshade,
-                         s=size, linewidths=0)
-
-        # if neutral is the charge of surface, we plot neutral first
-        elif nNeu == max(nPos, nNeu, nNeg):
-            ax.scatter3D(pos_x, pos_y, pos_z, marker=marker, label='positive', color=colors[2], depthshade=depthshade,
-                         s=size, linewidths=0)
-            ax.scatter3D(neg_x, neg_y, neg_z, marker=marker, label='negative', color=colors[0], depthshade=depthshade,
-                         s=size, linewidths=0)
-            ax.scatter3D(neu_x, neu_y, neu_z, marker=marker, label='neutral', color=colors[1], depthshade=depthshade,
-                         s=size, linewidths=0)
-
-        # create the legend
-        lgnd = ax.legend(loc="upper right")
-        for handle in lgnd.legendHandles:
-            handle.set_sizes([10.0])
+        # showMessage(f"x is {dimension.width - dimension.x0}, y is {dimension.height - dimension.y0}")
+        #
+        # size = ((dimension.width - dimension.x0) / (maximum)) * ((dimension.height - dimension.y0) / (maximum))
+        # showMessage(f"size of marker is {size}")
+        #
+        # # order which we plot the points matter
+        # nPos = len(pos_x)
+        # nNeu = len(neu_x)
+        # nNeg = len(neg_x)
+        #
+        # # initialize shape and depthshade of the marker
+        # marker = 's'
+        # depthshade = False
+        # colors = [np.array([1, 0, 0]), np.array([0, 1, 0]), np.array([0, 0, 1])]
+        #
+        # # if positive is the charge of surface, we plot positive first
+        # if nPos == max(nPos, nNeu, nNeg):
+        #     ax.scatter3D(neu_x, neu_y, neu_z, marker=marker, label='neutral', color=colors[1], depthshade=depthshade,
+        #                  s=size, linewidths=0)
+        #     ax.scatter3D(neg_x, neg_y, neg_z, marker=marker, label='negative', color=colors[0], depthshade=depthshade,
+        #                  s=size, linewidths=0)
+        #     ax.scatter3D(pos_x, pos_y, pos_z, marker=marker, label='positive', color=colors[2], depthshade=depthshade,
+        #                  s=size, linewidths=0)
+        #
+        # # if negative is the charge of surface, we plot negative first
+        # elif nNeg == max(nPos, nNeu, nNeg):
+        #     ax.scatter3D(neu_x, neu_y, neu_z, marker=marker, label='neutral', color=colors[1], depthshade=depthshade,
+        #                  s=size, linewidths=0)
+        #     ax.scatter3D(pos_x, pos_y, pos_z, marker=marker, label='positive', color=colors[2], depthshade=depthshade,
+        #                  s=size, linewidths=0)
+        #     ax.scatter3D(neg_x, neg_y, neg_z, marker=marker, label='negative', color=colors[0], depthshade=depthshade,
+        #                  s=size, linewidths=0)
+        #
+        # # if neutral is the charge of surface, we plot neutral first
+        # elif nNeu == max(nPos, nNeu, nNeg):
+        #     ax.scatter3D(pos_x, pos_y, pos_z, marker=marker, label='positive', color=colors[2], depthshade=depthshade,
+        #                  s=size, linewidths=0)
+        #     ax.scatter3D(neg_x, neg_y, neg_z, marker=marker, label='negative', color=colors[0], depthshade=depthshade,
+        #                  s=size, linewidths=0)
+        #     ax.scatter3D(neu_x, neu_y, neu_z, marker=marker, label='neutral', color=colors[1], depthshade=depthshade,
+        #                  s=size, linewidths=0)
+        #
+        # # create the legend
+        # lgnd = ax.legend(loc="upper right")
+        # for handle in lgnd.legendHandles:
+        #     handle.set_sizes([10.0])
 
         # set label names
         ax.set_xlabel("X")

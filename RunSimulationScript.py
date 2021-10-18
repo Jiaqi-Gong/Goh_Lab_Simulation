@@ -12,8 +12,8 @@ from ExternalIO import *
 
 def runSimulation():
     # get log file
-    write_at_end = False
-    write_log = False
+    write_at_end = True
+    write_log = True
     generate_image = True
 
     message = setIndicator(generate_image, write_log, write_at_end)
@@ -31,7 +31,7 @@ def runSimulation():
     # simulator info
     simulationType = 1
     trail = 999
-    dimension = 2
+    dimension = 3
     simulatorType = 1
     interactType = "DOT"
     # interactType = "CUTOFF"
@@ -40,7 +40,7 @@ def runSimulation():
         # film info
         filmSeed = 1
         if dimension == 2:
-            filmSurfaceSize = (10000, 10000)
+            filmSurfaceSize = (1000, 1000)
         elif dimension == 3:
             filmSurfaceSize = (1000, 1000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
         else:
@@ -65,7 +65,7 @@ def runSimulation():
     bacteriaSeed = 10
     bacteriaNum = 5
     if dimension == 2:
-        bacteriaSize = (100, 100)
+        bacteriaSize = (30, 30)
         bacteriaSurfaceShape = "rectangle"
     elif dimension == 3:
         bacteriaSize = (100, 100, 5)  # For bacteria, z value is the height of bacteria, can be any number
@@ -74,7 +74,7 @@ def runSimulation():
         raise RuntimeError("Unknown dimension: {}".format(dimension))
 
     bacteriaSurfaceCharge = -1
-    bacteriaDomainSize = (10, 10)
+    bacteriaDomainSize = (3, 3)
     bacteriaDomainShape = "diamond"
     bacteriaDomainCon = 0.2
     bacteriaDomainChargeConcentration = 0.5  # ignore
@@ -138,3 +138,4 @@ def runSimulation():
 
 if __name__ == '__main__':
     runSimulation()
+
