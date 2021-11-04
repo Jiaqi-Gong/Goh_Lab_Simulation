@@ -41,6 +41,7 @@ class DynamicSimulator(Simulator):
         self.bacteriaMovementSeed = None
         self.dumpStep = None
         self.unstuck = None
+        self.generateDomain = parameters["generateDomain"]
 
         if parameters["unstuck"]:
             self.unstuckProbability = None
@@ -66,7 +67,7 @@ class DynamicSimulator(Simulator):
                            bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainConcentration,
                            bacteriaDomainChargeConcentration,
                            filmNum, bacteriaNum, intervalX, intervalY, filmNeutralDomain, bacteriaNeutralDomain,
-                           parameters, preparedSurface)
+                           parameters, preparedSurface, self.generateDomain)
 
     def runSimulate(self) -> None:
         """

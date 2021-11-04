@@ -57,7 +57,7 @@ class FilmManager:
         # init a variable to store all film
         self.film = []
 
-    def generateFilm(self) -> None:
+    def generateFilm(self, generateDomain: bool) -> None:
         """
         This function generate corresponding film need based on the number wanted
         """
@@ -72,9 +72,9 @@ class FilmManager:
             # generate domain generator
             filmDomainGenerator = DomainGenerator(seed, self.neutralDomain)
             if self.dimension == 2:
-                self._generate2DFilm(filmDomainGenerator)
+                self._generate2DFilm(filmDomainGenerator, generateDomain)
             elif self.dimension == 3:
-                self._generate3DFilm(filmDomainGenerator)
+                self._generate3DFilm(filmDomainGenerator, generateDomain)
             else:
                 raise RuntimeError("Unknown dimension in film manager")
 
@@ -91,7 +91,7 @@ class FilmManager:
 
             saveSurface(info, file_name[:-1])
 
-    def _generate2DFilm(self, domainGenerator: DomainGenerator) -> None:
+    def _generate2DFilm(self, domainGenerator: DomainGenerator, generateDomain: bool) -> None:
         """
         Generates 2D film
         """
@@ -100,11 +100,14 @@ class FilmManager:
         film = FilmSurface2D(self.trail, self.filmSurfaceShape, self.filmSurfaceSize, self.filmSurfaceCharge,
                              domainGenerator.seed)
 
-        showMessage("Generating 2D film with domain...")
-        film.surfaceWithDomain, film.realDomainConc = domainGenerator.generateDomain(film, self.filmDomainShape,
+        if generateDomain:
+            showMessage("Generating 2D film with domain...")
+            film.surfaceWithDomain, film.realDomainConc = domainGenerator.generateDomain(film, self.filmDomainShape,
                                                                                      self.filmDomainSize,
                                                                                      self.filmDomainConcentration,
                                                                                      self.filmDomainChargeConcentration)
+        else:
+            film.surfaceWithDomain, film.realDomainConc = film, 0.0
 
         # save the film into manager
         self.film.append(film)
@@ -113,7 +116,7 @@ class FilmManager:
         showMessage("2D film generation: Complete.")
         writeLog(self.film)
 
-    def _generate3DFilm(self, domainGenerator: DomainGenerator) -> None:
+    def _generate3DFilm(self, domainGenerator: DomainGenerator, generateDomain: bool) -> None:
         """
         Generates 3D film
         """
@@ -122,11 +125,14 @@ class FilmManager:
         film = FilmSurface3D(self.trail, self.filmSurfaceShape, self.filmSurfaceSize, self.filmSurfaceCharge,
                              domainGenerator.seed)
 
-        showMessage("Generating 3D film with domain...")
-        film.surfaceWithDomain, film.realDomainConc = domainGenerator.generateDomain(film, self.filmDomainShape,
+        if generateDomain:
+            showMessage("Generating 3D film with domain...")
+            film.surfaceWithDomain, film.realDomainConc = domainGenerator.generateDomain(film, self.filmDomainShape,
                                                                                      self.filmDomainSize,
                                                                                      self.filmDomainConcentration,
                                                                                      self.filmDomainChargeConcentration)
+        else:
+            film.surfaceWithDomain, film.realDomainConc = film, 0.0
 
         # save the film into manager
         self.film.append(film)
