@@ -50,7 +50,7 @@ def runSimulation():
         filmNum = 1
         filmSurfaceCharge = +1
         filmDomainSize = (6, 6)
-        filmDomainShape = "diamond"
+        filmDomainShape = "cross"
         filmNeutralDomain = True
         filmDomainCon = 0.2  # if need to change charge ratio, change this
         filmDomainChargeConcentration = 0.5  # ignore
@@ -76,7 +76,7 @@ def runSimulation():
 
     bacteriaSurfaceCharge = -1
     bacteriaDomainSize = (3, 3)
-    bacteriaDomainShape = "diamond"
+    bacteriaDomainShape = "cross"
     bacteriaDomainCon = 0.2
     bacteriaDomainChargeConcentration = 0.5  # ignore
     bacteriaNeutralDomain = True
