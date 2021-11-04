@@ -13,10 +13,11 @@ from ExternalIO import *
 def runSimulation():
     # get log file
     write_at_end = True
-    write_log = True
+    write_log = False
     generate_image = False
+    printMessage = False
 
-    message = setIndicator(generate_image, write_log, write_at_end)
+    message = setIndicator(generate_image, write_log, write_at_end, printMessage)
     showMessage(message)
 
     showMessage("WARNING: validity of parameter uses is not check, use runSimulationCmd to check the validity of "
@@ -31,7 +32,7 @@ def runSimulation():
 
     # simulator info
     simulationType = 1
-    trail = 199999
+    trail = 1007
     dimension = 3
     simulatorType = 2
     interactType = "DOT"
@@ -64,7 +65,7 @@ def runSimulation():
 
     # bacteria info
     bacteriaSeed = 10
-    bacteriaNum = 5
+    bacteriaNum = 1400
     if dimension == 2:
         bacteriaSize = (30, 30)
         bacteriaSurfaceShape = "rectangle"
@@ -85,9 +86,9 @@ def runSimulation():
 
     # below are for dynamic simulation
     probabilityType = "SIMPLE"
-    timestep = 1000
+    timestep = 3000
     Lambda = 10
-    simple = 0.1
+    simple = 0.01
     bacteriaMovementSeed = 10
     unstuck = False
     unstuckProbability = 0.001

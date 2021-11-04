@@ -42,14 +42,17 @@ for file in file_list:
 
         total_bact_col_name = "I"
         stuck_bact_col_name = "N"
+        stuck_per_col_name = "Q"
 
-        # get column for total bacteria and stuck bacteria
+        # get column for total bacteria, stuck bacteria and stuck percentage
         total_bact_col = sheet[total_bact_col_name]
         stuck_bact_col = sheet[stuck_bact_col_name]
+        stuck_per_col = sheet[stuck_per_col_name]
 
         # Record result
         result.append(total_bact_col)
         result.append(stuck_bact_col)
+        result.append(stuck_per_col)
 
 
 # write result into ws
