@@ -25,15 +25,15 @@ def runSimulation():
     time.sleep(1)
 
     # read in prepared surface
-    # importSurfacePath = None
-    importSurfacePath = "SaveSurface/1.npy"
+    importSurfacePath = None
+    # importSurfacePath = "SaveSurface/1.npy"
     preparedSurface = None
 
     # simulator info
     simulationType = 1
-    trail = 99999
+    trail = 199999
     dimension = 3
-    simulatorType = 1
+    simulatorType = 2
     interactType = "DOT"
     # interactType = "CUTOFF"
 
@@ -91,6 +91,7 @@ def runSimulation():
     bacteriaMovementSeed = 10
     unstuck = False
     unstuckProbability = 0.001
+    generateDomain = False
 
     # take info for simulator
     if simulatorType == 1:
@@ -104,7 +105,7 @@ def runSimulation():
         # taking info for dynamic simulation
         parameter = {"probabilityType": probabilityType, "timeStep": timestep, "dumpStep": 1,
                      "bacteriaMovementSeed": bacteriaMovementSeed, "unstuck": unstuck,
-                     "unstuckProbability": unstuckProbability}
+                     "unstuckProbability": unstuckProbability, "generateDomain": generateDomain}
 
         if probabilityType.upper() == "SIMPLE":
             parameter["probability"] = simple
@@ -121,7 +122,7 @@ def runSimulation():
                     bacteriaSeed, bacteriaSize, bacteriaSurfaceShape, bacteriaSurfaceCharge,
                     bacteriaDomainSize, bacteriaDomainShape, bacteriaDomainCon, bacteriaDomainChargeConcentration,
                     filmNum, bacteriaNum, interval_x, interval_y, filmNeutralDomain, bacteriaNeutralDomain, parameter,
-                        preparedSurface)
+                    preparedSurface)
 
         sim.runSimulate()
         closeLog()

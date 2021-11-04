@@ -45,7 +45,8 @@ class Simulator(ABC):
                  bacteriaSurfaceCharge: int, bacteriaDomainSize: Tuple[int, int], bacteriaDomainShape: str,
                  bacteriaDomainConcentration: float, bacteriaDomainChargeConcentration: float,
                  filmNum: int, bacteriaNum: int, intervalX: int, intervalY: int, filmNeutralDomain: bool,
-                 bacteriaNeutralDomain: bool, parameters: Dict, preparedSurface: ndarray = None) -> None:
+                 bacteriaNeutralDomain: bool, parameters: Dict, preparedSurface: ndarray = None,
+                 generateDomain: bool = True) -> None:
         """
         Init the simulation class based on the input info
         Description of input info are shown in the HelpFile.txt
@@ -90,7 +91,7 @@ class Simulator(ABC):
 
         # generate corresponding variable
         if preparedSurface is None:
-            self.filmManager.generateFilm()
+            self.filmManager.generateFilm(generateDomain)
         else:
             self.filmManager.setSurface(preparedSurface)
 
