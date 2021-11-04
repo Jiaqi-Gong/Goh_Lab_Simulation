@@ -19,7 +19,7 @@ LOG_CACH = []
 
 # INDICATOR record three bool
 # first is generate image or not, second is generate log or not, third is write log at last or not
-INDICATOR = [False, False, False]
+INDICATOR = [False, False, False, False]
 
 
 def getHelp() -> Dict[str, str]:
@@ -63,7 +63,7 @@ def getRestriction() -> [Dict[str, str], Dict[str, str]]:
     return info_dict, exec_dict
 
 
-def setIndicator(writeImage: bool, recordLog: bool, writeAtLast: bool) -> str:
+def setIndicator(writeImage: bool, recordLog: bool, writeAtLast: bool, printMessage: bool) -> str:
     """
     This function set indicator
     """
@@ -109,6 +109,9 @@ def setIndicator(writeImage: bool, recordLog: bool, writeAtLast: bool) -> str:
 
     if writeAtLast:
         INDICATOR[2] = True
+
+    if printMessage:
+        INDICATOR[3] = True
 
     return message
 
@@ -176,7 +179,8 @@ def showMessage(message: str) -> None:
     This function take in a message and print it to the screen and record into the log file
     """
     # print to screen
-    print(message)
+    if INDICATOR[3]:
+        print(message)
 
     # write into the log
     writeLog(message)
