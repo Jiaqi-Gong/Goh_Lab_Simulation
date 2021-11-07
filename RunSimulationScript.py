@@ -32,7 +32,7 @@ def runSimulation():
 
     # simulator info
     simulationType = 1
-    trail = 1007
+    trail = 1001
     dimension = 3
     simulatorType = 2
     interactType = "DOT"
