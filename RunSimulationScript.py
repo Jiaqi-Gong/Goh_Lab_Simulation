@@ -32,7 +32,7 @@ def runSimulation():
 
     # simulator info
     simulationType = 1
-    trail = 1007
+    trail = 1001
     dimension = 3
     simulatorType = 2
     interactType = "DOT"
@@ -65,7 +65,7 @@ def runSimulation():
 
     # bacteria info
     bacteriaSeed = 10
-    bacteriaNum = 1400
+    bacteriaNum = 400
     if dimension == 2:
         bacteriaSize = (30, 30)
         bacteriaSurfaceShape = "rectangle"
