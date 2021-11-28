@@ -4,6 +4,7 @@ This programs:
 - Calculates stick/unstick probability
 """
 from typing import Tuple, Union
+from ExternalIO import *
 
 import numpy as np
 import math
@@ -32,12 +33,38 @@ class BacteriaMovementGenerator:
         self.bacteriaShape = bacteriaShape
         self.filmSize = filmSize
         self.bacteriaSize = bacteriaSize
+        self.occupyMap = np.zeros(filmSize)
 
         # Sets a random seed
         np.random.seed(self.seed)
 
-    # try with number 0.1 ... first then poisson
+    def _checkOccupy(self, bactPosition: Tuple[int, int, int]) -> bool:
+        """
+        This function check does this position occupied by bacteria
+        If occupied, return true
+        If not, return false and update the occupy map corresponding position from 0 to 1
+        bactPosition passed in is in format (x, y, z)
+        """
+        # get the range need to check
+        x_range = [int(bactPosition[0] - self.bacteriaSize[0] // 2), int(bactPosition[0] + self.bacteriaSize[0] // 2)]
+        y_range = [int(bactPosition[1] - self.bacteriaSize[1] // 2), int(bactPosition[1] + self.bacteriaSize[1] // 2)]
 
+        # get area need to check
+        try:
+            check_map = self.occupyMap[x_range[0]: x_range[1], y_range[0]: y_range[1]]
+        except:
+            showMessage("Check bacteria occupy out of range, bacteria position is: {}, occupy map size is: {}".format(
+                bactPosition, self.filmSize))
+            return True
+
+        # check the area
+        if 1 in check_map:
+            return True
+        else:
+            self.occupyMap[x_range[0]: x_range[1], y_range[0]: y_range[1]] = 1
+            return False
+
+    # try with number 0.1 ... first then poisson
     def _simple(self, probability: float) -> bool:
         # check does probability set
         if probability is None:
@@ -105,8 +132,8 @@ class BacteriaMovementGenerator:
         position points at the center of the bacteria
         """
         # the initial position of the bacteria will be randomly placed on the film
-        # however, need to set restrictions on where the bacteria will be placed since bacteria can't go off the surface
-        # for 3D bacteria
+        # however, need to set restrictions on where the bacteria will be placed since bacteria
+        # can't go off the surface for 3D bacteria
 
         if self.bacteriaShape.upper() in ["CUBOID", "SPHERE", "CYLINDER", "ROD"]:
             # set upperbound and lowerbound possibilities for the position of x,y,z
@@ -148,9 +175,12 @@ class BacteriaMovementGenerator:
         # check stuck or not
         # if stuck, result == 1, return false
         if result == 1:
-            return False
-        else:
-            return self._nextPositionHelper(position)
+            # check does this position occupied by other bacteria
+            if not self._checkOccupy(position):
+                showMessage("This position is occupied")
+                return False
+
+        return self._nextPositionHelper(position)
 
     def unstuckBacteria(self, probabilityType: str, probability: float) -> bool:
         """
@@ -170,8 +200,6 @@ class BacteriaMovementGenerator:
             return True
         else:
             return False
-
-
 
     def _nextPositionHelper(self, position: Tuple[int, int, int]) -> Tuple[int, int, int]:
         """
