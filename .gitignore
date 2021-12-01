@@ -4,11 +4,14 @@ BacteriaFile/__pycache__/
 DynamicResult/
 FilmFile/__pycache__/
 Image/
+ImageEnergy/
 Manager/__pycache__/
 Result/
+ResultEnergy/
 SimulatorFile/__pycache__/
 SurfaceGenerator/__pycache__/
 __pycache__/
 Log/
+LogEnergy/
 .ExternalIO.py.swp
 
