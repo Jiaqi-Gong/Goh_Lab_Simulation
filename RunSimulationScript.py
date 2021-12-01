@@ -90,7 +90,7 @@ def runSimulation():
     Lambda = 10
     simple = 0.01
     bacteriaMovementSeed = 10
-    unstuck = False
+    unstuck = True
     unstuckProbability = 0.001
     generateDomain = False
 
