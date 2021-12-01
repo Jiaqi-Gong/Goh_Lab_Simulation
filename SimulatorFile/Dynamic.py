@@ -249,7 +249,7 @@ class DynamicSimulator(Simulator):
         name = "Dynamic_trail_{}-{}-{}.xlsx".format(self.trail,
                                                     datetime.now().strftime("%m_%d"),
                                                     datetime.now().strftime("%H-%M-%S"))
-        file_path = "Result/" + name
+        file_path = "Result/ResultDynamic/" + name
 
         # call function in ExternalIO to save workbook
         saveResult(wb, file_path)
