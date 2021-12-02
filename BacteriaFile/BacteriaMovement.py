@@ -43,8 +43,11 @@ class BacteriaMovementGenerator:
         This function based on bacteria shape calculate the range should be check or relief
         """
         # get the range need to check
-        x_range = [int(bactPosition[0] - self.bacteriaSize[0] // 2), int(bactPosition[0] + self.bacteriaSize[0] // 2)]
-        y_range = [int(bactPosition[1] - self.bacteriaSize[1] // 2), int(bactPosition[1] + self.bacteriaSize[1] // 2)]
+        if self.bacteriaShape.upper() == "RECTANGLE":
+            x_range = [int(bactPosition[0] - self.bacteriaSize[0] // 2), int(bactPosition[0] + self.bacteriaSize[0] // 2)]
+            y_range = [int(bactPosition[1] - self.bacteriaSize[1] // 2), int(bactPosition[1] + self.bacteriaSize[1] // 2)]
+        else:
+            raise RuntimeError("bacteria movement generator get bacteria space range shape is not support")
 
         return x_range, y_range
 
@@ -82,7 +85,6 @@ class BacteriaMovementGenerator:
 
         # get area need to check
         try:
-            check_map = self.occupyMap[x_range[0]: x_range[1], y_range[0]: y_range[1]]
             # relief the area
             self.occupyMap[x_range[0]: x_range[1], y_range[0]: y_range[1]] = 0
         except:
