@@ -38,6 +38,16 @@ class BacteriaMovementGenerator:
         # Sets a random seed
         np.random.seed(self.seed)
 
+    def _getBacteriaSpaceRange(self, bactPosition: Tuple[int, int, int]):
+        """
+        This function based on bacteria shape calculate the range should be check or relief
+        """
+        # get the range need to check
+        x_range = [int(bactPosition[0] - self.bacteriaSize[0] // 2), int(bactPosition[0] + self.bacteriaSize[0] // 2)]
+        y_range = [int(bactPosition[1] - self.bacteriaSize[1] // 2), int(bactPosition[1] + self.bacteriaSize[1] // 2)]
+
+        return x_range, y_range
+
     def _checkOccupy(self, bactPosition: Tuple[int, int, int]) -> bool:
         """
         This function check does this position occupied by bacteria
@@ -45,9 +55,7 @@ class BacteriaMovementGenerator:
         If not, return false and update the occupy map corresponding position from 0 to 1
         bactPosition passed in is in format (x, y, z)
         """
-        # get the range need to check
-        x_range = [int(bactPosition[0] - self.bacteriaSize[0] // 2), int(bactPosition[0] + self.bacteriaSize[0] // 2)]
-        y_range = [int(bactPosition[1] - self.bacteriaSize[1] // 2), int(bactPosition[1] + self.bacteriaSize[1] // 2)]
+        x_range, y_range = self._getBacteriaSpaceRange(bactPosition)
 
         # get area need to check
         try:
@@ -63,6 +71,23 @@ class BacteriaMovementGenerator:
         else:
             self.occupyMap[x_range[0]: x_range[1], y_range[0]: y_range[1]] = 1
             return False
+
+    def reliefOccupy(self, bactPosition: Tuple[int, int, int]) -> bool:
+        """
+        This function relief the position occupied by bacteria
+        bactPosition passed in is in format (x, y, z)
+        """
+        # get the range need to relief
+        x_range, y_range = self._getBacteriaSpaceRange(bactPosition)
+
+        # get area need to check
+        try:
+            check_map = self.occupyMap[x_range[0]: x_range[1], y_range[0]: y_range[1]]
+            # relief the area
+            self.occupyMap[x_range[0]: x_range[1], y_range[0]: y_range[1]] = 0
+        except:
+            showMessage("Relief bacteria occupy out of range, bacteria position is: {}, occupy map size is: {}".format(
+                bactPosition, self.filmSize))
 
     # try with number 0.1 ... first then poisson
     def _simple(self, probability: float) -> bool:

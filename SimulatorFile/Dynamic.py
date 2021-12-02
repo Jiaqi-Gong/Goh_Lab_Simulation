@@ -307,6 +307,7 @@ class DynamicSimulator(Simulator):
 
                 # based on bact status, move bacteria in list
                 if bactStatus:
+                    bactMoveGenerator.reliefOccupy(sbact.position)
                     stuck_bact.remove(sbact)
                     free_bact.append(sbact)
 
