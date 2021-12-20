@@ -193,6 +193,17 @@ def saveResult(wb: workbook, path: str) -> None:
     if not os.path.exists("Result"):
         os.mkdir("Result")
 
+    if "Energy" in path:
+        if not os.path.exists("Result/ResultEnergy"):
+            os.mkdir("Result/ResultEnergy")
+
+    elif "Dynamic" in path:
+        if not os.path.exists("Result/ResultDynamic"):
+            os.mkdir("Result/ResultDynamic")
+
+    else:
+        raise RuntimeError("Folder not found")
+
     wb.save(path)
 
     showMessage("Output done, saved at {}".format(path))

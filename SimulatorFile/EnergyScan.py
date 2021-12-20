@@ -294,7 +294,7 @@ class EnergySimulator(Simulator):
 
         # save the excel file into folder result
         name = "EnergyScan_Type_{}_trail_{}-{}-{}_count.xlsx".format(str(self.simulationType), self.trail, date, time)
-        file_path = "Result/" + name
+        file_path = "Result/ResultEnergy/" + name
 
         # call function in ExternalIO to save workbook
         saveResult(wb, file_path)

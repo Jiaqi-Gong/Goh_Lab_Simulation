@@ -50,7 +50,7 @@ class FilmSurface2D(Film, ABC):
         """
         Generates the corresponding surface; override in subclass
         """
-        print("Beginning surface generation with shape: ", self.shape)
+        writeLog("Beginning surface generation with shape: {}".format(self.shape))
 
         # Generates corresponding shape
         if self.shape.upper() == "RECTANGLE":
@@ -94,7 +94,7 @@ class FilmSurface3D(Film, ABC):
         """
         Generates the corresponding surface; override in subclass
         """
-        print("Beginning surface generation with shape: ", self.shape)
+        writeLog("Beginning surface generation with shape: {}".format(self.shape))
 
         # Generate corresponding shape
         if self.shape.upper() == "RECTANGLE":
