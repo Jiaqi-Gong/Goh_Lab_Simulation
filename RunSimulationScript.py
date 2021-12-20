@@ -10,12 +10,12 @@ from SimulatorFile.EnergyScan import EnergySimulator
 from ExternalIO import *
 
 
-def runSimulation():
+def runSimulation(trail, bacteriaNum):
     # get log file
     write_at_end = True
-    write_log = False
+    write_log = True
     generate_image = False
-    printMessage = False
+    printMessage = True
 
     message = setIndicator(generate_image, write_log, write_at_end, printMessage)
     showMessage(message)
@@ -32,7 +32,7 @@ def runSimulation():
 
     # simulator info
     simulationType = 1
-    trail = 1001
+    # trail = 1001
     dimension = 3
     simulatorType = 2
     interactType = "DOT"
@@ -44,7 +44,7 @@ def runSimulation():
         if dimension == 2:
             filmSurfaceSize = (1000, 1000)
         elif dimension == 3:
-            filmSurfaceSize = (1000, 1000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
+            filmSurfaceSize = (10000, 10000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
         else:
             raise RuntimeError("Unknown dimension: {}".format(dimension))
         filmSurfaceShape = "rectangle"
@@ -65,7 +65,7 @@ def runSimulation():
 
     # bacteria info
     bacteriaSeed = 10
-    bacteriaNum = 400
+    # bacteriaNum = 400
     if dimension == 2:
         bacteriaSize = (30, 30)
         bacteriaSurfaceShape = "rectangle"
@@ -90,7 +90,7 @@ def runSimulation():
     Lambda = 10
     simple = 0.01
     bacteriaMovementSeed = 10
-    unstuck = True
+    unstuck = False
     unstuckProbability = 0.001
     generateDomain = False
 
@@ -140,5 +140,10 @@ def runSimulation():
 
 
 if __name__ == '__main__':
-    runSimulation()
+    for i in range(8, 12):
+        trail = 1000 + i
+        bacteriaNum = 200 * i
+        print("Start trail {} with bact number {}".format(trail, bacteriaNum))
+        runSimulation(trail, bacteriaNum)
+        print("Trail {} with bact number {} done".format(trail, bacteriaNum))
 
