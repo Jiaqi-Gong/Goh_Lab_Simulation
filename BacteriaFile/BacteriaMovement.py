@@ -43,11 +43,23 @@ class BacteriaMovementGenerator:
         This function based on bacteria shape calculate the range should be check or relief
         """
         # get the range need to check
-        if self.bacteriaShape.upper() == "RECTANGLE":
-            x_range = [int(bactPosition[0] - self.bacteriaSize[0] // 2), int(bactPosition[0] + self.bacteriaSize[0] // 2)]
-            y_range = [int(bactPosition[1] - self.bacteriaSize[1] // 2), int(bactPosition[1] + self.bacteriaSize[1] // 2)]
+        if self.bacteriaShape.upper() == "CUBOID":
+            x_range = [int(bactPosition[0] - self.bacteriaSize[0] // 2),
+                       int(bactPosition[0] + self.bacteriaSize[0] // 2)]
+            y_range = [int(bactPosition[1] - self.bacteriaSize[1] // 2),
+                       int(bactPosition[1] + self.bacteriaSize[1] // 2)]
+        elif self.bacteriaShape.upper() == "SPHERE":
+            x_range = [int(bactPosition[0] - self.bacteriaSize[0] // 2),
+                       int(bactPosition[0] + self.bacteriaSize[0] // 2)]
+            y_range = [int(bactPosition[1] - self.bacteriaSize[1] // 2),
+                       int(bactPosition[1] + self.bacteriaSize[1] // 2)]
+        elif self.bacteriaShape.upper() == "CYLINDER":
+            raise NotImplementedError
+        elif self.bacteriaShape.upper() == "ROD":
+            raise NotImplementedError
         else:
-            raise RuntimeError("bacteria movement generator get bacteria space range shape is not support")
+            raise RuntimeError("bacteria movement generator get bacteria space range shape is not support: {}".
+                               format(self.bacteriaShape))
 
         return x_range, y_range
 
