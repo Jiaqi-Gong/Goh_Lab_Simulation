@@ -12,15 +12,15 @@ from ExternalIO import *
 
 def runSimulation(trail, bacteriaNum, simple, unstuckProbability):
     # get log file
-    write_at_end = True
-    write_log = True
-    generate_image = True
-    printMessage = True
+    write_at_end = False
+    write_log = False
+    generate_image = False
+    printMessage = False
 
     # simulator info
-    simulationType = 1
+    simulationType = 2
     # trail = 1001
-    dimension = 2
+    dimension = 3
     simulatorType = 2
     interactType = "DOT"
     # interactType = "CUTOFF"

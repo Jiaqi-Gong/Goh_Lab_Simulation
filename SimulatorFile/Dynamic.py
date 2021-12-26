@@ -9,6 +9,9 @@ from numpy import ndarray
 from openpyxl import Workbook
 from openpyxl.worksheet._write_only import WriteOnlyWorksheet
 from openpyxl.worksheet.worksheet import Worksheet
+import numpy as np
+import scipy.optimize
+import pandas as pd
 
 from ExternalIO import writeLog, showMessage, saveResult
 from SimulatorFile.Simulator import Simulator
@@ -120,9 +123,6 @@ class DynamicSimulator(Simulator):
         # save the last simulate, if it is not saved in the loop
         if (self.timeStep - 1) % self.dumpStep != 0:
             self._output(result, self.timeStep - 1, end)
-
-        # now calculate the equilibrium amount of bacteria stuck in the film
-
 
         showMessage("Dynamic Simulation: Complete.")
 
@@ -257,6 +257,15 @@ class DynamicSimulator(Simulator):
         # call function in ExternalIO to save workbook
         saveResult(wb, file_path)
 
+        # now calculate the equilibrium amount of bacteria stuck in the film, since this is the final step
+        equilibrium = self._calcEquilibrium(file_path)
+
+        ws1.cell(1, 20, "equilibrium")
+        ws1.cell(2, 20, equilibrium)
+        # call function in ExternalIO to save workbook
+        saveResult(wb, file_path)
+
+
     def _simulate(self, bactMoveGenerator: BacteriaMovementGenerator) -> None:
         """
         This function do the simulate
@@ -317,3 +326,30 @@ class DynamicSimulator(Simulator):
         # updated free and stuck bacteria to manager
         self.bacteriaManager.freeBacteria = free_bact
         self.bacteriaManager.stuckBacteria = stuck_bact
+
+    def monoExp(self, x, m, t, b):
+        return -m * np.exp(-t * x) + b
+
+    def _calcEquilibrium(self, filePath: str) -> float:
+        """
+        This function calculates the equilibrium bacteria amount
+        """
+        # read the first sheet
+        master_sheet = pd.read_excel(filePath, sheet_name=0, index_col=None)
+
+        # determine the column of stuck bacteria and timestep
+        timestep = master_sheet["Time step"]
+        stuck_bacteria = master_sheet["Stuck bacteria number"]
+
+        p0 = (2000, .1, 50)  # start with values near those we expect
+        params, cv = scipy.optimize.curve_fit(self.monoExp, timestep, stuck_bacteria, p0)
+        m, t, b = params
+
+        # y = -me^(-tx) + b
+        # the equilibrium number would be the b value
+        equilibrium = b
+
+        return equilibrium
+
+
+
