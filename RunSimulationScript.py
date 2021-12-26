@@ -14,10 +14,18 @@ def runSimulation(trail, bacteriaNum, simple, unstuckProbability):
     # get log file
     write_at_end = True
     write_log = True
-    generate_image = False
+    generate_image = True
     printMessage = True
 
-    message = setIndicator(generate_image, write_log, write_at_end, printMessage)
+    # simulator info
+    simulationType = 1
+    # trail = 1001
+    dimension = 2
+    simulatorType = 2
+    interactType = "DOT"
+    # interactType = "CUTOFF"
+
+    message = setIndicator(generate_image, write_log, write_at_end, printMessage, simulatorType)
     showMessage(message)
 
     showMessage("WARNING: validity of parameter uses is not check, use runSimulationCmd to check the validity of "
@@ -29,14 +37,6 @@ def runSimulation(trail, bacteriaNum, simple, unstuckProbability):
     importSurfacePath = None
     # importSurfacePath = "SaveSurface/1.npy"
     preparedSurface = None
-
-    # simulator info
-    simulationType = 1
-    # trail = 1001
-    dimension = 3
-    simulatorType = 2
-    interactType = "DOT"
-    # interactType = "CUTOFF"
 
     if importSurfacePath is None:
         # film info

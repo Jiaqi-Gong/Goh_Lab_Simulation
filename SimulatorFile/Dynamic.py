@@ -121,6 +121,9 @@ class DynamicSimulator(Simulator):
         if (self.timeStep - 1) % self.dumpStep != 0:
             self._output(result, self.timeStep - 1, end)
 
+        # now calculate the equilibrium amount of bacteria stuck in the film
+
+
         showMessage("Dynamic Simulation: Complete.")
 
     def _initOutput(self) -> Tuple[Workbook, Union[WriteOnlyWorksheet, Worksheet]]:
