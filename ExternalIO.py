@@ -499,6 +499,13 @@ def _visPlot3D(array: ndarray, picName: str, date: Dict) -> None:
     showMessage("Image generate done")
 
 
+def timstepPlot(timestep: List, stuck_bacteria: List) -> None:
+    """
+    This function creates a graph of number of stuck bacteria on the film overtime
+    """
+    pass
+
+
 def importSurface(filepath: str) -> ndarray:
     """
     This function read in the pre-generated surface structure

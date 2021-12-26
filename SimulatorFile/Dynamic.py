@@ -257,13 +257,26 @@ class DynamicSimulator(Simulator):
         # call function in ExternalIO to save workbook
         saveResult(wb, file_path)
 
-        # now calculate the equilibrium amount of bacteria stuck in the film, since this is the final step
-        equilibrium = self._calcEquilibrium(file_path)
+        # read the excel file to generate image
+        # read the first sheet
+        master_sheet = pd.read_excel(file_path, sheet_name=0, index_col=None)
 
-        ws1.cell(1, 20, "equilibrium")
-        ws1.cell(2, 20, equilibrium)
-        # call function in ExternalIO to save workbook
-        saveResult(wb, file_path)
+        # determine the column of stuck bacteria and timestep
+        timestep = master_sheet["Time step"]
+        stuck_bacteria = master_sheet["Stuck bacteria number"]
+
+        # now calculate the equilibrium amount of bacteria stuck in the film, since this is the final step
+        # we only need to calculate the equilibrium amount of bacteria if the unstuck is true
+        if self.unstuck:
+            equilibrium = self._calcEquilibrium(timestep, stuck_bacteria)
+
+            ws1.cell(1, 20, "equilibrium bacteria stuck")
+            ws1.cell(2, 20, equilibrium)
+            # call function in ExternalIO to save workbook
+            saveResult(wb, file_path)
+
+        # generate a graph
+
 
 
     def _simulate(self, bactMoveGenerator: BacteriaMovementGenerator) -> None:
@@ -330,16 +343,10 @@ class DynamicSimulator(Simulator):
     def monoExp(self, x, m, t, b):
         return -m * np.exp(-t * x) + b
 
-    def _calcEquilibrium(self, filePath: str) -> float:
+    def _calcEquilibrium(self, timestep: List, stuck_bacteria: List) -> float:
         """
         This function calculates the equilibrium bacteria amount
         """
-        # read the first sheet
-        master_sheet = pd.read_excel(filePath, sheet_name=0, index_col=None)
-
-        # determine the column of stuck bacteria and timestep
-        timestep = master_sheet["Time step"]
-        stuck_bacteria = master_sheet["Stuck bacteria number"]
 
         p0 = (2000, .1, 50)  # start with values near those we expect
         params, cv = scipy.optimize.curve_fit(self.monoExp, timestep, stuck_bacteria, p0)

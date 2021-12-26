@@ -141,7 +141,7 @@ def runSimulation(trail, bacteriaNum, simple, unstuckProbability):
 
 if __name__ == '__main__':
 
-    for i in range(0, 6):
+    for i in range(0, 1):
         trail = 2000 + i
         bacteriaNum = 1000
         stuckProbability = 0.09 - 0.002 * i
