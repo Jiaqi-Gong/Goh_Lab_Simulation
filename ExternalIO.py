@@ -5,6 +5,8 @@ import os
 from datetime import datetime
 from typing import Dict, IO, List
 
+from SimulatorFile.Dynamic import DynamicSimulator
+
 import numpy as np
 from numpy import ndarray
 from openpyxl.packaging import workbook
@@ -499,11 +501,31 @@ def _visPlot3D(array: ndarray, picName: str, date: Dict) -> None:
     showMessage("Image generate done")
 
 
-def timstepPlot(timestep: List, stuck_bacteria: List) -> None:
+def timstepPlot(timestep: List, stuck_bacteria: List, param: List) -> None:
     """
     This function creates a graph of number of stuck bacteria on the film overtime
     """
-    pass
+    # we will only generate an image for dynamic simulation if the user askes for an image
+    if INDICATOR[0]:
+        # set the parameters
+        m, t, b = param
+
+        plt.plot(timestep, stuck_bacteria, '.', label="data")
+        plt.plot(timestep, DynamicSimulator.monoExp(timestep, m, t, b), '--', label="fitted")
+
+        # save the figure
+        now = datetime.now()
+        day = now.strftime("%m_%d")
+        current_time = now.strftime("%H_%M_%S")
+
+        picFolder = "Image/ImageDynamic/{}_{}".format(day, current_time)
+        if not os.path.exists(picFolder):
+            os.mkdir(picFolder)
+
+        picName = "Dynamic_simulation_graph"
+        picPath = "{}/{}.png".format(picFolder, picName)
+
+        plt.savefig(picPath, dpi=300, bbox_inches='tight')
 
 
 def importSurface(filepath: str) -> ndarray:

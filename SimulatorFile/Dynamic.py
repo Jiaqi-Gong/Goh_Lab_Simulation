@@ -13,7 +13,7 @@ import numpy as np
 import scipy.optimize
 import pandas as pd
 
-from ExternalIO import writeLog, showMessage, saveResult
+from ExternalIO import writeLog, showMessage, saveResult, timstepPlot
 from SimulatorFile.Simulator import Simulator
 from BacteriaFile.BacteriaMovement import BacteriaMovementGenerator
 
@@ -266,16 +266,17 @@ class DynamicSimulator(Simulator):
         stuck_bacteria = master_sheet["Stuck bacteria number"]
 
         # now calculate the equilibrium amount of bacteria stuck in the film, since this is the final step
-        # we only need to calculate the equilibrium amount of bacteria if the unstuck is true
-        if self.unstuck:
-            equilibrium = self._calcEquilibrium(timestep, stuck_bacteria)
+        equilibrium, param = self._calcEquilibrium(timestep, stuck_bacteria)
 
+        # we only need to record the equilibrium amount of bacteria if the unstuck is true
+        if self.unstuck:
             ws1.cell(1, 20, "equilibrium bacteria stuck")
             ws1.cell(2, 20, equilibrium)
             # call function in ExternalIO to save workbook
             saveResult(wb, file_path)
 
         # generate a graph
+        timstepPlot(timestep, stuck_bacteria, param)
 
 
 
@@ -343,7 +344,7 @@ class DynamicSimulator(Simulator):
     def monoExp(self, x, m, t, b):
         return -m * np.exp(-t * x) + b
 
-    def _calcEquilibrium(self, timestep: List, stuck_bacteria: List) -> float:
+    def _calcEquilibrium(self, timestep: List, stuck_bacteria: List) -> List:
         """
         This function calculates the equilibrium bacteria amount
         """
@@ -356,7 +357,7 @@ class DynamicSimulator(Simulator):
         # the equilibrium number would be the b value
         equilibrium = b
 
-        return equilibrium
+        return [equilibrium, params]
 
 
 
