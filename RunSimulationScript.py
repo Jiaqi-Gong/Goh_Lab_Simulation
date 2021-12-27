@@ -14,7 +14,7 @@ def runSimulation(trail, bacteriaNum, simple, unstuckProbability):
     # get log file
     write_at_end = False
     write_log = False
-    generate_image = False
+    generate_image = True
     printMessage = False
 
     # simulator info
