@@ -498,7 +498,7 @@ def _visPlot3D(array: ndarray, picName: str, date: Dict) -> None:
     showMessage(f"Total time it took to generate image is {totalTime} seconds")
     showMessage("Image generate done")
 
-def monoExp(self, x, m, t, b):
+def monoExp(x, m, t, b):
     """
     Exponential equation used to calculate equilibrium bacteria amount
     """
