@@ -249,9 +249,12 @@ class DynamicSimulator(Simulator):
             return None
 
         # save the excel file into folder result
+        date = {"day": datetime.now().strftime("%m_%d"),
+                "current_time": datetime.now().strftime("%H-%M-%S")}
+
         name = "Dynamic_trail_{}-{}-{}.xlsx".format(self.trail,
-                                                    datetime.now().strftime("%m_%d"),
-                                                    datetime.now().strftime("%H-%M-%S"))
+                                                    date["day"],
+                                                    date["current_time"])
         file_path = "Result/ResultDynamic/" + name
 
         # call function in ExternalIO to save workbook
@@ -276,7 +279,7 @@ class DynamicSimulator(Simulator):
             saveResult(wb, file_path)
 
         # generate a graph
-        timstepPlot(timestep, stuck_bacteria, param)
+        timstepPlot(timestep, stuck_bacteria, param, date)
 
 
 

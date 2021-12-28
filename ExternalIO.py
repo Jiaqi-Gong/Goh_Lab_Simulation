@@ -504,7 +504,7 @@ def monoExp(x, m, t, b):
     """
     return -m * np.exp(-t * x) + b
 
-def timstepPlot(timestep: List, stuck_bacteria: List, param: List) -> None:
+def timstepPlot(timestep: List, stuck_bacteria: List, param: List, date: Dict) -> None:
     """
     This function creates a graph of number of stuck bacteria on the film overtime
     """
@@ -516,10 +516,19 @@ def timstepPlot(timestep: List, stuck_bacteria: List, param: List) -> None:
         plt.plot(timestep, stuck_bacteria, '.', label="data")
         plt.plot(timestep, monoExp(timestep, m, t, b), '--', label="fitted")
 
+        # create a legend
+        plt.legend(loc="upper right", bbox_to_anchor=(1.5, 1.0))
+
+        # set x and y labels
+        plt.xlabel("Time")
+        plt.ylabel("Number of stuck bacteria")
+
+        # set title
+        plt.title("Number of stuck bacteria vs Time")
+
         # save the figure
-        now = datetime.now()
-        day = now.strftime("%m_%d")
-        current_time = now.strftime("%H_%M_%S")
+        day = date["day"]
+        current_time = date["current_time"]
 
         picFolder = "Image/ImageDynamic/{}_{}".format(day, current_time)
         if not os.path.exists(picFolder):
