@@ -13,7 +13,7 @@ import numpy as np
 import scipy.optimize
 import pandas as pd
 
-from ExternalIO import writeLog, showMessage, saveResult, timstepPlot
+from ExternalIO import writeLog, showMessage, saveResult, timstepPlot, monoExp
 from SimulatorFile.Simulator import Simulator
 from BacteriaFile.BacteriaMovement import BacteriaMovementGenerator
 
@@ -341,16 +341,13 @@ class DynamicSimulator(Simulator):
         self.bacteriaManager.freeBacteria = free_bact
         self.bacteriaManager.stuckBacteria = stuck_bact
 
-    def monoExp(self, x, m, t, b):
-        return -m * np.exp(-t * x) + b
 
     def _calcEquilibrium(self, timestep: List, stuck_bacteria: List) -> List:
         """
         This function calculates the equilibrium bacteria amount
         """
-
         p0 = (2000, .1, 50)  # start with values near those we expect
-        params, cv = scipy.optimize.curve_fit(self.monoExp, timestep, stuck_bacteria, p0)
+        params, cv = scipy.optimize.curve_fit(monoExp, timestep, stuck_bacteria, p0)
         m, t, b = params
 
         # y = -me^(-tx) + b

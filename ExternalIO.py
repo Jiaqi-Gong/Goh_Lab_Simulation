@@ -5,8 +5,6 @@ import os
 from datetime import datetime
 from typing import Dict, IO, List
 
-from SimulatorFile.Dynamic import DynamicSimulator
-
 import numpy as np
 from numpy import ndarray
 from openpyxl.packaging import workbook
@@ -500,6 +498,11 @@ def _visPlot3D(array: ndarray, picName: str, date: Dict) -> None:
     showMessage(f"Total time it took to generate image is {totalTime} seconds")
     showMessage("Image generate done")
 
+def monoExp(self, x, m, t, b):
+    """
+    Exponential equation used to calculate equilibrium bacteria amount
+    """
+    return -m * np.exp(-t * x) + b
 
 def timstepPlot(timestep: List, stuck_bacteria: List, param: List) -> None:
     """
@@ -511,7 +514,7 @@ def timstepPlot(timestep: List, stuck_bacteria: List, param: List) -> None:
         m, t, b = param
 
         plt.plot(timestep, stuck_bacteria, '.', label="data")
-        plt.plot(timestep, DynamicSimulator.monoExp(timestep, m, t, b), '--', label="fitted")
+        plt.plot(timestep, monoExp(timestep, m, t, b), '--', label="fitted")
 
         # save the figure
         now = datetime.now()
@@ -526,7 +529,6 @@ def timstepPlot(timestep: List, stuck_bacteria: List, param: List) -> None:
         picPath = "{}/{}.png".format(picFolder, picName)
 
         plt.savefig(picPath, dpi=300, bbox_inches='tight')
-
 
 def importSurface(filepath: str) -> ndarray:
     """
