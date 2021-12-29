@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=28
-#SBATCH --time=3:00:00
+#SBATCH --cpus-per-task=4
+#SBATCH --time=9:00:00
 #SBATCH --mem=50G
 
 #SBATCH --mail-user=rei.katsuta@mail.utoronto.ca
