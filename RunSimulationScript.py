@@ -141,7 +141,7 @@ def runSimulation(trail, bacteriaNum):
 
 if __name__ == '__main__':
 
-    for i in range(0, 1):
+    for i in range(0, 13):
         trail = 1000 + i
         bacteriaNum = 500 * (1 + i)
         print("Start trail {} with bact number {}".format(trail, bacteriaNum))
