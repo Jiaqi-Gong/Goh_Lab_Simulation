@@ -504,7 +504,7 @@ def monoExp(x, m, t, b):
     """
     return -m * np.exp(-t * x) + b
 
-def timstepPlot(timestep: List, stuck_bacteria: List, param: List, date: Dict) -> None:
+def timstepPlot(timestep: List, stuck_bacteria: List, param: List, date: Dict, trial: str) -> None:
     """
     This function creates a graph of number of stuck bacteria on the film overtime
     """
@@ -534,7 +534,7 @@ def timstepPlot(timestep: List, stuck_bacteria: List, param: List, date: Dict) -
         if not os.path.exists(picFolder):
             os.mkdir(picFolder)
 
-        picName = "Dynamic_simulation_graph"
+        picName = f"Dynamic_simulation_graph_trial_{trial}"
         picPath = "{}/{}.png".format(picFolder, picName)
 
         plt.savefig(picPath, dpi=300, bbox_inches='tight')

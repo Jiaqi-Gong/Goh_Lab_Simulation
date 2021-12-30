@@ -279,7 +279,7 @@ class DynamicSimulator(Simulator):
             saveResult(wb, file_path)
 
         # generate a graph
-        timstepPlot(timestep, stuck_bacteria, param, date)
+        timstepPlot(timestep, stuck_bacteria, param, date, self.trail)
 
 
 
