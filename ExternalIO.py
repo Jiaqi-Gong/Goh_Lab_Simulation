@@ -513,18 +513,22 @@ def timstepPlot(timestep: List, stuck_bacteria: List, param: List, date: Dict, t
         # set the parameters
         m, t, b = param
 
-        plt.plot(timestep, stuck_bacteria, '.', label="data")
-        plt.plot(timestep, monoExp(timestep, m, t, b), '--', label="fitted")
+        # initialize the figure and subplot
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+
+        ax.plot(timestep, stuck_bacteria, '.', label="data")
+        ax.plot(timestep, monoExp(timestep, m, t, b), '--', label="fitted")
 
         # create a legend
-        plt.legend(loc="upper right", bbox_to_anchor=(1.5, 1.0))
+        ax.legend(loc="upper right", bbox_to_anchor=(1.5, 1.0))
 
         # set x and y labels
-        plt.xlabel("Time")
-        plt.ylabel("Number of stuck bacteria")
+        ax.set_xlabel("Time")
+        ax.set_ylabel("Number of stuck bacteria")
 
         # set title
-        plt.title("Number of stuck bacteria vs Time")
+        ax.title("Number of stuck bacteria vs Time")
 
         # save the figure
         day = date["day"]
