@@ -112,7 +112,10 @@ def setIndicator(writeImage: bool, recordLog: bool, writeAtLast: bool, printMess
             os.mkdir("Log")
 
         log_name = "Log/log_{}_{}.txt".format(day, current_time)
+        time_log_name = "Log/time_log_{}_{}.txt".format(day, current_time)
+
         _openLog(log_name)
+        _openTimeLog(time_log_name)
 
         message += "Log saved as: {}\n".format(log_name)
     else:
@@ -133,6 +136,14 @@ def _openLog(log_name) -> None:
     """
     global log
     log = open(log_name, "w")
+
+
+def _openTimeLog(log_name) -> None:
+    """
+    This function open a log file
+    """
+    global timeLog
+    timeLog = open(log_name, "w")
 
 
 def closeLog() -> None:
@@ -166,6 +177,7 @@ def closeLog() -> None:
             showMessage(f"Total time it took to write log is {totalTime} seconds")
 
         log.close()
+        timeLog.close()
 
 
 def writeLog(message) -> None:
@@ -498,11 +510,13 @@ def _visPlot3D(array: ndarray, picName: str, date: Dict) -> None:
     showMessage(f"Total time it took to generate image is {totalTime} seconds")
     showMessage("Image generate done")
 
+
 def monoExp(x, m, t, b):
     """
     Exponential equation used to calculate equilibrium bacteria amount
     """
     return -m * np.exp(-t * x) + b
+
 
 def timstepPlot(timestep: List, stuck_bacteria: List, param: List, date: Dict) -> None:
     """
@@ -539,6 +553,7 @@ def timstepPlot(timestep: List, stuck_bacteria: List, param: List, date: Dict) -
 
         plt.savefig(picPath, dpi=300, bbox_inches='tight')
 
+
 def importSurface(filepath: str) -> ndarray:
     """
     This function read in the pre-generated surface structure
@@ -561,3 +576,19 @@ def saveSurface(info: List, fileName: str) -> None:
     result_data = np.array(info, dtype=object)
     np.save(output_path, result_data)
 
+
+def timeMonitor(func):
+    """
+    A decorator to monitor time for this function
+    """
+
+    def wrapper(*args):
+        start = time.time()
+        result = func(*args)
+        end = time.time()
+        total_time = end - start
+        info = "Total time used for function {} is: {}".format(func.__name__, total_time)
+        timeLog.write(info)
+        return result
+
+    return wrapper
