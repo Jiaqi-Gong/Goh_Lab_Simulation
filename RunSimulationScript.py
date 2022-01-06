@@ -10,7 +10,7 @@ from SimulatorFile.EnergyScan import EnergySimulator
 from ExternalIO import *
 
 
-def runSimulation(trail, bacteriaNum):
+def runSimulation():
     # get log file
     write_at_end = False
     write_log = True
@@ -19,7 +19,7 @@ def runSimulation(trail, bacteriaNum):
 
     # simulator info
     simulationType = 2
-    # trail = 1001
+    trail = 9999
     dimension = 3
     simulatorType = 2
     interactType = "DOT"
@@ -44,7 +44,7 @@ def runSimulation(trail, bacteriaNum):
         if dimension == 2:
             filmSurfaceSize = (1000, 1000)
         elif dimension == 3:
-            filmSurfaceSize = (10000, 10000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
+            filmSurfaceSize = (1000, 1000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
         else:
             raise RuntimeError("Unknown dimension: {}".format(dimension))
         filmSurfaceShape = "rectangle"
@@ -65,12 +65,12 @@ def runSimulation(trail, bacteriaNum):
 
     # bacteria info
     bacteriaSeed = 10
-    # bacteriaNum = 400
+    bacteriaNum = 40
     if dimension == 2:
         bacteriaSize = (30, 30)
         bacteriaSurfaceShape = "rectangle"
     elif dimension == 3:
-        bacteriaSize = (100, 100, 5)  # For bacteria, z value is the height of bacteria, can be any number
+        bacteriaSize = (50, 50, 5)  # For bacteria, z value is the height of bacteria, can be any number
         bacteriaSurfaceShape = "cuboid"
     else:
         raise RuntimeError("Unknown dimension: {}".format(dimension))
@@ -140,10 +140,11 @@ def runSimulation(trail, bacteriaNum):
 
 
 if __name__ == '__main__':
+    runSimulation()
 
-    for i in range(0, 1):
-        trail = 1000 + i
-        bacteriaNum = 500 * (1 + i)
-        print("Start trail {} with bact number {}".format(trail, bacteriaNum))
-        runSimulation(trail, bacteriaNum)
-        print("Trail {} with bact number {}".format(trail, bacteriaNum))
+    # for i in range(0, 1):
+    #     trail = 1000 + i
+    #     bacteriaNum = 500 * (1 + i)
+    #     print("Start trail {} with bact number {}".format(trail, bacteriaNum))
+    #     runSimulation(trail, bacteriaNum)
+    #     print("Trail {} with bact number {}".format(trail, bacteriaNum))

@@ -216,7 +216,7 @@ class BacteriaMovementGenerator:
         if result == 1:
             # check does this position occupied by other bacteria
             if not self._checkOccupy(position):
-                showMessage("This position is occupied")
+                # showMessage("This position is occupied")
                 return False
 
         return self._nextPositionHelper(position)

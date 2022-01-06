@@ -19,7 +19,7 @@ LOG_CACH = []
 LOG_DICT = {}
 
 # INDICATOR record three bool
-# first is generate image or not, second is generate log or not, third is write log at last or not
+# first is generate image or not, second is generate log or not, third is write log at last or not, fourth is print message
 INDICATOR = [False, False, False, False]
 
 
@@ -190,7 +190,7 @@ def writeLog(message) -> None:
         info = "Time: {}, {}\n".format(current_time, message)
 
         # depends on the requirement, write log now or later
-        if INDICATOR[2]:
+        if not INDICATOR[2]:
             LOG_DICT["log"].write(info)
         else:
             LOG_CACH.append(info)

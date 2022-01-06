@@ -7,7 +7,7 @@ from typing import Tuple, Union
 from BacteriaFile.Bacteria import Bacteria2D, Bacteria3D
 from BacteriaFile.BacteriaMovement import BacteriaMovementGenerator
 from SurfaceGenerator.Domain import DomainGenerator
-from ExternalIO import showMessage, writeLog
+from ExternalIO import showMessage, writeLog, timeMonitor
 
 
 class BacteriaManager:
@@ -68,8 +68,8 @@ class BacteriaManager:
 
         # show message
         showMessage("Bacteria manager initialization: Complete.")
-        # writeLog(self.__dict__)
 
+    @timeMonitor
     def generateBacteria(self) -> None:
         """
         This function generates corresponding bacteria need based on the desired dimension.

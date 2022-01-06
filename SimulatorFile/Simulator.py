@@ -11,7 +11,7 @@ from openpyxl import Workbook
 from openpyxl.worksheet._write_only import WriteOnlyWorksheet
 from openpyxl.worksheet.worksheet import Worksheet
 
-from ExternalIO import writeLog, showMessage
+from ExternalIO import writeLog, showMessage, timeMonitor
 from Manager.FilmManager import FilmManager
 from Manager.BacteriaManager import BacteriaManager
 
