@@ -16,6 +16,7 @@ mpl.use('Agg')
 import matplotlib.pyplot as plt
 
 LOG_CACH = []
+LOG_DICT = {}
 
 # INDICATOR record three bool
 # first is generate image or not, second is generate log or not, third is write log at last or not
@@ -112,7 +113,10 @@ def setIndicator(writeImage: bool, recordLog: bool, writeAtLast: bool, printMess
             os.mkdir("Log")
 
         log_name = "Log/log_{}_{}.txt".format(day, current_time)
+        time_log_name = "Log/time_log_{}_{}.txt".format(day, current_time)
+
         _openLog(log_name)
+        _openTimeLog(time_log_name)
 
         message += "Log saved as: {}\n".format(log_name)
     else:
@@ -131,8 +135,14 @@ def _openLog(log_name) -> None:
     """
     This function open a log file
     """
-    global log
-    log = open(log_name, "w")
+    LOG_DICT["log"] = open(log_name, "w")
+
+
+def _openTimeLog(log_name) -> None:
+    """
+    This function open a log file
+    """
+    LOG_DICT["time"] = open(log_name, "w")
 
 
 def closeLog() -> None:
@@ -149,23 +159,24 @@ def closeLog() -> None:
             current_time = now.strftime("%H:%M:%S")
 
             info = "Time: {}, {}\n".format(current_time, "Write log at last, start to write it")
-            log.write(info)
+            LOG_DICT["log"].write(info)
 
             for i in LOG_CACH:
-                log.write(i)
+                LOG_DICT["log"].write(i)
 
             now = datetime.now()
             current_time = now.strftime("%H:%M:%S")
 
             info = "Time: {}, {}\n".format(current_time, "Write log at last done")
-            log.write(info)
+            LOG_DICT["log"].write(info)
 
             endTime = time.time()
             totalTime = endTime - startTime
 
             showMessage(f"Total time it took to write log is {totalTime} seconds")
 
-        log.close()
+        LOG_DICT["log"].close()
+        LOG_DICT["time"].close()
 
 
 def writeLog(message) -> None:
@@ -180,7 +191,7 @@ def writeLog(message) -> None:
 
         # depends on the requirement, write log now or later
         if INDICATOR[2]:
-            log.write(info)
+            LOG_DICT["log"].write(info)
         else:
             LOG_CACH.append(info)
 
@@ -498,11 +509,13 @@ def _visPlot3D(array: ndarray, picName: str, date: Dict) -> None:
     showMessage(f"Total time it took to generate image is {totalTime} seconds")
     showMessage("Image generate done")
 
+
 def monoExp(x, m, t, b):
     """
     Exponential equation used to calculate equilibrium bacteria amount
     """
     return -m * np.exp(-t * x) + b
+
 
 def timstepPlot(timestep: List, stuck_bacteria: List, param: List, date: Dict) -> None:
     """
@@ -539,6 +552,7 @@ def timstepPlot(timestep: List, stuck_bacteria: List, param: List, date: Dict) -
 
         plt.savefig(picPath, dpi=300, bbox_inches='tight')
 
+
 def importSurface(filepath: str) -> ndarray:
     """
     This function read in the pre-generated surface structure
@@ -561,3 +575,19 @@ def saveSurface(info: List, fileName: str) -> None:
     result_data = np.array(info, dtype=object)
     np.save(output_path, result_data)
 
+
+def timeMonitor(func):
+    """
+    A decorator to monitor time for this function
+    """
+
+    def wrapper(*args):
+        start = time.time()
+        result = func(*args)
+        end = time.time()
+        total_time = end - start
+        info = "Total time used for function {} is: {} \n".format(func.__name__, total_time)
+        LOG_DICT["time"].write(info)
+        return result
+
+    return wrapper
