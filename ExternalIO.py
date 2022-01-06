@@ -16,6 +16,7 @@ mpl.use('Agg')
 import matplotlib.pyplot as plt
 
 LOG_CACH = []
+LOG_DICT = {}
 
 # INDICATOR record three bool
 # first is generate image or not, second is generate log or not, third is write log at last or not
@@ -134,16 +135,14 @@ def _openLog(log_name) -> None:
     """
     This function open a log file
     """
-    global log
-    log = open(log_name, "w")
+    LOG_DICT["log"] = open(log_name, "w")
 
 
 def _openTimeLog(log_name) -> None:
     """
     This function open a log file
     """
-    global timeLog
-    timeLog = open(log_name, "w")
+    LOG_DICT["time"] = open(log_name, "w")
 
 
 def closeLog() -> None:
@@ -160,24 +159,24 @@ def closeLog() -> None:
             current_time = now.strftime("%H:%M:%S")
 
             info = "Time: {}, {}\n".format(current_time, "Write log at last, start to write it")
-            log.write(info)
+            LOG_DICT["log"].write(info)
 
             for i in LOG_CACH:
-                log.write(i)
+                LOG_DICT["log"].write(i)
 
             now = datetime.now()
             current_time = now.strftime("%H:%M:%S")
 
             info = "Time: {}, {}\n".format(current_time, "Write log at last done")
-            log.write(info)
+            LOG_DICT["log"].write(info)
 
             endTime = time.time()
             totalTime = endTime - startTime
 
             showMessage(f"Total time it took to write log is {totalTime} seconds")
 
-        log.close()
-        timeLog.close()
+        LOG_DICT["log"].close()
+        LOG_DICT["time"].close()
 
 
 def writeLog(message) -> None:
@@ -192,7 +191,7 @@ def writeLog(message) -> None:
 
         # depends on the requirement, write log now or later
         if INDICATOR[2]:
-            log.write(info)
+            LOG_DICT["log"].write(info)
         else:
             LOG_CACH.append(info)
 
@@ -587,8 +586,8 @@ def timeMonitor(func):
         result = func(*args)
         end = time.time()
         total_time = end - start
-        info = "Total time used for function {} is: {}".format(func.__name__, total_time)
-        timeLog.write(info)
+        info = "Total time used for function {} is: {} \n".format(func.__name__, total_time)
+        LOG_DICT["time"].write(info)
         return result
 
     return wrapper

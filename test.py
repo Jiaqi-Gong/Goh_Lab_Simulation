@@ -16,7 +16,7 @@ from ExternalIO import *
 import multiprocessing as mp
 import os
 
-from ExternalIO import _openTimeLog, _openLog
+from ExternalIO import timeMonitor
 
 
 def test_diamond():
@@ -475,8 +475,7 @@ def runTime(p):
 def multiRun():
     probability = [0.1, 0.3, 0.5, 0.7]
 
-    global timeLog
-    timeLog = open("timeLog.txt", "w")
+    setIndicator(True, True, True, True, 1)
 
     for i in probability:
         result = runTime(i)
