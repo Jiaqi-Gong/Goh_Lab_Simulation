@@ -63,7 +63,7 @@ def getRestriction() -> [Dict[str, str], Dict[str, str]]:
     return info_dict, exec_dict
 
 
-def setIndicator(writeImage: bool, recordLog: bool, writeAtLast: bool, printMessage: bool) -> str:
+def setIndicator(writeImage: bool, recordLog: bool, writeAtLast: bool, printMessage: bool, simulatorType: int) -> str:
     """
     This function set indicator
     """
@@ -84,8 +84,19 @@ def setIndicator(writeImage: bool, recordLog: bool, writeAtLast: bool, printMess
         if not os.path.exists("Image"):
             os.mkdir("Image")
 
+        # if the simulation is energy scan, see if there is a folder called ImageEnergy
+        if simulatorType == 1:
+            name = "Energy"
+
+        elif simulatorType == 2:
+            name = "Dynamic"
+
+        if not os.path.exists(f"Image/Image{name}"):
+            os.mkdir(f"Image/Image{name}")
+
         global picFolder
-        picFolder = "Image/{}_{}".format(day, current_time)
+        picFolder = "Image/Image{}".format(name)
+        # picFolder = "Image/Image{}/{}_{}".format(name, day, current_time)
 
         if not os.path.exists(picFolder):
             os.mkdir(picFolder)
@@ -209,7 +220,7 @@ def saveResult(wb: workbook, path: str) -> None:
     showMessage("Output done, saved at {}".format(path))
 
 
-def visPlot(array: ndarray, picName: str, dimension: int) -> None:
+def visPlot(array: ndarray, picName: str, dimension: int, date: Dict) -> None:
     """
     THis function based on the dimension of passed in ndarray to call appropriate function
     """
@@ -217,14 +228,14 @@ def visPlot(array: ndarray, picName: str, dimension: int) -> None:
         writeLog(["This is visplot", array, picName, dimension])
         # based on the dimension call different function to generate image
         if dimension == 2:
-            _visPlot2D(array, picName)
+            _visPlot2D(array, picName, date)
         elif dimension == 3:
-            _visPlot3D(array, picName)
+            _visPlot3D(array, picName, date)
         else:
             raise RuntimeError("Unknown dimension of array pass in")
 
 
-def _visPlot2D(array: ndarray, picName: str) -> None:
+def _visPlot2D(array: ndarray, picName: str, date: Dict) -> None:
     """
     This function take in a 2D ndarray and save this array as a image with given name
     """
@@ -232,9 +243,8 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
 
     startTime = time.time()
 
-    now = datetime.now()
-    day = now.strftime("%m_%d")
-    current_time = now.strftime("%H_%M_%S")
+    day = date["day"]
+    current_time = date["current_time"]
 
     # locate where the positive, negative, and neutral charges are
     pos = np.where(array == 1)
@@ -297,16 +307,9 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
 
     plt.title(name)
 
-    # create folder to save figure in
-    global picFolder
-    if "picFolder" not in globals():
-        # save the image
-        if not os.path.exists("Image"):
-            os.mkdir("Image")
-
-        picFolder = "Image/{}_{}".format(day, current_time)
-        if not os.path.exists(picFolder):
-            os.mkdir(picFolder)
+    picFolder = "Image/ImageEnergy/{}_{}".format(day, current_time)
+    if not os.path.exists(picFolder):
+        os.mkdir(picFolder)
 
     picPath = "{}/{}.png".format(picFolder, picName)
 
@@ -318,7 +321,7 @@ def _visPlot2D(array: ndarray, picName: str) -> None:
     showMessage("Image generate done")
 
 
-def _visPlot3D(array: ndarray, picName: str) -> None:
+def _visPlot3D(array: ndarray, picName: str, date: Dict) -> None:
     """
     This function take in a 3D ndarray and save this array as a image with given name
     """
@@ -326,20 +329,12 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
 
     startTime = time.time()
 
-    now = datetime.now()
-    day = now.strftime("%m_%d")
-    current_time = now.strftime("%H_%M_%S")
+    day = date["day"]
+    current_time = date["current_time"]
 
-    # create a folder to store all the images
-    global picFolder
-    if "picFolder" not in globals():
-        # save the image
-        if not os.path.exists("Image"):
-            os.mkdir("Image")
-
-        picFolder = "Image/{}_{}".format(day, current_time)
-        if not os.path.exists(picFolder):
-            os.mkdir(picFolder)
+    picFolder = "Image/ImageEnergy/{}_{}".format(day, current_time)
+    if not os.path.exists(picFolder):
+        os.mkdir(picFolder)
 
     # separate the way to generate images into 2 cases
     # if the surface is a film, we only need to see the top
@@ -503,6 +498,46 @@ def _visPlot3D(array: ndarray, picName: str) -> None:
     showMessage(f"Total time it took to generate image is {totalTime} seconds")
     showMessage("Image generate done")
 
+def monoExp(x, m, t, b):
+    """
+    Exponential equation used to calculate equilibrium bacteria amount
+    """
+    return -m * np.exp(-t * x) + b
+
+def timstepPlot(timestep: List, stuck_bacteria: List, param: List, date: Dict) -> None:
+    """
+    This function creates a graph of number of stuck bacteria on the film overtime
+    """
+    # we will only generate an image for dynamic simulation if the user askes for an image
+    if INDICATOR[0]:
+        # set the parameters
+        m, t, b = param
+
+        plt.plot(timestep, stuck_bacteria, '.', label="data")
+        plt.plot(timestep, monoExp(timestep, m, t, b), '--', label="fitted")
+
+        # create a legend
+        plt.legend(loc="upper right", bbox_to_anchor=(1.5, 1.0))
+
+        # set x and y labels
+        plt.xlabel("Time")
+        plt.ylabel("Number of stuck bacteria")
+
+        # set title
+        plt.title("Number of stuck bacteria vs Time")
+
+        # save the figure
+        day = date["day"]
+        current_time = date["current_time"]
+
+        picFolder = "Image/ImageDynamic/{}_{}".format(day, current_time)
+        if not os.path.exists(picFolder):
+            os.mkdir(picFolder)
+
+        picName = "Dynamic_simulation_graph"
+        picPath = "{}/{}.png".format(picFolder, picName)
+
+        plt.savefig(picPath, dpi=300, bbox_inches='tight')
 
 def importSurface(filepath: str) -> ndarray:
     """

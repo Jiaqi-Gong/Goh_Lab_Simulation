@@ -18,4 +18,5 @@ LogEnergy/
 LogDynamic/
 .ExternalIO.py.swp
 SaveSurface/
+*.out
 

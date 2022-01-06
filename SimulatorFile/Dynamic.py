@@ -9,8 +9,11 @@ from numpy import ndarray
 from openpyxl import Workbook
 from openpyxl.worksheet._write_only import WriteOnlyWorksheet
 from openpyxl.worksheet.worksheet import Worksheet
+import numpy as np
+import scipy.optimize
+import pandas as pd
 
-from ExternalIO import writeLog, showMessage, saveResult
+from ExternalIO import writeLog, showMessage, saveResult, timstepPlot, monoExp
 from SimulatorFile.Simulator import Simulator
 from BacteriaFile.BacteriaMovement import BacteriaMovementGenerator
 
@@ -246,13 +249,39 @@ class DynamicSimulator(Simulator):
             return None
 
         # save the excel file into folder result
+        date = {"day": datetime.now().strftime("%m_%d"),
+                "current_time": datetime.now().strftime("%H-%M-%S")}
+
         name = "Dynamic_trail_{}-{}-{}.xlsx".format(self.trail,
-                                                    datetime.now().strftime("%m_%d"),
-                                                    datetime.now().strftime("%H-%M-%S"))
+                                                    date["day"],
+                                                    date["current_time"])
         file_path = "Result/ResultDynamic/" + name
 
         # call function in ExternalIO to save workbook
         saveResult(wb, file_path)
+
+        # read the excel file to generate image
+        # read the first sheet
+        master_sheet = pd.read_excel(file_path, sheet_name=0, index_col=None)
+
+        # determine the column of stuck bacteria and timestep
+        timestep = master_sheet["Time step"]
+        stuck_bacteria = master_sheet["Stuck bacteria number"]
+
+        # now calculate the equilibrium amount of bacteria stuck in the film, since this is the final step
+        equilibrium, param = self._calcEquilibrium(timestep, stuck_bacteria)
+
+        # we only need to record the equilibrium amount of bacteria if the unstuck is true
+        if self.unstuck:
+            ws1.cell(1, 20, "equilibrium bacteria stuck")
+            ws1.cell(2, 20, equilibrium)
+            # call function in ExternalIO to save workbook
+            saveResult(wb, file_path)
+
+        # generate a graph
+        timstepPlot(timestep, stuck_bacteria, param, date)
+
+
 
     def _simulate(self, bactMoveGenerator: BacteriaMovementGenerator) -> None:
         """
@@ -314,3 +343,21 @@ class DynamicSimulator(Simulator):
         # updated free and stuck bacteria to manager
         self.bacteriaManager.freeBacteria = free_bact
         self.bacteriaManager.stuckBacteria = stuck_bact
+
+
+    def _calcEquilibrium(self, timestep: List, stuck_bacteria: List) -> List:
+        """
+        This function calculates the equilibrium bacteria amount
+        """
+        p0 = (2000, .1, 50)  # start with values near those we expect
+        params, cv = scipy.optimize.curve_fit(monoExp, timestep, stuck_bacteria, p0)
+        m, t, b = params
+
+        # y = -me^(-tx) + b
+        # the equilibrium number would be the b value
+        equilibrium = b
+
+        return [equilibrium, params]
+
+
+

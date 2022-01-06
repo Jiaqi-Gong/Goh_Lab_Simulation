@@ -12,12 +12,20 @@ from ExternalIO import *
 
 def runSimulation(trail, bacteriaNum):
     # get log file
-    write_at_end = True
+    write_at_end = False
     write_log = True
     generate_image = False
     printMessage = True
 
-    message = setIndicator(generate_image, write_log, write_at_end, printMessage)
+    # simulator info
+    simulationType = 2
+    # trail = 1001
+    dimension = 3
+    simulatorType = 2
+    interactType = "DOT"
+    # interactType = "CUTOFF"
+
+    message = setIndicator(generate_image, write_log, write_at_end, printMessage, simulatorType)
     showMessage(message)
 
     showMessage("WARNING: validity of parameter uses is not check, use runSimulationCmd to check the validity of "
@@ -29,14 +37,6 @@ def runSimulation(trail, bacteriaNum):
     importSurfacePath = None
     # importSurfacePath = "SaveSurface/1.npy"
     preparedSurface = None
-
-    # simulator info
-    simulationType = 1
-    # trail = 1001
-    dimension = 3
-    simulatorType = 2
-    interactType = "DOT"
-    # interactType = "CUTOFF"
 
     if importSurfacePath is None:
         # film info
@@ -86,11 +86,11 @@ def runSimulation(trail, bacteriaNum):
 
     # below are for dynamic simulation
     probabilityType = "SIMPLE"
-    timestep = 3000
+    timestep = 5000
     Lambda = 10
     simple = 0.01
     bacteriaMovementSeed = 10
-    unstuck = False
+    unstuck = True
     unstuckProbability = 0.001
     generateDomain = False
 
@@ -140,10 +140,10 @@ def runSimulation(trail, bacteriaNum):
 
 
 if __name__ == '__main__':
-    for i in range(8, 12):
+
+    for i in range(0, 1):
         trail = 1000 + i
-        bacteriaNum = 200 * i
+        bacteriaNum = 500 * (1 + i)
         print("Start trail {} with bact number {}".format(trail, bacteriaNum))
         runSimulation(trail, bacteriaNum)
-        print("Trail {} with bact number {} done".format(trail, bacteriaNum))
-
+        print("Trail {} with bact number {}".format(trail, bacteriaNum))

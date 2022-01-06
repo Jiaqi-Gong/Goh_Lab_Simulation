@@ -26,6 +26,17 @@ def interact(interactType: str, intervalX: int, intervalY: int, film: ndarray, b
     # writeLog("intervalX is: {}, intervalY is: {}, film is: {}, bacteria is: {}".format(
     #     intervalX, intervalY, film, bacteria))
 
+    # determine the time to save file in folder
+    # get time
+    now = datetime.now()
+    day = now.strftime("%m_%d")
+    current_time = now.strftime("%H_%M_%S")
+
+    # create dictionary of time
+    date = {"day":day,
+            "current_time": current_time}
+
+
     startTime = time.time()
 
     # based on dimension, do different thing
@@ -36,8 +47,8 @@ def interact(interactType: str, intervalX: int, intervalY: int, film: ndarray, b
 
         # show image of whole film and bacteria
         if currIter == 0:
-            visPlot(film, "whole_film_2D_{}".format(currIter), 2)
-        visPlot(bacteria, "whole_bacteria_2D_{}".format(currIter), 2)
+            visPlot(film, "whole_film_2D_{}".format(currIter), 2, date)
+        visPlot(bacteria, "whole_bacteria_2D_{}".format(currIter), 2, date)
 
         # shape of the film
         film_shape = film.shape
@@ -51,8 +62,8 @@ def interact(interactType: str, intervalX: int, intervalY: int, film: ndarray, b
 
     elif dimension == 3:
         # show image of whole film and bacteria
-        visPlot(film, "whole_film_3D_{}".format(currIter), 3)
-        visPlot(bacteria, "whole_bacteria_3D_{}".format(currIter), 3)
+        visPlot(film, "whole_film_3D_{}".format(currIter), 3, date)
+        visPlot(bacteria, "whole_bacteria_3D_{}".format(currIter), 3, date)
 
         # shape of the film
         film_shape = film.shape
@@ -125,7 +136,7 @@ def interact(interactType: str, intervalX: int, intervalY: int, film: ndarray, b
     writeLog("Path is: {}".format(path))
 
     # print the min_film
-    visPlot(min_film, "film_at_minimum_{}".format(currIter), 2)
+    visPlot(min_film, "film_at_minimum_{}".format(currIter), 2, date)
 
     showMessage("Interact done")
     writeLog(result)
