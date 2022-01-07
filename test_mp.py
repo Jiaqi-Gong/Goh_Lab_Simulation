@@ -243,7 +243,6 @@ def _calculateEnergy(data: Tuple[ndarray, ndarray, ndarray, ndarray], interactTy
     return (result, min_film)
 
 
-
 def _trans3DTo1D(arrayList: ndarray) -> ndarray:
     """
     This helper function take in a 3D ndarray list and transfer to 1D ndarray, divide value by it's height
@@ -284,7 +283,7 @@ def _trans3DTo1D(arrayList: ndarray) -> ndarray:
                     height = z + 1
 
                 # change value
-                array_2D[y][x] = value/height
+                array_2D[y][x] = value / height
                 visited_size += 1
 
                 if visited_size == arrayList.size:
@@ -316,11 +315,9 @@ def _getCutoffFilm1D(film: ndarray, startPoint: Tuple[int, int], bacteriaSize: T
     # append corresponding film into list in 1D
     for x_s in range(x_start, x_end + 1):
         for y_s in range(y_start, y_end + 1):
-            film_list.append(np.reshape(film[y_s : y_s + bacteriaSize[1], x_s : x_s + bacteriaSize[1]], (-1,)))
+            film_list.append(np.reshape(film[y_s: y_s + bacteriaSize[1], x_s: x_s + bacteriaSize[1]], (-1,)))
 
     return film_list
-
-
 
 
 def dot_test1(range_x, ncpus):
@@ -350,14 +347,39 @@ def print_result():
         print(string)
 
 
+class BigList:
+    def __init__(self):
+        self.content = []
+
+def mpAppendTest(processNum):
+    # testClass = BigList()
+    print(f"process number is {processNum}")
+    # using partial to set all the constant variables
+    resultList = []
+    data = [100, 200, 300, 400]
+
+    pool = mp.Pool(processes=processNum)
+    result = pool.map(mpAppend, data[:processNum])
+    print(result)
+
+
+def mpAppend(startNum: int):
+    resultList = []
+    for i in range(10):
+        n = startNum + i
+        resultList.append(n)
+    return resultList
+
+
 if __name__ == '__main__':
-    ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)), 1)
-    # ncpus = 8
+    # ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)), 1)
+    ncpus = 4
     print("ncpus is: {}".format(ncpus))
 
-    for n in range(1, ncpus + 1):
-        start(n)
-
-    time_result.append("%%%%%%%%%%%%%%%%%%%")
-
-    print_result()
+    # for n in range(1, ncpus + 1):
+    #     start(n)
+    #
+    # time_result.append("%%%%%%%%%%%%%%%%%%%")
+    #
+    # print_result()
+    mpAppendTest(ncpus)
