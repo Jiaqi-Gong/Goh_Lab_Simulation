@@ -5,7 +5,6 @@ This program:
 import os
 from typing import Tuple, Union, List
 
-from Bacteria import Bacteria2D, Bacteria3D
 from BacteriaFile.Bacteria import Bacteria2D, Bacteria3D
 from BacteriaFile.BacteriaMovement import BacteriaMovementGenerator
 from SurfaceGenerator.Domain import DomainGenerator

@@ -304,7 +304,7 @@ class DynamicSimulator(Simulator):
         free_bact = self.bacteriaManager.freeBacteria[:]
         stuck_bact = self.bacteriaManager.stuckBacteria[:]
 
-        self._stick_bact(bactMoveGenerator, free_bact, stuck_bact)
+        self._stickBact(bactMoveGenerator, free_bact, stuck_bact)
 
         # if can unstack, call function to unstuck bacteria
         if self.unstuck:
@@ -315,7 +315,7 @@ class DynamicSimulator(Simulator):
         self.bacteriaManager.stuckBacteria = stuck_bact
 
     @timeMonitor
-    def _stick_bact(self, bactMoveGenerator, free_bact, stuck_bact):
+    def _stickBact(self, bactMoveGenerator, free_bact, stuck_bact):
         """
         A helper function to decide every bacteria stick or not
         """
