@@ -2,12 +2,14 @@
 This program:
 - Saves and manages all bacteria
 """
-from typing import Tuple, Union
+import os
+from typing import Tuple, Union, List
 
 from BacteriaFile.Bacteria import Bacteria2D, Bacteria3D
 from BacteriaFile.BacteriaMovement import BacteriaMovementGenerator
 from SurfaceGenerator.Domain import DomainGenerator
-from ExternalIO import showMessage, writeLog
+from ExternalIO import showMessage, writeLog, timeMonitor
+import multiprocessing as mp
 
 
 class BacteriaManager:
@@ -68,29 +70,83 @@ class BacteriaManager:
 
         # show message
         showMessage("Bacteria manager initialization: Complete.")
-        # writeLog(self.__dict__)
 
+    @timeMonitor
     def generateBacteria(self) -> None:
         """
         This function generates corresponding bacteria need based on the desired dimension.
         """
 
-        for i in range(self.bacteriaNum):
-            seed = self.bacteriaSeed + i
+        # using mp to speed up generate
+        ncpus = max(int(os.environ.get('SLURM_CPUS_PER_TASK', default=1)), 1)
+        # ncpus = 8
+
+        # original version
+        # for i in range(self.bacteriaNum):
+        #     seed = self.bacteriaSeed + i
+        #
+        #     # generate domain generator
+        #     bacteriaDomainGenerator = DomainGenerator(seed, self.neutralDomain)
+        #
+        #     if self.dimension == 2:
+        #         self._generate2DBacteria(bacteriaDomainGenerator)
+        #
+        #     elif self.dimension == 3:
+        #         self._generate3DBacteria(bacteriaDomainGenerator)
+        #
+        #     else:
+        #         raise RuntimeError("This is not a valid bacteria dimension.")
+
+        # mp version
+        # setup mp pool
+        pool = mp.Pool(processes=ncpus)
+
+        # setup data
+        data = []
+
+        # calculate the number for each process with floor
+        eachBactNum = int(self.bacteriaNum / ncpus)
+        lastBactNum = self.bacteriaNum - eachBactNum * (ncpus - 1)
+
+        # append data
+        for i in range(ncpus - 1):
+            temp_data = [eachBactNum, self.bacteriaSeed + eachBactNum * i]
+            data.append(temp_data)
+
+        # append last one
+        temp_data = [lastBactNum, self.bacteriaSeed + self.bacteriaNum - lastBactNum ]
+        data.append(temp_data)
+
+        result = pool.map(self._mpGenerateBacteria, data)
+        bacteria_lst = [item for sublist in result for item in sublist]
+        self.bacteria.extend(bacteria_lst)
+
+    def _mpGenerateBacteria(self, data: List[int]) -> List:
+        """
+        A multiprocess function for generate bacteria
+        Take in data, first is bacteria number and second is seed
+        """
+        bacteriaNum, seed = data
+
+        # init a list save bact
+        bact_lst = []
+
+        for i in range(bacteriaNum):
+            seed = seed + i
 
             # generate domain generator
             bacteriaDomainGenerator = DomainGenerator(seed, self.neutralDomain)
 
             if self.dimension == 2:
-                self._generate2DBacteria(bacteriaDomainGenerator)
-
+                bact_lst.append(self._generate2DBacteria(bacteriaDomainGenerator))
             elif self.dimension == 3:
-                self._generate3DBacteria(bacteriaDomainGenerator)
-
+                bact_lst.append(self._generate3DBacteria(bacteriaDomainGenerator))
             else:
                 raise RuntimeError("This is not a valid bacteria dimension.")
 
-    def _generate2DBacteria(self, domainGenerator: DomainGenerator) -> None:
+        return bact_lst
+
+    def _generate2DBacteria(self, domainGenerator: DomainGenerator) -> Bacteria2D:
         """
         Generates 2D bacteria
         """
@@ -107,13 +163,18 @@ class BacteriaManager:
                                                                                              self.bacteriaDomainChargeConcentration)
 
         # save the bacteria into manager
-        self.bacteria.append(bacteria)
+        # no mp method
+        # self.bacteria.append(bacteria)
 
         # write into log
         showMessage("2D bacteria generation: Complete.")
         writeLog(self.bacteria)
 
-    def _generate3DBacteria(self, domainGenerator: DomainGenerator) -> None:
+        # save the bacteria into manager
+        # mp method
+        return bacteria
+
+    def _generate3DBacteria(self, domainGenerator: DomainGenerator) -> Bacteria3D:
         """
         Generate 3D bacteria
         """
@@ -138,8 +199,13 @@ class BacteriaManager:
                                                                     self.bacteriaDomainChargeConcentration)
 
         # save the bacteria into manager
-        self.bacteria.append(bacteria)
+        # np mp method
+        # self.bacteria.append(bacteria)
 
         # write into log
         showMessage("3D bacteria generation: Complete.")
         writeLog(self.bacteria)
+
+        # save the bacteria into manager
+        # mp method
+        return bacteria

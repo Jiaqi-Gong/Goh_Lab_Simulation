@@ -10,7 +10,7 @@ from numpy import ndarray
 from openpyxl.worksheet._write_only import WriteOnlyWorksheet
 from openpyxl.worksheet.worksheet import Worksheet
 from SimulatorFile.EnergyCalculator import interact
-from ExternalIO import showMessage, writeLog, saveResult
+from ExternalIO import showMessage, writeLog, saveResult, timeMonitor
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter  # allows access to letters of each column
 from SimulatorFile.Simulator import Simulator
@@ -62,6 +62,7 @@ class EnergySimulator(Simulator):
                            filmNum, bacteriaNum, intervalX, intervalY, filmNeutralDomain, bacteriaNeutralDomain,
                            parameters, preparedSurface)
 
+    @timeMonitor
     def runSimulate(self) -> None:
         """
         Based on the simulation type, do the corresponding simulation

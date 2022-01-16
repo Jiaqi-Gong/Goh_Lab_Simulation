@@ -16,6 +16,8 @@ from ExternalIO import *
 import multiprocessing as mp
 import os
 
+from ExternalIO import timeMonitor
+
 
 def test_diamond():
     a = np.zeros((15, 15))
@@ -443,13 +445,44 @@ def testSave():
     a = importSurface("{}.npy".format(file_name[:-1]))
     print(a)
 
-
     # name = 0.1
 
     # np.save("{}".format(name), np.array([name, arrayList], dtype=object))
     #
     # a = np.load("{}.npy".format(name), allow_pickle=True)
 
+
+def prob(p):
+    stick = np.random.choice([1, 0], 1, p=[p, 1 - p])
+
+    return stick
+
+
+@timeMonitor
+def runTime(p):
+    result = {"stuck": 0, "unstuck": 0}
+
+    for i in range(10000):
+        if prob(p):
+            result["stuck"] += 1
+        else:
+            result["unstuck"] += 1
+
+    # print(result)
+    return result
+
+
+def multiRun():
+    probability = [0.1, 0.3, 0.5, 0.7]
+
+    setIndicator(True, True, True, True, 1)
+
+    for i in probability:
+        result = runTime(i)
+        print(result)
+
+    closeLog()
+#
 
 if __name__ == '__main__':
     # test_diamond()
@@ -487,4 +520,8 @@ if __name__ == '__main__':
 
     # testCutoffFilm()
 
-    testSave()
+    # testSave()
+
+    # runTime()
+
+    multiRun()

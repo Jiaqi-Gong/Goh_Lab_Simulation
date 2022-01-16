@@ -13,7 +13,7 @@ import numpy as np
 import scipy.optimize
 import pandas as pd
 
-from ExternalIO import writeLog, showMessage, saveResult, timstepPlot, monoExp
+from ExternalIO import writeLog, showMessage, saveResult, timstepPlot, monoExp, timeMonitor
 from SimulatorFile.Simulator import Simulator
 from BacteriaFile.BacteriaMovement import BacteriaMovementGenerator
 
@@ -112,7 +112,7 @@ class DynamicSimulator(Simulator):
             if currIter == self.timeStep - 1:
                 end = True
 
-            # do the simulate
+            # do the simulation
             self._simulate(bactMoveGenerator)
             result = [len(self.bacteriaManager.freeBacteria), len(self.bacteriaManager.stuckBacteria)]
 
@@ -281,8 +281,7 @@ class DynamicSimulator(Simulator):
         # generate a graph
         timstepPlot(timestep, stuck_bacteria, param, date, self.trail)
 
-
-
+    @timeMonitor
     def _simulate(self, bactMoveGenerator: BacteriaMovementGenerator) -> None:
         """
         This function do the simulate
@@ -305,6 +304,21 @@ class DynamicSimulator(Simulator):
         free_bact = self.bacteriaManager.freeBacteria[:]
         stuck_bact = self.bacteriaManager.stuckBacteria[:]
 
+        self._stickBact(bactMoveGenerator, free_bact, stuck_bact)
+
+        # if can unstack, call function to unstuck bacteria
+        if self.unstuck:
+            self._unstuckBact(bactMoveGenerator, free_bact, stuck_bact)
+
+        # updated free and stuck bacteria to manager
+        self.bacteriaManager.freeBacteria = free_bact
+        self.bacteriaManager.stuckBacteria = stuck_bact
+
+    @timeMonitor
+    def _stickBact(self, bactMoveGenerator, free_bact, stuck_bact):
+        """
+        A helper function to decide every bacteria stick or not
+        """
         # loop all free bacteria
         for bact in self.bacteriaManager.freeBacteria:
             # get next position based on probability type
@@ -324,26 +338,25 @@ class DynamicSimulator(Simulator):
                 # bacteria is not stuck, update the position
                 bact.position = bactNextPos
 
-        # if can unstack, loop all stuck bacteria
-        if self.unstuck:
-            for sbact in self.bacteriaManager.stuckBacteria:
-                # get to see if bacteria can free
-                if self.probabilityType.upper() == "SIMPLE":
-                    bactStatus = bactMoveGenerator.unstuckBacteria(self.probabilityType, self.unstuckProbability)
-                else:
-                    raise RuntimeError(
-                        "This is _interact in Dynamic simulator, the input probability type is not implement")
+    @timeMonitor
+    def _unstuckBact(self, bactMoveGenerator, free_bact, stuck_bact):
+        """
+        A helper function for unstuck bacteria
+        Loop all stuck bacteria and decide free or not
+        """
+        for bact in self.bacteriaManager.stuckBacteria:
+            # get to see if bacteria can free
+            if self.probabilityType.upper() == "SIMPLE":
+                bactStatus = bactMoveGenerator.unstuckBacteria(self.probabilityType, self.unstuckProbability)
+            else:
+                raise RuntimeError(
+                    "This is _interact in Dynamic simulator, the input probability type is not implement")
 
-                # based on bact status, move bacteria in list
-                if bactStatus:
-                    bactMoveGenerator.reliefOccupy(sbact.position)
-                    stuck_bact.remove(sbact)
-                    free_bact.append(sbact)
-
-        # updated free and stuck bacteria to manager
-        self.bacteriaManager.freeBacteria = free_bact
-        self.bacteriaManager.stuckBacteria = stuck_bact
-
+            # based on bact status, move bacteria in list
+            if bactStatus:
+                bactMoveGenerator.reliefOccupy(bact.position)
+                stuck_bact.remove(bact)
+                free_bact.append(bact)
 
     def _calcEquilibrium(self, timestep: List, stuck_bacteria: List) -> List:
         """
@@ -358,6 +371,3 @@ class DynamicSimulator(Simulator):
         equilibrium = b
 
         return [equilibrium, params]
-
-
-
