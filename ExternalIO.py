@@ -547,7 +547,7 @@ def timstepPlot(timestep: List, stuck_bacteria: List, param: List, date: Dict, t
         if not os.path.exists(picFolder):
             os.mkdir(picFolder)
 
-        picName = f"Dynamic_simulation_graph_trial_{trial}"
+        picName = "Dynamic_simulation_graph"
         picPath = "{}/{}.png".format(picFolder, picName)
 
         plt.savefig(picPath, dpi=300, bbox_inches='tight')

@@ -279,7 +279,7 @@ class DynamicSimulator(Simulator):
             saveResult(wb, file_path)
 
         # generate a graph
-        timstepPlot(timestep, stuck_bacteria, param, date, self.trail)
+        timstepPlot(timestep, stuck_bacteria, param, date)
 
     @timeMonitor
     def _simulate(self, bactMoveGenerator: BacteriaMovementGenerator) -> None:
