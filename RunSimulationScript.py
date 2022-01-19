@@ -10,7 +10,7 @@ from SimulatorFile.EnergyScan import EnergySimulator
 from ExternalIO import *
 
 
-def runSimulation():
+def runSimulation(trail, simple, unstuckProbability):
     # get log file
     write_at_end = False
     write_log = True
@@ -19,7 +19,7 @@ def runSimulation():
 
     # simulator info
     simulationType = 2
-    trail = 9999
+    # trail = 9999
     dimension = 3
     simulatorType = 2
     interactType = "DOT"
@@ -44,7 +44,7 @@ def runSimulation():
         if dimension == 2:
             filmSurfaceSize = (1000, 1000)
         elif dimension == 3:
-            filmSurfaceSize = (1000, 1000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
+            filmSurfaceSize = (10000, 10000, 1)  # For film surface, z value should be 1, since the film is just a surace, the thickness of it should be 1
         else:
             raise RuntimeError("Unknown dimension: {}".format(dimension))
         filmSurfaceShape = "rectangle"
@@ -65,12 +65,12 @@ def runSimulation():
 
     # bacteria info
     bacteriaSeed = 10
-    bacteriaNum = 40
+    bacteriaNum = 5000
     if dimension == 2:
         bacteriaSize = (30, 30)
         bacteriaSurfaceShape = "rectangle"
     elif dimension == 3:
-        bacteriaSize = (50, 50, 5)  # For bacteria, z value is the height of bacteria, can be any number
+        bacteriaSize = (100, 100, 5)  # For bacteria, z value is the height of bacteria, can be any number
         bacteriaSurfaceShape = "cuboid"
     else:
         raise RuntimeError("Unknown dimension: {}".format(dimension))
@@ -86,12 +86,12 @@ def runSimulation():
 
     # below are for dynamic simulation
     probabilityType = "SIMPLE"
-    timestep = 5000
+    timestep = 3000
     Lambda = 10
-    simple = 0.01
+    # simple = 0.01
     bacteriaMovementSeed = 10
     unstuck = True
-    unstuckProbability = 0.001
+    # unstuckProbability = 0.001
     generateDomain = False
 
     # take info for simulator
@@ -140,11 +140,12 @@ def runSimulation():
 
 
 if __name__ == '__main__':
-    runSimulation()
+    # runSimulation()
 
-    # for i in range(0, 1):
-    #     trail = 1000 + i
-    #     bacteriaNum = 500 * (1 + i)
-    #     print("Start trail {} with bact number {}".format(trail, bacteriaNum))
-    #     runSimulation(trail, bacteriaNum)
-    #     print("Trail {} with bact number {}".format(trail, bacteriaNum))
+    for i in range(0, 10):
+        trail = 2000 + i
+        sticking_prob = 0.01 + 0.01 * i
+        unstuck_prob = 0.001
+        print("Start trail {} with sticking probability {}, unstuck probability {}".format(trail, sticking_prob, unstuck_prob))
+        runSimulation(trail, sticking_prob, unstuck_prob)
+        print("Trail {} done".format(trail))
