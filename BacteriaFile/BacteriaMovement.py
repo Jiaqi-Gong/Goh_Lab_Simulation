@@ -263,9 +263,9 @@ class BacteriaMovementGenerator:
             prob = r_t * np.array([p_b, p_s, p_f])
 
             # create variable called "movement" to determine which direction the bacteria will move in
-            x_movement = int(np.random.choice([-1, 0, 1], 1, p=prob, replace=False))
-            y_movement = int(np.random.choice([-1, 0, 1], 1, p=prob, replace=False))
-            z_movement = int(np.random.choice([1, 0, -1], 1, p=prob, replace=False))
+            # x_movement = int(np.random.choice([-1, 0, 1], 1, p=prob, replace=False))
+            # y_movement = int(np.random.choice([-1, 0, 1], 1, p=prob, replace=False))
+            # z_movement = int(np.random.choice([1, 0, -1], 1, p=prob, replace=False))
 
             # set restrictions (ie. position can't be off the film)
             # x direction
@@ -279,6 +279,8 @@ class BacteriaMovementGenerator:
                 prob = r_sb * np.array([p_b, p_s])
                 prob /= prob.sum()
                 x_movement = int(np.random.choice([-1, 0], 1, p=prob, replace=False))
+            else:
+                x_movement = int(np.random.choice([-1, 0, 1], 1, p=prob, replace=False))
 
             # y direction
             if position[1] == 0 + self.bacteriaSize[1] / 2:
@@ -291,6 +293,8 @@ class BacteriaMovementGenerator:
                 prob = r_sb * np.array([p_b, p_s])
                 prob /= prob.sum()
                 y_movement = int(np.random.choice([-1, 0], 1, p=prob, replace=False))
+            else:
+                y_movement = int(np.random.choice([-1, 0, 1], 1, p=prob, replace=False))
 
             # z direction
             if position[2] == 0 + self.bacteriaSize[2] / 2:
@@ -304,9 +308,11 @@ class BacteriaMovementGenerator:
                 prob = r_sb * np.array([p_b, p_s])
                 prob /= prob.sum()
                 z_movement = int(np.random.choice([-1, 0], 1, p=prob, replace=False))
+            else:
+                z_movement = int(np.random.choice([1, 0, -1], 1, p=prob, replace=False))
 
             # if all three movement is 0, rerun the movements
-            if x_movement != 0 and y_movement != 0 and z_movement != 0:
+            if x_movement != 0 or y_movement != 0 or z_movement != 0:
                 break
 
         # create new position for the bacteria
