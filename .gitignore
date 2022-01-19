@@ -19,4 +19,4 @@ LogDynamic/
 .ExternalIO.py.swp
 SaveSurface/
 *.out
-
+Time Analyze/*.txt
