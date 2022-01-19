@@ -517,7 +517,7 @@ def monoExp(x, m, t, b):
     return -m * np.exp(-t * x) + b
 
 
-def timstepPlot(timestep: List, stuck_bacteria: List, param: List, date: Dict, trial: int) -> None:
+def timstepPlot(timestep: List, stuck_bacteria: List, param: List, date: Dict) -> None:
     """
     This function creates a graph of number of stuck bacteria on the film overtime
     """
