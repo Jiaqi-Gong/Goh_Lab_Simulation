@@ -142,7 +142,7 @@ def runSimulation(trail, simple, unstuckProbability):
 if __name__ == '__main__':
     # runSimulation()
 
-    for i in range(0, 10):
+    for i in range(3, 10):
         trail = 3000 + i
         sticking_prob = 0.01
         unstuck_prob = 0.001 + 0.0003*i
