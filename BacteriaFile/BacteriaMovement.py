@@ -259,14 +259,8 @@ class BacteriaMovementGenerator:
         r_sb = self._ratioConstant(p_s, p_b)
 
         while True:
-            # probability
-            prob = r_t * np.array([p_b, p_s, p_f])
 
             # create variable called "movement" to determine which direction the bacteria will move in
-            # x_movement = int(np.random.choice([-1, 0, 1], 1, p=prob, replace=False))
-            # y_movement = int(np.random.choice([-1, 0, 1], 1, p=prob, replace=False))
-            # z_movement = int(np.random.choice([1, 0, -1], 1, p=prob, replace=False))
-
             # set restrictions (ie. position can't be off the film)
             # x direction
             if position[0] == 0 + self.bacteriaSize[0] / 2:
@@ -280,6 +274,8 @@ class BacteriaMovementGenerator:
                 prob /= prob.sum()
                 x_movement = int(np.random.choice([-1, 0], 1, p=prob, replace=False))
             else:
+                # probability
+                prob = r_t * np.array([p_b, p_s, p_f])
                 x_movement = int(np.random.choice([-1, 0, 1], 1, p=prob, replace=False))
 
             # y direction
@@ -294,6 +290,8 @@ class BacteriaMovementGenerator:
                 prob /= prob.sum()
                 y_movement = int(np.random.choice([-1, 0], 1, p=prob, replace=False))
             else:
+                # probability
+                prob = r_t * np.array([p_b, p_s, p_f])
                 y_movement = int(np.random.choice([-1, 0, 1], 1, p=prob, replace=False))
 
             # z direction
@@ -309,6 +307,8 @@ class BacteriaMovementGenerator:
                 prob /= prob.sum()
                 z_movement = int(np.random.choice([-1, 0], 1, p=prob, replace=False))
             else:
+                # probability
+                prob = r_t * np.array([p_b, p_s, p_f])
                 z_movement = int(np.random.choice([1, 0, -1], 1, p=prob, replace=False))
 
             # if all three movement is 0, rerun the movements
