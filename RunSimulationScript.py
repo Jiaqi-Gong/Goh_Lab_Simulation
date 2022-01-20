@@ -144,8 +144,8 @@ if __name__ == '__main__':
 
     for i in range(0, 10):
         trail = 2000 + i
-        sticking_prob = 0.01 + 0.01 * i
-        unstuck_prob = 0.001
+        sticking_prob = 0.01
+        unstuck_prob = 0.001 + 0.0003*i
         print("Start trail {} with sticking probability {}, unstuck probability {}".format(trail, sticking_prob, unstuck_prob))
         runSimulation(trail, sticking_prob, unstuck_prob)
         print("Trail {} done".format(trail))
