@@ -10,7 +10,7 @@ from SimulatorFile.EnergyScan import EnergySimulator
 from ExternalIO import *
 
 
-def runSimulation(trail, simple, unstuckProbability):
+def runSimulation(trail, bacteriaNum):
     # get log file
     write_at_end = False
     write_log = True
@@ -65,7 +65,7 @@ def runSimulation(trail, simple, unstuckProbability):
 
     # bacteria info
     bacteriaSeed = 10
-    bacteriaNum = 5000
+    # bacteriaNum = 5000
     if dimension == 2:
         bacteriaSize = (30, 30)
         bacteriaSurfaceShape = "rectangle"
@@ -86,12 +86,12 @@ def runSimulation(trail, simple, unstuckProbability):
 
     # below are for dynamic simulation
     probabilityType = "SIMPLE"
-    timestep = 3000
+    timestep = 5000
     Lambda = 10
-    # simple = 0.01
+    simple = 0.001
     bacteriaMovementSeed = 10
     unstuck = True
-    # unstuckProbability = 0.001
+    unstuckProbability = 0.01
     generateDomain = False
 
     # take info for simulator
@@ -142,10 +142,9 @@ def runSimulation(trail, simple, unstuckProbability):
 if __name__ == '__main__':
     # runSimulation()
 
-    for i in range(3, 10):
-        trail = 3000 + i
-        sticking_prob = 0.01
-        unstuck_prob = 0.001 + 0.0003*i
-        print("Start trail {} with sticking probability {}, unstuck probability {}".format(trail, sticking_prob, unstuck_prob))
-        runSimulation(trail, sticking_prob, unstuck_prob)
+    for i in range(0, 5):
+        trail = 4000 + i
+        bacteriaNum = 1000*(i+1)
+        print("Start trail {} with {} total number of bacteria ".format(trail, bacteriaNum))
+        runSimulation(trail, bacteriaNum)
         print("Trail {} done".format(trail))
