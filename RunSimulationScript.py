@@ -88,7 +88,7 @@ def runSimulation(trail, bacteriaNum):
     probabilityType = "SIMPLE"
     timestep = 5000
     Lambda = 10
-    simple = 0.001
+    simple = 0.01
     bacteriaMovementSeed = 10
     unstuck = True
     unstuckProbability = 0.01
@@ -142,8 +142,8 @@ def runSimulation(trail, bacteriaNum):
 if __name__ == '__main__':
     # runSimulation()
 
-    for i in range(15, 16):
-        trail = 4000 + i
+    for i in range(0, 5):
+        trail = 4100 + i
         bacteriaNum = 1000*(i+1)
         print("Start trail {} with {} total number of bacteria ".format(trail, bacteriaNum))
         runSimulation(trail, bacteriaNum)
