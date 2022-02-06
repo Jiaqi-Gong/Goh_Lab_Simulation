@@ -49,7 +49,7 @@ def main(source_folder: str, target_file: str, target_col_name: str):
 
 
 if __name__ == '__main__':
-    source_folder = "Result/ResultDynamic"
-    target_file = "(Bacteria #) Dynamic Trials 2.xlsx"
+    source_folder = "../Result/ResultDynamic"
+    target_file = "../(Bacteria #) Dynamic Trials 2.xlsx"
     target_col_name = "Equilibrium"
     main(source_folder, target_file, target_col_name)
