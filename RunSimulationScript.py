@@ -86,7 +86,7 @@ def runSimulation(trail, bacteriaNum):
 
     # below are for dynamic simulation
     probabilityType = "SIMPLE"
-    timestep = 5000
+    timestep = 4000
     Lambda = 10
     simple = 0.1
     bacteriaMovementSeed = 10
