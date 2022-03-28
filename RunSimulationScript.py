@@ -12,9 +12,9 @@ from ExternalIO import *
 
 def runSimulation(trail, simple, unstuckProbability):
     # get log file
-    write_at_end = False
-    write_log = True
-    generate_image = False
+    writeImage = False
+    recordLog = True
+    writeAtLast = False
     printMessage = True
 
     # simulator info
@@ -25,7 +25,7 @@ def runSimulation(trail, simple, unstuckProbability):
     interactType = "DOT"
     # interactType = "CUTOFF"
 
-    message = setIndicator(generate_image, write_log, write_at_end, printMessage, simulatorType)
+    message = setIndicator(writeImage, recordLog, writeAtLast, printMessage, simulatorType)
     showMessage(message)
 
     showMessage("WARNING: validity of parameter uses is not check, use runSimulationCmd to check the validity of "
