@@ -8,6 +8,10 @@ import numpy as np
 from numpy import ndarray
 import multiprocessing as mp
 
+# following import from parent folder, change path
+import sys 
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+
 from SurfaceGenerator.Domain import DomainGenerator
 from FilmFile import Film
 from BacteriaFile import Bacteria

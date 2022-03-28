@@ -9,12 +9,15 @@ from numpy import ndarray
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 import time
+import os
+import multiprocessing as mp
 
+# following import from parent folder, change path
+import sys 
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
 # from SimulatorFile.Dynamic import DynamicSimulator
 # from SimulatorFile.EnergyScan import EnergySimulator
 from ExternalIO import *
-import multiprocessing as mp
-import os
 
 from ExternalIO import timeMonitor
 

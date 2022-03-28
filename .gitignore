@@ -20,3 +20,4 @@ LogDynamic/
 SaveSurface/
 *.out
 Time Analyze/*.txt
+*.xlsx
