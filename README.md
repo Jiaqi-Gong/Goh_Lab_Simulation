@@ -55,22 +55,61 @@ reformed and improved based on <https://github.com/stanlo229/surface-simulation-
 
 ### Parameters illustrate
 
+   Can also check files in TextFile folder for more informations
+
 1. Log parameters (set at the beginning of the simulation):
 
-* writeImage: boolean, generate result image or not
+   * writeImage: boolean, generate result image or not
 
-* recordLog: boolean, generate log file or not
-* writeAtLast: boolean, generate all log file after simulation is done or not
-* printMessage: boolean, show running message in the terminal or not
+   * recordLog: boolean, generate log file or not
+   * writeAtLast: boolean, generate all log file after simulation is done or not
+   * printMessage: boolean, show running message in the terminal or not 
+
+   <br/> 
 
 2. Simulator parameters:
 
-* SimulationType: int,  can be 1 or 2 or 3 for now, 1 for one surface react with one bacteria once, 2 for One surface, multiple different bacteria, every bacteria scan the surface once, 3 for Multiple different surfaces, one bacteria, bacteria scan every surface once. Different bacteria/surface means the domain generation seed is different, not the size different
-* trail: int, trail number
-* dimension: int, dimension of simulation, only can be 2 or 3, for dynamic simulation, only can be 3
-* simulatorType: int, 1 for energy scan mode and 2 for dynamic simulation mode
+   * SimulationType: int,  can be 1 or 2 or 3 for now, 1 for one surface react with one bacteria once, 2 for One surface, multiple different bacteria, every bacteria scan the surface once, 3 for Multiple different surfaces, one bacteria, bacteria scan every surface once. Different bacteria/surface means the domain generation seed is different, not the size different
+   * trail: int, trail number
+   * dimension: int, dimension of simulation, only can be 2 or 3, for dynamic simulation, only can be 3
+   * simulatorType: int, 1 for energy scan mode and 2 for dynamic simulation mode
+   * interactType: str, only can be "DOT" or "CUTOFF". "DOT" mode only calculate the interact between bacteria and points directly under bacteria on the surface, "CUTOFF" calculate interact for points in a given range
+   * cutoff: int, indicate how large range want to consider for calculating enenrgy, only work in "CUTOFF" mode
+   * importSurfacePath: str, a path to a .npy file contain the information of a surface
+   * preparedSurace: ndarray, a ndarray record the surface read from the importSurfacePath
+   
+   <br/> 
 
-*
+  
+3. Film & Bacteria parameters:
+
+   * filmSeed/bacteriaSeed: int, random seed for generate domain on the surface/bacteria
+   * filmNumber: int, number of film, only when simulation type is 3 this can be more than one, otherwise only can be 1
+   * bacteriaNumber: int, number of bacteria use for simulation, for energy scan mode this number should be small, details list in SimulationType above, for dynamic simulation mode this number is how many bacteria put on the suface and shoud be large
+   * filmSurfaceSize/bacteraSize: Tuple, record the dimension of surface, for 2D: (length, width), for 3D: (length, width, height)
+   * filmSurfaceShape/bacteriaSurfaceShape: str, shape of film surface can be: "RECTANGLE", shape of bacteria can be "RECTANGLE" for 2D and "CUBOID", "SPHERE", "CYLINDER", "ROD" for 3D
+   * filmSurfaceCharge/bacteriaSurfaceCharge: +1 or -1, +1 for positive charge and -1 for negative charge
+   * filmDomainSize/bacteriaDomainSize: Tuple, size of domain on the surface, (length, width)
+   * filmDomainShape/bacteriaDomainShape: str, shape of domain, can be: "SINGLE", "CROSS", "CIRCLE", "DIAMOND", "OCTAGON"
+   * filmNeutralDomain/bacteriaNeutralDomain: boolean, indicate generate domain without charge, i.e. value of this point is 0
+   * filmDomainConcentration/bacteriaDomainConcentration: float, between 0 to 1, indicate domain concentration on the film
+   * filmDomainChargeConcentration/bacteriaDomainChargeConcentration: float, between 0 to 1, indicate the charge concentration on the domain
+   * interval_x/interval_y: int, interval is how many times scan on x/y direction
+
+   <br/> 
+
+
+4. Dynamic simulation parameters:
+
+   * probabilityType: str, type of probability, can be "SIMPLE" with a given value, "POISSON" with a given Lambda value, "BOLTZMANN". __For now only support "SIMPLE" which is a fixed value__
+   * timestep: int, how many step of dynamic simulation
+   * bacteriaMovementSeed: int, seed for generate bacteria movement path
+   * unstuck: boolean, indicate bacteria can become free if stuck
+   * unstuckProbability: float, only can between 0 to 1, indicate the probablility of stuck bacteria becomes free
+   * generateDomain: boolean, indicate generate domain on bacteria or not
+
+   <br/> 
+
 
 ### Program Structure
 
@@ -79,7 +118,8 @@ reformed and improved based on <https://github.com/stanlo229/surface-simulation-
 ### Running simulation
 
 1. Run by user input in command line:
-   * In the terminal with correct directory of program code, type in
+
+* In the terminal with correct directory of program code, type in
 
 * (For macOS)
 
@@ -95,7 +135,19 @@ reformed and improved based on <https://github.com/stanlo229/surface-simulation-
 
 * Follow the promotion in the terminal to type in the corresponding value to start the simulation.
 
-2. Run by script (Coming soon)
+2. Run by script
+
+* (For macOS)
+
+   ```bash
+   python3 RunSimulationScript.py
+   ```
+
+* (For Windows)
+
+   ```bash
+   python3.exe RunSimulationScript.py
+   ```
 
 ### Result
 
