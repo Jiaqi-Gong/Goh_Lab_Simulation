@@ -15,43 +15,42 @@ reformed and improved based on <https://github.com/stanlo229/surface-simulation-
 
 1. Install python
 
-* Open <https://www.python.org/> to download the python and install.
+   * Open <https://www.python.org/> to download the python and install.
 
 2. Install required package
 
-* Using following command to install all required package automatically
+   * Using following command to install all required package automatically
 
- ```bash
- python -m pip install -r RequiredPackage.txt
- ```
+    ```bash
+    python -m pip install -r RequiredPackage.txt
+    ```
 
- If failed, then install all packages manually as below shows
+    If failed, then install all packages manually as below shows
 
-* Open RequiredPackage.txt and use pip to install all requirement package manually, command shows below, XXX replaced by the package name:
+   * Open RequiredPackage.txt and use pip to install all requirement package manually, command shows below, XXX replaced by the package name:
 
- ```bash
- pip install XXX
- ```
+    ```bash
+    pip install XXX
+    ```
 
-* If you do not have pip installed, make sure you download Python 3 from the official
-   website: <https://www.python.org/downloads/>
+   * If you do not have pip installed, make sure you download Python 3 from the official
+      website: <https://www.python.org/downloads/>
 
 ## Run the program
 
 ### prerequisite
 
 1. The description of all parameter want user to input is illustrated in the file HelpFile.txt under folder TextFile.  
-   User can open and read the meaning of all parameter put in at here or type help or click help when running the
-   program depends on how you run the program.  
-   The format of HelpFile is: VariableName : Description
+User can open and read the meaning of all parameter put in at here or type help or click help when running the program depends on how you run the program.  
+The format of HelpFile is: VariableName : Description
 
 2. The special restriction of some variables are listed in the file SpecialRequirement.txt under folder TextFile.  
-   The message listed in the file will appear on the screen if you type wrong parameter. The format of SpecialRequirement is :
-   VariableName: Restriction : Checking condition  
-   User don't need to understand the checking condition at the end and should NOT change it.
+The message listed in the file will appear on the screen if you type wrong parameter. The format of SpecialRequirement is :
+VariableName: Restriction : Checking condition  
+User don't need to understand the checking condition at the end and should NOT change it.
 
 3. The parameter change from the old version is listed in the file OldNewTransfer.txt.  
-   If need to reproduce the result from the old version, please look at this file.
+If need to reproduce the result from the old version, please look at this file.
 
 ### Parameters illustrate
 
@@ -63,9 +62,9 @@ reformed and improved based on <https://github.com/stanlo229/surface-simulation-
 
    * recordLog: boolean, generate log file or not
    * writeAtLast: boolean, generate all log file after simulation is done or not
-   * printMessage: boolean, show running message in the terminal or not 
+   * printMessage: boolean, show running message in the terminal or not
 
-   <br/> 
+   <br/>
 
 2. Simulator parameters:
 
@@ -77,10 +76,9 @@ reformed and improved based on <https://github.com/stanlo229/surface-simulation-
    * cutoff: int, indicate how large range want to consider for calculating enenrgy, only work in "CUTOFF" mode
    * importSurfacePath: str, a path to a .npy file contain the information of a surface
    * preparedSurace: ndarray, a ndarray record the surface read from the importSurfacePath
-   
-   <br/> 
 
-  
+   <br/>
+
 3. Film & Bacteria parameters:
 
    * filmSeed/bacteriaSeed: int, random seed for generate domain on the surface/bacteria
@@ -96,8 +94,7 @@ reformed and improved based on <https://github.com/stanlo229/surface-simulation-
    * filmDomainChargeConcentration/bacteriaDomainChargeConcentration: float, between 0 to 1, indicate the charge concentration on the domain
    * interval_x/interval_y: int, interval is how many times scan on x/y direction
 
-   <br/> 
-
+   <br/>
 
 4. Dynamic simulation parameters:
 
@@ -108,57 +105,67 @@ reformed and improved based on <https://github.com/stanlo229/surface-simulation-
    * unstuckProbability: float, only can between 0 to 1, indicate the probablility of stuck bacteria becomes free
    * generateDomain: boolean, indicate generate domain on bacteria or not
 
-   <br/> 
-
+   <br/>
 
 ### Program Structure
 
 <img src="TextFile/programStructure.png"/>
 <br/>
 
+   All program files are under corresponding folders with proper name
+<br/>
+
 ### Running simulation
 
 1. Run by user input in command line:
 
-* In the terminal with correct directory of program code, type in
+   * In the terminal with correct directory of program code, type in
 
-* (For macOS)
+   * (For macOS)
 
-  ```bash
-   python3 RunSimulationCmd.py
-   ```
+     ```bash
+      python3 RunSimulationCmd.py
+      ```
 
-* (For Windows)
+   * (For Windows)
 
-   ```bash
-   python3.exe RunSimulationCmd.py
-   ```
+      ```bash
+      python3.exe RunSimulationCmd.py
+      ```
 
-* Follow the promotion in the terminal to type in the corresponding value to start the simulation.
+   * Follow the promotion in the terminal to type in the corresponding value to start the simulation.
 
 2. Run by script
 
-* (For macOS)
+   * (For macOS)
 
-   ```bash
-   python3 RunSimulationScript.py
-   ```
+      ```bash
+      python3 RunSimulationScript.py
+      ```
 
-* (For Windows)
+   * (For Windows)
 
-   ```bash
-   python3.exe RunSimulationScript.py
-   ```
+      ```bash
+      python3.exe RunSimulationScript.py
+      ```
 
 ### Result
 
-Result of the simulation will be saved in the folder Result in energy folder or dynamic folder
+* Numberical result of the simulation will be saved in the folder Result in energy folder or dynamic folder
+
+* Figure result of the simulation will be saved in the folder Image in the energy folder or dynamic folder if select to generate image
 
 ### Extra Info
 
-* The log of running will be saved under folder Log. If error happen, user may look at the log file to figure out the error.
-
 * For more info, don't hesitate to contact me at __Jiaqi.gong@mail.utoronto.ca__ with email title "Surface Simulation Troubleshooting"
+  
+* The log of running will be saved under folder Log. If error happen, user may look at the log file to figure out the error. __Complete log file usually very large__
+  
+* Time alayze file under Time Analyze folder can be used to analyze the time need for program
+
+* CCScript contains script used to run code on Compute Canada server
+
+* CombineResult folder and DynamicTimestepResults folder contains files can be used to combine data in various xlsx files into one or sort result, instructions are in each file
 
 ## Overall goal of simulation
 

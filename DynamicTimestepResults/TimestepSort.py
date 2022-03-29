@@ -21,7 +21,7 @@ import re
 
 
 # create a function which outputs excel file for different timesteps
-def _sortTimestep(timestep: int, show_index: bool):
+def sortTimestep(timestep: int, show_index: bool):
     """
     This function sorts out the Dynamic_combine into timestep inputted by the user
     """
@@ -76,4 +76,4 @@ timestep = 200
 show_index = False
 
 if __name__ == '__main__':
-    _sortTimestep(timestep, show_index)
+    sortTimestep(timestep, show_index)
