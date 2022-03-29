@@ -169,20 +169,28 @@ If need to reproduce the result from the old version, please look at this file.
 
 ## Overall goal of simulation
 
-1. Purpose
-   The overarching goal of this project is to determine how bacteria, yeast, and cells interact with surfaces/films. Due to the small scale of these organisms, distribution of positive, negative, and neutral charges would often affect the interaction between these microorganisms and the film.
+### Purpose
 
-2. Introduction to the simulation
-   Let's consider the image above. A uniformly charged film and bacteria would give a pretty simple interaction. Similarly, if the charges are patterned, the interaction would also be pretty easy to predict. However, when the charges are scattered on both the film and bacteria, the interaction can be hard to determine. This is where the simulation comes into play; to create a better understanding of these interactions between the film and microorganisms.
+   The overarching goal of this project is to determine how bacteria, yeast, and cells interact with surfaces/films. Due to the small scale of these organisms, distribution of positive, negative, and neutral charges would often affect the interaction between these microorganisms and the film.
+   <br/>
+
+### Introduction to the simulation
+
+   Let's consider the image below. A uniformly charged film and bacteria would give a pretty simple interaction. Similarly, if the charges are patterned, the interaction would also be pretty easy to predict. However, when the charges are scattered on both the film and bacteria, the interaction can be hard to determine. This is where the simulation comes into play; to create a better understanding of these interactions between the film and microorganisms.
 
    <img src="TextFile/explain_goal_1.png"/>
 
    The simulation can be broken down into 2 major sections. There is a static simulation, and dynamic simulation.
+   <br/>
 
-3. Static simulation
+### Static simulation
+
    The static simulation was developed in continuation of Stanely Lo’s work with permission which can be found here: <https://github.com/stanlo229/surface-simulation-goh-lab>
 
    The objective of this simulation is to replicate how a bacterium interacts with a heterogeneous film through its positive and negative charged coatings. By introducing negative and positive domains on the film and bacteria, we want to determine how controlling the size of the domain affects the interaction between the bacterium and the film. After each run, an optimum location for the bacteria will be calculated based on the positive and negative charges on the bacteria and surface of a film.
+   <br/>
 
-4. Dynamic simulation
+### Dynamic simulation
+
    The dynamic simulation is a newly created simulation, which looks at how the
+   <br/>
